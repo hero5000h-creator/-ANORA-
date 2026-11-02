@@ -2926,7 +2926,7 @@ AU.onerror=()=>{if(!player.on)return;toast("تعذّر تشغيل الصوت، �
 function ayahDone(){const id=player.id,n=nextPlay();if(!n){stopPlay();return}player.id=n;startAyah(false,n===id+1)}
 function playFrom(id){
   closeAyah();player.id=id;player.left=ayahDur(id);$("player").hidden=false;document.querySelector(".foot").classList.add("playing");resize();hideHint();
-  audData(reciter).then(d=>{aud=d;if(!$("player").hidden&&player.id===id)setPlaying(true)});
+  if(aud)setPlaying(true);else audData(reciter).then(d=>{aud=d;if(!$("player").hidden&&player.id===id)setPlaying(true)});
 }
 function startAyah(resume,flow){
   const id=player.id;playA=id;paintHL();showAyahPage(id);
@@ -2966,7 +2966,7 @@ function stopPlay(){$("repBox").hidden=true;rep.on=false;repUI();player.on=false
 $("recSeg").addEventListener("click",e=>{const b=e.target.closest("[data-rec]");if(!b||b.dataset.rec===reciter)return;
   reciter=b.dataset.rec;store.set("mushaf.reciter",reciter);recUI();AU.pause();auSrc="";
   audData(reciter).then(d=>{aud=d;if(player.on)startAyah(false)});toast(`القارئ: ${RECS[reciter]}`)});
-recUI();
+recUI();audData(reciter).then(d=>{if(!aud)aud=d});
 $("aPlay").onclick=()=>playFrom(selA);
 $("pPlay").onclick=()=>setPlaying(!player.on);
 $("pStop").onclick=stopPlay;
