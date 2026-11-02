@@ -1,0 +1,8 @@
+{
+  "appId": "app.anora.quran",
+  "appName": "أنورا",
+  "webDir": "www",
+  "android": {
+    "backgroundColor": "#12291f"
+  }
+}
