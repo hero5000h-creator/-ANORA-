@@ -1252,6 +1252,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
       <div class="posture"><span>وضع نصف الفتح<small>المصحف فوق المفصل والتفسير تحته</small></span><button class="tg" id="bTable" role="switch" aria-checked="false" aria-label="معاينة وضع نصف الفتح"></button></div>
       </section>
       <section class="pgrp" data-pg="dev" hidden>
+      <div><h3>القارئ</h3><div class="seg two" id="recSeg"><button class="sw" data-rec="husary">محمود خليل الحصري</button><button class="sw" data-rec="alafasy">مشاري العفاسي</button></div></div>
       <div class="posture"><span>إبقاء الشاشة مضاءة<small>لا تنطفئ الشاشة وأنت تقرأ</small></span><button class="tg" id="bWake" role="switch" aria-checked="true" aria-label="إبقاء الشاشة مضاءة"></button></div>
       <div class="posture"><span>صوت الورق<small>حفيف خفيف عند قلب الصفحة</small></span><button class="tg" id="bSnd" role="switch" aria-checked="false" aria-label="صوت الورق"></button></div>
       <div class="posture"><span>اهتزاز عند قلب الصفحة<small>نبضة خفيفة تحسّ بيها الورقة</small></span><button class="tg" id="bBuzz" role="switch" aria-checked="true" aria-label="اهتزاز عند قلب الصفحة"></button></div>
@@ -1309,7 +1310,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
     </div>
     <div id="player" hidden>
       <button class="pp" id="pPlay" aria-label="إيقاف مؤقت"><svg viewBox="0 0 24 24" id="pIco"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></button>
-      <div class="pinfo"><b id="pTitle"></b><div class="pbar"><i id="pBar"></i></div><small>مشاري العفاسي · معاينة صامتة للتصميم</small></div>
+      <div class="pinfo"><b id="pTitle"></b><div class="pbar"><i id="pBar"></i></div><small id="pRec">محمود خليل الحصري</small></div>
       <button class="ib" id="pPrev" aria-label="الآية السابقة"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="ib" id="pNext" aria-label="الآية التالية"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
       <button class="ib" id="pRep" aria-label="تكرار مقطع" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3"/><path d="M4 11.5V10a3.5 3.5 0 0 1 3.5-3.5H20"/><path d="M7 20.5l-3-3 3-3"/><path d="M20 12.5V14a3.5 3.5 0 0 1-3.5 3.5H4"/></svg></button>
@@ -1343,7 +1344,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
   </div>
 </div>
 <div id="dimV" aria-hidden="true"></div>
-<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية 1405هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
+<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية 1405هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع MP3Quran.net، تُشغَّل من خوادمهم مباشرة.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="si-g" id="siGrid"></div>
@@ -2911,29 +2912,61 @@ function nextPlay(){const id=player.id;
     rep.on=false;repUI();toast("تمّ التكرار، بارك الله فيك");try{navigator.vibrate&&navigator.vibrate([12,60,12])}catch(e){}return 0}
   return id>=NA?0:id+1}
 const ayahDur=id=>Math.max(2600,txt(id).length*85);
+/* ---------- real recitation (MP3Quran.net, per-surah files + ayah timings) ---------- */
+const RECS={husary:"محمود خليل الحصري",alafasy:"مشاري العفاسي"};
+let reciter=RECS[store.get("mushaf.reciter")]?store.get("mushaf.reciter"):"husary",aud=null,auSrc="";
+const AUD={},AU=new Audio();AU.preload="auto";
+const audData=r=>AUD[r]||(AUD[r]=fetch(`audio/${r}.json`).then(x=>{if(!x.ok)throw 0;return x.json()}).catch(()=>{delete AUD[r];return null}));
+function recUI(){$("pRec").textContent=RECS[reciter];document.querySelectorAll("#recSeg [data-rec]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rec===reciter)))}
+/* the slice of the surah file for one ayah; ayah 1 starts at 0 so the basmala/isti'adha before it is heard */
+function seg(id){if(!aud)return null;const s=sOf(id)+1,a=aOf(id),rows=aud.surahs[s];if(!rows)return null;
+  const i=rows.findIndex(r=>r[0]===a);if(i<0)return null;return{src:aud.folder+String(s).padStart(3,"0")+".mp3",start:a===1?0:rows[i][1],end:rows[i][2],last:i===rows.length-1}}
+function auSeek(ms){const go=()=>{try{AU.currentTime=ms/1000}catch(e){}};AU.readyState>=1?go():AU.addEventListener("loadedmetadata",go,{once:true})}
+AU.onerror=()=>{if(!player.on)return;toast("تعذّر تشغيل الصوت، تأكد من الإنترنت");setPlaying(false)};
+function ayahDone(){const id=player.id,n=nextPlay();if(!n){stopPlay();return}player.id=n;startAyah(false,n===id+1)}
 function playFrom(id){
-  closeAyah();player.id=id;player.left=ayahDur(id);$("player").hidden=false;document.querySelector(".foot").classList.add("playing");resize();hideHint();setPlaying(true);
+  closeAyah();player.id=id;player.left=ayahDur(id);$("player").hidden=false;document.querySelector(".foot").classList.add("playing");resize();hideHint();
+  audData(reciter).then(d=>{aud=d;if(!$("player").hidden&&player.id===id)setPlaying(true)});
 }
-function startAyah(resume){
+function startAyah(resume,flow){
   const id=player.id;playA=id;paintHL();showAyahPage(id);
   if(inTable)setTimeout(()=>{renderDeck();const el=$("deckList").querySelector(`.dk[data-id="${id}"]`);el&&el.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"})},reduce?0:950);
   $("pTitle").textContent=`${SUR[sOf(id)][0]} · ${ar(aOf(id))}`+repTitle();store.set("mushaf.playLast",String(id));setTimeout(repPlace,reduce?0:700);
+  cancelAnimationFrame(player.raf);
+  const g=seg(id);player.seg=g;
+  if(g){
+    if(auSrc!==g.src){auSrc=g.src;AU.src=g.src;auSeek(g.start)}
+    else{const t=AU.currentTime*1000;if(!((resume||flow)&&t>=g.start-400&&t<g.end))auSeek(g.start)}
+    if(player.on)AU.play().catch(e=>{if(e&&e.name!=="AbortError")AU.onerror()});
+    const tick=()=>{if(!player.on||player.seg!==g)return;const t=AU.currentTime*1000;
+      $("pBar").style.width=(100*Math.min(1,Math.max(0,(t-g.start)/(g.end-g.start)))).toFixed(1)+"%";
+      if(AU.ended||(!g.last&&t>=g.end-25)){ayahDone();return}
+      player.raf=requestAnimationFrame(tick)};
+    player.tick=tick;if(player.on)player.raf=requestAnimationFrame(tick);return}
+  /* no timing data: silent stepping as before */
   player.dur=ayahDur(id);if(!resume)player.left=player.dur;
-  player.t0=performance.now();cancelAnimationFrame(player.raf);
+  player.t0=performance.now();
   const tick=now=>{if(!player.on)return;const left=player.left-(now-player.t0);
     $("pBar").style.width=(100*(1-Math.max(0,left)/player.dur)).toFixed(1)+"%";
-    if(left<=0){const n=nextPlay();if(!n){stopPlay();return}player.id=n;startAyah(false);return}
+    if(left<=0){ayahDone();return}
     player.raf=requestAnimationFrame(tick)};
-  if(player.on)player.raf=requestAnimationFrame(tick);
+  player.tick=null;if(player.on)player.raf=requestAnimationFrame(tick);
 }
+/* rAF sleeps when the screen is off; timeupdate keeps the ayah steps going */
+AU.addEventListener("timeupdate",()=>{if(player.on&&player.tick&&document.hidden)player.tick()});
+AU.addEventListener("ended",()=>{if(player.on&&player.tick)player.tick()});
 function setPlaying(on){
-  if(!on&&player.on)player.left-=performance.now()-player.t0;
+  if(!on&&player.on&&!player.seg)player.left-=performance.now()-player.t0;
   player.on=on;
   $("pIco").innerHTML=on?'<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>':'<path d="M8 5.5v13l10.5-6.5z"/>';
   $("pPlay").setAttribute("aria-label",on?"إيقاف مؤقت":"متابعة التلاوة");
-  if(on)startAyah(true);else cancelAnimationFrame(player.raf);
+  if(on)startAyah(true);else{cancelAnimationFrame(player.raf);AU.pause()}
 }
-function stopPlay(){$("repBox").hidden=true;rep.on=false;repUI();player.on=false;cancelAnimationFrame(player.raf);playA=0;$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
+function stopPlay(){$("repBox").hidden=true;rep.on=false;repUI();player.on=false;cancelAnimationFrame(player.raf);AU.pause();playA=0;$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
+$("recSeg").addEventListener("click",e=>{const b=e.target.closest("[data-rec]");if(!b||b.dataset.rec===reciter)return;
+  reciter=b.dataset.rec;store.set("mushaf.reciter",reciter);recUI();AU.pause();auSrc="";
+  audData(reciter).then(d=>{aud=d;if(player.on)startAyah(false)});toast(`القارئ: ${RECS[reciter]}`)});
+recUI();
 $("aPlay").onclick=()=>playFrom(selA);
 $("pPlay").onclick=()=>setPlaying(!player.on);
 $("pStop").onclick=stopPlay;
