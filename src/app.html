@@ -451,7 +451,10 @@ mark{background:color-mix(in srgb,var(--gold) 30%,transparent);color:inherit;bor
 .tf .lbl{font-family:var(--f-ui);font-size:12.5px;font-weight:600;color:color-mix(in srgb,var(--gold) 78%,var(--ink));margin-top:.8em}
 
 /* recitation bar */
-#player{flex:1;min-width:0;max-width:560px;margin-inline:auto;display:grid;grid-template-columns:auto 1fr auto auto auto auto;align-items:center;gap:4px;padding-block:4px}
+#player{flex:1;min-width:0;max-width:560px;margin-inline:auto;display:grid;grid-template-columns:auto 1fr auto auto auto auto auto;align-items:center;gap:4px;padding-block:4px}
+#pDl{position:relative}#pDl[hidden]{display:none}#pDl .rg{position:absolute;inset:3px;width:30px;height:30px;transform:rotate(-90deg);fill:none;stroke:var(--orn);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:88;stroke-dashoffset:88;transition:stroke-dashoffset .3s}
+#pDl.done{color:var(--orn)}
+html.native body::before{height:0}
 .foot.playing .scrub,.foot.playing .pnum{display:none}
 #app.imm .foot.playing{display:flex}
 #player .pp{width:44px;height:44px;border-radius:50%;background:var(--orn);color:var(--bar);display:grid;place-items:center}
@@ -1321,6 +1324,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
       <button class="ib" id="pPrev" aria-label="الآية السابقة"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <button class="ib" id="pNext" aria-label="الآية التالية"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
       <button class="ib" id="pRep" aria-label="تكرار مقطع" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3"/><path d="M4 11.5V10a3.5 3.5 0 0 1 3.5-3.5H20"/><path d="M7 20.5l-3-3 3-3"/><path d="M20 12.5V14a3.5 3.5 0 0 1-3.5 3.5H4"/></svg></button>
+      <button class="ib" id="pDl" aria-label="تحميل السورة للاستماع بدون إنترنت" hidden><svg viewBox="0 0 24 24" id="pDlIco"><path d="M12 5v10M7.5 10.5L12 15l4.5-4.5M6 19h12"/></svg><svg class="rg" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" id="pDlRg"/></svg></button>
       <button class="ib" id="pStop" aria-label="إنهاء التلاوة"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
   </footer>
@@ -2925,7 +2929,7 @@ function nextPlay(){const id=player.id;
   return id>=NA?0:id+1}
 const ayahDur=id=>Math.max(2600,txt(id).length*85);
 /* ---------- native bridge (Capacitor): plugins are called by name, no bundler needed ---------- */
-const CAP=window.Capacitor,NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform());
+const CAP=window.Capacitor,NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform());if(NATIVE)root.classList.add("native");
 const nat=(pl,m,o)=>NATIVE&&CAP.nativePromise?CAP.nativePromise(pl,m,o||{}):Promise.reject(new Error("web"));
 const natOn=(pl,ev,fn)=>{try{NATIVE&&CAP.addListener&&CAP.addListener(pl,ev,fn)}catch(e){}};
 /* ---------- real recitation (MP3Quran.net, per-surah files + ayah timings) ---------- */
@@ -2952,7 +2956,7 @@ function playFrom(id){
 function startAyah(resume,flow){
   const id=player.id;playA=id;paintHL();showAyahPage(id);
   if(inTable)setTimeout(()=>{renderDeck();const el=$("deckList").querySelector(`.dk[data-id="${id}"]`);el&&el.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"})},reduce?0:950);
-  $("pTitle").textContent=`${SUR[sOf(id)][0]} · ${ar(aOf(id))}`+repTitle();store.set("mushaf.playLast",String(id));setTimeout(repPlace,reduce?0:700);
+  $("pTitle").textContent=`${SUR[sOf(id)][0]} · ${ar(aOf(id))}`+repTitle();store.set("mushaf.playLast",String(id));try{dlUI()}catch(e){}setTimeout(repPlace,reduce?0:700);
   cancelAnimationFrame(player.raf);if(NATIVE&&bgOn&&player.on)bgSync();
   const g=seg(id);player.seg=g;
   if(g){
@@ -3007,6 +3011,10 @@ function dlUI(){const r=reciter,n=DL[r].size,mb=(+store.get("mushaf.dlb."+r)||0)
   $("dlInfo").textContent=dlRun?`جارٍ تحميل سورة ${SUR[dlRun.s-1]?SUR[dlRun.s-1][0]:""} · ${ar(n)} من ${ar(114)}`:n?`محمّل ${ar(n)} من ${ar(114)} سورة بصوت ${RECS[r]} · ${ar(Math.round(mb))} ميغا`:`حمّل تلاوة ${RECS[r]} وتسمعها بدون إنترنت`;
   $("dlAll").textContent=dlRun?"إيقاف التحميل":n>=114?"المصحف محمّل كامل":"حمّل المصحف كامل";$("dlAll").disabled=!dlRun&&n>=114;
   $("dlSur").textContent=DL[r].has(s)?`سورة ${SUR[s-1][0]} محمّلة`:`حمّل سورة ${SUR[s-1][0]}`;$("dlSur").disabled=!!dlRun||DL[r].has(s);
+  {const b=$("pDl"),ps=player.id?sOf(player.id)+1:s,has=DL[r].has(ps),busy=dlRun&&dlRun.s===ps;b.hidden=!NATIVE;b.classList.toggle("done",has);
+    $("pDlIco").innerHTML=has?'<path d="M6.5 12.5l3.5 3.5 7.5-8"/>':busy?'<path d="M9 9h6v6H9z"/>':'<path d="M12 5v10M7.5 10.5L12 15l4.5-4.5M6 19h12"/>';
+    $("pDlRg").style.strokeDashoffset=busy?(88*(1-(dlRun.f||0))).toFixed(1):"88";
+    b.setAttribute("aria-label",has?`سورة ${SUR[ps-1][0]} محمّلة`:busy?"إيقاف التحميل":`تحميل سورة ${SUR[ps-1][0]} للاستماع بدون إنترنت`)}
   $("dlDel").hidden=!n||!!dlRun;$("dlBar").parentNode.hidden=!dlRun;$("dlBar").style.width=((n+(dlRun&&dlRun.f||0))/114*100).toFixed(1)+"%"}
 natOn("FileTransfer","progress",p=>{if(!dlRun||!p||!p.lengthComputable||!p.contentLength)return;dlRun.f=p.bytes/p.contentLength;dlRun.len=p.contentLength;const t=performance.now();if(t-dlT>250){dlT=t;dlUI()}});
 async function dlOne(r,s){const d=await audData(r);if(!d)throw new Error("no data");const pad=String(s).padStart(3,"0");
@@ -3019,6 +3027,8 @@ async function dlMany(list){if(dlRun){dlRun.stop=true;return}
   for(const s of list){if(run.stop)break;if(DL[r].has(s))continue;run.s=s;run.f=0;run.len=0;dlUI();
     try{await dlOne(r,s)}catch(e){ok=false;toast("توقف التحميل، تأكد من الإنترنت وحاول مرة ثانية");break}}
   dlRun=null;dlUI();if(ok&&!run.stop)toast(list.length>1?"تم تحميل المصحف كامل":"تم التحميل، تسمعها هسة بدون إنترنت")}
+$("pDl").onclick=e=>{e.stopPropagation();const s=sOf(player.id)+1;if(DL[reciter].has(s)){toast(`سورة ${SUR[s-1][0]} محمّلة وتنسمع بدون إنترنت`);return}
+  if(dlRun){if(dlRun.s===s)dlRun.stop=true;else toast("انتظر يخلص التحميل الحالي");return}toast(`جارٍ تحميل سورة ${SUR[s-1][0]}…`);dlMany([s])};
 $("dlSur").onclick=e=>{e.stopPropagation();dlMany([curSur()])};
 $("dlAll").onclick=e=>{e.stopPropagation();dlMany(Array.from({length:114},(_,i)=>i+1))};
 $("dlDel").onclick=e=>{e.stopPropagation();const b=$("dlDel");if(!b.dataset.sure){b.dataset.sure="1";b.textContent="متأكد؟ اضغط مرة ثانية للحذف";setTimeout(()=>{delete b.dataset.sure;b.textContent="احذف تحميل هذا القارئ"},4000);return}
