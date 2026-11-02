@@ -23,3 +23,25 @@ for r in picked:
         T[s] = get(API + f'ayat_timing?surah={s}&read={rid}')
     json.dump({'read': r, 'timing': T}, open(f'{out}/timing-{rid}.json', 'w'), ensure_ascii=False)
     print('saved', rid, sum(len(v or []) for v in T.values()))
+
+# ---- compact per-reciter files for the app: {surah: [[ayah, start_ms, end_ms], ...]} plus the mp3 folder ----
+PICK = {118: 'husary', 123: 'alafasy'}
+os.makedirs('data/audio', exist_ok=True)
+for rid, key in PICK.items():
+    p = f'{out}/timing-{rid}.json'
+    if not os.path.exists(p): continue
+    d = json.load(open(p))
+    print('sample', key, json.dumps(d['timing']['1'][:3]), json.dumps(d['timing']['2'][:2]))
+    S = {}
+    for s, rows in d['timing'].items():
+        rr = []
+        for x in rows or []:
+            a = x.get('ayah', x.get('verse', x.get('aya')))
+            st = x.get('start_time', x.get('start'))
+            en = x.get('end_time', x.get('end'))
+            if a is None or st is None: continue
+            rr.append([int(a), int(st), int(en) if en is not None else None])
+        S[s] = rr
+    json.dump({'reader': d['read']['name'], 'folder': d['read']['folder_url'], 'surahs': S},
+              open(f'data/audio/{key}.json', 'w'), ensure_ascii=False, separators=(',', ':'))
+    print('wrote', key, sum(len(v) for v in S.values()))
