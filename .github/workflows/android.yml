@@ -6,6 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,3 +32,11 @@ jobs:
         with:
           name: anora-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+      - name: Publish the test APK as a public download
+        if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk anora.apk
+          gh release view test >/dev/null 2>&1 || gh release create test --prerelease --title "أنورا - نسخة تجريبية" --notes "نسخة تجريبية تتحدث مع كل تعديل."
+          gh release upload test anora.apk --clobber
