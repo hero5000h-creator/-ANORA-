@@ -72,6 +72,16 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     if(name==="phone"){
       const r=await p.evaluate(()=>{const b=document.querySelector("#app>.bar").getBoundingClientRect(),f=document.querySelector(".flbar");return f&&!document.getElementById("flow").hidden?[b.bottom,f.getBoundingClientRect().top]:[1,-1]});
       ok(r[1]>=r[0]-1,`${name}: large-print toolbar starts below the top bar after "yes" (${r.map(Math.round)})`)}
+    /* reciting from memory: the Android plugin's words reveal the hidden words in order */
+    {await p.keyboard.press("Escape");await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(400);
+      await p.evaluate(()=>{const b=document.getElementById("bFlow");if(b.getAttribute("aria-pressed")==="true")b.click()});await p.waitForTimeout(300);
+      await p.evaluate(()=>document.getElementById("bMemo").click());await p.waitForTimeout(900);
+      const r=await p.evaluate(async()=>{const nx=()=>document.querySelector("#book .pg .nx");const a=nx();if(!a)return {err:"no cursor"};
+        document.getElementById("mMic").click();await new Promise(z=>setTimeout(z,200));
+        const t=a.textContent+" "+(a.nextElementSibling&&a.nextElementSibling.nextElementSibling?a.nextElementSibling.nextElementSibling.textContent:"");
+        window.__L.Speechheard&&window.__L.Speechheard({text:t,final:true});await new Promise(z=>setTimeout(z,300));
+        return {on:document.getElementById("mMic").classList.contains("on"),moved:nx()!==a,shown:!a.classList.contains("hid")}});
+      ok(r.on&&r.moved&&r.shown,`${name}: reciting by voice reveals the words heard ${JSON.stringify(r)}`)}
     await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});

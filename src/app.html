@@ -3358,10 +3358,19 @@ function heard(word){
   const el=nx[0][1];el.classList.remove("miss");void el.offsetWidth;el.classList.add("miss");
   if(++LS.miss>=2){el.classList.add("err");revealNext(nx[0][0]);LS.miss=0}
 }
-function micStop(){LS.on=false;$("mMic").classList.remove("on");$("mMic").setAttribute("aria-pressed","false");try{LS.rec&&LS.rec.stop()}catch(e){}paintMemo()}
+function micStop(){const was=LS.on;LS.on=false;$("mMic").classList.remove("on");$("mMic").setAttribute("aria-pressed","false");try{LS.rec&&LS.rec.stop()}catch(e){}if(was&&LS.nat)nat("Speech","stop").catch(()=>{});LS.nat=false;paintMemo()}
+/* Android: the WebView has no speech recognition, so the app's own plugin listens (Speech: heard {text,final}).
+   Partial text arrives while the user is still reciting; its words are matched as they come, except the last
+   one, which can still change; the final text of the phrase settles the rest. */
+LS.done=0;
+natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;const ws=d.text.trim().split(/\s+/),upto=d.final?ws.length:ws.length-1;
+  for(let i=LS.done;i<upto;i++)heard(ws[i]);LS.done=d.final?0:Math.max(LS.done,upto)});
+natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
 function micStart(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
+  if(PLAT==="android"&&NATIVE){LS.on=true;LS.nat=true;LS.done=0;LS.miss=0;$("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent="أسمعك… اقرأ من حفظك";
+    nat("Speech","start").catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"ما انسمح بالميكروفون. اسمح به من إعدادات الجهاز ثم جرّب مرة ثانية.":/unavailable/.test(m)?"ما لقينا خدمة التعرّف على الكلام بالجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
   if(!SR){no("التسميع بالصوت غير متاح في هذا المتصفح. جرّبه في Chrome، وسيكون مدمجاً في التطبيق.");return}
   const r=new SR();r.lang="ar-SA";r.continuous=true;r.interimResults=false;r.maxAlternatives=1;
   LS.rec=r;LS.on=true;LS.used=0;LS.miss=0;
