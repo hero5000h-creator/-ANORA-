@@ -1401,6 +1401,8 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
 .hint .hsw svg{width:26px;height:18px;fill:none;stroke:var(--orn);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;animation:hSw 1.6s ease-in-out infinite}
 @keyframes hSw{0%,15%{transform:translateX(-6px);opacity:.3}50%{opacity:1}85%,100%{transform:translateX(6px);opacity:.3}}
 @media (prefers-reduced-motion:reduce){.hint .hsw svg{animation:none}}
+#book>.sld{will-change:transform;backface-visibility:hidden}
+#turnSeg .sw{flex:1}
 </style>
 
 
@@ -1444,6 +1446,11 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
         <button class="sw" data-view="auto">تلقائي</button>
         <button class="sw" data-view="1">صفحة</button>
         <button class="sw" data-view="2">صفحتان</button>
+      </div></div>
+      <div><h3>تقليب الصفحة</h3><div class="seg" id="turnSeg">
+        <button class="sw" data-turn="curl">ورقة</button>
+        <button class="sw" data-turn="slide">انزلاق</button>
+        <button class="sw" data-turn="none">بدون حركة</button>
       </div></div>
       <div class="posture"><span>ألوان التجويد<small>المد والغنة والإخفاء والقلقلة</small></span><button class="tg" id="bTaj" role="switch" aria-checked="false" aria-label="ألوان التجويد"></button></div>
       <div class="tjk" id="tjKey" hidden><span style="--c:var(--tj-md)">مد لازم وواجب وجائز</span><span style="--c:var(--tj-gh)">غنة وإخفاء وإقلاب وإدغام بغنة</span><span style="--c:var(--tj-qa)">قلقلة</span><span style="--c:var(--tj-s)">ما لا يُلفظ</span></div>
@@ -1933,6 +1940,7 @@ function clampP(f,P){
   return [x,y];
 }
 function render(f){
+  if(f.slide){renderSlide(f);return}
   const P=clampP(f,f.P),C=[0,f.cy],d=Math.hypot(P[0]-C[0],P[1]-C[1]);
   const toB=q=>[f.sx0+f.a*q[0],q[1]], toN=b=>[f.a*(b[0]-f.sx0),b[1]], mir=q=>[2*W-q[0],q[1]];
   const loc=(b,o)=>[b[0]-o,b[1]];
@@ -1987,14 +1995,41 @@ function bez(x1,y1,x2,y2){
 /* an unhurried lift, a quick glide across, and a long soft landing: the way a hand turns a mushaf page */
 const eTurn=bez(.42,0,.18,1);
 /* release curve that starts at the speed the leaf already had under the finger, so letting go never jerks */
+/* slide: leaves briskly and settles softly, like a page pushed along a table */
+const eSlide=bez(.3,.1,.12,1);
 const eHand=s0=>t=>s0*(t*t*t-2*t*t+t)+(3*t*t-2*t*t*t);
 function finish(f,done){
   cancelAnimationFrame(f.raf);
+  if(f.slide){f.els.forEach(e=>{e.style.transform="";e.style.filter="";e.classList.remove("sld")});book.style.overflow=mode==="single"?"hidden":"visible";
+    flip=null;if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide()}layoutIdle();return}
   [f.under,f.front].forEach(e=>{e.querySelectorAll(".shd").forEach(s=>s.remove());e.style.clipPath="";e.style.transform="";e.style.visibility=""});
   if(f.back&&!f.back.classList.contains("ghost")){f.back.querySelectorAll(".shd").forEach(s=>s.remove());f.back.style.transform="";f.back.style.clipPath=""}
   flip=null;
   if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide()}
   layoutIdle();
+}
+/* how a page turns: "curl" lifts a real sheet, "slide" glides the pages sideways, "none" changes the page at once.
+   Reduced motion always changes at once. */
+const turnPick=()=>{const t=store.get("mushaf.turn");return t==="slide"||t==="none"?t:"curl"};
+const turnSt=()=>reduce?"none":turnPick();
+function setupSlide(kind,target){
+  book.replaceChildren();$("app").classList.add("turning");
+  const vw=mode==="spread"?2*W:W,dir=kind==="fwd"?1:-1,f={slide:true,kind,target,vw,dir,els:[],P:[0,0]};
+  const put=(p,x,z)=>{const e=place(get(p),x,z);e.classList.add("sld");f.els.push(e)};
+  /* the next pages wait just off the edge they come in from: on the left going forward (the mushaf reads right to left) */
+  if(mode==="spread"){put(cur,W,2);put(cur+1,0,2);put(target,W-dir*vw,1);put(target+1,-dir*vw,1)}
+  else{put(cur,0,2);put(target,-dir*vw,1)}
+  book.style.overflow="hidden";flip=f;return f;
+}
+function renderSlide(f){
+  const x=f.P[0],k=Math.min(1,Math.abs(x)/f.vw);
+  f.els.forEach(e=>{e.style.transform=x?`translate3d(${x.toFixed(2)}px,0,0)`:""});
+  /* the incoming page is a touch dim until it arrives, so the eye follows it in */
+  f.els.forEach((e,i)=>{if(e.style.zIndex==="1")e.style.filter=k<1?`brightness(${(.94+.06*k).toFixed(3)})`:""});
+}
+function jumpTurn(target){
+  if(flip){cancelAnimationFrame(flip.raf);flip=null}
+  cur=target;store.set("mushaf.last",cur);setCalm(true);contHide();layoutIdle();paperFx();
 }
 function cancelFlip(){if(flip){cancelAnimationFrame(flip.raf);finish(flip,false);busy=false}}
 
@@ -2004,7 +2039,10 @@ async function autoFlip(kind,target){
   if(flip&&flip.peek){cancelAnimationFrame(flip.raf);finish(flip,false)}
   if(target===undefined){if(!canGo(kind))return;target=cur+(kind==="fwd"?1:-1)*(mode==="spread"?2:1)}
   if(target===cur) return;
+  const st=turnSt();
+  if(st==="none"){hideHint();try{azNudgeHide()}catch(e){}jumpTurn(target);return}
   busy=true;hideHint();paperFx();try{azNudgeHide()}catch(e){}
+  if(st==="slide"){const f=setupSlide(kind,target);await tween(f,mode==="spread"?460:400,t=>[f.dir*f.vw*eSlide(t),0]);finish(f,true);busy=false;return}
   const f=setupFlip(kind,target), sx=f.reverse?2*W:0, ex=f.reverse?0:2*W;
   /* the corner rises early and is laid down flat before the leaf arrives, so it lands without a slap */
   await tween(f,reduce?0:(mode==="spread"?940:820),t=>{const e=eTurn(t);return [sx+(ex-sx)*e,H-Math.pow(Math.sin(Math.PI*Math.min(1,e*1.06)),1.3)*H*.11]});
@@ -2044,11 +2082,19 @@ stage.addEventListener("pointermove",e=>{
     else if(Math.abs(dy)>Math.abs(dx)*1.2){down.drag="none";return}
     else kind=dx>0?"fwd":"back";
     if(!kind||(!down.peek&&!canGo(kind))){down.drag="none";return}
-    let f=down.peek;
+    let f=down.peek;const st=turnSt();
+    if(!f&&st!=="curl"){const tg=cur+(kind==="fwd"?1:-1)*(mode==="spread"?2:1);
+      f=st==="slide"?setupSlide(kind,tg):{jump:true,kind,target:tg,P:[0,0],dir:kind==="fwd"?1:-1,vw:mode==="spread"?2*W:W};
+      down.drag=f;down.x=b[0];down.y=b[1];hideHint();}
     if(!f){f=setupFlip(kind,cur+(kind==="fwd"?1:-1)*(mode==="spread"?2:1));f.cy=down.y<H*.33?0:H;f.P=[f.reverse?2*W:0,f.cy]}
-    f.peek=false;down.drag=f;down.base=f.P.slice();down.x=b[0];down.y=b[1];hideHint();
+    if(!f.slide&&!f.jump){f.peek=false;down.drag=f;down.base=f.P.slice();down.x=b[0];down.y=b[1];hideHint()}
   }
   if(down.drag==="none") return;
+  if(down.drag.slide||down.drag.jump){const f=down.drag,lim=f.dir*f.vw;let x=b[0]-down.x;
+    /* 1:1 with the finger; pulling the wrong way gives a little, like rubber */
+    x=f.dir>0?(x<0?x*.25:Math.min(lim,x)):(x>0?x*.25:Math.max(lim,x));
+    f.P=[x,0];down.hist.push([e.timeStamp||performance.now(),x]);if(down.hist.length>6)down.hist.shift();
+    if(f.slide){cancelAnimationFrame(f.raf);f.raf=requestAnimationFrame(()=>render(f))}return}
   const f=down.drag,k=mode==="spread"?1.05:1.5;
   const du=f.a*(b[0]-down.x)*k;
   /* keep the fold close to upright: the corner may rise or drop only a little with the finger */
@@ -2086,6 +2132,13 @@ function release(e){
   }
   if(d.drag==="none") return;
   const f=d.drag,h=d.hist;let v=0;if(h.length>1){const a=h[0],z=h[h.length-1];v=(z[1]-a[1])/Math.max(1,z[0]-a[0])}
+  if(f.slide||f.jump){cancelAnimationFrame(f.raf);
+    const x=f.P[0],sv=v*f.dir,done=sv>.25||(sv>-.15&&x*f.dir>f.vw*(f.jump?.12:.3));
+    if(f.jump){if(done){try{azNudgeHide()}catch(e){}jumpTurn(f.target);if(typeof atRestart==="function")atRestart()}return}
+    const end=done?f.dir*f.vw:0,dist=Math.abs(end-x);
+    const dur=Math.max(200,Math.min(420,dist/Math.max(.9,Math.abs(v))*1.4)),ease=eHand(Math.max(0,Math.min(2.4,(done?Math.abs(v):0)*dur/Math.max(1,dist))));
+    busy=true;if(done){paperFx();try{azNudgeHide()}catch(e){}if(typeof atRestart==="function")atRestart()}
+    tween(f,dist<1?0:dur,t=>[x+(end-x)*ease(t),0]).then(()=>{finish(f,done);busy=false});return}
   cancelAnimationFrame(f.fr);f.fr=0;
   const P=clampP(f,f.T||f.P);
   let done=f.reverse?(P[0]<W*1.4||v<-.22):(P[0]>W*.6||v>.22);
@@ -2168,7 +2221,7 @@ stage.addEventListener("pointerup",zEnd,{capture:true});stage.addEventListener("
 addEventListener("resize",()=>zoomReset(true));
 
 function peekMove(e,b){
-  if(e.pointerType!=="mouse"||busy) return;
+  if(e.pointerType!=="mouse"||busy||turnSt()!=="curl") return;
   const R=Math.min(90,W*.22);
   if(flip&&flip.peek){
     const f=flip,C=f.a===1?[0,f.cy]:[2*W,f.cy];
@@ -2340,7 +2393,8 @@ try{darkMQ.addEventListener("change",()=>{if(store.get("mushaf.paper")==="auto")
 setInterval(()=>{if(store.get("mushaf.paper")==="auto"&&autoPaper()!==root.dataset.paper)vt(()=>setPaper("auto",false))},60000);
 function setCover(c,save){if(c)root.dataset.cover=c;else delete root.dataset.cover;if(save)store.set("mushaf.cover",c);
   document.querySelectorAll("[data-cover].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.cover===c)))}
-function markView(){const v=store.get("mushaf.view")||"auto";document.querySelectorAll("[data-view].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.view===v)))}
+function markView(){const v=store.get("mushaf.view")||"auto";document.querySelectorAll("[data-view].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.view===v)));
+  const t=turnPick();document.querySelectorAll("[data-turn].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.turn===t)))}
 
 
 /* ---------- cylinder curl ----------
@@ -2365,7 +2419,7 @@ function rasterPage(p){
   c.style.left="0";c.style.top="0";c.style.transform="none";c.style.clipPath="none";c.style.visibility="visible";c.classList.remove("ghost");
   bk.appendChild(c);wrap.appendChild(bk);
   const html=new XMLSerializer().serializeToString(wrap);
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(W*dpr)}" height="${Math.round(H*dpr)}" viewBox="0 0 ${W} ${H}"><foreignObject x="0" y="0" width="${W}" height="${H}"><div xmlns="http://www.w3.org/1999/xhtml"><style>${css.replace(/<\/style/g,"")}</style>${html}</div></foreignObject></svg>`;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(W*dpr)}" height="${Math.round(H*dpr)}" viewBox="0 0 ${W} ${H}"><foreignObject x="0" y="0" width="${W}" height="${H}"><div xmlns="http://www.w3.org/1999/xhtml"><style><![CDATA[${css.replace(/\]\]>/g,"")}]]></style>${html}</div></foreignObject></svg>`;
   return new Promise(res=>{
     const img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
     img.onload=()=>{const ok=()=>{URL.revokeObjectURL(url);
@@ -2396,7 +2450,7 @@ function curlSetup(f){$("app").classList.add("turning");
   f.curl=null;if(reduce)return;
   const fi=rimg(+f.front.dataset.p),ghost=f.back.classList.contains("ghost"),bi=ghost?fi:rimg(+f.back.dataset.p);
   if(!fi||!bi)return;
-  const cv=document.createElement("canvas"),dpr=Math.min(1.5,window.devicePixelRatio||1),bw=mode==="spread"?2*W:W;
+  const cv=document.createElement("canvas"),dpr=Math.min(2,window.devicePixelRatio||1),bw=mode==="spread"?2*W:W;
   cv.width=Math.round(bw*dpr);cv.height=Math.round(H*dpr);cv.style.cssText=`position:absolute;left:0;top:0;width:${bw}px;height:${H}px;z-index:4;pointer-events:none;will-change:transform`;
   book.appendChild(cv);
   f.curl={cv,ctx:cv.getContext("2d"),dpr,fi,bi,ghost,paper:getComputedStyle(root).getPropertyValue("--paper").trim()||"#faf7f0"};
@@ -2583,6 +2637,7 @@ $("prefs").addEventListener("click",e=>{e.stopPropagation();const t=e.target.clo
   if(b.dataset.paper){vt(()=>setPaper(b.dataset.paper,true));if(b.dataset.paper==="auto")toast("نهاري بالنهار، وليلي من المغرب إلى الفجر")}
   if(b.dataset.cover)vt(()=>setCover(b.dataset.cover,true));
   if(b.dataset.view)vt(()=>{store.set("mushaf.view",b.dataset.view);markView();resize()});
+  if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();toast(b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنب بعض":"الصفحة تتبدل فوراً بدون حركة")}
 });
 $("bFull").onclick=e=>{e.stopPropagation();toggleFull()};
 document.addEventListener("pointerdown",e=>{if(!$("prefs").hidden&&!e.target.closest("#prefs,#bPrefs,#fPrefs"))showPrefs(false)});
