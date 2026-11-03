@@ -9,6 +9,17 @@ const types={".html":"text/html",".js":"text/javascript",".json":"application/js
 const srv=http.createServer((q,r)=>{const f=path.join(WWW,decodeURIComponent(q.url.split("?")[0]));
   fs.readFile(f,(e,b)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{"content-type":types[path.extname(f)]||"application/octet-stream"});r.end(b)})}).listen(0);
 const fails=[];const ok=(c,m)=>{console.log((c?"ok   ":"FAIL ")+m);if(!c)fails.push(m)};
+/* general layout check: every open panel or toast is on screen, actually on top (not hidden behind the page),
+   and a toast never sits on the Quran text */
+const LAYOUT=()=>{const out=[],vw=innerWidth,vh=innerHeight,vis=e=>e&&!e.hidden&&getComputedStyle(e).display!=="none"&&e.getBoundingClientRect().width>0;
+  for(const id of ["prefs","repBox","srcBox","sheet"]){const e=document.getElementById(id);if(!vis(e))continue;const r=e.getBoundingClientRect();
+    if(r.left<-1||r.top<-1||r.right>vw+1||r.bottom>vh+1)out.push(id+" off screen");
+    const x=Math.min(vw-2,Math.max(1,r.left+r.width/2)),y=Math.min(vh-2,Math.max(1,r.top+Math.min(40,r.height/2)));const h=document.elementFromPoint(x,y);
+    if(!h||!e.contains(h))out.push(id+" covered by "+(h?(h.id||h.className||h.tagName):"nothing"))}
+  const t=document.getElementById("toast");if(t&&t.classList.contains("on")){const r=t.getBoundingClientRect();
+    if([...document.querySelectorAll("#book .pg [data-a],#flow [data-a]")].some(w=>{const q=w.getBoundingClientRect();return q.width&&q.right>r.left&&q.left<r.right&&q.bottom>r.top+2&&q.top<r.bottom-2}))out.push("toast over Quran text")}
+  return out};
+const lay=async(p,m)=>{const o=await p.evaluate(LAYOUT);ok(!o.length,`${m}: layout clean ${o.join(", ")}`)};
 (async()=>{const port=srv.address().port;
   const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||undefined,args:["--autoplay-policy=no-user-gesture-required"]});
   for(const [name,vp] of [["phone",{width:412,height:891}],["fold",{width:1000,height:760}]]){
@@ -31,8 +42,10 @@ const fails=[];const ok=(c,m)=>{console.log((c?"ok   ":"FAIL ")+m);if(!c)fails.p
     ok(await p.evaluate(()=>__smk.AU.paused&&!__smk.P().on),`${name}: notification pause pauses`);
     await p.evaluate(()=>window.__L.Playbackaction&&window.__L.Playbackaction({a:"play"}));await p.waitForTimeout(800);
     ok(await p.evaluate(()=>!__smk.AU.paused&&__smk.P().on),`${name}: notification play resumes`);
+    await p.evaluate(()=>document.getElementById("pRep").click());await p.waitForTimeout(700);await lay(p,`${name}: repeat panel`);
+    await p.evaluate(()=>document.getElementById("rbX").click());await p.waitForTimeout(400);
     await p.evaluate(()=>document.getElementById("pStop").click());await p.waitForTimeout(300);
-    await p.evaluate(()=>__smk.openAyah(__smk.SST[2]+3));await p.waitForTimeout(1500);
+    await p.evaluate(()=>__smk.openAyah(__smk.SST[2]+3));await p.waitForTimeout(1500);await lay(p,`${name}: ayah sheet`);
     ok(await p.evaluate(()=>!document.getElementById("sheet").hidden&&/الآية ٤/.test(document.getElementById("shMeta").textContent)),`${name}: ayah sheet opens on the right ayah`);
     ok(await p.evaluate(()=>/الآيتين ٣–٤/.test((document.querySelector(".tfg")||{}).textContent||"")),`${name}: grouped tafsir is labelled`);
     await p.keyboard.press("Escape");await p.waitForTimeout(600);
@@ -42,8 +55,11 @@ const fails=[];const ok=(c,m)=>{console.log((c?"ok   ":"FAIL ")+m);if(!c)fails.p
     await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(500);
     for(const z of ["1","1.3"]){await p.evaluate(z=>document.querySelector(`[data-uz="${z}"]`).click(),z);await p.waitForTimeout(400);
       const r=await p.evaluate(()=>{const r=document.getElementById("prefs").getBoundingClientRect();return [r.top,r.bottom]});
-      ok(r[0]>=-1&&r[1]<=vp.height+1,`${name}: settings panel on screen at text size ${z} (${r.map(Math.round)})`)}
-    if(name==="phone"){await p.keyboard.press("Escape");await p.evaluate(()=>{document.getElementById("easyBox").hidden=false;document.getElementById("easyY").click()});await p.waitForTimeout(1500);
+      ok(r[0]>=-1&&r[1]<=vp.height+1,`${name}: settings panel on screen at text size ${z} (${r.map(Math.round)})`);await lay(p,`${name}: settings at text size ${z}`)}
+    await p.keyboard.press("Escape");await p.evaluate(()=>{document.getElementById("easyBox").hidden=false;document.getElementById("easyY").click()});await p.waitForTimeout(700);await lay(p,`${name}: toast after "yes"`);await p.waitForTimeout(800);
+    await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(600);await lay(p,`${name}: settings over large print`);
+    await p.evaluate(()=>document.getElementById("prefsX")&&document.getElementById("fPrefs").click());await p.keyboard.press("Escape");await p.waitForTimeout(400);
+    if(name==="phone"){
       const r=await p.evaluate(()=>{const b=document.querySelector("#app>.bar").getBoundingClientRect(),f=document.querySelector(".flbar");return f&&!document.getElementById("flow").hidden?[b.bottom,f.getBoundingClientRect().top]:[1,-1]});
       ok(r[1]>=r[0]-1,`${name}: large-print toolbar starts below the top bar after "yes" (${r.map(Math.round)})`)}
     await ctx.close()}
