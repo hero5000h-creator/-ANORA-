@@ -366,7 +366,7 @@ html.study #sheet .grab,html.study #ascrim{display:none}html.study #shClose{visi
 html.study #sheet .shh{padding-top:10px}
 #bStudy[hidden]{display:none}
 .grab{width:38px;height:4px;border-radius:4px;background:var(--rule);margin:8px auto 2px;flex:none}
-.shh{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:6px;padding:2px 10px 10px;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));flex:none}
+.shh{position:relative;z-index:2;box-shadow:0 10px 14px -12px var(--shadow);display:grid;grid-template-columns:44px 1fr 44px;align-items:center;gap:6px;padding:2px 10px 10px;padding-left:max(10px,env(safe-area-inset-left,0px));padding-right:max(10px,env(safe-area-inset-right,0px));flex:none}
 .sht{display:grid;justify-items:center;gap:2px;min-width:0}
 .sht b{display:grid;place-items:center;width:min(100%,280px);height:40px;padding:0 54px;box-sizing:border-box;background:var(--o-head) center/100% 100% no-repeat;font-family:var(--f-display);font-size:18.5px;font-weight:700;line-height:1;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sht small{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
@@ -478,7 +478,7 @@ html.ios #app.ovl>.bar{top:env(safe-area-inset-top,0px)}html.ios #app.ovl>.foot{
 .pinfo{min-width:0;padding:0 8px;display:grid;gap:3px}
 .pinfo b{font-family:var(--f-display);font-size:16px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .pinfo small{font-size:12px;line-height:1.55;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tfg{margin:0 0 8px;font-size:13px;font-weight:600;color:var(--orn)}
+.tfg{margin:0 0 10px;font-family:var(--f-ui);font-size:14px;line-height:1.6;font-weight:600;color:var(--orn)}
 .pbar{height:3px;border-radius:3px;background:var(--line);overflow:hidden}
 .pbar i{display:block;height:100%;width:0;background:var(--orn);border-radius:3px}
 #player .ib{width:40px;height:44px;align-content:center;gap:2px}
@@ -494,7 +494,8 @@ html.ios #app.ovl>.bar{top:env(safe-area-inset-top,0px)}html.ios #app.ovl>.foot{
   #player .pinfo b{grid-column:1;grid-row:1}#player .pinfo small{grid-column:2;grid-row:1;max-width:46vw}
   #player .pbar{grid-column:1/-1;grid-row:2}
   #player .ib{grid-row:2;width:auto;min-width:44px;height:46px}
-  #pStop{margin-inline-start:0}
+  #pStop{margin-inline-start:0;position:relative}
+  #pStop::before{content:"";position:absolute;inset-inline-start:-1px;top:8px;bottom:8px;border-inline-start:1px solid var(--line)}
 }
 #pRep[aria-pressed="true"] .cap{color:var(--orn);font-weight:600}
 .bkp{display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--line);font-size:13.5px}
@@ -502,18 +503,31 @@ html.ios #app.ovl>.bar{top:env(safe-area-inset-top,0px)}html.ios #app.ovl>.foot{
 .bkb{display:flex;gap:8px}.bkb .ctb{flex:1}
 .ctb:disabled{opacity:.6}
 /* app-wide text size: everything but the mushaf page itself grows */
-html.uzL{--muted:color-mix(in srgb,var(--bar-ink) 82%,var(--bar))}
+html.uzL{--muted:color-mix(in srgb,var(--bar-ink) 88%,var(--bar))}
+html.uzL #player .cap,html.uzL #player .pinfo small{color:var(--bar-ink)}
+html.uzL .tfg{color:var(--orn)}
 html.uzL .bar>*,html.uzL .foot>*,html.uzL #drawer,html.uzL #sheet .shh,html.uzL #sheet .shbody,html.uzL #toast,html.uzL #cont,html.uzL .si,html.uzL .sbx,html.uzL #repBox{zoom:var(--uz,1)}
 html.uzL #prefs{zoom:var(--uz,1);width:min(320px,calc((100vw - 24px) / var(--uz,1)));max-height:calc((100dvh - 90px) / var(--uz,1))}
 html.uzL.thumb #prefs{max-height:calc((100dvh - var(--fh,56px) - 90px) / var(--uz,1))}
 html.uzL .si,html.uzL .sbx{width:min(400px,calc(100% / var(--uz,1)));max-height:calc((100dvh - 32px) / var(--uz,1))}
 /* open Fold: settings are a full-height side panel between the bars, scrolling inside, not a floating card */
 html.thumb body #prefs{top:calc(var(--bh,56px) / var(--uz,1));bottom:calc((var(--fh,56px) + env(safe-area-inset-bottom,0px)) / var(--uz,1));left:0;max-height:none;width:50vw;border-radius:0;border:0;border-inline-start:1px solid var(--line);padding:18px max(18px,calc((50vw - 520px) / 2));box-shadow:14px 0 40px -18px var(--shadow);transform-origin:left center;animation:dockIn .34s var(--ease)}
+.pclose{display:none}
+html.thumb .pclose{display:flex;position:sticky;bottom:-18px;order:99;margin:0 -2px -6px;align-items:center;justify-content:center;gap:8px;min-height:52px;border-radius:14px;background:var(--sel);color:var(--bar-ink);font-size:16px;font-weight:600;box-shadow:0 -10px 16px -6px var(--bar)}
+html.thumb .pclose svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+/* open Fold: the sources page is a side panel over the left page too */
+html.thumb #srcBox{place-items:stretch end;padding:0;background:transparent}
+html.thumb #srcBox .si.src{width:50vw;max-height:none;margin:calc(var(--bh,56px)) 0 calc(var(--fh,56px));border-radius:0;box-shadow:14px 0 40px -18px var(--shadow);border-inline-start:1px solid var(--line);padding-inline:max(18px,calc((50vw - 560px) / 2))}
+html.uzL.thumb #srcBox .si.src{width:calc(50vw / var(--uz,1));margin:calc(var(--bh,56px) / var(--uz,1)) 0 calc(var(--fh,56px) / var(--uz,1))}
 @keyframes dockIn{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
 html.uzL.thumb body #prefs{max-height:none;width:calc(50vw / var(--uz,1));padding:16px}
 /* simple mode keeps the essentials */
 html.simple #paperSeg [data-paper]:not([data-paper=light]):not([data-paper=sepia]):not([data-paper=night]){display:none}
 html.simple .adv{display:none!important}
+.tcap{display:none}
+html.simple .bar .tools .ib{flex-direction:column;display:inline-flex;align-items:center;justify-content:flex-end;gap:1px;width:auto;min-width:42px;height:52px;padding:0 1px 5px}
+html.simple .bar .tools .dnb svg{inset:6px 0 auto 0}html.simple .bar .tools .ib:not(.dnb) svg{margin-bottom:auto;margin-top:6px}
+html.simple .bar .tools .tcap{display:block;font-size:10.5px;line-height:1.2;white-space:nowrap;color:var(--bar-ink);font-family:var(--f-ui)}
 .rpt{display:flex;align-items:center;gap:8px;margin:18px auto 4px;padding:8px 14px;border-radius:18px;border:1px solid var(--line);font-size:13px;color:var(--muted)}
 .rpt svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .dlbar{height:4px;border-radius:2px;background:var(--sel);overflow:hidden}.dlbar i{display:block;height:100%;width:0;background:var(--orn);border-radius:2px;transition:width .3s}
@@ -727,7 +741,7 @@ html.simple .adv{display:none!important}
 #app.ovl .hint{bottom:max(4px,calc((var(--fh,56px) - 34px)/2))}
 #app.ovl.calm #zoomR{bottom:14px}#app.ovl.calm .hint{bottom:6px}
 #app.ovl:not(.calm) #azNudge{opacity:0;pointer-events:none}
-#app.ovl.calm #azNudge{bottom:6px;left:8px;transform:none;padding:3px 12px 3px 3px;gap:7px;font-size:12.5px;max-width:calc(50% - 44px)}
+#app.ovl.calm #azNudge{display:none;bottom:6px;left:8px;transform:none;padding:3px 12px 3px 3px;gap:7px;font-size:12.5px;max-width:calc(50% - 44px)}
 #app.ovl.calm #azNudge span{overflow:hidden;text-overflow:ellipsis}
 #app.ovl.calm #azNudge.off{transform:translateY(10px)}
 #app.ovl.calm #azNudge b{display:none}
@@ -1276,7 +1290,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
       <div class="qa q4">
         <button class="qt" id="bBook" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg><span>علامة الصفحة</span></button>
         <button class="qt" id="bFlow" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 5.5h16M4 10h16M4 14.5h16M4 19h9"/><path d="M17.5 17v4M15.5 19h4"/></svg><span>خط كبير</span></button>
-        <button class="qt adv" id="bMemo" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6c1.6 0 3 .5 4.2 1.2M21 12s-3.5 6-9 6c-1.6 0-3-.5-4.2-1.2M4 20L20 4"/></svg><span>وضع الحفظ</span></button>
+        <button class="qt" id="bMemo" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6c1.6 0 3 .5 4.2 1.2M21 12s-3.5 6-9 6c-1.6 0-3-.5-4.2-1.2M4 20L20 4"/></svg><span>وضع الحفظ</span></button>
         <button class="qt" id="bAdhkar"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg><span>الأذكار</span></button>
         <button class="qt adv" id="bAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6.5 4.5h8l3 3v12h-11z"/><path d="M14.5 4.5v3h3"/><path d="M10 11.5l4 2.5-4 2.5z"/></svg><span>تقليب تلقائي</span></button>
         <button class="qt adv" id="bFull"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>قراءة هادئة</span></button>
@@ -1329,15 +1343,16 @@ html.thumb .fthumb.azb{color:var(--gold)}
         <div class="bkb"><button class="ctb" id="bkOut">حفظ نسخة</button><button class="ctb" id="bkIn">استرجاع</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div></div>
       </section>
       <button class="qlink" id="bGuide"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.4M12 16.8v.2"/></svg><span>طريقة الاستخدام</span></button>
+      <button class="pclose" id="prefsX" aria-label="إغلاق الإعدادات"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg><span>إغلاق</span></button>
       <button class="qlink" id="bSrc" style="margin-top:0"><svg viewBox="0 0 24 24"><path d="M5 4.5h9l5 5v10H5z"/><path d="M14 4.5v5h5M8.5 13h7M8.5 16.5h5"/></svg><span>المصادر والتراخيص</span></button>
     </div>
     <i id="jprog" aria-hidden="true"></i>
     <button class="btn-index" id="bIndex" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>الفهرس</span></button>
     <div class="where" id="where" role="button" tabindex="0" aria-label="عن السورة"><b><span id="wSurah">الفاتحة</span><svg id="bmMark" viewBox="0 0 24 24" aria-label="عليها علامة" hidden><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg></b><small id="wMeta">الجزء ١ · الحزب ١ · صفحة ١</small></div>
     <div class="tools">
-      <button class="ib dnb" id="bDN" title="نهار / ليل" aria-label="التبديل بين النهار والليل"><svg class="dn-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><svg class="dn-m" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg></button>
-      <button class="ib azb" id="bAz" title="الأذكار" aria-label="الأذكار"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg></button>
-      <button class="ib" id="bPrefs" title="المزيد" aria-label="المزيد: الأدوات والإعدادات" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg></button>
+      <button class="ib dnb" id="bDN" title="نهار / ليل" aria-label="التبديل بين النهار والليل"><svg class="dn-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><svg class="dn-m" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg><span class="tcap">ليل/نهار</span></button>
+      <button class="ib azb" id="bAz" title="الأذكار" aria-label="الأذكار"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg><span class="tcap">الأذكار</span></button>
+      <button class="ib" id="bPrefs" title="المزيد" aria-label="المزيد: الأدوات والإعدادات" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg><span class="tcap">المزيد</span></button>
     </div>
   </header>
   <main id="stage" aria-label="صفحات المصحف"><div id="rProg" aria-hidden="true"><i></i></div>
@@ -1414,7 +1429,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
   </div>
 </div>
 <div id="dimV" aria-hidden="true"></div>
-<div id="easyBox" role="dialog" aria-modal="true" aria-labelledby="easyQ" hidden><div class="si easy"><b id="easyQ">تريد الكتابة أكبر والأزرار أقل؟</b><p>نكبّر كل كتابات التطبيق ونخفي الأدوات المتقدمة، ونخلي القراءة والاستماع والعلامة والأذكار. تكدر تغيّرها بعدين من الإعدادات ← المظهر.</p><button class="eyes" id="easyY">إي، كبّرها</button><button class="eno" id="easyN">لا، خلّيه مثل ما هو</button></div></div>
+<div id="easyBox" role="dialog" aria-modal="true" aria-labelledby="easyQ" hidden><div class="si easy"><b id="easyQ">تريد الكتابة أكبر والأزرار أقل؟</b><p>نكبّر خط القرآن وكل كتابات التطبيق، ونخفي الأدوات المتقدمة. تكدر تغيّرها بعدين من الإعدادات ← المظهر.</p><button class="eyes" id="easyY">إي، كبّرها</button><button class="eno" id="easyN">لا، خلّيه مثل ما هو</button></div></div>
 <div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة 1405هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (6236 آية)، في 604 صفحات بخط «QMH Old Madina».</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية 1405هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع MP3Quran.net، تُشغَّل من خوادمهم مباشرة.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -1450,9 +1465,9 @@ html.thumb .fthumb.azb{color:var(--gold)}
       <span class="amed" id="shNum" aria-hidden="true"></span>
       <p class="atext" id="shText"></p>
       <div class="anv">
-        <button id="shPrev" aria-label="الآية السابقة"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span>السابقة</span></button>
+        <button id="shPrev" aria-label="الآية السابقة"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg><span>السابقة</span></button>
         <span id="shPos"></span>
-        <button id="shNext" aria-label="الآية التالية"><span>التالية</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+        <button id="shNext" aria-label="الآية التالية"><span>التالية</span><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
       </div>
     </div>
     <div class="acts">
@@ -2486,7 +2501,9 @@ let lastW=0,lpAt=0;
 function ayahAt(x,y){const el=document.elementFromPoint(x,y);const s=el&&el.closest&&el.closest("#book [data-a]");lastW=s&&s.dataset.w?+s.dataset.w:0;return s?+s.dataset.a:0}
 const ref=id=>`سورة ${SUR[sOf(id)][0]} · الآية ${ar(aOf(id))}`;
 let toastT;function toast(m){const t=$("toast"),a=$("app"),f=document.querySelector("#app>.foot");t.textContent=m;
-  if(a.classList.contains("ovl")&&f){const up=!a.classList.contains("calm")||f.classList.contains("playing")||f.classList.contains("memo-on");t.style.bottom=f.classList.contains("memo-on")||f.classList.contains("playing")?(f.offsetHeight+8)+"px":up?Math.max(4,(f.offsetHeight-36)/2)+"px":"calc(6px + env(safe-area-inset-bottom,0px))"}else t.style.bottom="";t.classList.add("on");$("app").classList.add("toasting");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("on");$("app").classList.remove("toasting")},1800)}
+  if(f){const busy=f.classList.contains("playing")||f.classList.contains("memo-on"),calmO=a.classList.contains("ovl")&&a.classList.contains("calm")&&!busy;
+    /* toasts sit just above the bottom bar (player, memo bar, page slider) and never on top of it */
+    t.style.bottom=calmO?"calc(6px + env(safe-area-inset-bottom,0px))":(f.getBoundingClientRect().height+10+(a.classList.contains("ovl")?0:0))+"px"}else t.style.bottom="";t.classList.add("on");$("app").classList.add("toasting");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("on");$("app").classList.remove("toasting")},1800)}
 const HLC=[{k:"y",c:"#e2b93b",n:"رحمة وبشارة"},{k:"g",c:"#5fae7d",n:"دعاء"},{k:"b",c:"#4f8fd0",n:"قصص"},{k:"v",c:"#9a72c9",n:"تدبّر"},{k:"o",c:"#e0874a",n:"أوامر"},{k:"r",c:"#d0596b",n:"تحذير"}];
 const hl={get(){try{return JSON.parse(store.get("mushaf.hl")||"{}")}catch(e){return {}}},of(id){return this.get()[id]||""},
   set(id,k){const d=this.get();if(k)d[id]={k,at:Date.now()};else delete d[id];store.set("mushaf.hl",JSON.stringify(d))},
@@ -2535,7 +2552,7 @@ function openAyah(id){
   shBody(id);
   sh.querySelector(".shbody").scrollTop=0;
   if(inStudy){sh.hidden=false;sh.classList.add("on")}
-  else if(sh.hidden){sheetFocus=document.activeElement;{const dk=mode==="spread"&&innerWidth>=640&&!inTable,pg=pOf(selA||id);sh.classList.toggle("dock",dk);sh.classList.toggle("dR",dk&&pg!==cur);$("ascrim").hidden=dk}sh.hidden=false;if(!sh.classList.contains("dock"))$("ascrim").hidden=false;requestAnimationFrame(()=>requestAnimationFrame(()=>sh.classList.add("on")));setTimeout(()=>$("shClose").focus({preventScroll:true,focusVisible:false}),60)}
+  else if(sh.hidden){sheetFocus=document.activeElement;{const dk=mode==="spread"&&innerWidth>=640&&!inTable,pg=pOf(selA||id);sh.classList.toggle("dock",dk);if(dk){clearTimeout(calmT);$("app").classList.add("calm")}sh.classList.toggle("dR",dk&&pg!==cur);$("ascrim").hidden=dk}sh.hidden=false;if(!sh.classList.contains("dock"))$("ascrim").hidden=false;requestAnimationFrame(()=>requestAnimationFrame(()=>sh.classList.add("on")));setTimeout(()=>$("shClose").focus({preventScroll:true,focusVisible:false}),60)}
   requestAnimationFrame(()=>pillTo(sh.querySelector(".shtabs")));
 }
 function closeAyah(){
@@ -3016,7 +3033,10 @@ $("bSimple").onclick=e=>{e.stopPropagation();simpleOn=!simpleOn;store.set("musha
 function easyAsk(){if(store.get("mushaf.easyQ"))return;const x=$("easyBox");if(!x||!$("srcBox").hidden)return;
   x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));setTimeout(()=>$("easyY").focus({preventScroll:true}),80)}
 function easyClose(){const x=$("easyBox");store.set("mushaf.easyQ","1");x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
-$("easyY").onclick=()=>{store.set("mushaf.uz","1.3");uzSet("1.3");if(!simpleOn)$("bSimple").click();easyClose();setTimeout(resize,60)};
+$("easyY").onclick=()=>{store.set("mushaf.uz","1.3");uzSet("1.3");if(!simpleOn)$("bSimple").click();easyClose();
+  /* the Quran too: one big page instead of two on the open Fold, large-print reading on a phone */
+  if(mode==="spread"){store.set("mushaf.view","1");markView();setTimeout(resize,60);setTimeout(()=>toast("صارت صفحة وحدة بخط أكبر · ترجع لصفحتين من الإعدادات"),400)}
+  else{setTimeout(()=>{if(!flowOn)$("bFlow").click()},120)}};
 $("easyN").onclick=()=>{easyClose();toast("تكدر تكبّر الكتابة من الإعدادات ← المظهر")};
 setTimeout(easyAsk,1600);
 /* ---------- Quran text lock: the text shown must match the reviewed release (checked at build time and here) ---------- */
@@ -3256,7 +3276,7 @@ function revealAyah(id){
 function setMemo(on){
   if(!on&&LS.on)micStop();
   memo.on=on;memo.rev.clear();memo.last=null;if(!on)memo.range=null;
-  if(on){stopPlay();closeAyah();hideHint();setCalm(false);toast("المس الصفحة لتظهر الكلمة التالية")}
+  if(on){stopPlay();closeAyah();hideHint();setCalm(false)}
   $("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
   $("bMemo").setAttribute("aria-pressed",String(on));
   if(!on)document.querySelectorAll(".hid,.nx").forEach(w=>w.classList.remove("hid","nx"));
@@ -3764,7 +3784,7 @@ $("where").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.pre
 $("siX").onclick=sInfoClose;
 function srcOpen(){showPrefs(false);const x=$("srcBox");x.hidden=false;x.querySelector(".si").scrollTop=0;requestAnimationFrame(()=>x.classList.add("on"));setTimeout(()=>$("srcX").focus({preventScroll:true,focusVisible:false}),60)}
 function srcClose(){const x=$("srcBox");if(x.hidden)return;x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
-$("bSrc").onclick=srcOpen;$("srcX").onclick=srcClose;$("srcBox").addEventListener("click",e=>{if(e.target.id==="srcBox")srcClose()});
+$("bSrc").onclick=srcOpen;$("prefsX").onclick=e=>{e.stopPropagation();showPrefs(false)};$("srcX").onclick=srcClose;$("srcBox").addEventListener("click",e=>{if(e.target.id==="srcBox")srcClose()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("srcBox").hidden){e.stopImmediatePropagation();srcClose()}},true);$("sInfo").addEventListener("click",e=>{if(e.target.id==="sInfo")sInfoClose()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sInfo").hidden){e.stopImmediatePropagation();sInfoClose()}},true);
 

@@ -32,6 +32,12 @@ const fails=[];const ok=(c,m)=>{console.log((c?"ok   ":"FAIL ")+m);if(!c)fails.p
     await p.evaluate(()=>window.__L.Playbackaction&&window.__L.Playbackaction({a:"play"}));await p.waitForTimeout(800);
     ok(await p.evaluate(()=>!__smk.AU.paused&&__smk.P().on),`${name}: notification play resumes`);
     await p.evaluate(()=>document.getElementById("pStop").click());await p.waitForTimeout(300);
+    await p.evaluate(()=>__smk.openAyah(__smk.SST[2]+3));await p.waitForTimeout(1500);
+    ok(await p.evaluate(()=>!document.getElementById("sheet").hidden&&/الآية ٤/.test(document.getElementById("shMeta").textContent)),`${name}: ayah sheet opens on the right ayah`);
+    ok(await p.evaluate(()=>/الآيتين ٣–٤/.test((document.querySelector(".tfg")||{}).textContent||"")),`${name}: grouped tafsir is labelled`);
+    await p.keyboard.press("Escape");await p.waitForTimeout(600);
+    const pg0=await p.evaluate(()=>document.getElementById("wMeta").textContent);await p.keyboard.press("ArrowLeft");await p.waitForTimeout(1400);
+    ok(await p.evaluate(()=>document.getElementById("wMeta").textContent)!==pg0,`${name}: page turns`);
     
     await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(500);
     for(const z of ["1","1.3"]){await p.evaluate(z=>document.querySelector(`[data-uz="${z}"]`).click(),z);await p.waitForTimeout(400);
