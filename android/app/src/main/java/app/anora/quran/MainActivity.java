@@ -4,6 +4,7 @@ import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Display;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.view.View;
 import androidx.core.graphics.Insets;
@@ -56,6 +57,22 @@ public class MainActivity extends BridgeActivity {
                     + n[2] + "px');s.setProperty('--cutL','" + n[3] + "px');window.dispatchEvent(new Event('resize'))})(document.documentElement.style)";
             if (getBridge() != null && getBridge().getWebView() != null) getBridge().getWebView().post(() -> getBridge().getWebView().evaluateJavascript(js, null));
         } catch (Exception ignored) { }
+    }
+
+    /** Set by the page (Playback.volKeys): the volume keys turn pages instead of changing the volume. */
+    static volatile boolean volTurn = false;
+
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent e) {
+        int k = e.getKeyCode();
+        if (volTurn && (k == KeyEvent.KEYCODE_VOLUME_DOWN || k == KeyEvent.KEYCODE_VOLUME_UP)) {
+            if (e.getAction() == KeyEvent.ACTION_DOWN && e.getRepeatCount() == 0 && getBridge() != null && getBridge().getWebView() != null) {
+                String js = "window.__volKey&&window.__volKey(" + (k == KeyEvent.KEYCODE_VOLUME_DOWN ? 1 : -1) + ")";
+                getBridge().getWebView().evaluateJavascript(js, null);
+            }
+            return true;
+        }
+        return super.dispatchKeyEvent(e);
     }
 
     @Override

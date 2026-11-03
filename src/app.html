@@ -1452,6 +1452,7 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
         <button class="sw" data-turn="slide">انزلاق</button>
         <button class="sw" data-turn="none">بدون حركة</button>
       </div></div>
+      <div class="posture" id="volRow" hidden><span>أزرار الصوت تقلّب الصفحة<small>زر خفض الصوت للصفحة التالية، والرفع للسابقة. وقت التلاوة ترجع تتحكم بالصوت</small></span><button class="tg" id="bVol" role="switch" aria-checked="false" aria-label="أزرار الصوت تقلّب الصفحة"></button></div>
       <div class="posture"><span>ألوان التجويد<small>المد والغنة والإخفاء والقلقلة</small></span><button class="tg" id="bTaj" role="switch" aria-checked="false" aria-label="ألوان التجويد"></button></div>
       <div class="tjk" id="tjKey" hidden><span style="--c:var(--tj-md)">مد لازم وواجب وجائز</span><span style="--c:var(--tj-gh)">غنة وإخفاء وإقلاب وإدغام بغنة</span><span style="--c:var(--tj-qa)">قلقلة</span><span style="--c:var(--tj-s)">ما لا يُلفظ</span></div>
       <div class="posture"><span>العلامات على الصفحة<small>خط ملوّن تحت الآيات المعلَّمة ونقطة عند الملاحظات</small></span><button class="tg" id="bMkShow" role="switch" aria-checked="true" aria-label="إظهار العلامات على الصفحة"></button></div>
@@ -3324,7 +3325,7 @@ AU.addEventListener("timeupdate",()=>{if(player.on&&player.tick&&document.hidden
 AU.addEventListener("ended",()=>{if(player.on&&player.tick)player.tick()});
 function setPlaying(on){
   if(!on&&player.on&&!player.seg)player.left-=performance.now()-player.t0;
-  player.on=on;
+  player.on=on;try{volSync()}catch(e){}
   $("pIco").innerHTML=on?'<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>':'<path d="M8 5.5v13l10.5-6.5z"/>';
   $("pPlay").setAttribute("aria-label",on?"إيقاف مؤقت":"متابعة التلاوة");
   if(on)startAyah(true);else{cancelAnimationFrame(player.raf);AU.pause();bgSync()}
@@ -3353,6 +3354,13 @@ natOn("Playback","action",d=>{const a=d&&d.a,open=!$("player").hidden;if(!a)retu
   else if(a==="next"){if(open)$("pNext").click()}else if(a==="prev"){if(open)$("pPrev").click()}else if(a==="stop")stopPlay()});
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&!bgOn&&player.on)setPlaying(false)});
 $("bgRow").hidden=PLAT!=="android";$("waRow").hidden=PLAT!=="android";$("bWebAu").setAttribute("aria-checked",String(store.get("mushaf.webAudio")==="1"));$("bWebAu").onclick=()=>{const on=store.get("mushaf.webAudio")!=="1";store.set("mushaf.webAudio",on?"1":"0");$("bWebAu").setAttribute("aria-checked",String(on));toast("يتطبّق بعد ما تسكّر التطبيق وتفتحه")};if(PLAT==="ios")bgOn=true;$("bBg").setAttribute("aria-checked",String(bgOn));
+/* volume keys turn pages (Android, opt-in); while a recitation plays they go back to the volume */
+let volOn=store.get("mushaf.volKeys")==="1";
+function volSync(){if(PLAT==="android")nat("Playback","volKeys",{on:volOn&&!player.on}).catch(()=>{})}
+window.__volKey=d=>document.dispatchEvent(new KeyboardEvent("keydown",{key:d>0?"ArrowLeft":"ArrowRight"}));
+$("volRow").hidden=PLAT!=="android";$("bVol").setAttribute("aria-checked",String(volOn));
+$("bVol").onclick=e=>{e.stopPropagation();volOn=!volOn;store.set("mushaf.volKeys",volOn?"1":"0");$("bVol").setAttribute("aria-checked",String(volOn));volSync();if(volOn)toast("زر خفض الصوت: الصفحة التالية")};
+volSync();
 $("bBg").onclick=e=>{e.stopPropagation();bgOn=!bgOn;store.set("mushaf.bg",bgOn?"1":"0");$("bBg").setAttribute("aria-checked",String(bgOn));bgSync()};
 /* ---------- downloads for listening offline ---------- */
 let audBase="",dlRun=null,dlT=0;
