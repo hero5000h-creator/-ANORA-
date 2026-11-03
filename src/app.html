@@ -155,6 +155,8 @@ html.phoneM .pg:not(.blank) .box{border-width:calc(var(--pw) * .027);padding:cal
 html.phoneM .ph{font-size:calc(var(--pw) * .047);padding:0 .3em .25em}
 html.phoneM .pf{font-size:calc(var(--pw) * .05);margin-top:.15em}
 html.phoneM #stage{background:var(--paper);background-image:none}
+/* the leather cover behind the page would peek out as a dark strip in the spare room above and below */
+html.phoneM #bookwrap::after{display:none}
 /* fifteen lines per page, each line holds exactly the words of the printed Madinah mushaf */
 /* The 1405H Madinah print, line for line: each line has its printed width, its words keep the letter
    stretches the print uses (font features) and each space its exact width, all in em. */
