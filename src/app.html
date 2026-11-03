@@ -491,8 +491,8 @@ html.uzL #prefs{zoom:var(--uz,1);width:min(320px,calc((100vw - 24px) / var(--uz,
 html.uzL.thumb #prefs{max-height:calc((100dvh - var(--fh,56px) - 90px) / var(--uz,1))}
 html.uzL .si,html.uzL .sbx{width:min(400px,calc(100% / var(--uz,1)));max-height:calc((100dvh - 32px) / var(--uz,1))}
 /* open Fold: settings are a full-height side panel between the bars, scrolling inside, not a floating card */
-html.thumb #prefs{top:calc(var(--bh,56px) + 8px);bottom:calc(var(--fh,56px) + 8px);max-height:none;width:min(340px,40vw)}
-html.uzL.thumb #prefs{max-height:none;width:min(340px,calc(40vw / var(--uz,1)))}
+html.thumb body #prefs{top:calc((var(--bh,56px) + 8px) / var(--uz,1));bottom:calc((var(--fh,56px) + 8px + env(safe-area-inset-bottom,0px)) / var(--uz,1));max-height:none;width:min(340px,40vw)}
+html.uzL.thumb body #prefs{max-height:none;width:min(340px,calc(40vw / var(--uz,1)))}
 /* simple mode keeps the essentials */
 html.simple .adv{display:none!important}
 .rpt{display:flex;align-items:center;gap:8px;margin:18px auto 4px;padding:8px 14px;border-radius:18px;border:1px solid var(--line);font-size:13px;color:var(--muted)}
