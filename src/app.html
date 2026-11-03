@@ -472,7 +472,7 @@ html.ios #app.ovl>.bar{top:env(safe-area-inset-top,0px)}html.ios #app.ovl>.foot{
 #player .pp svg{width:20px;height:20px;fill:currentColor}
 .pinfo{min-width:0;padding:0 8px;display:grid;gap:3px}
 .pinfo b{font-family:var(--f-display);font-size:16px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pinfo small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pinfo small{font-size:11.5px;line-height:1.2;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pbar{height:3px;border-radius:3px;background:var(--line);overflow:hidden}
 .pbar i{display:block;height:100%;width:0;background:var(--orn);border-radius:3px}
 #player .ib{width:40px;height:44px;align-content:center;gap:2px}
@@ -1652,8 +1652,10 @@ function resize(){
   const r=stage.getBoundingClientRect(), full=!inTable&&(r.width<1000||matchMedia("(pointer:coarse)").matches), pad=inTable?24:full?0:18;
   let SW=r.width, SH=r.height, cx=r.width/2, cy=r.height/2, force=null;
   /* bars that must stay up (memorising, recitation) get their own room so they never cover a line */
+  /* tall phones keep room for both bars, so a bar that appears never covers the page header or number */
+  const tall=full&&!inTable&&!inStudy&&r.height/r.width>1.75;
   if($("app").classList.contains("ovl")){const f=document.querySelector(".foot"),mo=$("app").classList.contains("memo"),
-    t0=mo?document.querySelector(".bar").offsetHeight:0, b0=mo||f.classList.contains("playing")?f.offsetHeight:0;
+    t0=mo||tall?document.querySelector(".bar").offsetHeight:0, b0=mo||tall||f.classList.contains("playing")?f.offsetHeight:0;
     SH-=t0+b0;cy=t0+SH/2}
   const sg=inStudy?null:segments();
   if(sg){const [a,b]=sg;
@@ -1670,7 +1672,7 @@ function resize(){
   let w=Math.floor(m==="spread"?wd:ws), h=Math.floor(m==="spread"?hd:hs);
   /* tall phones (20:9): the page stops at about 1:2.08 so the extra height does not turn into gaps between lines;
      what is left over goes 40% above and 60% below, on paper-coloured ground so it reads as one sheet */
-  const phone=full&&m==="single"&&!inTable&&!inStudy&&h/w>1.75;root.classList.toggle("phoneM",phone);
+  const phone=tall&&m==="single";root.classList.toggle("phoneM",phone);
   if(phone&&h/w>2.08){const h2=Math.floor(w*2.08);cy+=(h-h2)*.1;h=h2}
   edges.room=(Math.min(cx,SW-cx+(sg?0:0))-(m==="spread"?w:w/2));
   wrap.style.left=cx+"px";wrap.style.top=cy+"px";
@@ -2940,7 +2942,7 @@ $("rbGo").onclick=()=>{rep.on=true;rep.ei=0;rep.ri=0;repSave();softHide($("repBo
   if($("player").hidden)playFrom(rep.from);else{player.id=rep.from;if(!player.on)setPlaying(true);else startAyah(false)}
   toast(`تكرار من ${repRef(rep.from)} إلى ${repRef(rep.to)}`)};
 $("rbTest").onclick=()=>{const f=rep.from;repSave();softHide($("repBox"));stopPlay();showAyahPage(f);setTimeout(()=>{memo.range={from:f,to:rep.to};setMemo(true);toast(`سمّع من ${repRef(f)} إلى ${repRef(rep.to)}`)},reduce?0:650)};
-$("rbOff").onclick=()=>{rep.on=false;softHide($("repBox"));repUI();if(player.id)$("pTitle").textContent=`${SUR[sOf(player.id)][0]} · ${ar(aOf(player.id))}`;toast("رجعت التلاوة متتابعة")};
+$("rbOff").onclick=()=>{rep.on=false;softHide($("repBox"));repUI();if(player.id)$("pTitle").textContent=`${SUR[sOf(player.id)][0]} — آية ${ar(aOf(player.id))}`;toast("رجعت التلاوة متتابعة")};
 /* the next ayah to play after this one ends: repeats first, then the passage, then onward */
 function nextPlay(){const id=player.id;
   if(rep.on&&id>=rep.from&&id<=rep.to){
@@ -2980,7 +2982,7 @@ function playFrom(id){
 function startAyah(resume,flow){
   const id=player.id;playA=id;paintHL();showAyahPage(id);
   if(inTable)setTimeout(()=>{renderDeck();const el=$("deckList").querySelector(`.dk[data-id="${id}"]`);el&&el.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"})},reduce?0:950);
-  $("pTitle").textContent=`${SUR[sOf(id)][0]} · ${ar(aOf(id))}`+repTitle();store.set("mushaf.playLast",String(id));try{dlUI()}catch(e){}setTimeout(repPlace,reduce?0:700);
+  $("pTitle").textContent=`${SUR[sOf(id)][0]} — آية ${ar(aOf(id))}`+repTitle();store.set("mushaf.playLast",String(id));try{dlUI()}catch(e){}setTimeout(repPlace,reduce?0:700);
   cancelAnimationFrame(player.raf);if(player.on)bgSync();
   const g=seg(id);player.seg=g;
   if(g){
@@ -3030,7 +3032,9 @@ try{const ms=navigator.mediaSession;if(ms){
 let bgOn=store.get("mushaf.bg")!=="0";
 const bgInfo=()=>({title:`${SUR[sOf(player.id)][0]} · الآية ${ar(aOf(player.id))}`,text:RECS[reciter],playing:player.on});
 function bgSync(){mediaSync();if(PLAT!=="android")return;if(bgOn&&!$("player").hidden&&player.id)nat("Playback","start",bgInfo()).catch(()=>{});else nat("Playback","stop").catch(()=>{})}
-natOn("Playback","action",d=>{if(d&&d.a==="toggle"){if(!$("player").hidden)setPlaying(!player.on)}else if(d&&d.a==="stop")stopPlay()});
+natOn("Playback","action",d=>{const a=d&&d.a,open=!$("player").hidden;if(!a)return;
+  if(a==="toggle"){if(open)setPlaying(!player.on)}else if(a==="play"){if(open&&!player.on)setPlaying(true)}else if(a==="pause"){if(open&&player.on)setPlaying(false)}
+  else if(a==="next"){if(open)$("pNext").click()}else if(a==="prev"){if(open)$("pPrev").click()}else if(a==="stop")stopPlay()});
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&!bgOn&&player.on)setPlaying(false)});
 $("bgRow").hidden=PLAT!=="android";if(PLAT==="ios")bgOn=true;$("bBg").setAttribute("aria-checked",String(bgOn));
 $("bBg").onclick=e=>{e.stopPropagation();bgOn=!bgOn;store.set("mushaf.bg",bgOn?"1":"0");$("bBg").setAttribute("aria-checked",String(bgOn));bgSync()};
@@ -3047,13 +3051,13 @@ function dlUI(){const r=reciter,n=DL[r].size,mb=(+store.get("mushaf.dlb."+r)||0)
   const left=z?Object.entries(z).filter(([k])=>!DL[r].has(+k)).reduce((t,[,v])=>t+v,0):0,one=z&&z[s];
   $("dlInfo").textContent=dlRun?`جارٍ تحميل سورة ${SUR[dlRun.s-1]?SUR[dlRun.s-1][0]:""} · ${ar(Math.round(100*(dlRun.f||0)))}٪ · محمّل ${ar(n)} من ${ar(114)} سورة`
     :n?`محمّل ${ar(n)} من ${ar(114)} سورة بصوت ${RECS[r]}${mb?` · ${fmtSize(mb)}`:""}`:`حمّل تلاوة ${RECS[r]} وتسمعها بدون إنترنت`;
-  $("dlAll").textContent=dlRun?"إيقاف التحميل":n>=114?"المصحف محمّل كامل ✓":`حمّل المصحف كامل${left?` (${fmtSize(left)})`:""}`;$("dlAll").disabled=!dlRun&&n>=114;
+  $("dlAll").textContent=dlRun?"أوقف التحميل":n>=114?"المصحف محمّل كامل ✓":`حمّل المصحف كامل${left?` (${fmtSize(left)})`:""}`;$("dlAll").disabled=!dlRun&&n>=114;
   $("dlSur").textContent=DL[r].has(s)?`سورة ${SUR[s-1][0]} محمّلة ✓`:`حمّل سورة ${SUR[s-1][0]}${one?` (${fmtSize(one)})`:""}`;$("dlSur").disabled=!!dlRun||DL[r].has(s);
   {const b=$("pDl"),ps=player.id?sOf(player.id)+1:s,has=DL[r].has(ps),busy=dlRun&&dlRun.s===ps;b.hidden=!NATIVE;b.classList.toggle("done",has);
     $("pDlIco").innerHTML=has?'<path d="M6.5 12.5l3.5 3.5 7.5-8"/>':busy?'<path d="M9 9h6v6H9z"/>':'<path d="M12 5v10M7.5 10.5L12 15l4.5-4.5M6 19h12"/>';
     $("pDlRg").style.strokeDashoffset=busy?(88*(1-(dlRun.f||0))).toFixed(1):"88";
-    $("pDlCap").textContent=has?"محمّلة":busy?"إيقاف":"تحميل";
-    b.setAttribute("aria-label",has?`سورة ${SUR[ps-1][0]} محمّلة`:busy?"إيقاف التحميل":`تحميل سورة ${SUR[ps-1][0]} للاستماع بدون إنترنت`)}
+    $("pDlCap").textContent=has?"محمّلة":busy?`${ar(Math.round(100*(dlRun.f||0)))}٪`:"تحميل";
+    b.setAttribute("aria-label",has?`سورة ${SUR[ps-1][0]} محمّلة`:busy?"أوقف التحميل":`تحميل سورة ${SUR[ps-1][0]} للاستماع بدون إنترنت`)}
   $("dlDel").hidden=!n||!!dlRun;$("dlBar").parentNode.hidden=!dlRun;$("dlBar").style.width=((n+(dlRun&&dlRun.f||0))/114*100).toFixed(1)+"%"}
 natOn("FileTransfer","progress",p=>{if(!dlRun||!p||!p.lengthComputable||!p.contentLength)return;dlRun.f=Math.min(1,p.bytes/p.contentLength);dlRun.len=p.contentLength;const t=performance.now();if(t-dlT>250){dlT=t;dlUI()}});
 async function dlOne(r,s){const d=await audData(r);if(!d)throw new Error("no data");const pad=String(s).padStart(3,"0");
