@@ -88,7 +88,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 #bPrefs[aria-expanded="true"]{background:var(--sel);color:var(--orn)}
 .qa{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
 /* v60 one calm grid of the eight things people reach for, four to a row, the most used first */
-.qa.q4{grid-template-columns:repeat(4,1fr);gap:6px}
+.qa.q4{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.qa.q4>.qt{flex:0 0 calc((100% - 18px) / 4);box-sizing:border-box}.qa.q4>[hidden]{display:none}
 .qa.q4 .qt{min-height:64px;padding:8px 2px;font-size:11.5px;border-radius:14px}
 .qlink{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:4px;padding:10px;border-top:1px solid var(--line);font:inherit;font-size:12.5px;color:var(--muted);background:none}
 .qlink svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
@@ -157,6 +157,11 @@ html.phoneM .pf{font-size:calc(var(--pw) * .05);margin-top:.15em}
 html.phoneM #stage{background:var(--paper);background-image:none}
 /* the leather cover behind the page would peek out as a dark strip in the spare room above and below */
 html.phoneM #bookwrap::after{display:none}
+/* tall phones in calm reading: the band kept for the top bar is not left empty; the surah and page stay there, faint */
+html.phoneM #app.calm>.bar{opacity:1;transform:none;pointer-events:none;background:transparent;box-shadow:none;border-color:transparent}
+html.phoneM #app.calm>.bar>*{transition:opacity .3s}
+html.phoneM #app.calm>.bar>:not(.where){opacity:0}
+html.phoneM #app.calm>.bar>.where{opacity:.62}
 /* fifteen lines per page, each line holds exactly the words of the printed Madinah mushaf */
 /* The 1405H Madinah print, line for line: each line has its printed width, its words keep the letter
    stretches the print uses (font features) and each space its exact width, all in em. */
@@ -472,13 +477,25 @@ html.ios #app.ovl>.bar{top:env(safe-area-inset-top,0px)}html.ios #app.ovl>.foot{
 #player .pp svg{width:20px;height:20px;fill:currentColor}
 .pinfo{min-width:0;padding:0 8px;display:grid;gap:3px}
 .pinfo b{font-family:var(--f-display);font-size:16px;font-weight:700;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pinfo small{font-size:11.5px;line-height:1.2;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pinfo small{font-size:12px;line-height:1.55;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tfg{margin:0 0 8px;font-size:13px;font-weight:600;color:var(--orn)}
 .pbar{height:3px;border-radius:3px;background:var(--line);overflow:hidden}
 .pbar i{display:block;height:100%;width:0;background:var(--orn);border-radius:3px}
 #player .ib{width:40px;height:44px;align-content:center;gap:2px}
 #player .ib svg{width:20px;height:20px}
 #player .cap{font-size:10px;line-height:1;color:var(--muted);white-space:nowrap}
 #pStop{margin-inline-start:8px}
+#player .cap{font-size:10.5px;color:color-mix(in srgb,var(--bar-ink) 72%,var(--bar))}
+/* phones: two rows. Title and reciter get the full width, the five buttons share the row under them */
+@media (max-width:620px){
+  #player{grid-template-columns:auto repeat(5,1fr);grid-template-rows:auto auto;row-gap:2px;column-gap:2px;padding-block:6px 2px}
+  #player .pp{grid-row:1/3;width:52px;height:52px;margin-inline-end:6px}
+  #player .pinfo{grid-column:2/-1;grid-row:1;grid-template-columns:1fr auto;align-items:baseline;column-gap:10px;padding-inline:4px}
+  #player .pinfo b{grid-column:1;grid-row:1}#player .pinfo small{grid-column:2;grid-row:1;max-width:46vw}
+  #player .pbar{grid-column:1/-1;grid-row:2}
+  #player .ib{grid-row:2;width:auto;min-width:44px;height:46px}
+  #pStop{margin-inline-start:0}
+}
 #pRep[aria-pressed="true"] .cap{color:var(--orn);font-weight:600}
 .bkp{display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--line);font-size:13.5px}
 .bkp small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
@@ -491,9 +508,11 @@ html.uzL #prefs{zoom:var(--uz,1);width:min(320px,calc((100vw - 24px) / var(--uz,
 html.uzL.thumb #prefs{max-height:calc((100dvh - var(--fh,56px) - 90px) / var(--uz,1))}
 html.uzL .si,html.uzL .sbx{width:min(400px,calc(100% / var(--uz,1)));max-height:calc((100dvh - 32px) / var(--uz,1))}
 /* open Fold: settings are a full-height side panel between the bars, scrolling inside, not a floating card */
-html.thumb body #prefs{top:calc((var(--bh,56px) + 8px) / var(--uz,1));bottom:calc((var(--fh,56px) + 8px + env(safe-area-inset-bottom,0px)) / var(--uz,1));max-height:none;width:min(340px,40vw)}
-html.uzL.thumb body #prefs{max-height:none;width:min(340px,calc(40vw / var(--uz,1)))}
+html.thumb body #prefs{top:calc(var(--bh,56px) / var(--uz,1));bottom:calc((var(--fh,56px) + env(safe-area-inset-bottom,0px)) / var(--uz,1));left:0;max-height:none;width:50vw;border-radius:0;border:0;border-inline-start:1px solid var(--line);padding:18px max(18px,calc((50vw - 520px) / 2));box-shadow:14px 0 40px -18px var(--shadow);transform-origin:left center;animation:dockIn .34s var(--ease)}
+@keyframes dockIn{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+html.uzL.thumb body #prefs{max-height:none;width:calc(50vw / var(--uz,1));padding:16px}
 /* simple mode keeps the essentials */
+html.simple #paperSeg [data-paper]:not([data-paper=light]):not([data-paper=sepia]):not([data-paper=night]){display:none}
 html.simple .adv{display:none!important}
 .rpt{display:flex;align-items:center;gap:8px;margin:18px auto 4px;padding:8px 14px;border-radius:18px;border:1px solid var(--line);font-size:13px;color:var(--muted)}
 .rpt svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
@@ -985,11 +1004,18 @@ html[data-theme="dark"] .dnb .dn-m{transform:none;opacity:1}
 .where small::after{content:" ⓘ";opacity:.55;font-size:.9em}
 #sInfo{position:fixed;inset:0;z-index:58;display:grid;place-items:center;padding:16px;background:var(--scrim);opacity:0;transition:opacity .25s}
 #sInfo[hidden]{display:none}
+#easyBox{position:fixed;inset:0;z-index:59;display:grid;place-items:center;padding:16px;background:var(--scrim);opacity:0;transition:opacity .25s}
+#easyBox[hidden]{display:none}#easyBox.on{opacity:1}#easyBox.on .si{transform:none}
+.easy{text-align:center;gap:14px;padding:26px 20px 20px}.easy b{font-family:var(--f-display);font-size:26px;line-height:1.5}
+.easy p{margin:0;font-size:17px;line-height:1.8;color:var(--bar-ink)}
+.easy button{min-height:58px;border-radius:16px;font-size:20px;font-weight:600}
+.easy .eyes{background:var(--orn);color:var(--bar)}.easy .eno{background:var(--sel);color:var(--bar-ink)}
 #srcBox{position:fixed;inset:0;z-index:58;display:grid;place-items:center;padding:16px;background:var(--scrim);opacity:0;transition:opacity .25s}
 #srcBox[hidden]{display:none}#srcBox.on{opacity:1}#srcBox.on .si{transform:none}
 .src-h{display:flex;align-items:center;justify-content:space-between;gap:8px;position:sticky;top:-14px;margin:-14px -16px 0;padding:12px 16px 8px;background:var(--bar);z-index:1}
 .src-h b{font-family:var(--f-display);font-size:21px;font-weight:700}
 .src .si-t p{font-size:14.5px}
+.mcard{border:1px solid color-mix(in srgb,var(--gold) 45%,transparent);border-radius:14px;padding:10px 12px;background:color-mix(in srgb,var(--gold) 7%,transparent)}
 .src-by{display:grid;gap:2px;justify-items:center;text-align:center;padding:12px 8px 4px;border-top:1px solid var(--line)}.src-by small{font-size:12px;color:var(--muted)}.src-by b{font-family:var(--f-display);font-size:19px;font-weight:700;color:var(--gold)}
 #sInfo.on{opacity:1}
 .si{width:min(400px,100%);max-height:calc(100dvh - 32px);overflow-y:auto;box-sizing:border-box;background:var(--bar);color:var(--bar-ink);border-radius:22px;padding:14px 16px 16px;display:grid;gap:12px;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);transform:translateY(22px) scale(.96);transition:transform .38s var(--spring)}
@@ -1249,7 +1275,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
     <div id="prefs" hidden>
       <div class="qa q4">
         <button class="qt" id="bBook" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg><span>علامة الصفحة</span></button>
-        <button class="qt adv" id="bFlow" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 5.5h16M4 10h16M4 14.5h16M4 19h9"/><path d="M17.5 17v4M15.5 19h4"/></svg><span>خط كبير</span></button>
+        <button class="qt" id="bFlow" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 5.5h16M4 10h16M4 14.5h16M4 19h9"/><path d="M17.5 17v4M15.5 19h4"/></svg><span>خط كبير</span></button>
         <button class="qt adv" id="bMemo" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6c1.6 0 3 .5 4.2 1.2M21 12s-3.5 6-9 6c-1.6 0-3-.5-4.2-1.2M4 20L20 4"/></svg><span>وضع الحفظ</span></button>
         <button class="qt" id="bAdhkar"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg><span>الأذكار</span></button>
         <button class="qt adv" id="bAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6.5 4.5h8l3 3v12h-11z"/><path d="M14.5 4.5v3h3"/><path d="M10 11.5l4 2.5-4 2.5z"/></svg><span>تقليب تلقائي</span></button>
@@ -1262,7 +1288,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
       <section class="pgrp" data-pg="look">
       <div><h3>حجم كتابات التطبيق</h3><div class="seg" id="uzSeg"><button class="sw" data-uz="1">عادي</button><button class="sw" data-uz="1.15" style="font-size:15px">كبير</button><button class="sw" data-uz="1.3" style="font-size:17px">أكبر</button></div></div>
       <div class="posture"><span>الوضع البسيط<small>يخلي الأساسيات بس: القراءة والاستماع والعلامة والأذكار</small></span><button class="tg" id="bSimple" role="switch" aria-checked="false" aria-label="الوضع البسيط"></button></div>
-      <div><h3>لون الورق</h3><div class="seg c5 c6">
+      <div><h3>لون الورق</h3><div class="seg c5 c6" id="paperSeg">
         <button class="sw" data-paper="light"><i style="background:#faf7f0;color:#2b2824">بسم</i>فاتح</button>
         <button class="sw" data-paper="sepia"><i style="background:#f3e9d4;color:#3a3026">بسم</i>دافئ</button>
         <button class="sw" data-paper="night"><i style="background:#1c1d1f;color:#cfc9bc">بسم</i>ليلي</button>
@@ -1276,7 +1302,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
         <button class="sw" data-cover="brown"><i class="cv" style="background:#6b4c2e"></i>بني</button>
         <button class="sw" data-cover="black"><i class="cv" style="background:#2b2926"></i>أسود</button>
       </div></div>
-      <div><h3>دفء الإضاءة</h3><div class="rng"><span>عادي</span><input type="range" id="warmR" min="0" max="100" step="1" value="0" aria-label="دفء الإضاءة"><span>دافئ</span></div></div>
+      <div class="adv"><h3>دفء الإضاءة</h3><div class="rng"><span>عادي</span><input type="range" id="warmR" min="0" max="100" step="1" value="0" aria-label="دفء الإضاءة"><span>دافئ</span></div></div>
       </section>
       <section class="pgrp" data-pg="read" hidden>
       <div class="adv"><h3>عرض الصفحات</h3><div class="seg">
@@ -1388,7 +1414,8 @@ html.thumb .fthumb.azb{color:var(--gold)}
   </div>
 </div>
 <div id="dimV" aria-hidden="true"></div>
-<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية 1405هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع MP3Quran.net، تُشغَّل من خوادمهم مباشرة.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
+<div id="easyBox" role="dialog" aria-modal="true" aria-labelledby="easyQ" hidden><div class="si easy"><b id="easyQ">تريد الكتابة أكبر والأزرار أقل؟</b><p>نكبّر كل كتابات التطبيق ونخفي الأدوات المتقدمة، ونخلي القراءة والاستماع والعلامة والأذكار. تكدر تغيّرها بعدين من الإعدادات ← المظهر.</p><button class="eyes" id="easyY">إي، كبّرها</button><button class="eno" id="easyN">لا، خلّيه مثل ما هو</button></div></div>
+<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة 1405هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (6236 آية)، في 604 صفحات بخط «QMH Old Madina».</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية 1405هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع MP3Quran.net، تُشغَّل من خوادمهم مباشرة.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="si-g" id="siGrid"></div>
@@ -1988,7 +2015,7 @@ stage.addEventListener("pointermove",e=>{
 function zGlide(vx,vy){if(reduce||Math.hypot(vx,vy)<.25){zSettle();return}
   let last=performance.now();const step=now=>{const dt=Math.min(32,now-last);last=now;const f=Math.exp(-dt/260);
     zoom.x+=vx*dt;zoom.y+=vy*dt;vx*=f;vy*=f;const [mx,my]=zLim(zoom.s);
-    if(Math.abs(zoom.x)>mx){vx*=.5;}if(Math.abs(zoom.y)>my){vy*=.5}
+    const b=Math.pow(.5,dt/16.7);if(Math.abs(zoom.x)>mx)vx*=b;if(Math.abs(zoom.y)>my)vy*=b
     zoomClamp(true);zoomApply(false);
     if(Math.hypot(vx,vy)>.02)zRaf=requestAnimationFrame(step);else zSettle()};
   zRaf=requestAnimationFrame(step)}
@@ -2048,7 +2075,7 @@ function ui(){
   const pages=mode==="spread"?`الصفحتان ${ar(cur)}–${ar(Math.min(cur+1,NP))}`:`صفحة ${ar(cur)}`;
   const wm=$("wMeta");wm.textContent=`الجزء ${ar(jOf(id))} · الحزب ${ar((q>>2)+1)} · ${pages}`;
   /* on a narrow screen the page number already shows in the footer */
-  if(wm.scrollWidth>wm.clientWidth+1)wm.textContent=`الجزء ${ar(jOf(id))} · الحزب ${ar((q>>2)+1)}`;
+  if(wm.scrollWidth>wm.clientWidth+1){wm.textContent=`الجزء ${ar(jOf(id))} · ${pages}`;if(wm.scrollWidth>wm.clientWidth+1)wm.textContent=pages}
   {const j=jOf(id),a=pOf(JUZ[j-1]),b=j<30?pOf(JUZ[j])-1:NP,last=mode==="spread"?Math.min(cur+1,NP):cur;$("jprog").style.width=(Math.max(.04,Math.min(1,(last-a+1)/(b-a+1)))*100).toFixed(1)+"%"}
   $("range").value=cur;trkFill(cur);bump($("pnum"));$("pnum").innerHTML=`<b>${mode==="spread"&&cur<NP?ar(cur)+"–"+ar(cur+1):ar(cur)}</b><small>من ${ar(NP)}</small>`;
   khTrack();
@@ -2501,7 +2528,7 @@ function openAyah(id){
   selA=id;wSel=lastW;lastW=0;wxLemma=-1;wxN=WX_PAGE;paintHL();hideHint();sheetAt=performance.now();
   const sh=$("sheet");
   $("shTitle").textContent="سورة "+SUR[sOf(id)][0];$("shNum").textContent=ar(aOf(id));$("shPos").textContent=`الآية ${ar(aOf(id))} من ${ar(SUR[sOf(id)][1])}`;$("sheet").setAttribute("aria-label",ref(id));
-  $("shMeta").textContent=`الجزء ${ar(jOf(id))} · الحزب ${ar((qOf(id)>>2)+1)} · صفحة ${ar(pOf(id))}`;
+  $("shMeta").textContent=`الآية ${ar(aOf(id))} · الجزء ${ar(jOf(id))} · الحزب ${ar((qOf(id)>>2)+1)} · صفحة ${ar(pOf(id))}`;
   $("shText").innerHTML=`${AW[id].map((w,i)=>`<span class="w" data-w="${i}">${escH(w)}</span>`).join(" ")} <span class="an">۝${ar(aOf(id))}</span>`;
   $("aMark").setAttribute("aria-pressed",String(marks.has(id)));aGrpUI();$("aHl").setAttribute("aria-pressed",String(!!hlK(id)));hlPalUI();$("aNote").setAttribute("aria-pressed",String(!!(notes.get()[id]&&notes.get()[id].t)));
   $("shPrev").disabled=id<=1;$("shNext").disabled=id>=NA;
@@ -2672,6 +2699,10 @@ function ghHTML(t){
   return t.split(/\n+/).map(l=>l.trim()).filter(Boolean).map(l=>{const m=l.match(/^(﴿[^﴾]*﴾)\s*:?\s*(.*)$/);
     return m?`<div class="gw"><span class="q">${escH(m[1].slice(1,-1))}</span><span>${escH(m[2])}</span></div>`:`<p>${escH(l)}</p>`}).join("");
 }
+/* some tafsirs explain several ayat in one passage; say so, so the reader knows it is not about this ayah alone */
+function tfGrp(get,id){const v=get(id);if(!v)return"";const s=sOf(id);let a=id,b=id;
+  while(a>1&&sOf(a-1)===s&&get(a-1)===v)a--;while(b<6236&&sOf(b+1)===s&&get(b+1)===v)b++;
+  return a===b?"":`<p class="tfg">${b-a===1?"تفسير الآيتين":"تفسير الآيات"} ${ar(aOf(a))}–${ar(aOf(b))} معاً</p>`}
 function shBody(id){
   const inMore=MORE.includes(shK);if(inMore)moreK=shK;
   document.querySelectorAll(".shtabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.k===shK||(b.dataset.k==="more"&&inMore))));
@@ -2684,7 +2715,7 @@ function shBody(id){
   },k=shK;
   $("tfSel").hidden=k!=="tf";paintWSel();
   if(k==="tf"){paintTfSel();const T=TFS.find(t=>t.k===tfK)||TFS[0];src.innerHTML=`<span>تفسير ${T.n}</span><span>${T.by}</span>`;
-    if(T.k==="muyassar")load(()=>TF,tafsir,()=>tfHTML(TF[id-1]),"التفسير");
+    if(T.k==="muyassar")load(()=>TF,tafsir,()=>tfGrp(i=>TF[i-1],id)+tfHTML(TF[id-1]),"التفسير");
     else load(()=>tfHave(T.k,id),()=>tfChunk(T.k,id),()=>tfOther(T.k,id),`تفسير ${T.n}`)}
   else if(k==="wd"){src.innerHTML="<span>مستكشف الكلمة</span><span>مدوّنة القرآن الكريم اللغوية</span>";load(()=>WD,wdData,()=>wxHTML(id,wSel),"تحليل الكلمات")}
   else if(k==="gh"){src.innerHTML="<span>الميسّر في غريب القرآن</span><span>مجمع الملك فهد</span>";load(()=>GH,gharib,()=>ghHTML(GH[id-1]),"معاني الكلمات")}
@@ -2981,12 +3012,19 @@ uzSet(store.get("mushaf.uz")||"1");
 $("uzSeg").addEventListener("click",e=>{const b=e.target.closest("[data-uz]");if(!b)return;e.stopPropagation();store.set("mushaf.uz",b.dataset.uz);uzSet(b.dataset.uz);setTimeout(resize,50)});
 let simpleOn=store.get("mushaf.simple")==="1";root.classList.toggle("simple",simpleOn);$("bSimple").setAttribute("aria-checked",String(simpleOn));
 $("bSimple").onclick=e=>{e.stopPropagation();simpleOn=!simpleOn;store.set("mushaf.simple",simpleOn?"1":"0");root.classList.toggle("simple",simpleOn);$("bSimple").setAttribute("aria-checked",String(simpleOn));toast(simpleOn?"الوضع البسيط شغّال":"رجعت كل الأدوات")};
+/* first run: one big question for people who need larger writing, instead of hunting through settings */
+function easyAsk(){if(store.get("mushaf.easyQ"))return;const x=$("easyBox");if(!x||!$("srcBox").hidden)return;
+  x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));setTimeout(()=>$("easyY").focus({preventScroll:true}),80)}
+function easyClose(){const x=$("easyBox");store.set("mushaf.easyQ","1");x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
+$("easyY").onclick=()=>{store.set("mushaf.uz","1.3");uzSet("1.3");if(!simpleOn)$("bSimple").click();easyClose();setTimeout(resize,60)};
+$("easyN").onclick=()=>{easyClose();toast("تكدر تكبّر الكتابة من الإعدادات ← المظهر")};
+setTimeout(easyAsk,1600);
 /* ---------- Quran text lock: the text shown must match the reviewed release (checked at build time and here) ---------- */
 const QLOCK=/*QLOCK*/null;
 async function qCheck(){const m=$("qLockMsg");if(!QLOCK||!window.crypto||!crypto.subtle){m.textContent="التحقق غير متاح بهذا المتصفح.";return}
   const h=async t=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)))].map(b=>b.toString(16).padStart(2,"0")).join("");
   const a=await h(Q.map(s=>s.join("\n")).join("\n\n")),b=await h(K.map(p=>p.map(l=>l[l.length-1].map(w=>typeof w==="string"?w:w[0]).join(" ")).join("\n")).join("\f"));
-  if(a===QLOCK.text&&b===QLOCK.pages){m.textContent=`نص المصحف بهذه النسخة مطابق حرفاً حرفاً للنص المراجَع (${a.slice(0,8)}).`;return}
+  if(a===QLOCK.text&&b===QLOCK.pages){m.textContent=`نص المصحف بهذه النسخة مطابق حرفاً حرفاً لنص مصحف المدينة النبوية (1405هـ) الذي قوبل آيةً آية بنص موسوعة القرآن الكريم QuranEnc، وترتيب الأسطر والصفحات كما في الطبعة. بصمة النص: \u2066${a.slice(0,8)}\u2069`;return}
   m.textContent="تنبيه: نص المصحف بهذه النسخة ما يطابق النص المراجَع. لا تعتمد عليه، وبلّغنا رجاءً.";m.style.color="#c0392b";
   const w=document.createElement("div");w.id="qWarn";w.setAttribute("role","alert");w.textContent="تنبيه: نص المصحف بهذه النسخة تغيّر عن النص المراجَع، لا تعتمد عليه";
   w.style.cssText="position:fixed;z-index:90;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top,0px));padding:10px 14px;border-radius:12px;background:#c0392b;color:#fff;font-size:14px;text-align:center";document.body.appendChild(w)}

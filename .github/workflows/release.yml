@@ -1,0 +1,45 @@
+name: Android release (Play Store)
+
+# Manual run. Builds a signed .aab for Google Play once these repository secrets exist:
+#   ANORA_KEYSTORE_B64  (the upload keystore, base64)   ANORA_KEYSTORE_PASSWORD
+#   ANORA_KEY_ALIAS                                      ANORA_KEY_PASSWORD
+# Without them it stops with a clear message instead of producing an unsigned bundle.
+on:
+  workflow_dispatch:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: gradle
+      - name: Check signing secrets
+        env:
+          K: ${{ secrets.ANORA_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$K" ]; then echo "::error::Add the ANORA_KEYSTORE_B64, ANORA_KEYSTORE_PASSWORD, ANORA_KEY_ALIAS and ANORA_KEY_PASSWORD secrets first."; exit 1; fi
+          echo "$K" | base64 -d > "$RUNNER_TEMP/upload.jks"
+      - run: python3 tools/build.py
+      - name: Smoke test
+        run: npm i --no-save --no-package-lock playwright@1.63.0 && npx playwright install --with-deps chromium && node tests/smoke.js
+      - run: npm ci && npx cap sync android
+      - name: Build signed bundle
+        working-directory: android
+        env:
+          ANORA_KEYSTORE: ${{ runner.temp }}/upload.jks
+          ANORA_KEYSTORE_PASSWORD: ${{ secrets.ANORA_KEYSTORE_PASSWORD }}
+          ANORA_KEY_ALIAS: ${{ secrets.ANORA_KEY_ALIAS }}
+          ANORA_KEY_PASSWORD: ${{ secrets.ANORA_KEY_PASSWORD }}
+        run: chmod +x gradlew && ./gradlew bundleRelease --no-daemon
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anora-release-aab
+          path: android/app/build/outputs/bundle/release/app-release.aab

@@ -10,8 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ServiceInfo;
-import android.media.AudioAttributes;
-import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.IBinder;
@@ -24,7 +22,7 @@ import androidx.core.content.ContextCompat;
 
 /**
  * A foreground service so Android keeps the app (and the recitation playing in it) alive with the screen off.
- * It also owns the media session (lock screen, headset and Bluetooth buttons, car) and audio focus
+ * It also owns the media session (lock screen, headset and Bluetooth buttons, car) (audio focus stays with the web view's player)
  * (the recitation pauses for a phone call and comes back after it, and pauses when headphones are unplugged).
  */
 public class PlaybackService extends Service {
@@ -32,28 +30,11 @@ public class PlaybackService extends Service {
     static PlaybackService inst;
     static final String TOGGLE = "app.anora.quran.TOGGLE", STOP = "app.anora.quran.STOP", NEXT = "app.anora.quran.NEXT", PREV = "app.anora.quran.PREV", CH = "recitation";
     private String title = "أنورا", text = "";
-    private boolean playing = true, pausedByFocus = false, noisyOn = false;
+    private boolean playing = true, noisyOn = false;
     private PowerManager.WakeLock wl;
     private MediaSessionCompat session;
     private AudioManager am;
-    private AudioFocusRequest focusReq;
 
-    private final AudioManager.OnAudioFocusChangeListener focus = change -> {
-        if (change == AudioManager.AUDIOFOCUS_LOSS) {
-            pausedByFocus = false;
-            if (playing) emit("pause");
-        } else if (change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT) {
-            if (playing) {
-                pausedByFocus = true;
-                emit("pause");
-            }
-        } else if (change == AudioManager.AUDIOFOCUS_GAIN) {
-            if (pausedByFocus) {
-                pausedByFocus = false;
-                emit("play");
-            }
-        }
-    };
 
     private final BroadcastReceiver noisy = new BroadcastReceiver() {
         @Override
@@ -143,25 +124,6 @@ public class PlaybackService extends Service {
             .build());
     }
 
-    private void requestFocus() {
-        if (am == null) return;
-        if (Build.VERSION.SDK_INT >= 26) {
-            if (focusReq == null) {
-                focusReq = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
-                    .setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                        .build())
-                    .setOnAudioFocusChangeListener(focus)
-                    .setWillPauseWhenDucked(false)
-                    .build();
-            }
-            am.requestAudioFocus(focusReq);
-        } else {
-            am.requestAudioFocus(focus, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-        }
-    }
-
     private void lock(boolean on) {
         if (on) {
             if (wl == null) {
@@ -223,10 +185,6 @@ public class PlaybackService extends Service {
         inst = null;
         lock(false);
         if (noisyOn) { try { unregisterReceiver(noisy); } catch (Exception e) { } noisyOn = false; }
-        if (am != null) {
-            if (Build.VERSION.SDK_INT >= 26 && focusReq != null) am.abandonAudioFocusRequest(focusReq);
-            else am.abandonAudioFocus(focus);
-        }
         if (session != null) session.release();
         super.onDestroy();
     }

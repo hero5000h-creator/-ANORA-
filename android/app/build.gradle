@@ -7,8 +7,9 @@ android {
         applicationId "app.anora.quran"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        /* every CI run gets a higher version code, so stores and phones accept the update */
+        versionCode((System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger())
+        versionName "0.1." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,8 +17,20 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        /* the upload key comes from CI secrets (see .github/workflows/release.yml); without them release builds stay unsigned */
+        release {
+            if (System.getenv("ANORA_KEYSTORE")) {
+                storeFile file(System.getenv("ANORA_KEYSTORE"))
+                storePassword System.getenv("ANORA_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("ANORA_KEY_ALIAS")
+                keyPassword System.getenv("ANORA_KEY_PASSWORD")
+            }
+        }
+    }
     buildTypes {
         release {
+            if (System.getenv("ANORA_KEYSTORE")) signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

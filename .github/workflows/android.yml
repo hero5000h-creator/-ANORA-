@@ -10,7 +10,21 @@ permissions:
   contents: write
 
 jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: python3 tools/build.py
+      - name: Install a headless browser
+        run: npm i --no-save --no-package-lock playwright@1.63.0 && npx playwright install --with-deps chromium
+      - name: Smoke test (load, text lock, recitation keeps playing, settings on screen)
+        run: node tests/smoke.js
+
   build:
+    needs: smoke
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
