@@ -454,7 +454,10 @@ mark{background:color-mix(in srgb,var(--gold) 30%,transparent);color:inherit;bor
 #player{flex:1;min-width:0;max-width:560px;margin-inline:auto;display:grid;grid-template-columns:auto 1fr auto auto auto auto auto;align-items:center;gap:4px;padding-block:4px}
 #pDl{position:relative}#pDl[hidden]{display:none}#pDl .rg{position:absolute;top:2px;left:calc(50% - 14px);width:28px;height:28px;transform:rotate(-90deg);fill:none;stroke:var(--orn);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:88;stroke-dashoffset:88;transition:stroke-dashoffset .3s}
 #pDl.done{color:var(--orn)}
-html.native body::before{height:0}
+html.android body::before{height:0}
+/* iPhone: the page and bars stay clear of the Dynamic Island / notch and the home indicator */
+html.ios #app{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html.ios #app.ovl>.bar{top:env(safe-area-inset-top,0px)}html.ios #app.ovl>.foot{bottom:env(safe-area-inset-bottom,0px)}
 .foot.playing .scrub,.foot.playing .pnum{display:none}
 #app.imm .foot.playing{display:flex}
 #player .pp{width:44px;height:44px;border-radius:50%;background:var(--orn);color:var(--bar);display:grid;place-items:center}
@@ -2936,7 +2939,8 @@ function nextPlay(){const id=player.id;
   return id>=NA?0:id+1}
 const ayahDur=id=>Math.max(2600,txt(id).length*85);
 /* ---------- native bridge (Capacitor): plugins are called by name, no bundler needed ---------- */
-const CAP=window.Capacitor,NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform());if(NATIVE)root.classList.add("native");
+const CAP=window.Capacitor,NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()),PLAT=NATIVE&&CAP.getPlatform?CAP.getPlatform():"web";
+if(NATIVE)root.classList.add("native",PLAT);
 const nat=(pl,m,o)=>NATIVE&&CAP.nativePromise?CAP.nativePromise(pl,m,o||{}):Promise.reject(new Error("web"));
 const natOn=(pl,ev,fn)=>{try{NATIVE&&CAP.addListener&&CAP.addListener(pl,ev,fn)}catch(e){}};
 /* ---------- real recitation (MP3Quran.net, per-surah files + ayah timings) ---------- */
@@ -2965,7 +2969,7 @@ function startAyah(resume,flow){
   const id=player.id;playA=id;paintHL();showAyahPage(id);
   if(inTable)setTimeout(()=>{renderDeck();const el=$("deckList").querySelector(`.dk[data-id="${id}"]`);el&&el.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"})},reduce?0:950);
   $("pTitle").textContent=`${SUR[sOf(id)][0]} · ${ar(aOf(id))}`+repTitle();store.set("mushaf.playLast",String(id));try{dlUI()}catch(e){}setTimeout(repPlace,reduce?0:700);
-  cancelAnimationFrame(player.raf);if(NATIVE&&bgOn&&player.on)bgSync();
+  cancelAnimationFrame(player.raf);if(player.on)bgSync();
   const g=seg(id);player.seg=g;
   if(g){
     if(auSrc!==g.src){auSrc=g.src;AU.src=g.src;auSeek(g.start)}
@@ -2995,18 +2999,28 @@ function setPlaying(on){
   $("pPlay").setAttribute("aria-label",on?"إيقاف مؤقت":"متابعة التلاوة");
   if(on)startAyah(true);else{cancelAnimationFrame(player.raf);AU.pause();bgSync()}
 }
-function stopPlay(){$("repBox").hidden=true;rep.on=false;repUI();player.on=false;cancelAnimationFrame(player.raf);AU.pause();if(NATIVE)nat("Playback","stop").catch(()=>{});playA=0;$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
+function stopPlay(){$("repBox").hidden=true;rep.on=false;repUI();player.on=false;cancelAnimationFrame(player.raf);AU.pause();if(PLAT==="android")nat("Playback","stop").catch(()=>{});mediaSync();playA=0;$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
 $("recSeg").addEventListener("click",e=>{const b=e.target.closest("[data-rec]");if(!b||b.dataset.rec===reciter)return;
   reciter=b.dataset.rec;store.set("mushaf.reciter",reciter);recUI();AU.pause();auSrc="";
   audData(reciter).then(d=>{aud=d;if(player.on)startAyah(false)});toast(`القارئ: ${RECS[reciter]}`)});
 recUI();audData(reciter).then(d=>{if(!aud)aud=d});
+/* ---------- lock screen, headset and car controls (Media Session, where the web view has it) ---------- */
+function mediaSync(){const ms=navigator.mediaSession;if(!ms)return;try{
+  if($("player").hidden||!player.id){ms.metadata=null;ms.playbackState="none";return}
+  ms.metadata=new MediaMetadata({title:`سورة ${SUR[sOf(player.id)][0]} · الآية ${ar(aOf(player.id))}`,artist:RECS[reciter],album:"أنورا"});
+  ms.playbackState=player.on?"playing":"paused"}catch(e){}}
+try{const ms=navigator.mediaSession;if(ms){
+  ms.setActionHandler("play",()=>{if(!$("player").hidden)setPlaying(true)});
+  ms.setActionHandler("pause",()=>{if(!$("player").hidden)setPlaying(false)});
+  ms.setActionHandler("nexttrack",()=>$("pNext").click());ms.setActionHandler("previoustrack",()=>$("pPrev").click());
+  ms.setActionHandler("stop",()=>stopPlay())}}catch(e){}
 /* ---------- recitation in the background (foreground service with a notification) ---------- */
 let bgOn=store.get("mushaf.bg")!=="0";
 const bgInfo=()=>({title:`${SUR[sOf(player.id)][0]} · الآية ${ar(aOf(player.id))}`,text:RECS[reciter],playing:player.on});
-function bgSync(){if(!NATIVE)return;if(bgOn&&!$("player").hidden&&player.id)nat("Playback","start",bgInfo()).catch(()=>{});else nat("Playback","stop").catch(()=>{})}
+function bgSync(){mediaSync();if(PLAT!=="android")return;if(bgOn&&!$("player").hidden&&player.id)nat("Playback","start",bgInfo()).catch(()=>{});else nat("Playback","stop").catch(()=>{})}
 natOn("Playback","action",d=>{if(d&&d.a==="toggle"){if(!$("player").hidden)setPlaying(!player.on)}else if(d&&d.a==="stop")stopPlay()});
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&!bgOn&&player.on)setPlaying(false)});
-$("bgRow").hidden=!NATIVE;$("bBg").setAttribute("aria-checked",String(bgOn));
+$("bgRow").hidden=PLAT!=="android";if(PLAT==="ios")bgOn=true;$("bBg").setAttribute("aria-checked",String(bgOn));
 $("bBg").onclick=e=>{e.stopPropagation();bgOn=!bgOn;store.set("mushaf.bg",bgOn?"1":"0");$("bBg").setAttribute("aria-checked",String(bgOn));bgSync()};
 /* ---------- downloads for listening offline ---------- */
 let audBase="",dlRun=null,dlT=0;
