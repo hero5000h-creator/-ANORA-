@@ -93,6 +93,12 @@ class AudioPlugin : Plugin() {
         notifyListeners("time", JSObject().put("ms", p.currentPosition).put("playing", p.isPlaying))
     }
 
+    /**
+     * Read "ms" from the call. PluginCall.getLong gives null when the number arrived as an Integer
+     * (any time under ~24 days does), which sent every seek to the start of the surah.
+     */
+    private fun msOf(call: PluginCall): Long = call.data.optDouble("ms", 0.0).toLong().coerceAtLeast(0L)
+
     /** ExoPlayer must be used from the main thread; plugin calls arrive on a background one. */
     private fun onMain(call: PluginCall, block: (ExoPlayer) -> Unit) {
         main.post {
@@ -112,7 +118,7 @@ class AudioPlugin : Plugin() {
             call.reject("no url")
             return
         }
-        val at = call.getLong("ms") ?: 0L
+        val at = msOf(call)
         onMain(call) { p ->
             readySent = false
             p.setMediaItem(MediaItem.fromUri(url), at)
@@ -131,7 +137,7 @@ class AudioPlugin : Plugin() {
 
     @PluginMethod
     fun seek(call: PluginCall) {
-        val ms = call.getLong("ms") ?: 0L
+        val ms = msOf(call)
         onMain(call) { p ->
             p.seekTo(ms)
             emitTime()
