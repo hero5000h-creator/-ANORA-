@@ -116,11 +116,13 @@ public class PlaybackService extends Service {
         if (nm != null) nm.notify(1, build());
     }
 
-    /** wake lock, audio focus, headphone watch and the media session follow playing / paused */
+    /** wake lock, headphone watch and the media session follow playing / paused */
     private void apply() {
         lock(playing);
         if (playing) {
-            requestFocus();
+            /* no audio focus request here: the web view's own player already holds focus
+               (and pauses itself for calls). Asking for it again made the two fight and
+               every play was stopped straight away. */
             if (!noisyOn) {
                 ContextCompat.registerReceiver(this, noisy, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY), ContextCompat.RECEIVER_NOT_EXPORTED);
                 noisyOn = true;
