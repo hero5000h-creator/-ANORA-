@@ -1456,6 +1456,7 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
         <div class="dlbar" hidden><i id="dlBar"></i></div>
         <div class="bkb"><button class="ctb" id="dlSur"></button><button class="ctb" id="dlAll"></button></div>
         <button class="ctb" id="dlDel" hidden>احذف تحميل هذا القارئ</button></div>
+      <div class="posture adv" id="waRow" hidden><span>مشغّل الصوت القديم<small>شغّله بس إذا التلاوة ما تشتغل زين. يتطبّق بعد إعادة فتح التطبيق</small></span><button class="tg" id="bWebAu" role="switch" aria-checked="false" aria-label="مشغّل الصوت القديم"></button></div>
       <div class="posture" id="bgRow" hidden><span>التلاوة بالخلفية<small>تكمل التلاوة لو طلعت من التطبيق أو طفيت الشاشة</small></span><button class="tg" id="bBg" role="switch" aria-checked="true" aria-label="التلاوة بالخلفية"></button></div>
       <div class="posture"><span>إبقاء الشاشة مضاءة<small>لا تنطفئ الشاشة وأنت تقرأ</small></span><button class="tg" id="bWake" role="switch" aria-checked="true" aria-label="إبقاء الشاشة مضاءة"></button></div>
       <div class="posture"><span>صوت الورق<small>حفيف خفيف عند قلب الصفحة</small></span><button class="tg" id="bSnd" role="switch" aria-checked="false" aria-label="صوت الورق"></button></div>
@@ -3197,7 +3198,30 @@ const natOn=(pl,ev,fn)=>{try{NATIVE&&CAP.addListener&&CAP.addListener(pl,ev,fn)}
 /* ---------- real recitation (MP3Quran.net, per-surah files + ayah timings) ---------- */
 const RECS={husary:"محمود خليل الحصري",alafasy:"مشاري العفاسي"};
 let reciter=RECS[store.get("mushaf.reciter")]?store.get("mushaf.reciter"):"husary",aud=null,auSrc="";
-const AUD={},AU=new Audio();AU.preload="auto";
+/* On Android the recitation plays in the app's own player (AudioPlugin.kt, Media3), not in the web view.
+   natAudio() gives it the small part of the <audio> interface this file uses (src, currentTime, play, pause,
+   readyState, ended, paused, events), so the ayah timing code below works the same on every platform.
+   Between the player's reports (every 200 ms) the time runs on from the last one. */
+function natAudio(){
+  const L={},on=(t,f,o)=>{(L[t]=L[t]||[]).push({f,once:!!(o&&o.once)})},
+    fire=t=>{const ls=L[t]||[];L[t]=ls.filter(x=>!x.once);ls.forEach(x=>{try{x.f()}catch(e){}});if(t==="error"&&A.onerror)A.onerror()};
+  let src="",pos=0,at=0,playing=false,rs=0,ended=false;
+  natOn("Audio","time",d=>{if(!d)return;pos=+d.ms||0;at=performance.now();playing=!!d.playing;fire("timeupdate")});
+  natOn("Audio","loaded",()=>{if(rs<1){rs=1;fire("loadedmetadata")}});
+  natOn("Audio","ended",()=>{ended=true;playing=false;fire("ended")});
+  natOn("Audio","error",()=>{playing=false;fire("error")});
+  natOn("Audio","halt",()=>{playing=false;if(player.on)setPlaying(false)});
+  const A={preload:"auto",onerror:null,addEventListener:on,
+    get src(){return src},
+    set src(u){src=u;rs=0;ended=false;pos=0;playing=false;
+      nat("Audio","load",{url:String(u).replace(/^https?:\/\/localhost\/_capacitor_file_/,"file://")}).catch(()=>fire("error"))},
+    get currentTime(){return (pos+(playing?performance.now()-at:0))/1000},
+    set currentTime(v){pos=v*1000;at=performance.now();ended=false;nat("Audio","seek",{ms:Math.max(0,Math.round(pos))}).catch(()=>{})},
+    get readyState(){return rs},get ended(){return ended},get paused(){return !playing&&!A._want},_want:false,
+    play(){ended=false;A._want=true;return nat("Audio","play").catch(e=>{A._want=false;throw e})},
+    pause(){A._want=false;playing=false;nat("Audio","pause").catch(()=>{})}};
+  return A}
+const AUD={},AU=PLAT==="android"&&NATIVE&&CAP.isPluginAvailable&&CAP.isPluginAvailable("Audio")&&store.get("mushaf.webAudio")!=="1"?natAudio():new Audio();AU.preload="auto";
 const AUDD={},audData=r=>AUD[r]||(AUD[r]=fetch(`audio/${r}.json`).then(x=>{if(!x.ok)throw 0;return x.json()}).then(d=>{AUDD[r]=d;try{dlUI()}catch(e){}return d}).catch(()=>{delete AUD[r];return null}));
 const fmtSize=b=>b>=1e9?`${ar((b/1073741824).toFixed(1)).replace(".","٫")} غيغا`:`${ar(Math.max(1,Math.round(b/1048576)))} ميغا`;
 function recUI(){$("pRec").textContent=RECS[reciter];if(typeof dlUI==="function"&&$("dlBox"))try{dlUI()}catch(e){}document.querySelectorAll("#recSeg [data-rec]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rec===reciter)))}
@@ -3273,7 +3297,7 @@ natOn("Playback","action",d=>{const a=d&&d.a,open=!$("player").hidden;if(!a)retu
   if(a==="toggle"){if(open)setPlaying(!player.on)}else if(a==="play"){if(open&&!player.on)setPlaying(true)}else if(a==="pause"){if(open&&player.on)setPlaying(false)}
   else if(a==="next"){if(open)$("pNext").click()}else if(a==="prev"){if(open)$("pPrev").click()}else if(a==="stop")stopPlay()});
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&!bgOn&&player.on)setPlaying(false)});
-$("bgRow").hidden=PLAT!=="android";if(PLAT==="ios")bgOn=true;$("bBg").setAttribute("aria-checked",String(bgOn));
+$("bgRow").hidden=PLAT!=="android";$("waRow").hidden=PLAT!=="android";$("bWebAu").setAttribute("aria-checked",String(store.get("mushaf.webAudio")==="1"));$("bWebAu").onclick=()=>{const on=store.get("mushaf.webAudio")!=="1";store.set("mushaf.webAudio",on?"1":"0");$("bWebAu").setAttribute("aria-checked",String(on));toast("يتطبّق بعد ما تسكّر التطبيق وتفتحه")};if(PLAT==="ios")bgOn=true;$("bBg").setAttribute("aria-checked",String(bgOn));
 $("bBg").onclick=e=>{e.stopPropagation();bgOn=!bgOn;store.set("mushaf.bg",bgOn?"1":"0");$("bBg").setAttribute("aria-checked",String(bgOn));bgSync()};
 /* ---------- downloads for listening offline ---------- */
 let audBase="",dlRun=null,dlT=0;

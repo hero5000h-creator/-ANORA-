@@ -19,6 +19,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(PlaybackPlugin.class);
         registerPlugin(SpeechPlugin.class);
+        registerPlugin(AudioPlugin.class);
         super.onCreate(savedInstanceState);
         immersive();
         fastestRefresh();

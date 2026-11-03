@@ -22,7 +22,7 @@ import androidx.core.content.ContextCompat;
 
 /**
  * A foreground service so Android keeps the app (and the recitation playing in it) alive with the screen off.
- * It also owns the media session (lock screen, headset and Bluetooth buttons, car) (audio focus stays with the web view's player)
+ * It also owns the media session (lock screen, headset and Bluetooth buttons, car); audio focus is held by the player itself (AudioPlugin.kt)
  * (the recitation pauses for a phone call and comes back after it, and pauses when headphones are unplugged).
  */
 public class PlaybackService extends Service {
@@ -101,9 +101,9 @@ public class PlaybackService extends Service {
     private void apply() {
         lock(playing);
         if (playing) {
-            /* no audio focus request here: the web view's own player already holds focus
-               (and pauses itself for calls). Asking for it again made the two fight and
-               every play was stopped straight away. */
+            /* no audio focus request here: the player (AudioPlugin.kt, or the web view's <audio> as a fallback)
+               already holds focus and pauses itself for calls. Asking for it again here made the two fight
+               and every play was stopped straight away. */
             if (!noisyOn) {
                 ContextCompat.registerReceiver(this, noisy, new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY), ContextCompat.RECEIVER_NOT_EXPORTED);
                 noisyOn = true;
