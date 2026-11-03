@@ -12,7 +12,7 @@ The ANORA app code is licensed under the GNU GPL v3 or later (see `LICENSE`). Ea
 | المختصر في التفسير | Markaz Tafsir (مركز تفسير للدراسات القرآنية) | Permission requested |
 | تفسير السعدي، الجلالين، ابن كثير، البغوي، الميسّر في غريب القرآن | Digital text from [spa5k/tafsir_api](https://github.com/spa5k/tafsir_api) | Rights belong to their owners |
 | Adhkar | «حصن المسلم», Sa'id ibn Ali ibn Wahf al-Qahtani | Takhrij reviewed |
-| Recitation audio (Al-Husary, Mishary Alafasy) | [MP3Quran.net](https://mp3quran.net) | Per MP3Quran.net terms |
+| Recitation audio (Al-Husary, Mishary Alafasy) and ayah timings | [MP3Quran.net](https://mp3quran.net) | Written permission from the MP3Quran team (support@mp3quran.com, 2026-11-03): use of the recitations and reciter list in ANORA for non-commercial, religious purposes, with attribution to MP3Quran.com inside the app. |
 | UI fonts: Amiri, Amiri Quran, Scheherazade New, IBM Plex Sans Arabic | Google Fonts | SIL OFL 1.1 (`licenses/OFL-1.1.txt`) |
 
 Open item: the Waqf GPL 2.0 and GPL-3.0 compatibility still has to be confirmed against the Waqf licence text.
