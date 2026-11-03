@@ -5,6 +5,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.Display;
 import android.view.WindowManager;
+import android.view.View;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
@@ -19,6 +22,39 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
         immersive();
         fastestRefresh();
+        watchCutout();
+    }
+
+    /** Camera hole / notch size in CSS px (top, right, bottom, left); read by the page through Playback.insets. */
+    static volatile int[] cut = { 0, 0, 0, 0 };
+
+    /**
+     * The app runs full screen, so the page reaches the camera hole. The web view does not always report it
+     * (env(safe-area-inset-top) stays 0 with hidden bars), so the cutout is measured here and handed to the
+     * page as --cutT/--cutR/--cutB/--cutL; the top bar then starts below the camera.
+     */
+    private void watchCutout() {
+        View d = getWindow().getDecorView();
+        ViewCompat.setOnApplyWindowInsetsListener(d, (v, in) -> {
+            Insets c = in.getInsetsIgnoringVisibility(WindowInsetsCompat.Type.displayCutout());
+            float k = getResources().getDisplayMetrics().density;
+            int[] n = { Math.round(c.top / k), Math.round(c.right / k), Math.round(c.bottom / k), Math.round(c.left / k) };
+            if (n[0] != cut[0] || n[1] != cut[1] || n[2] != cut[2] || n[3] != cut[3]) {
+                cut = n;
+                pushCutout();
+            }
+            return ViewCompat.onApplyWindowInsets(v, in);
+        });
+        ViewCompat.requestApplyInsets(d);
+    }
+
+    void pushCutout() {
+        try {
+            int[] n = cut;
+            String js = "(function(s){s.setProperty('--cutT','" + n[0] + "px');s.setProperty('--cutR','" + n[1] + "px');s.setProperty('--cutB','"
+                    + n[2] + "px');s.setProperty('--cutL','" + n[3] + "px');window.dispatchEvent(new Event('resize'))})(document.documentElement.style)";
+            if (getBridge() != null && getBridge().getWebView() != null) getBridge().getWebView().post(() -> getBridge().getWebView().evaluateJavascript(js, null));
+        } catch (Exception ignored) { }
     }
 
     @Override

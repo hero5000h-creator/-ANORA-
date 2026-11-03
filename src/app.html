@@ -471,6 +471,10 @@ html.android body::before{height:0}
 /* iPhone: the page and bars stay clear of the Dynamic Island / notch and the home indicator */
 html.ios #app{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html.ios #app.ovl>.bar{top:env(safe-area-inset-top,0px)}html.ios #app.ovl>.foot{bottom:env(safe-area-inset-bottom,0px)}
+/* Android, full screen: keep the bars clear of the camera hole (sizes measured by the app, see MainActivity) */
+html.android #app{box-sizing:border-box;padding-top:var(--cutT,0px);padding-bottom:var(--cutB,0px);padding-left:var(--cutL,0px);padding-right:var(--cutR,0px)}
+html.android #app.ovl>.bar{top:var(--cutT,0px)}html.android #app.ovl>.foot{bottom:var(--cutB,0px)}
+html.android body::before{height:var(--cutT,0px)}
 .foot.playing .scrub,.foot.playing .pnum{display:none}
 #app.imm .foot.playing{display:flex}
 #player .pp{width:44px;height:44px;border-radius:50%;background:var(--orn);color:var(--bar);display:grid;place-items:center}
@@ -1300,6 +1304,78 @@ html.thumb .fthumb.azb{color:var(--gold)}
 #azNudge b{color:#f0c98a;font-size:18px;line-height:1}
 @keyframes nudgeIn{from{opacity:0;transform:translate(-50%,16px) scale(.94)}60%{transform:translate(-50%,-2px) scale(1.01)}}
 .si-t a{color:var(--orn);text-decoration:underline;text-underline-offset:3px}
+
+/* ANORA phone chrome · Variant B · "مصحف" (classic mushaf)
+   The bars become the printed mushaf's border: warm paper tinted with gold, a double gold rule where the bar
+   meets the page, the surah name centred in Amiri between two small gold diamonds, square buttons with a
+   gold hairline like the boxes of a printed index, the page number in a gold medallion and a diamond
+   thumb on the slider. The menu and the ayah sheet take the same framed look.
+   Append at the end of the app's main <style>. Phone only (html.phoneM). */
+
+html.phoneM{--b-bg:color-mix(in srgb,var(--bar) 90%,var(--gold));--b-rim:color-mix(in srgb,var(--gold) 70%,transparent);--b-soft:color-mix(in srgb,var(--gold) 35%,transparent)}
+
+/* 1 · top bar: warm band, double gold rule underneath, a fine inner rule like a printed frame */
+html.phoneM #app>.bar{background:linear-gradient(var(--bar),var(--b-bg));border-bottom:3px double var(--b-rim);box-shadow:0 6px 14px -12px var(--shadow);padding-block:5px 6px}
+html.phoneM #app>.bar::after{content:"";position:absolute;left:10px;right:10px;bottom:3px;height:1px;background:var(--b-soft);pointer-events:none}
+html.phoneM .where{align-items:center;text-align:center}
+html.phoneM .where b{font-size:19px;color:var(--bar-ink);letter-spacing:0}
+html.phoneM .where b::before,html.phoneM .where b::after{content:"";display:inline-block;width:6px;height:6px;margin-inline:9px;vertical-align:4px;transform:rotate(45deg);background:var(--gold);opacity:.8}
+html.phoneM .where small{font-size:12.5px;color:color-mix(in srgb,var(--bar-ink) 70%,var(--bar))}
+html.phoneM #jprog{bottom:-3px;background:var(--gold);opacity:.8}
+
+/* square framed buttons, 44px, gold hairline, ink in the cover green */
+html.phoneM .bar .ib,html.phoneM #bPrefs,html.phoneM .btn-index{width:44px;height:44px;padding:0;justify-content:center;border-radius:7px;
+  background:var(--bar);border:1px solid var(--b-soft);box-shadow:inset 0 0 0 2px var(--bar),inset 0 0 0 3px color-mix(in srgb,var(--gold) 16%,transparent);color:var(--orn)}
+html.phoneM .bar .ib.azb{color:var(--gold)}
+html.phoneM .bar .ib:active,html.phoneM .btn-index:active,html.phoneM #bPrefs[aria-expanded="true"]{background:var(--orn);color:var(--bar);border-color:var(--orn)}
+html.phoneM .tools{gap:6px}
+
+/* 2 · bottom bar: the same band upside down, page number in a medallion, diamond thumb */
+html.phoneM #app>.foot{background:linear-gradient(var(--b-bg),var(--bar));border-top:3px double var(--b-rim);box-shadow:0 -6px 14px -12px var(--shadow);padding-block:6px}
+html.phoneM #app>.foot::after{content:"";position:absolute;left:10px;right:10px;top:3px;height:1px;background:var(--b-soft);pointer-events:none}
+html.phoneM .pnum{min-width:60px;min-height:44px;padding:2px 12px;border-radius:999px;background:var(--bar);border:1px solid var(--b-rim);box-shadow:inset 0 0 0 2px var(--bar),inset 0 0 0 3px var(--b-soft)}
+html.phoneM .pnum b{font-size:17px;color:var(--bar-ink)}
+html.phoneM .pnum small{font-size:12px;color:color-mix(in srgb,var(--bar-ink) 65%,var(--bar))}
+html.phoneM .scrub,html.phoneM #range,html.phoneM #range::-webkit-slider-runnable-track{height:44px}
+html.phoneM .trk{height:3px;margin-top:-1.5px;background:var(--b-soft)}
+html.phoneM .trk>i{background:var(--gold)}
+html.phoneM .trk>b{background:var(--b-rim);height:7px;top:-2px}
+html.phoneM #range::-webkit-slider-thumb{width:20px;height:20px;margin-top:12px;border-radius:3px;transform:rotate(45deg);background:var(--orn);border:2px solid var(--bar);box-shadow:0 0 0 1px var(--gold),0 2px 5px var(--shadow)}
+html.phoneM #range:active::-webkit-slider-thumb{transform:rotate(45deg) scale(1.25)}
+html.phoneM #range::-moz-range-thumb{border-radius:3px;transform:rotate(45deg);box-shadow:0 0 0 1px var(--gold)}
+
+/* 3 · recitation player: play button ringed in gold like an ayah medallion, buttons in framed cells */
+html.phoneM #player{padding-block:4px 2px}
+html.phoneM #player .pp{width:54px;height:54px;background:var(--orn);box-shadow:0 0 0 3px var(--bar),0 0 0 4.5px var(--gold),0 6px 14px -6px var(--shadow)}
+html.phoneM #player .pinfo b{font-size:17px;color:var(--bar-ink)}
+html.phoneM #player .pbar{height:3px;background:var(--b-soft)}
+html.phoneM #player .pbar i{background:var(--gold)}
+html.phoneM #player .ib{color:var(--orn);border-radius:6px}
+html.phoneM #player .ib+.ib{border-inline-start:1px solid var(--b-soft);border-radius:0}
+html.phoneM #player .ib:active{background:color-mix(in srgb,var(--gold) 14%,transparent)}
+html.phoneM #player .cap{font-size:11px;color:var(--bar-ink)}
+html.phoneM #pStop{margin-inline-start:0}
+
+/* 4 · menu: a framed page, gold rule inside the edge, tiles as framed boxes */
+html.phoneM #prefs{left:8px;width:calc((100vw - 16px) / var(--uz,1));border-radius:8px;border:1px solid var(--b-rim);background:var(--bar);
+  box-shadow:inset 0 0 0 4px var(--bar),inset 0 0 0 5px var(--b-soft),0 18px 40px -12px var(--shadow);padding:18px}
+html.phoneM .qa.q4 .qt,html.phoneM .qt{border-radius:7px;background:color-mix(in srgb,var(--gold) 7%,var(--bar));border:1px solid var(--b-soft)}
+html.phoneM .qt[aria-pressed="true"]{background:var(--orn);border-color:var(--orn)}
+html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold) 70%,var(--bar-ink))}
+html.phoneM #prefs .qh::before{content:"";display:inline-block;width:6px;height:6px;margin-inline-end:8px;transform:rotate(45deg) translateY(-2px);background:var(--gold)}
+html.phoneM .ptabs{border-radius:7px;background:transparent;border:1px solid var(--b-soft)}
+html.phoneM .ptabs button{height:42px;border-radius:5px}
+html.phoneM .ptabs button[aria-selected="true"]{color:var(--bar-ink);box-shadow:inset 0 -2px 0 var(--gold)}
+html.phoneM .sw{border-radius:7px;border-color:var(--b-soft)}
+
+/* 5 · ayah sheet: warm header closed by the same double gold rule */
+html.phoneM #sheet{border-color:var(--b-rim);border-radius:12px 12px 0 0}
+html.phoneM #sheet .shh{background:linear-gradient(var(--bar),var(--b-bg));box-shadow:none;border-bottom:3px double var(--b-rim)}
+html.phoneM #sheet .grab{background:var(--b-rim)}
+
+/* calm reading: the band goes, the centred title with its diamonds stays faint */
+html.phoneM #app.calm>.bar{background:transparent;border-bottom-color:transparent}
+html.phoneM #app.calm>.bar::after{opacity:0}
 </style>
 
 
@@ -3089,7 +3165,7 @@ async function qCheck(){const m=$("qLockMsg");if(!QLOCK||!window.crypto||!crypto
 setTimeout(()=>qCheck().catch(()=>{}),2500);
 /* ---------- native bridge (Capacitor): plugins are called by name, no bundler needed ---------- */
 const CAP=window.Capacitor,NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()),PLAT=NATIVE&&CAP.getPlatform?CAP.getPlatform():"web";
-if(NATIVE)root.classList.add("native",PLAT);
+if(NATIVE)root.classList.add("native",PLAT);if(PLAT==="android")setTimeout(()=>nat("Playback","insets").then(c=>{if(!c)return;const st=root.style;st.setProperty("--cutT",(c.t|0)+"px");st.setProperty("--cutR",(c.r|0)+"px");st.setProperty("--cutB",(c.b|0)+"px");st.setProperty("--cutL",(c.l|0)+"px");try{resize()}catch(e){}}).catch(()=>{}),0);
 const nat=(pl,m,o)=>NATIVE&&CAP.nativePromise?CAP.nativePromise(pl,m,o||{}):Promise.reject(new Error("web"));
 const natOn=(pl,ev,fn)=>{try{NATIVE&&CAP.addListener&&CAP.addListener(pl,ev,fn)}catch(e){}};
 /* ---------- real recitation (MP3Quran.net, per-surah files + ayah timings) ---------- */

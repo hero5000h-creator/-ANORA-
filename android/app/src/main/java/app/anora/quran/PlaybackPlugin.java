@@ -58,6 +58,18 @@ public class PlaybackPlugin extends Plugin {
         call.resolve();
     }
 
+    /** Camera hole / notch size in CSS px, so the page can keep its top bar clear of it. */
+    @PluginMethod
+    public void insets(PluginCall call) {
+        int[] n = MainActivity.cut;
+        JSObject o = new JSObject();
+        o.put("t", n[0]);
+        o.put("r", n[1]);
+        o.put("b", n[2]);
+        o.put("l", n[3]);
+        call.resolve(o);
+    }
+
     void emit(String action) {
         JSObject o = new JSObject();
         o.put("a", action);
