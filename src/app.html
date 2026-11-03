@@ -800,6 +800,9 @@ html.spreadM:not(.study) #cont{left:75%;width:min(400px,calc(50% - 28px))}
 #toast{position:fixed;z-index:40;left:50%;top:8px;bottom:auto;transform:translate(-50%,-8px);max-width:calc((100vw - 24px) / var(--uz,1));box-sizing:border-box;text-align:center;opacity:0;pointer-events:none;
   background:var(--bar);color:var(--bar-ink);font-size:13.5px;padding:8px 14px;border-radius:12px;box-shadow:0 8px 22px -10px rgba(0,0,0,.4),inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent);transition:opacity .2s,transform .2s;white-space:normal}
 #toast.on{opacity:1;transform:translate(-50%,0)}
+/* inside the top bar the toast covers the whole bar for a moment, so nothing peeks out around it */
+#toast.inbar{left:0;right:0;max-width:none;box-sizing:border-box;border-radius:0;display:flex;align-items:center;justify-content:center;padding:0 16px;font-size:15px;font-weight:600;transform:translateY(-4px);box-shadow:inset 0 -1px 0 var(--line)}
+#toast.inbar.on{transform:none}
 @media (prefers-reduced-motion:reduce){#sheet,#quiz,#toast{transition:none}}
 
 /* v39: settings in three short sections under the quick tiles */
@@ -842,6 +845,12 @@ html.spreadM:not(.study) #cont{left:75%;width:min(400px,calc(50% - 28px))}
 .flend i{display:block;width:30px;height:30px;background:var(--o-num) center/contain no-repeat}
 
 .ib.fz{display:flex;align-items:baseline;gap:1px;width:auto;padding:0 8px}
+html.uzL .flbar .ib{zoom:var(--uz,1);color:var(--ink)}html.uzL .ib.fz{min-width:52px;justify-content:center;font-weight:700;border:1px solid var(--line);border-radius:12px;margin-inline:2px}
+/* open Fold, large print: when a side panel opens, the text moves to the free half instead of hiding under it */
+html.thumb #flow{transition:padding .3s var(--ease)}
+html.thumb #app:has(#prefs:not([hidden])) #flow,html.thumb #app:has(#srcBox:not([hidden])) #flow{padding-left:50vw}
+html.thumb #app:has(#sheet.dock:not(.dR):not([hidden])) #flow{padding-left:50vw}
+html.thumb #app:has(#sheet.dock.dR:not([hidden])) #flow{padding-right:50vw}
 .ib.fz sub{font-size:13px;font-weight:700;vertical-align:baseline}
 /* thumb reach on the open Fold: the index and the menu move down to the corners of the footer */
 .fthumb{display:none}
@@ -2505,7 +2514,8 @@ let toastT;function toast(m){const t=$("toast"),a=$("app"),f=document.querySelec
   {const bar=document.querySelector("#app>.bar"),calmO=a.classList.contains("ovl")&&a.classList.contains("calm")&&!root.classList.contains("phoneM");
     const br=bar&&bar.getBoundingClientRect(),th=t.offsetHeight||40;t.style.bottom="auto";
     const z=root.classList.contains("uzL")?(parseFloat(root.style.getPropertyValue("--uz"))||1):1;
-    t.style.top=(!calmO&&br&&br.height>8)?Math.max(4,br.top+(br.height-th*z)/2)/z+"px":"calc(6px + env(safe-area-inset-top,0px))"}
+    const inBar=!calmO&&br&&br.height>8;t.classList.toggle("inbar",!!inBar);
+    if(inBar){t.style.top=br.top/z+"px";t.style.height=br.height/z+"px"}else{t.style.top="calc(6px + env(safe-area-inset-top,0px))";t.style.height=""}}
   t.classList.add("on");$("app").classList.add("toasting");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("on");$("app").classList.remove("toasting")},1800)}
 const HLC=[{k:"y",c:"#e2b93b",n:"رحمة وبشارة"},{k:"g",c:"#5fae7d",n:"دعاء"},{k:"b",c:"#4f8fd0",n:"قصص"},{k:"v",c:"#9a72c9",n:"تدبّر"},{k:"o",c:"#e0874a",n:"أوامر"},{k:"r",c:"#d0596b",n:"تحذير"}];
 const hl={get(){try{return JSON.parse(store.get("mushaf.hl")||"{}")}catch(e){return {}}},of(id){return this.get()[id]||""},
@@ -3037,9 +3047,8 @@ function easyAsk(){if(store.get("mushaf.easyQ"))return;const x=$("easyBox");if(!
   x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));setTimeout(()=>$("easyY").focus({preventScroll:true}),80)}
 function easyClose(){const x=$("easyBox");store.set("mushaf.easyQ","1");x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
 $("easyY").onclick=()=>{store.set("mushaf.uz","1.3");uzSet("1.3");if(!simpleOn)$("bSimple").click();easyClose();
-  /* the Quran too: one big page instead of two on the open Fold, large-print reading on a phone */
-  if(mode==="spread"){store.set("mushaf.view","1");markView();setTimeout(resize,60);setTimeout(()=>toast("صارت صفحة وحدة بخط أكبر · ترجع لصفحتين من الإعدادات"),400)}
-  else{setTimeout(()=>{if(!flowOn)$("bFlow").click()},120)}};
+  /* the Quran too: large-print reading */
+  setTimeout(()=>{if(!flowOn)$("bFlow").click()},120)};
 $("easyN").onclick=()=>{easyClose();toast("تكدر تكبّر الكتابة من الإعدادات ← المظهر")};
 setTimeout(easyAsk,1600);
 /* the bars change height with text size, simple mode, the player and the memo bar; keep the layout in step */
