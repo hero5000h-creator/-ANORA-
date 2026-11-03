@@ -4,7 +4,7 @@ const {chromium}=require("playwright");const fs=require("fs"),path=require("path
 const WWW=path.join(__dirname,"..","www"),TONE=fs.readFileSync(path.join(__dirname,"tone.mp3"));
 const src=fs.readFileSync(path.join(WWW,"index.html"),"utf8"),hook='recUI();audData(reciter).then(d=>{if(!aud)aud=d});';
 if(!src.includes(hook))throw new Error("test hook point not found in www/index.html");
-fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={playFrom,P:()=>player,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement)};"));
+fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={playFrom,P:()=>player,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),turn:{rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
 const types={".html":"text/html",".js":"text/javascript",".json":"application/json",".woff2":"font/woff2",".ttf":"font/ttf",".css":"text/css"};
 const srv=http.createServer((q,r)=>{const f=path.join(WWW,decodeURIComponent(q.url.split("?")[0]));
   fs.readFile(f,(e,b)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{"content-type":types[path.extname(f)]||"application/octet-stream"});r.end(b)})}).listen(0);
@@ -38,6 +38,18 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       return r.fulfill({status:206,headers:{"content-type":"audio/mpeg","accept-ranges":"bytes","content-range":`bytes ${a}-${e}/${B.length}`},body:B.subarray(a,e+1)})}
       r.fulfill({status:200,headers:{"content-type":"audio/mpeg","accept-ranges":"bytes"},body:B})});
     await p.goto(`http://localhost:${port}/smoke.html`);await p.waitForTimeout(4000);
+    /* page turn: the page images for the curl must render (an invalid SVG once made every turn a flat fold),
+       the curl / 3D spread must be the one used, and every turn style must move exactly one page (spread: two) */
+    {const r=await p.evaluate(async()=>{const T=__smk.turn,c0=T.cur();const img=await T.rasterPage(c0);
+        const step=T.mode()==="spread"?2:1;const f=T.setupFlip("fwd",c0+step);const kind=f.b3?"3d":f.curl?"curl":"flat";T.finish(f,false);return {img:!!img,kind,c0,step}});
+      ok(r.img,`${name}: page image for the curl renders`);ok(r.kind===(name==="fold"?"3d":"curl"),`${name}: turn uses the ${name==="fold"?"3D spread":"curl"} (${r.kind})`);
+      const bb=await p.locator("#book").boundingBox(),y=bb.y+bb.height*.6;
+      for(const st of ["curl","slide","none"]){await p.evaluate(s=>localStorage.setItem("mushaf.turn",s),st);
+        const c0=await p.evaluate(()=>__smk.turn.cur());
+        await p.mouse.move(bb.x+bb.width*.2,y);await p.mouse.down();for(let k=1;k<=10;k++){await p.mouse.move(bb.x+bb.width*(.2+k*.06),y);await p.waitForTimeout(16)}await p.mouse.up();await p.waitForTimeout(1100);
+        const c1=await p.evaluate(()=>__smk.turn.cur());ok(c1===c0+r.step,`${name}: swipe turns one ${r.step>1?"spread":"page"} with "${st}" (${c0}→${c1})`);
+        await p.evaluate(()=>{document.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowRight"}))});await p.waitForTimeout(1100)}
+      await p.evaluate(()=>localStorage.removeItem("mushaf.turn"))}
     ok(!errs.length,`${name}: no script errors on load ${errs.join(" | ")}`);
     ok(await p.evaluate(()=>__smk.nativeAudio),`${name}: Android uses the native player`);
     const lock=await p.evaluate(()=>document.getElementById("qLockMsg").textContent);ok(/مطابق/.test(lock),`${name}: Quran text lock matches`);
