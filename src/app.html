@@ -2566,7 +2566,7 @@ function openAyah(id){
   selA=id;wSel=lastW;lastW=0;wxLemma=-1;wxN=WX_PAGE;paintHL();hideHint();sheetAt=performance.now();
   const sh=$("sheet");
   $("shTitle").textContent="سورة "+SUR[sOf(id)][0];$("shNum").textContent=ar(aOf(id));$("shPos").textContent=`الآية ${ar(aOf(id))} من ${ar(SUR[sOf(id)][1])}`;$("sheet").setAttribute("aria-label",ref(id));
-  $("shMeta").textContent=`الآية ${ar(aOf(id))} · الجزء ${ar(jOf(id))} · الحزب ${ar((qOf(id)>>2)+1)} · صفحة ${ar(pOf(id))} · حفص عن عاصم`;
+  $("shMeta").textContent=`الآية ${ar(aOf(id))} · الجزء ${ar(jOf(id))}${document.documentElement.classList.contains("uzL")&&innerWidth<700?"":` · الحزب ${ar((qOf(id)>>2)+1)}`} · صفحة ${ar(pOf(id))} · حفص عن عاصم`;
   if(!flowOn&&!deckPages().includes(pOf(id)))try{showAyahPage(id)}catch(e){}
   $("shText").innerHTML=`${AW[id].map((w,i)=>`<span class="w" data-w="${i}">${escH(w)}</span>`).join(" ")} <span class="an">۝${ar(aOf(id))}</span>`;
   $("aMark").setAttribute("aria-pressed",String(marks.has(id)));aGrpUI();$("aHl").setAttribute("aria-pressed",String(!!hlK(id)));hlPalUI();$("aNote").setAttribute("aria-pressed",String(!!(notes.get()[id]&&notes.get()[id].t)));
