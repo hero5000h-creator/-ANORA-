@@ -149,6 +149,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 .box{flex:1;min-height:0;position:relative;padding:.6% 0}
 /* mushaf ornament: a gilded band around the text block, drawn per paper colour (see ornaments()) */
 .pg:not(.blank) .box{border-style:solid;border-width:calc(var(--pw) * .042);border-image:var(--o-frame) 30 round;padding:calc(var(--pw) * .012) calc(var(--pw) * .016);margin:calc(var(--pw) * .006) 0}
+/* phones: a slimmer frame and margins give the text about 9% more width, so the letters grow */
+html.phoneM .pg .frame{inset:2.2% 1.6% 1.2% 1.6%}
+html.phoneM .pg:not(.blank) .box{border-width:calc(var(--pw) * .027);padding:calc(var(--pw) * .016) calc(var(--pw) * .012)}
+html.phoneM .ph{font-size:calc(var(--pw) * .047);padding:0 .3em .25em}
+html.phoneM .pf{font-size:calc(var(--pw) * .05);margin-top:.15em}
+html.phoneM #stage{background:var(--paper);background-image:none}
 /* fifteen lines per page, each line holds exactly the words of the printed Madinah mushaf */
 /* The 1405H Madinah print, line for line: each line has its printed width, its words keep the letter
    stretches the print uses (font features) and each space its exact width, all in em. */
@@ -1659,7 +1665,11 @@ function resize(){
   const pv=store.get("mushaf.view")||"auto",
     auto=(SW>=600&&wd>=280&&hd>=hs*.62)||(SW>=480&&SW/SH>=.74&&wd>=200);
   const m=inStudy?"single":force||(pv==="2"?"spread":pv==="1"?"single":auto?"spread":"single");
-  const w=Math.floor(m==="spread"?wd:ws), h=Math.floor(m==="spread"?hd:hs);
+  let w=Math.floor(m==="spread"?wd:ws), h=Math.floor(m==="spread"?hd:hs);
+  /* tall phones (20:9): the page stops at about 1:2.08 so the extra height does not turn into gaps between lines;
+     what is left over goes 40% above and 60% below, on paper-coloured ground so it reads as one sheet */
+  const phone=full&&m==="single"&&!inTable&&!inStudy&&h/w>1.75;root.classList.toggle("phoneM",phone);
+  if(phone&&h/w>2.08){const h2=Math.floor(w*2.08);cy+=(h-h2)*.1;h=h2}
   edges.room=(Math.min(cx,SW-cx+(sg?0:0))-(m==="spread"?w:w/2));
   wrap.style.left=cx+"px";wrap.style.top=cy+"px";
   $("app").classList.toggle("full",full);
