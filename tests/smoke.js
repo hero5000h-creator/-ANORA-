@@ -72,6 +72,14 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     if(name==="phone"){
       const r=await p.evaluate(()=>{const b=document.querySelector("#app>.bar").getBoundingClientRect(),f=document.querySelector(".flbar");return f&&!document.getElementById("flow").hidden?[b.bottom,f.getBoundingClientRect().top]:[1,-1]});
       ok(r[1]>=r[0]-1,`${name}: large-print toolbar starts below the top bar after "yes" (${r.map(Math.round)})`)}
+    /* the visible listen button starts the recitation on this page; a removed mark can be put back */
+    {await p.keyboard.press("Escape");await p.waitForTimeout(300);
+      const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("fListen").click();await W(1500);const on=__smk.P().on;
+        document.getElementById("pStop").click();await W(300);__smk.openAyah(__smk.SST[2]+3);await W(700);const m=document.getElementById("aMark");
+        m.click();await W(100);m.click();await W(100);const removed=m.getAttribute("aria-pressed")==="false";const u=document.querySelector("#toast .tundo");u&&u.click();await W(200);
+        return {on,removed,undo:!!u,back:m.getAttribute("aria-pressed")==="true"}});
+      ok(r.on,`${name}: "استمع" starts the recitation`);ok(r.removed&&r.undo&&r.back,`${name}: undo puts a removed mark back ${JSON.stringify(r)}`);
+      await p.evaluate(()=>{document.getElementById("aMark").click()});await p.keyboard.press("Escape");await p.waitForTimeout(500)}
     /* reciting from memory: the Android plugin's words reveal the hidden words in order */
     {await p.keyboard.press("Escape");await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(400);
       await p.evaluate(()=>{const b=document.getElementById("bFlow");if(b.getAttribute("aria-pressed")==="true")b.click()});await p.waitForTimeout(300);
