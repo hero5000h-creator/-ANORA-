@@ -45,3 +45,20 @@ for rid, key in PICK.items():
     json.dump({'reader': d['read']['name'], 'folder': d['read']['folder_url'], 'surahs': S},
               open(f'data/audio/{key}.json', 'w'), ensure_ascii=False, separators=(',', ':'))
     print('wrote', key, sum(len(v) for v in S.values()))
+
+# ---- file sizes, so the app can say how big a download is before it starts ----
+def size(url):
+    for i in range(3):
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url, method='HEAD', headers={'User-Agent': 'ANORA/0.1'}), timeout=60) as r:
+                return int(r.headers.get('Content-Length') or 0)
+        except Exception as e:
+            print('retry', url, e); time.sleep(2 * (i + 1))
+    return 0
+for key in PICK.values():
+    p = f'data/audio/{key}.json'
+    if not os.path.exists(p): continue
+    d = json.load(open(p))
+    d['sizes'] = {str(s): size(f"{d['folder']}{s:03d}.mp3") for s in range(1, 115)}
+    json.dump(d, open(p, 'w'), ensure_ascii=False, separators=(',', ':'))
+    print('sizes', key, round(sum(d['sizes'].values()) / 1048576), 'MB')
