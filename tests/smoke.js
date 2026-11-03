@@ -43,6 +43,9 @@ const fails=[];const ok=(c,m)=>{console.log((c?"ok   ":"FAIL ")+m);if(!c)fails.p
     for(const z of ["1","1.3"]){await p.evaluate(z=>document.querySelector(`[data-uz="${z}"]`).click(),z);await p.waitForTimeout(400);
       const r=await p.evaluate(()=>{const r=document.getElementById("prefs").getBoundingClientRect();return [r.top,r.bottom]});
       ok(r[0]>=-1&&r[1]<=vp.height+1,`${name}: settings panel on screen at text size ${z} (${r.map(Math.round)})`)}
+    if(name==="phone"){await p.keyboard.press("Escape");await p.evaluate(()=>{document.getElementById("easyBox").hidden=false;document.getElementById("easyY").click()});await p.waitForTimeout(1500);
+      const r=await p.evaluate(()=>{const b=document.querySelector("#app>.bar").getBoundingClientRect(),f=document.querySelector(".flbar");return f?[b.bottom,f.getBoundingClientRect().top]:[0,0]});
+      ok(r[1]>=r[0]-1,`${name}: large-print toolbar starts below the top bar after "yes" (${r.map(Math.round)})`)}
     await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});
