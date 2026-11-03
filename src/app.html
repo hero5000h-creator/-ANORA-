@@ -552,6 +552,9 @@ html.simple .bar .tools .tcap{display:block;font-size:10.5px;line-height:1.2;whi
 #repBox.out{animation:boxOut .2s cubic-bezier(.4,0,1,1) forwards;pointer-events:none}
 .rbhint{grid-column:1/-1;font-size:12.5px;color:var(--muted);text-align:center}
 html.thumb #repBox.side{top:calc(var(--bh,56px) / var(--uz,1));bottom:calc((var(--fh,56px) + env(safe-area-inset-bottom,0px)) / var(--uz,1));left:0;width:calc(50vw / var(--uz,1));max-width:none;transform:none;border-radius:0;border:0;border-inline-start:1px solid var(--line);padding:22px max(18px,calc((50vw - 460px) / 2));overflow:auto;box-shadow:14px 0 40px -18px var(--shadow);animation:dockIn .34s var(--ease);row-gap:16px}
+html.thumb #repBox.side{grid-template-rows:auto auto auto 1fr auto;align-content:stretch}html.thumb #repBox.side .rbhint{align-self:start}html.thumb #repBox.side .rbb{align-self:end;padding-top:12px;border-top:1px solid var(--line)}
+#shMeta{white-space:normal;text-overflow:clip;line-height:1.5}
+html.thumb #prefsX{box-shadow:0 -22px 18px -8px var(--bar)}
 html.thumb #repBox.side.sR{left:auto;right:0;border-inline-start:0;border-inline-end:1px solid var(--line);box-shadow:-14px 0 40px -18px var(--shadow)}
 html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opacity:0}}
 @keyframes palIn{from{opacity:0;transform:translateY(-6px)}}
@@ -855,9 +858,9 @@ html.thumb #flow{transition:padding .3s var(--ease)}
 #app:has(#prefs:not([hidden])) .bar{z-index:8}
 #app>.bar .where{transition:opacity .2s}#app.toasting>.bar .where{opacity:0}
 html.uzL .ib.fz{align-items:center;line-height:1}.fzw{display:none}html.uzL .ib.fz .aa,html.uzL .ib.fz sub{display:none}html.uzL .ib.fz .fzw{display:inline;font-size:15px}html.uzL .ib.fz{min-width:64px;height:40px}
-html.thumb #app:has(#prefs:not([hidden])) #flow,html.thumb #app:has(#srcBox:not([hidden])) #flow{padding-left:50vw}
-html.thumb #app:has(#sheet.dock:not(.dR):not([hidden])) #flow{padding-left:50vw}
-html.thumb #app:has(#sheet.dock.dR:not([hidden])) #flow{padding-right:50vw}
+html.thumb #app:has(#prefs:not([hidden])) #flow,html.thumb:has(#srcBox:not([hidden])) #flow{padding-left:50vw}
+html.thumb:has(#sheet.dock:not(.dR):not([hidden])) #flow{padding-left:50vw}
+html.thumb:has(#sheet.dock.dR:not([hidden])) #flow{padding-right:50vw}
 .ib.fz sub{font-size:13px;font-weight:700;vertical-align:baseline}
 /* thumb reach on the open Fold: the index and the menu move down to the corners of the footer */
 .fthumb{display:none}
@@ -2566,8 +2569,9 @@ function openAyah(id){
   selA=id;wSel=lastW;lastW=0;wxLemma=-1;wxN=WX_PAGE;paintHL();hideHint();sheetAt=performance.now();
   const sh=$("sheet");
   $("shTitle").textContent="سورة "+SUR[sOf(id)][0];$("shNum").textContent=ar(aOf(id));$("shPos").textContent=`الآية ${ar(aOf(id))} من ${ar(SUR[sOf(id)][1])}`;$("sheet").setAttribute("aria-label",ref(id));
-  $("shMeta").textContent=`الآية ${ar(aOf(id))} · الجزء ${ar(jOf(id))}${document.documentElement.classList.contains("uzL")&&innerWidth<700?"":` · الحزب ${ar((qOf(id)>>2)+1)}`} · صفحة ${ar(pOf(id))} · حفص عن عاصم`;
-  if(!flowOn&&!deckPages().includes(pOf(id)))try{showAyahPage(id)}catch(e){}
+  $("shMeta").textContent=`الآية ${ar(aOf(id))} · الجزء ${ar(jOf(id))}${document.documentElement.classList.contains("uzL")&&innerWidth<700?"":` · الحزب ${ar((qOf(id)>>2)+1)}`} · صفحة ${ar(pOf(id))} · حفص\u00a0عن\u00a0عاصم`;
+  if(!deckPages().includes(pOf(id)))showAyahPage(id);
+  if(flowActive())requestAnimationFrame(()=>{renderFlow();const s=$("flBody").querySelector(".fa.sel");if(s)s.scrollIntoView({block:"center",behavior:reduce?"auto":"smooth"})});
   $("shText").innerHTML=`${AW[id].map((w,i)=>`<span class="w" data-w="${i}">${escH(w)}</span>`).join(" ")} <span class="an">۝${ar(aOf(id))}</span>`;
   $("aMark").setAttribute("aria-pressed",String(marks.has(id)));aGrpUI();$("aHl").setAttribute("aria-pressed",String(!!hlK(id)));hlPalUI();$("aNote").setAttribute("aria-pressed",String(!!(notes.get()[id]&&notes.get()[id].t)));
   $("shPrev").disabled=id<=1;$("shNext").disabled=id>=NA;
@@ -3031,7 +3035,7 @@ $("rbX").onclick=()=>softHide($("repBox"));
 addEventListener("pointerdown",e=>{if($("repBox").hidden||e.target.closest("#repBox,#pRep"))return;
   /* a tap on an ayah while the panel is open sets the range instead of closing it */
   const a=e.target.closest&&e.target.closest("#book [data-a]")?ayahAt(e.clientX,e.clientY):0;
-  if(a){e.stopPropagation();e.preventDefault();if(a<rep.from)rep.from=a;else rep.to=Math.min(a,rep.from+299);repUI();try{navigator.vibrate&&navigator.vibrate(6)}catch(_){}return}
+  if(a){e.stopPropagation();e.preventDefault();if(a<rep.from){rep.from=a;rep.to=Math.min(rep.to,a+299)}else rep.to=Math.min(a,rep.from+299);repUI();try{navigator.vibrate&&navigator.vibrate(6)}catch(_){}return}
   softHide($("repBox"))},true);
 $("repBox").addEventListener("click",e=>{const st=e.target.closest("[data-rs]");
   if(st){const k=st.dataset.rs[0],d=+st.dataset.rs.slice(1);if(k==="f"){rep.from=Math.max(1,Math.min(rep.to,rep.from+d))}else{rep.to=Math.min(NA,Math.max(rep.from,rep.to+d))}repUI();return}

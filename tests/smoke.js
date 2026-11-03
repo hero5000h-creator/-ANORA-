@@ -11,15 +11,16 @@ const srv=http.createServer((q,r)=>{const f=path.join(WWW,decodeURIComponent(q.u
 const fails=[];const ok=(c,m)=>{console.log((c?"ok   ":"FAIL ")+m);if(!c)fails.push(m)};
 /* general layout check: every open panel or toast is on screen, actually on top (not hidden behind the page),
    and a toast never sits on the Quran text */
-const LAYOUT=()=>{const out=[],vw=innerWidth,vh=innerHeight,vis=e=>e&&!e.hidden&&getComputedStyle(e).display!=="none"&&e.getBoundingClientRect().width>0;
+const LAYOUT=(want)=>{const out=[],vw=innerWidth,vh=innerHeight,vis=e=>e&&!e.hidden&&getComputedStyle(e).display!=="none"&&e.getBoundingClientRect().width>0;
   for(const id of ["prefs","repBox","srcBox","sheet"]){const e=document.getElementById(id);if(!vis(e))continue;const r=e.getBoundingClientRect();
     if(r.left<-1||r.top<-1||r.right>vw+1||r.bottom>vh+1)out.push(id+" off screen");
     const x=Math.min(vw-2,Math.max(1,r.left+r.width/2)),y=Math.min(vh-2,Math.max(1,r.top+Math.min(40,r.height/2)));const h=document.elementFromPoint(x,y);
     if(!h||!e.contains(h))out.push(id+" covered by "+(h?(h.id||h.className||h.tagName):"nothing"))}
   const t=document.getElementById("toast");if(t&&t.classList.contains("on")){const r=t.getBoundingClientRect();
     if([...document.querySelectorAll("#book .pg [data-a],#flow [data-a]")].some(w=>{const q=w.getBoundingClientRect();return q.width&&q.right>r.left&&q.left<r.right&&q.bottom>r.top+2&&q.top<r.bottom-2}))out.push("toast over Quran text")}
+  for(const id of want||[]){const e=document.getElementById(id);if(!vis(e)&&!(id==="toast"&&e&&e.classList.contains("on")))out.push(id+" expected but not showing")}
   return out};
-const lay=async(p,m)=>{const o=await p.evaluate(LAYOUT);ok(!o.length,`${m}: layout clean ${o.join(", ")}`)};
+const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.length,`${m}: layout clean ${o.join(", ")}`)};
 (async()=>{const port=srv.address().port;
   const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||undefined,args:["--autoplay-policy=no-user-gesture-required"]});
   for(const [name,vp] of [["phone",{width:412,height:891}],["fold",{width:1000,height:760}]]){
@@ -42,22 +43,31 @@ const lay=async(p,m)=>{const o=await p.evaluate(LAYOUT);ok(!o.length,`${m}: layo
     ok(await p.evaluate(()=>__smk.AU.paused&&!__smk.P().on),`${name}: notification pause pauses`);
     await p.evaluate(()=>window.__L.Playbackaction&&window.__L.Playbackaction({a:"play"}));await p.waitForTimeout(800);
     ok(await p.evaluate(()=>!__smk.AU.paused&&__smk.P().on),`${name}: notification play resumes`);
-    await p.evaluate(()=>document.getElementById("pRep").click());await p.waitForTimeout(700);await lay(p,`${name}: repeat panel`);
+    await p.evaluate(()=>document.getElementById("pRep").click());await p.waitForTimeout(700);await lay(p,`${name}: repeat panel`,["repBox"]);
+    /* tapping an ayah sets the range end; tapping before "from" keeps the range within 300 */
+    {const r=await p.evaluate(async()=>{const S=__smk.SST[2];const tap=async id=>{const w=[...document.querySelectorAll('#book .pg [data-a="'+id+'"]')].map(e=>e.getBoundingClientRect()).find(q=>q.width&&q.top>0&&q.bottom<innerHeight);
+        if(!w)return false;const o={bubbles:true,clientX:w.left+w.width/2,clientY:w.top+w.height/2,pointerId:9,isPrimary:true};document.elementFromPoint(o.clientX,o.clientY).dispatchEvent(new PointerEvent("pointerdown",o));await new Promise(z=>setTimeout(z,150));return true};
+      const t=await tap(S+6),to=document.getElementById("rbTo").textContent,open=!document.getElementById("repBox").hidden;return {t,to,open}});
+      ok(r.t&&r.open&&/٧/.test(r.to),`${name}: tapping an ayah sets the repeat end (${r.to})`)}
     await p.evaluate(()=>document.getElementById("rbX").click());await p.waitForTimeout(400);
     await p.evaluate(()=>document.getElementById("pStop").click());await p.waitForTimeout(300);
-    await p.evaluate(()=>__smk.openAyah(__smk.SST[2]+3));await p.waitForTimeout(1500);await lay(p,`${name}: ayah sheet`);
+    await p.evaluate(()=>__smk.openAyah(__smk.SST[2]+3));await p.waitForTimeout(1500);await lay(p,`${name}: ayah sheet`,["sheet"]);
     ok(await p.evaluate(()=>!document.getElementById("sheet").hidden&&/الآية ٤/.test(document.getElementById("shMeta").textContent)),`${name}: ayah sheet opens on the right ayah`);
     ok(await p.evaluate(()=>/الآيتين ٣–٤/.test((document.querySelector(".tfg")||{}).textContent||"")),`${name}: grouped tafsir is labelled`);
     await p.keyboard.press("Escape");await p.waitForTimeout(600);
+    /* opening an ayah that is not on screen turns to its page */
+    {const r=await p.evaluate(async()=>{__smk.openAyah(__smk.SST[2]+40);await new Promise(z=>setTimeout(z,1200));return document.getElementById("wMeta").textContent});
+      ok(/٥٥/.test(r),`${name}: ayah off screen turns to its page (${r})`);await p.keyboard.press("Escape");await p.waitForTimeout(500);
+      await p.evaluate(()=>__smk.openAyah(__smk.SST[2]+3));await p.waitForTimeout(900);await p.keyboard.press("Escape");await p.waitForTimeout(600)}
     const pg0=await p.evaluate(()=>document.getElementById("wMeta").textContent);await p.keyboard.press("ArrowLeft");await p.waitForTimeout(1400);
     ok(await p.evaluate(()=>document.getElementById("wMeta").textContent)!==pg0,`${name}: page turns`);
     
     await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(500);
     for(const z of ["1","1.3"]){await p.evaluate(z=>document.querySelector(`[data-uz="${z}"]`).click(),z);await p.waitForTimeout(400);
       const r=await p.evaluate(()=>{const r=document.getElementById("prefs").getBoundingClientRect();return [r.top,r.bottom]});
-      ok(r[0]>=-1&&r[1]<=vp.height+1,`${name}: settings panel on screen at text size ${z} (${r.map(Math.round)})`);await lay(p,`${name}: settings at text size ${z}`)}
+      ok(r[0]>=-1&&r[1]<=vp.height+1,`${name}: settings panel on screen at text size ${z} (${r.map(Math.round)})`);await lay(p,`${name}: settings at text size ${z}`,["prefs"])}
     await p.keyboard.press("Escape");await p.evaluate(()=>{document.getElementById("easyBox").hidden=false;document.getElementById("easyY").click()});await p.waitForTimeout(700);await lay(p,`${name}: toast after "yes"`);await p.waitForTimeout(800);
-    await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(600);await lay(p,`${name}: settings over large print`);
+    await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(600);await lay(p,`${name}: settings over large print`,["prefs"]);
     await p.evaluate(()=>document.getElementById("prefsX")&&document.getElementById("fPrefs").click());await p.keyboard.press("Escape");await p.waitForTimeout(400);
     if(name==="phone"){
       const r=await p.evaluate(()=>{const b=document.querySelector("#app>.bar").getBoundingClientRect(),f=document.querySelector(".flbar");return f&&!document.getElementById("flow").hidden?[b.bottom,f.getBoundingClientRect().top]:[1,-1]});
