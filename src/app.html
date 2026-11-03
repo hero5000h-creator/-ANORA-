@@ -484,6 +484,19 @@ html.ios #app.ovl>.bar{top:env(safe-area-inset-top,0px)}html.ios #app.ovl>.foot{
 .bkp small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
 .bkb{display:flex;gap:8px}.bkb .ctb{flex:1}
 .ctb:disabled{opacity:.6}
+/* app-wide text size: everything but the mushaf page itself grows */
+html.uzL{--muted:color-mix(in srgb,var(--bar-ink) 82%,var(--bar))}
+html.uzL .bar>*,html.uzL .foot>*,html.uzL #drawer,html.uzL #sheet .shh,html.uzL #sheet .shbody,html.uzL #toast,html.uzL #cont,html.uzL .si,html.uzL .sbx,html.uzL #repBox{zoom:var(--uz,1)}
+html.uzL #prefs{zoom:var(--uz,1);width:min(320px,calc((100vw - 24px) / var(--uz,1)));max-height:calc((100dvh - 90px) / var(--uz,1))}
+html.uzL.thumb #prefs{max-height:calc((100dvh - var(--fh,56px) - 90px) / var(--uz,1))}
+html.uzL .si,html.uzL .sbx{width:min(400px,calc(100% / var(--uz,1)));max-height:calc((100dvh - 32px) / var(--uz,1))}
+/* open Fold: settings are a full-height side panel between the bars, scrolling inside, not a floating card */
+html.thumb #prefs{top:calc(var(--bh,56px) + 8px);bottom:calc(var(--fh,56px) + 8px);max-height:none;width:min(340px,40vw)}
+html.uzL.thumb #prefs{max-height:none;width:min(340px,calc(40vw / var(--uz,1)))}
+/* simple mode keeps the essentials */
+html.simple .adv{display:none!important}
+.rpt{display:flex;align-items:center;gap:8px;margin:18px auto 4px;padding:8px 14px;border-radius:18px;border:1px solid var(--line);font-size:13px;color:var(--muted)}
+.rpt svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .dlbar{height:4px;border-radius:2px;background:var(--sel);overflow:hidden}.dlbar i{display:block;height:100%;width:0;background:var(--orn);border-radius:2px;transition:width .3s}
 #pRep[aria-pressed="true"]{color:var(--orn);background:color-mix(in srgb,var(--orn) 14%,transparent)}
 /* v61 range repeat: from ayah to ayah, each ayah n times, the passage m times (∞ = until stopped) */
@@ -1236,17 +1249,19 @@ html.thumb .fthumb.azb{color:var(--gold)}
     <div id="prefs" hidden>
       <div class="qa q4">
         <button class="qt" id="bBook" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg><span>علامة الصفحة</span></button>
-        <button class="qt" id="bFlow" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 5.5h16M4 10h16M4 14.5h16M4 19h9"/><path d="M17.5 17v4M15.5 19h4"/></svg><span>خط كبير</span></button>
-        <button class="qt" id="bMemo" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6c1.6 0 3 .5 4.2 1.2M21 12s-3.5 6-9 6c-1.6 0-3-.5-4.2-1.2M4 20L20 4"/></svg><span>وضع الحفظ</span></button>
+        <button class="qt adv" id="bFlow" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 5.5h16M4 10h16M4 14.5h16M4 19h9"/><path d="M17.5 17v4M15.5 19h4"/></svg><span>خط كبير</span></button>
+        <button class="qt adv" id="bMemo" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6c1.6 0 3 .5 4.2 1.2M21 12s-3.5 6-9 6c-1.6 0-3-.5-4.2-1.2M4 20L20 4"/></svg><span>وضع الحفظ</span></button>
         <button class="qt" id="bAdhkar"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg><span>الأذكار</span></button>
-        <button class="qt" id="bAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6.5 4.5h8l3 3v12h-11z"/><path d="M14.5 4.5v3h3"/><path d="M10 11.5l4 2.5-4 2.5z"/></svg><span>تقليب تلقائي</span></button>
-        <button class="qt" id="bFull"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>قراءة هادئة</span></button>
+        <button class="qt adv" id="bAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6.5 4.5h8l3 3v12h-11z"/><path d="M14.5 4.5v3h3"/><path d="M10 11.5l4 2.5-4 2.5z"/></svg><span>تقليب تلقائي</span></button>
+        <button class="qt adv" id="bFull"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>قراءة هادئة</span></button>
         <button class="qt" id="bToday"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/></svg><span>اليوم</span></button>
-        <button class="qt" id="bStudy" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M12 4.5v15M6 9h3.5M6 12h3.5M6 15h2"/></svg><span>وضع الدراسة</span></button>
+        <button class="qt adv" id="bStudy" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M12 4.5v15M6 9h3.5M6 12h3.5M6 15h2"/></svg><span>وضع الدراسة</span></button>
       </div>
       <h3 class="qh">الإعدادات</h3>
       <div class="ptabs" role="tablist" aria-label="الإعدادات"><button role="tab" data-pg="look" aria-selected="true">المظهر</button><button role="tab" data-pg="read" aria-selected="false">القراءة</button><button role="tab" data-pg="dev" aria-selected="false">الشاشة والصوت</button></div>
       <section class="pgrp" data-pg="look">
+      <div><h3>حجم كتابات التطبيق</h3><div class="seg" id="uzSeg"><button class="sw" data-uz="1">عادي</button><button class="sw" data-uz="1.15" style="font-size:15px">كبير</button><button class="sw" data-uz="1.3" style="font-size:17px">أكبر</button></div></div>
+      <div class="posture"><span>الوضع البسيط<small>يخلي الأساسيات بس: القراءة والاستماع والعلامة والأذكار</small></span><button class="tg" id="bSimple" role="switch" aria-checked="false" aria-label="الوضع البسيط"></button></div>
       <div><h3>لون الورق</h3><div class="seg c5 c6">
         <button class="sw" data-paper="light"><i style="background:#faf7f0;color:#2b2824">بسم</i>فاتح</button>
         <button class="sw" data-paper="sepia"><i style="background:#f3e9d4;color:#3a3026">بسم</i>دافئ</button>
@@ -1254,7 +1269,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
         <button class="sw" data-paper="black"><i style="background:#000;color:#bdb7aa;border-color:#333">بسم</i>أسود</button>
         <button class="sw" data-paper="sky"><i class="sk">بسم</i>سماء</button><button class="sw" data-paper="auto"><i class="au"><b style="background:#faf7f0;color:#2b2824">ب</b><b style="background:#1c1d1f;color:#cfc9bc">س</b></i>تلقائي</button>
       </div></div>
-      <div><h3>لون الجلد</h3><div class="seg c5">
+      <div class="adv"><h3>لون الجلد</h3><div class="seg c5">
         <button class="sw" data-cover="green"><i class="cv" style="background:#3e5a4b"></i>أخضر</button>
         <button class="sw" data-cover="navy"><i class="cv" style="background:#2c3a55"></i>كحلي</button>
         <button class="sw" data-cover="maroon"><i class="cv" style="background:#6a2a2f"></i>عنابي</button>
@@ -1264,7 +1279,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
       <div><h3>دفء الإضاءة</h3><div class="rng"><span>عادي</span><input type="range" id="warmR" min="0" max="100" step="1" value="0" aria-label="دفء الإضاءة"><span>دافئ</span></div></div>
       </section>
       <section class="pgrp" data-pg="read" hidden>
-      <div><h3>عرض الصفحات</h3><div class="seg">
+      <div class="adv"><h3>عرض الصفحات</h3><div class="seg">
         <button class="sw" data-view="auto">تلقائي</button>
         <button class="sw" data-view="1">صفحة</button>
         <button class="sw" data-view="2">صفحتان</button>
@@ -1373,7 +1388,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
   </div>
 </div>
 <div id="dimV" aria-hidden="true"></div>
-<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية 1405هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع MP3Quran.net، تُشغَّل من خوادمهم مباشرة.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
+<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية 1405هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع MP3Quran.net، تُشغَّل من خوادمهم مباشرة.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="si-g" id="siGrid"></div>
@@ -1432,6 +1447,7 @@ html.thumb .fthumb.azb{color:var(--gold)}
     <div class="tfsel" id="tfSel" role="radiogroup" aria-label="اختر التفسير"></div>
     <h3 class="tfh" id="shSrc"></h3>
     <div class="tf" id="shTafsir"></div>
+    <button class="rpt" id="aReport"><svg viewBox="0 0 24 24"><path d="M6 21V4.5M6 4.5h10.5l-2 4 2 4H6"/></svg><span>لاحظت خطأ بالنص أو التفسير أو الصوت؟ بلّغنا</span></button>
   </div>
 </section>
 <section id="quiz" role="dialog" aria-modal="true" aria-labelledby="qzTitle" dir="rtl" hidden>
@@ -2536,6 +2552,12 @@ $("aCopy").onclick=()=>{
   try{navigator.clipboard.writeText(t).then(ok,fail)}catch(e){fail()}
 };
 $("aShare").onclick=()=>shareOpen(selA);
+/* error report: a prefilled issue on the project's public tracker, with everything needed to find the spot */
+$("aReport").onclick=()=>{const id=selA;if(!id)return;const ver="0.1.0",tf=$("shSrc").textContent.trim();
+  const title=`خطأ: سورة ${SUR[sOf(id)][0]} آية ${aOf(id)} (صفحة ${pOf(id)})`;
+  const body=`**وين:** سورة ${SUR[sOf(id)][0]}، الآية ${aOf(id)}، الصفحة ${pOf(id)}\n**الآية:** ${txt(id)}\n**التفسير المفتوح:** ${tf||"-"}\n**القارئ:** ${RECS[reciter]}\n**النسخة:** ${ver} · ${PLAT} · ${navigator.userAgent.slice(0,120)}\n\n**شنو الخطأ؟** (اكتب هنا)\n`;
+  const u=`https://github.com/hero5000h-creator/-ANORA-/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=report`;
+  try{window.open(u,"_blank")||(location.href=u)}catch(e){location.href=u}};
 function shareText(){
   const id=$("shareBox").hidden?selA:sbId;let t=`${txt(id)} ﴿${SUR[sOf(id)][0]}: ${ar(aOf(id))}﴾`;
   if(sbTf&&TF&&TF[id-1])t+=`\n\nالتفسير الميسّر: ${TF[id-1]}`;
@@ -2952,6 +2974,23 @@ function nextPlay(){const id=player.id;
     rep.on=false;repUI();toast("تمّ التكرار، بارك الله فيك");try{navigator.vibrate&&navigator.vibrate([12,60,12])}catch(e){}return 0}
   return id>=NA?0:id+1}
 const ayahDur=id=>Math.max(2600,txt(id).length*85);
+/* ---------- text size and simple mode ---------- */
+function uzSet(v){v=["1","1.15","1.3"].includes(v)?v:"1";root.style.setProperty("--uz",v);root.classList.toggle("uzL",v!=="1");
+  document.querySelectorAll("#uzSeg [data-uz]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.uz===v)))}
+uzSet(store.get("mushaf.uz")||"1");
+$("uzSeg").addEventListener("click",e=>{const b=e.target.closest("[data-uz]");if(!b)return;e.stopPropagation();store.set("mushaf.uz",b.dataset.uz);uzSet(b.dataset.uz);setTimeout(resize,50)});
+let simpleOn=store.get("mushaf.simple")==="1";root.classList.toggle("simple",simpleOn);$("bSimple").setAttribute("aria-checked",String(simpleOn));
+$("bSimple").onclick=e=>{e.stopPropagation();simpleOn=!simpleOn;store.set("mushaf.simple",simpleOn?"1":"0");root.classList.toggle("simple",simpleOn);$("bSimple").setAttribute("aria-checked",String(simpleOn));toast(simpleOn?"الوضع البسيط شغّال":"رجعت كل الأدوات")};
+/* ---------- Quran text lock: the text shown must match the reviewed release (checked at build time and here) ---------- */
+const QLOCK=/*QLOCK*/null;
+async function qCheck(){const m=$("qLockMsg");if(!QLOCK||!window.crypto||!crypto.subtle){m.textContent="التحقق غير متاح بهذا المتصفح.";return}
+  const h=async t=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)))].map(b=>b.toString(16).padStart(2,"0")).join("");
+  const a=await h(Q.map(s=>s.join("\n")).join("\n\n")),b=await h(K.map(p=>p.map(l=>l[l.length-1].map(w=>typeof w==="string"?w:w[0]).join(" ")).join("\n")).join("\f"));
+  if(a===QLOCK.text&&b===QLOCK.pages){m.textContent=`نص المصحف بهذه النسخة مطابق حرفاً حرفاً للنص المراجَع (${a.slice(0,8)}).`;return}
+  m.textContent="تنبيه: نص المصحف بهذه النسخة ما يطابق النص المراجَع. لا تعتمد عليه، وبلّغنا رجاءً.";m.style.color="#c0392b";
+  const w=document.createElement("div");w.id="qWarn";w.setAttribute("role","alert");w.textContent="تنبيه: نص المصحف بهذه النسخة تغيّر عن النص المراجَع، لا تعتمد عليه";
+  w.style.cssText="position:fixed;z-index:90;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top,0px));padding:10px 14px;border-radius:12px;background:#c0392b;color:#fff;font-size:14px;text-align:center";document.body.appendChild(w)}
+setTimeout(()=>qCheck().catch(()=>{}),2500);
 /* ---------- native bridge (Capacitor): plugins are called by name, no bundler needed ---------- */
 const CAP=window.Capacitor,NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()),PLAT=NATIVE&&CAP.getPlatform?CAP.getPlatform():"web";
 if(NATIVE)root.classList.add("native",PLAT);
