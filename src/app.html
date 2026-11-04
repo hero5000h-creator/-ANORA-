@@ -120,13 +120,31 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .seg.two{grid-template-columns:repeat(2,1fr)}
 /* reciter picker: the phone's own list, dressed as an ANORA field */
-.rsel{position:relative;display:block}
-.rsel select{appearance:none;-webkit-appearance:none;width:100%;min-height:48px;padding:0 14px 0 40px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:15px;cursor:pointer}
-.rsel svg{position:absolute;left:12px;top:50%;width:20px;height:20px;margin-top:-10px;stroke:var(--orn);stroke-width:2;fill:none;pointer-events:none}
-.rsel select:focus-visible{outline:2px solid var(--orn);outline-offset:2px}
+/* reciter picker: a field that opens ANORA's own list (the phone's native list ignored the app's theme) */
+.rsel{position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:15px;cursor:pointer;text-align:start}
+.rsel svg{flex:none;width:20px;height:20px;stroke:var(--orn);stroke-width:2;fill:none;pointer-events:none}
+.rsel:focus-visible{outline:2px solid var(--orn);outline-offset:2px}
+.rsel:active{transform:scale(.98)}
+#recPick{position:fixed;inset:0;z-index:72;display:grid;place-items:end center;background:var(--scrim);opacity:0;transition:opacity .22s var(--ease)}
+#recPick[hidden]{display:none}#recPick.on{opacity:1}
+#recPick .rp{box-sizing:border-box;width:min(440px,100%);max-height:min(78vh,560px);display:flex;flex-direction:column;background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;padding:6px 10px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -18px 50px -18px var(--shadow);transform:translateY(24px);transition:transform .3s var(--spring,var(--ease))}
+#recPick.on .rp{transform:none}
+@media (min-width:700px){#recPick{place-items:center}#recPick .rp{border-radius:20px;border-bottom:1px solid var(--line);padding-bottom:12px;transform:translateY(12px) scale(.98)}}
+.rp-h{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 6px}
+.rp-h b{font-family:var(--f-display);font-size:19px}
+.rp-l{overflow:auto;display:grid;gap:6px;padding:2px 2px 4px}
+.rp-o{display:flex;align-items:center;gap:12px;min-height:54px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:16px;text-align:start;cursor:pointer;transition:transform .16s var(--ease),background-color .2s,border-color .2s}
+.rp-o:active{transform:scale(.98)}
+.rp-o .rd{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid var(--muted);display:grid;place-items:center;transition:border-color .2s}
+.rp-o .rd::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--orn);transform:scale(0);transition:transform .2s var(--spring,var(--ease))}
+.rp-o[aria-checked="true"]{border-color:var(--orn);background:color-mix(in srgb,var(--orn) 9%,var(--paper))}
+.rp-o[aria-checked="true"] .rd{border-color:var(--orn)}.rp-o[aria-checked="true"] .rd::after{transform:none}
+.rp-o b{font-weight:600;flex:1}
+.rp-o small{color:var(--muted);font-size:12.5px}
+.rp-o:focus-visible{outline:2px solid var(--orn);outline-offset:2px}
 .prw{position:relative}
 .prw #pRec{text-decoration:underline dotted color-mix(in srgb,var(--muted) 60%,transparent);text-underline-offset:3px}
-#pRecSel{position:absolute;inset:-8px -4px;width:calc(100% + 8px);opacity:0;cursor:pointer;font-size:16px}
+#pRecSel{position:absolute;inset:-8px -4px;width:calc(100% + 8px);opacity:0;cursor:pointer;border:0;background:none;padding:0}
 
 .sw{display:grid;justify-items:center;gap:6px;padding:8px 4px;border-radius:10px;border:1px solid var(--line);font-size:13px}
 .sw[aria-pressed="true"]{border-color:var(--orn);box-shadow:inset 0 0 0 1px var(--orn)}
@@ -637,7 +655,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 .cesw:active i{transform:scale(.9)}
 .cepk button{transition:transform .16s var(--ease),box-shadow .2s}
 .cepk button:active{transform:scale(.88)}
-.ceadd,.ceres,.pbtn,.rsel select{transition:transform .16s var(--ease),background-color .2s,border-color .2s}
+.ceadd,.ceres,.pbtn,.rsel{transition:transform .16s var(--ease),background-color .2s,border-color .2s}
 .ceadd:active,.pbtn:active{transform:scale(.97)}
 #pRec.bump{animation:fadeUp .3s var(--ease)}
 .mutgo{transition:transform .16s var(--ease),background-color .2s}
@@ -1698,7 +1716,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
       <div class="posture"><span>وضع نصف الفتح<small>المصحف فوق المفصل والتفسير تحته</small></span><button class="tg" id="bTable" role="switch" aria-checked="false" aria-label="معاينة وضع نصف الفتح"></button></div>
       </section>
       <section class="pgrp" data-pg="dev" hidden>
-      <div><h3>القارئ</h3><label class="rsel"><select id="recSel" aria-label="القارئ"></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></label></div>
+      <div><h3>القارئ</h3><button type="button" class="rsel" id="recSel" aria-haspopup="dialog" aria-label="اختر القارئ"><span id="recSelN">محمود خليل الحصري</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button></div>
       <div class="bkp" id="dlBox" hidden><span>الاستماع بدون إنترنت<small id="dlInfo"></small></span>
         <div class="dlbar" hidden><i id="dlBar"></i></div>
         <div class="bkb"><button class="ctb" id="dlSur"></button><button class="ctb" id="dlAll"></button></div>
@@ -1764,7 +1782,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
     </div>
     <div id="player" hidden>
       <button class="pp" id="pPlay" aria-label="إيقاف مؤقت"><svg viewBox="0 0 24 24" id="pIco"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></button>
-      <div class="pinfo"><b id="pTitle"></b><div class="pbar"><i id="pBar"></i></div><small class="prw"><span id="pRec">محمود خليل الحصري</span><select id="pRecSel" aria-label="اختر القارئ"></select></small></div>
+      <div class="pinfo"><b id="pTitle"></b><div class="pbar"><i id="pBar"></i></div><small class="prw"><span id="pRec">محمود خليل الحصري</span><button type="button" id="pRecSel" aria-haspopup="dialog" aria-label="اختر القارئ"></button></small></div>
       <button class="ib" id="pPrev" aria-label="الآية السابقة"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg><span class="cap" id="pPrevCap">السابقة</span></button>
       <button class="ib" id="pNext" aria-label="الآية التالية"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span class="cap" id="pNextCap">التالية</span></button>
       <button class="ib" id="pRep" aria-label="تكرار مقطع" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3"/><path d="M4 11.5V10a3.5 3.5 0 0 1 3.5-3.5H20"/><path d="M7 20.5l-3-3 3-3"/><path d="M20 12.5V14a3.5 3.5 0 0 1-3.5 3.5H4"/></svg><span class="cap" id="pRepCap">تكرار</span></button>
@@ -1805,6 +1823,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
 <div id="ceList"></div><button class="ceadd" id="ceAdd">+ أضف لوناً</button>
 <div class="ce-s"><span id="ceStrL"></span><div class="seg" id="ceStr"></div><div class="cepv" id="cePv"></div></div>
 <button class="ceres" id="ceReset">استرجاع الألوان الأصلية</button></div></div>
+<div id="recPick" role="dialog" aria-modal="true" aria-labelledby="rpT" hidden><div class="rp"><div class="rp-h"><b id="rpT">القارئ</b><button class="ib" id="rpX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="rp-l" id="rpL" role="radiogroup" aria-labelledby="rpT"></div></div></div>
 <div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p><p>أسماء السور في الصفحة بخط مصحف المدينة (sura_names) من مجمع الملك فهد لطباعة المصحف الشريف، مستعمل بإذن مكتوب من وحدة التراخيص وحقوق النشر في المجمع (٢٠٢٦/١١/٤)، في تطبيق مجاني غير تجاري، ودون تعديل الخط أو توزيعه منفصلاً. والإطار حولها من رسم أنورا.</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>مواقيت الصلاة</h4><p>تُحسب على جهازك بمكتبة adhan-js من Batoul Apps (رخصة MIT)، دون إنترنت. موقعك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوات المشايخ: محمود خليل الحصري، ومشاري العفاسي، ومحمد صدّيق المنشاوي، وعبد الباسط عبد الصمد، وأبو بكر الشاطري، وإدريس أبكر، وأحمد محمد عامر (رواية حفص عن عاصم) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>المتشابهات</h4><p>قائمة الآيات المتشابهة التي يلتبس فيها الحفّاظ من مشروع Quran_Mutashabihat_Data للأخ وقار أحمد، المبني على عمل القارئ إدريس العاصم رحمه الله، برخصة CC0 (ملك عام). أما الكلمات الملوّنة فيستخرجها التطبيق من نص المصحف نفسه.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b><span class="src-du">لا تنسونا من صالح دعائكم</span></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -3842,7 +3861,7 @@ const AUD={},AU=PLAT==="android"&&NATIVE&&CAP.isPluginAvailable&&CAP.isPluginAva
 const setRate=r=>{try{AU.playbackRate=r;AU.preservesPitch=true}catch(e){}};setRate(+store.get("mushaf.rate")||1);
 const AUDD={},audData=r=>AUD[r]||(AUD[r]=fetch(`audio/${r}.json`).then(x=>{if(!x.ok)throw 0;return x.json()}).then(d=>{AUDD[r]=d;try{dlUI()}catch(e){}return d}).catch(()=>{delete AUD[r];return null}));
 const fmtSize=b=>b>=1e9?`${ar((b/1073741824).toFixed(1)).replace(".","٫")} غيغا`:`${ar(Math.max(1,Math.round(b/1048576)))} ميغا`;
-function recUI(){{const e=$("pRec");if(e.textContent!==RECS[reciter]){e.textContent=RECS[reciter];e.classList.remove("bump");void e.offsetWidth;e.classList.add("bump")}}if(typeof dlUI==="function"&&$("dlBox"))try{dlUI()}catch(e){}["recSel","pRecSel"].forEach(id=>{const x=$(id);if(!x)return;if(!x.options.length)x.innerHTML=Object.entries(RECS).map(([k,n])=>`<option value="${k}">${n}</option>`).join("");x.value=reciter})}
+function recUI(){{const e=$("pRec");if(e.textContent!==RECS[reciter]){e.textContent=RECS[reciter];e.classList.remove("bump");void e.offsetWidth;e.classList.add("bump")}}if(typeof dlUI==="function"&&$("dlBox"))try{dlUI()}catch(e){}{const n=$("recSelN");if(n)n.textContent=RECS[reciter]}if(!$("recPick").hidden)rpFill()}
 /* the slice of the surah file for one ayah; ayah 1 starts at 0 so the basmala/isti'adha before it is heard */
 function seg(id){if(!aud)return null;const s=sOf(id)+1,a=aOf(id),rows=aud.surahs[s];if(!rows)return null;
   const i=rows.findIndex(r=>r[0]===a);if(i<0)return null;const pad=String(s).padStart(3,"0");
@@ -3908,7 +3927,18 @@ function stopPlay(){$("repBox").hidden=true;rep.on=false;repUI();player.on=false
 function setReciter(r){if(!RECS[r]||r===reciter)return;const was=player.on;
   reciter=r;store.set("mushaf.reciter",reciter);recUI();AU.pause();auSrc="";
   audData(reciter).then(d=>{aud=d;if(!d){toast("تعذّر تحميل توقيت هذا القارئ. تحقق من الاتصال");return}if(was&&player.on)startAyah(false)});toast(`القارئ: ${RECS[reciter]}`)}
-["recSel","pRecSel"].forEach(id=>{$(id).addEventListener("change",e=>setReciter(e.target.value));$(id).addEventListener("click",e=>e.stopPropagation())});
+/* the reciter list: a sheet from the bottom on a phone, a card in the middle on a wide screen */
+function rpFill(){$("rpL").innerHTML=Object.entries(RECS).map(([k,n])=>`<button type="button" class="rp-o" role="radio" data-rec="${k}" aria-checked="${k===reciter}"><span class="rd" aria-hidden="true"></span><b>${n}</b>${DL[k]&&DL[k].size?`<small>${ar(DL[k].size)} سورة محمّلة</small>`:""}</button>`).join("")}
+function rpOpen(e){if(e)e.stopPropagation();const x=$("recPick");rpFill();x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));
+  setTimeout(()=>{const c=x.querySelector('[aria-checked="true"]')||x.querySelector(".rp-o");if(c){c.scrollIntoView({block:"nearest"});c.focus({preventScroll:true,focusVisible:false})}},60)}
+function rpClose(){const x=$("recPick");if(x.hidden)return;x.classList.remove("on");setTimeout(()=>{if(!x.classList.contains("on"))x.hidden=true},reduce?0:240)}
+["recSel","pRecSel"].forEach(id=>$(id).addEventListener("click",rpOpen));
+$("rpL").addEventListener("click",e=>{const b=e.target.closest("[data-rec]");if(!b)return;e.stopPropagation();
+  $("rpL").querySelectorAll(".rp-o").forEach(o=>o.setAttribute("aria-checked",String(o===b)));setReciter(b.dataset.rec);setTimeout(rpClose,reduce?0:160)});
+$("rpX").onclick=e=>{e.stopPropagation();rpClose()};
+$("recPick").addEventListener("click",e=>{e.stopPropagation();if(e.target.id==="recPick")rpClose()});
+$("recPick").addEventListener("pointerdown",e=>e.stopPropagation());
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("recPick").hidden){e.stopImmediatePropagation();rpClose()}},true);
 recUI();audData(reciter).then(d=>{if(!aud)aud=d});
 /* ---------- lock screen, headset and car controls (Media Session, where the web view has it) ---------- */
 function mediaSync(){const ms=navigator.mediaSession;if(!ms)return;try{
