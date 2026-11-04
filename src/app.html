@@ -1599,7 +1599,7 @@ html[data-theme="dark"] .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var
   <div class="cw" id="cWird" hidden><div id="cWt"></div><span><i id="cWb"></i></span></div>
   <button class="cazb" id="cAz" hidden></button>
   <button class="cay" id="cAy"></button>
-  <div class="cb"><button class="ctb" id="cShare">شارك آية اليوم</button><button class="ctb" id="cBm" hidden></button><button class="ctb" id="cPl" hidden></button><button class="ctb solid" id="cGo">تابع القراءة</button></div>
+  <div class="cb"><button class="ctb" id="cShare">شارك آية اليوم</button><button class="ctb" id="cBm" hidden></button><button class="ctb" id="cPl" hidden></button><button class="ctb" id="cRv" hidden></button><button class="ctb solid" id="cGo">تابع القراءة</button></div>
 </div>
 <section id="sheet" role="dialog" aria-modal="true" aria-label="الآية" dir="rtl" hidden>
   <div class="grab"></div>
@@ -2694,6 +2694,8 @@ function contShow(){const c=$("cont"),id=pStart(cur);azNudgeHide();
   {const pl=+store.get("mushaf.playLast"),b=$("cPl");b.hidden=!(pl>0&&pl<=NA);if(!b.hidden){b.textContent=`كمّل التلاوة · ${repRef(pl)}`;b.onclick=()=>{contHide();setTimeout(()=>playFrom(pl),reduce?0:300)}}}
   const k=kh.get(),w=$("cWird");w.hidden=!k||k.prog>=NP;
   if(k&&k.prog<NP){const d=khToday(k);$("cWt").textContent=d.done>=d.quota?"أتممت ورد اليوم، تقبّل الله":`ورد اليوم: ${ar(d.done)} من ${ar(d.quota)} ${d.quota>10||d.quota<3?"صفحة":"صفحات"}`;$("cWb").style.width="0";setTimeout(()=>$("cWb").style.width=Math.min(100,d.done/d.quota*100)+"%",60)}
+  {const db=memo.db(),t=today(),due=Object.keys(db).map(Number).filter(p=>db[p].due<=t).sort((a,b)=>db[a].due-db[b].due||a-b),b=$("cRv");b.hidden=!due.length;
+    if(due.length){b.textContent=`راجع حفظك · ${numW(due.length,"صفحة واحدة","صفحتان","صفحات","صفحة")}`;b.onclick=()=>{contHide();goTo(due[0]);setTimeout(()=>{if(!memo.on){memo.range=null;setMemo(true)}},reduce?50:1100)}}}
   const bm=+store.get("mushaf.bookmark"),b=$("cBm"),vis=bm&&!(bm===cur||(mode==="spread"&&bm===cur+1));b.hidden=!vis;if(vis){b.textContent=`إلى العلامة · صفحة ${ar(bm)}`;b.onclick=()=>{contHide();goTo(bm)}}
   {const a=$("cAz"),dc=typeof azDue==="function"?azDue():null;a.hidden=!dc;if(dc){a.innerHTML=`${$("bAz").innerHTML}<span>حان وقت ${dc.name}</span><b>‹</b>`;a.onclick=()=>{contHide();azOpenUI();azStart(dc.k)}}}
   c.classList.remove("off");c.hidden=false;clearTimeout(contShow.t);contShow.t=setTimeout(contHide,16000)}
@@ -3606,7 +3608,9 @@ function rate(good){
 $("bMemo").onclick=()=>{showPrefs(false);memo.range=null;setMemo(!memo.on)};
 $("mExit").onclick=()=>setMemo(false);
 $("mErr").onclick=()=>{const nx=deckPages().map(p=>cache.has(p)&&pageWords(p)[memo.rev.get(p)||0]).find(Boolean);
-  if(nx){const E=mErrs();E.add(mKey(nx));store.set("mushaf.memoErr",JSON.stringify([...E]));revealNext(pOf(+nx.dataset.a));toast("سُجّلت خطأً وكُشفت، وستظهر مظلَّلة في المراجعة");return}
+  if(nx){const E=mErrs();E.add(mKey(nx));store.set("mushaf.memoErr",JSON.stringify([...E]));
+    /* a slip brings the page back tomorrow, whatever its old interval */
+    {const pg=pOf(+nx.dataset.a),db=memo.db(),r=db[pg];if(r&&r.due>today()+1){r.due=today()+1;r.lv=Math.max(0,r.lv-1);memo.save(db)}}revealNext(pOf(+nx.dataset.a));toast("سُجّلت خطأً وكُشفت، وستظهر مظلَّلة في المراجعة");return}
   const w=memo.last;if(!w||w.classList.contains("hid")){toast("اكشف الكلمة أولاً ثم سجّلها");return}const E=mErrs(),k=mKey(w),had=E.has(k);had?E.delete(k):E.add(k);store.set("mushaf.memoErr",JSON.stringify([...E]));paintMemo();rasterDirtyLazy();toast(had?"شلت العلامة عن الكلمة":"سُجّلت الكلمة، وستظهر مظلَّلة في المراجعة")};
 $("mHint").onclick=()=>{memo.hint=!memo.hint;store.set("mushaf.memoHint",memo.hint?"1":"0");$("app").classList.toggle("mhint",memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));paintMemo();rasterDirtyLazy()};
 $("mAll").onclick=()=>{deckPages().forEach(p=>memo.rev.set(p,pageWords(p).length));paintMemo()};
@@ -3894,7 +3898,9 @@ function renderList(anim){
     const due=ps.filter(p=>db[p].due<=t),later=ps.filter(p=>db[p].due>t);
     if(!q)h+=`<button class="row" id="qzOpen"><span class="star" style="color:var(--orn)">؟</span><span class="rn"><b>اختبرني</b><small>عشرة أسئلة سريعة: الآية التالية، أكمل الآية، في أي سورة</small></span><span class="pg-n"></span></button>`;
     if(due.length)h+=`<div class="grp"><span>للمراجعة اليوم</span><span>${ar(due.length)}</span></div>`+due.map(row).join("");
-    if(later.length)h+=`<div class="grp"><span>قيد الحفظ</span><span>${ar(later.length)}</span></div>`+later.map(row).join("");
+    /* the rest by how firm they are: just learnt, settling, and firm (a month or more between reviews) */
+    const L1=later.filter(p=>db[p].lv<=1),L2=later.filter(p=>db[p].lv>=2&&db[p].lv<=3),L3=later.filter(p=>db[p].lv>=4);
+    [["حفظ جديد",L1],["قريب",L2],["متين",L3]].forEach(([n,a])=>{if(a.length)h+=`<div class="grp"><span>${n}</span><span>${ar(a.length)}</span></div>`+a.map(row).join("")});
     if(!h)h='<div class="empty">لم تبدأ الحفظ بعد. افتح الصفحة التي تحفظها واضغط زر الحفظ في الأعلى، ثم قيّم حفظك في آخرها لتظهر هنا مواعيد مراجعتها.</div>';
   }else if(tab==="c"){
     h=hlTop()+`<div id="hlRows">${hlRows()}</div>`;
