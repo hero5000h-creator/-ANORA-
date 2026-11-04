@@ -13,24 +13,41 @@ API = 'https://mp3quran.net/api/v3/'
 rec = get(API + 'reciters?language=ar'); json.dump(rec, open(out + '/reciters.json', 'w'), ensure_ascii=False)
 reads = get(API + 'ayat_timing/reads'); json.dump(reads, open(out + '/reads.json', 'w'), ensure_ascii=False)
 print('reads:', json.dumps(reads, ensure_ascii=False)[:3000])
-want = ('الحصري', 'العفاسي', 'Husary', 'Alafasy', 'Afasy')
-picked = [r for r in (reads or []) if any(w in json.dumps(r, ensure_ascii=False) for w in want)]
-print('picked', json.dumps(picked, ensure_ascii=False))
-for r in picked:
-    rid = r.get('id') or r.get('read_id')
+# reciters the app offers: key -> name fragments (any spelling); a murattal read is preferred over mujawwad/teaching
+WANT = {
+    'husary': ['الحصري'], 'alafasy': ['العفاسي'],
+    'minshawi': ['المنشاوي'], 'abdulbasit': ['عبدالباسط', 'عبد الباسط'],
+    'shatri': ['الشاطري'], 'abkar': ['أبكر', 'ابكر'], 'amer': ['أحمد عامر', 'احمد عامر', 'محمد عامر'],
+}
+FIXED = {118: 'husary', 123: 'alafasy'}   # the reads the app already shipped with
+def rname(r): return json.dumps(r, ensure_ascii=False)
+def score(r):
+    n = rname(r)
+    return (('مرتل' in n) * 2 - ('مجود' in n) - ('معلم' in n) * 2 - ('ورش' in n or 'قالون' in n or 'الدوري' in n) * 3)
+PICK = {}
+for key, frags in WANT.items():
+    fixed = [rid for rid, k in FIXED.items() if k == key]
+    if fixed: PICK[fixed[0]] = key; continue
+    cands = [r for r in (reads or []) if any(f in rname(r) for f in frags)]
+    cands.sort(key=score, reverse=True)
+    print('candidates', key, [(r.get('id'), r.get('name')) for r in cands])
+    if cands: PICK[cands[0].get('id') or cands[0].get('read_id')] = key
+print('PICK', PICK)
+for rid in PICK:
     T = {}
     for s in range(1, 115):
         T[s] = get(API + f'ayat_timing?surah={s}&read={rid}')
+    r = next((x for x in reads if (x.get('id') or x.get('read_id')) == rid), {})
     json.dump({'read': r, 'timing': T}, open(f'{out}/timing-{rid}.json', 'w'), ensure_ascii=False)
     print('saved', rid, sum(len(v or []) for v in T.values()))
 
 # ---- compact per-reciter files for the app: {surah: [[ayah, start_ms, end_ms], ...]} plus the mp3 folder ----
-PICK = {118: 'husary', 123: 'alafasy'}
 os.makedirs('data/audio', exist_ok=True)
 for rid, key in PICK.items():
     p = f'{out}/timing-{rid}.json'
     if not os.path.exists(p): continue
     d = json.load(open(p))
+    if sum(len(v or []) for v in d['timing'].values()) < 6000: print('skip, timings incomplete', key); continue
     print('sample', key, json.dumps(d['timing']['1'][:3]), json.dumps(d['timing']['2'][:2]))
     S = {}
     for s, rows in d['timing'].items():
