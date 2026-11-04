@@ -1018,6 +1018,8 @@ html[data-theme="dark"] .hlb.hk{background:color-mix(in srgb,var(--c) 24%,transp
 .sbtf i{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--muted);display:grid;place-items:center;transition:background-color .2s,border-color .2s}
 .sbtf[aria-pressed="true"]{border-color:var(--orn);background:var(--sel)}
 .sbtf[aria-pressed="true"] i{background:var(--orn);border-color:var(--orn)}
+.sbcr{display:grid;gap:4px}
+.sbcr small{font-size:12px;color:var(--muted);text-align:center}
 .sbtf[aria-pressed="true"] i::after{content:"";width:5px;height:9px;border:solid var(--bar);border-width:0 2px 2px 0;transform:translateY(-1px) rotate(45deg)}
 #cont .cb{flex-wrap:wrap}
 /* v62: the secondary choices wrap as small chips, the main action always spans the card's foot */
@@ -1784,6 +1786,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
   <div class="seg two" id="sbFmt"><button class="sw" data-fmt="sq">مربّع</button><button class="sw" data-fmt="st">قصة (طولي)</button></div>
   <div class="seg" id="sbSty"><button class="sw" data-sty="light"><i style="background:#faf7f0;color:#2b2824">بسم</i>فاتح</button><button class="sw" data-sty="sepia"><i style="background:#f3e9d4;color:#3a3026">بسم</i>دافئ</button><button class="sw" data-sty="night"><i style="background:#1c1d1f;color:#cfc9bc">بسم</i>ليلي</button></div>
   <button class="sbtf" id="sbTf" aria-pressed="true"><i></i>مع التفسير الميسّر</button>
+  <div class="sbcr"><button class="sbtf" id="sbCr" aria-pressed="true"><i></i>إضافة «عبر تطبيق أنورا» ورابطه</button><small>اختياري، ويساعدنا ننشر التطبيق</small></div>
   <div class="sbb"><button class="ctb solid" id="sbShare">مشاركة الصورة</button><button class="ctb" id="sbSave">حفظ</button><button class="ctb" id="sbText">نص فقط</button></div>
 </div></div>
 
@@ -3005,7 +3008,7 @@ function stepAyah(n,dir){if(n<1||n>NA)return;openAyah(n);showAyahPage(n);const b
 $("shPrev").onclick=()=>stepAyah(selA-1,-1);
 $("shNext").onclick=()=>stepAyah(selA+1,1);
 $("aCopy").onclick=()=>{
-  const t=`${txt(selA)} ﴿${SUR[sOf(selA)][0]}: ${ar(aOf(selA))}﴾`;
+  const t=ayahQ(selA);
   const ok=()=>toast("نُسخت الآية"),fail=()=>{const r=document.createRange();r.selectNodeContents($("shText"));const s=getSelection();s.removeAllRanges();s.addRange(r);toast("حدِّد النص وانسخه يدوياً")};
   try{navigator.clipboard.writeText(t).then(ok,fail)}catch(e){fail()}
 };
@@ -3016,11 +3019,32 @@ $("aReport").onclick=()=>{const id=selA;if(!id)return;const ver="0.1.0",tf=$("sh
   const body=`**وين:** سورة ${SUR[sOf(id)][0]}، الآية ${aOf(id)}، الصفحة ${pOf(id)}\n**الآية:** ${txt(id)}\n**التفسير المفتوح:** ${tf||"-"}\n**القارئ:** ${RECS[reciter]}\n**النسخة:** ${ver} · ${PLAT} · ${navigator.userAgent.slice(0,120)}\n\n**شنو الخطأ؟** (اكتب هنا)\n`;
   const u=`https://github.com/hero5000h-creator/-ANORA-/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=report`;
   try{window.open(u,"_blank")||(location.href=u)}catch(e){location.href=u}};
-function shareText(){
-  const id=$("shareBox").hidden?selA:sbId;let t=`${txt(id)} ﴿${SUR[sOf(id)][0]}: ${ar(aOf(id))}﴾`;
+/* copied or shared ayah text always sits inside the ornate brackets, the reference after it: ﴿…﴾ [البقرة: ٢٥٥] */
+const ayahRef=id=>`[${SUR[sOf(id)][0]}: ${ar(aOf(id))}]`;
+const ayahQ=id=>`﴿${txt(id)}﴾ ${ayahRef(id)}`;
+/* the optional credit line under a share, so whoever receives it can find the app. Change APP_URL once the store page is live */
+const APP_URL="https://github.com/hero5000h-creator/-ANORA-/releases/tag/test";
+let sbCr=store.get("mushaf.sbcr")!=="0";
+const credit=()=>sbCr?`\n\n— عبر تطبيق أنورا للقرآن الكريم\n${APP_URL}`:"";
+/* the system share sheet. Android's WebView has no navigator.share, so the app goes through the native Share plugin;
+   a picture is written to the cache first because the sheet takes files, not blobs. Resolves true when the sheet opened */
+const blobB64=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]);r.onerror=rej;r.readAsDataURL(b)});
+async function sysShare(o){
+  if(NATIVE&&CAP.isPluginAvailable&&CAP.isPluginAvailable("Share")){
+    const op={text:o.text,dialogTitle:"مشاركة الآية"};
+    try{if(o.blob){const r=await nat("Filesystem","writeFile",{path:"share/"+o.file,data:await blobB64(o.blob),directory:"CACHE",recursive:true});op.files=[r.uri]}
+      await nat("Share","share",op)}catch(e){if(/cancel/i.test(String(e&&e.message||e)))return true;return false}
+    return true}
+  try{if(o.blob){const fl=new File([o.blob],o.file,{type:"image/png"});if(!(navigator.canShare&&navigator.canShare({files:[fl]})))return false;await navigator.share({files:[fl],text:o.text});return true}
+    if(!navigator.share)return false;await navigator.share({text:o.text});return true}
+  catch(e){return !!(e&&e.name==="AbortError")}
+}
+async function shareText(){
+  const id=$("shareBox").hidden?selA:sbId;let t=ayahQ(id);
   if(sbTf&&TF&&TF[id-1])t+=`\n\nالتفسير الميسّر: ${TF[id-1]}`;
-  if(navigator.share)navigator.share({text:t}).catch(()=>{});
-  else{try{navigator.clipboard.writeText(t).then(()=>toast("نُسخت الآية لتشاركها"),()=>toast("المشاركة غير متاحة هنا"))}catch(e){toast("المشاركة غير متاحة هنا")}}
+  t+=credit();
+  if(await sysShare({text:t}))return;
+  try{navigator.clipboard.writeText(t).then(()=>toast("نُسخت الآية لتشاركها"),()=>toast("المشاركة غير متاحة هنا"))}catch(e){toast("المشاركة غير متاحة هنا")}
 }
 /* ---------- share an ayah as a picture: a framed mushaf card drawn on a canvas ---------- */
 const SB_STY={light:{bg:"#faf7f0",ink:"#2b2824",gold:"#a08c62",orn:"#55705f",tint:"#f0e9da",cov:"#3e5a4b",mut:"#7a756c"},
@@ -3064,7 +3088,7 @@ async function sbDraw(){
     c.fillStyle=S.ink;c.globalAlpha=.86;c.font=`${ts}px "Amiri",serif`;tfL.forEach((l,i)=>c.fillText(l,W/2,ty+70+i*ts*1.7+ts*.4));c.globalAlpha=1}
   /* reference and a small mark */
   c.fillStyle=S.mut;c.font='700 34px "Amiri",serif';c.fillText(`سورة ${SUR[sOf(id)][0]} · الآية ${ar(aOf(id))}`,W/2,bot+44);
-  c.font='26px "IBM Plex Sans Arabic","Amiri",sans-serif';c.globalAlpha=.8;c.fillText("المصحف الشريف · مصحف المدينة",W/2,bot+92);c.globalAlpha=1;
+  c.font='26px "IBM Plex Sans Arabic","Amiri",sans-serif';c.globalAlpha=.8;c.fillText(sbCr?"مصحف المدينة · عبر تطبيق أنورا":"المصحف الشريف · مصحف المدينة",W/2,bot+92);c.globalAlpha=1;
   sbStar(c,W/2,bot+5,12);c.fillStyle=S.gold;c.fill();
   return new Promise(res=>cv.toBlob(b=>res(b),"image/png"));
 }
@@ -3075,9 +3099,10 @@ async function sbRender(){
   sbBlob=b;if(sbUrl)URL.revokeObjectURL(sbUrl);sbUrl=URL.createObjectURL(b);im.onload=()=>im.classList.remove("busy");im.src=sbUrl;im.parentNode.classList.toggle("st",sbFmt==="st");
 }
 let sbTf=store.get("mushaf.sbtf")!=="0";
-function shareOpen(id){if(!id)return;sbId=id;const x=$("shareBox");x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));$("sbTf").setAttribute("aria-pressed",String(sbTf));
+function shareOpen(id){if(!id)return;sbId=id;const x=$("shareBox");x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));$("sbTf").setAttribute("aria-pressed",String(sbTf));$("sbCr").setAttribute("aria-pressed",String(sbCr));
   if(sbTf&&!TF)tafsir().then(()=>{if(sbId===id)sbRender()},()=>{});sbRender()}
 $("sbTf").onclick=e=>{e.stopPropagation();sbTf=!sbTf;store.set("mushaf.sbtf",sbTf?"1":"0");$("sbTf").setAttribute("aria-pressed",String(sbTf));if(sbTf&&!TF)tafsir().then(sbRender,()=>{});sbRender()};
+$("sbCr").onclick=e=>{e.stopPropagation();sbCr=!sbCr;store.set("mushaf.sbcr",sbCr?"1":"0");$("sbCr").setAttribute("aria-pressed",String(sbCr));sbRender()};
 function shareClose(){const x=$("shareBox");x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
 $("sbClose").onclick=shareClose;$("shareBox").addEventListener("click",e=>{if(e.target.id==="shareBox"){shareClose();return}
   const b=e.target.closest(".sw");if(!b)return;if(b.dataset.fmt){sbFmt=b.dataset.fmt;store.set("mushaf.sbfmt",sbFmt)}if(b.dataset.sty){sbSty=b.dataset.sty;store.set("mushaf.sbsty",sbSty)}sbRender()});
@@ -3100,8 +3125,8 @@ $("bkFile").onchange=async()=>{const f=$("bkFile").files[0];if(!f)return;
 $("sbSave").onclick=async()=>{if(!sbBlob)return;let dl=null;try{dl=window.claude&&claude.use?await claude.use("downloads"):null}catch(e){}
   if(dl){try{await dl.save({filename:sbName(),data:sbBlob});toast("حُفظت الصورة")}catch(e){if(e&&e.code==="declined")return;toast(e&&e.code==="rate_limited"?"لحظة وحاول مرة أخرى":"الحفظ غير متاح هنا")}return}
   try{const a=document.createElement("a");a.href=sbUrl;a.download=sbName();document.body.appendChild(a);a.click();a.remove()}catch(e){toast("الحفظ غير متاح هنا")}};
-$("sbShare").onclick=async()=>{if(!sbBlob)return;try{const fl=new File([sbBlob],sbName(),{type:"image/png"});
-  if(navigator.canShare&&navigator.canShare({files:[fl]})){await navigator.share({files:[fl],text:`﴿${SUR[sOf(sbId)][0]}: ${ar(aOf(sbId))}﴾`});return}}catch(e){if(e&&e.name==="AbortError")return}
+$("sbShare").onclick=async()=>{if(!sbBlob)return;
+  if(await sysShare({blob:sbBlob,file:`ayah-${sOf(sbId)+1}-${aOf(sbId)}.png`,text:ayahRef(sbId)+credit()}))return;
   $("sbSave").onclick()};
 $("sbText").onclick=()=>{shareClose();shareText()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("shareBox").hidden){e.stopPropagation();shareClose()}},true);
