@@ -1,5 +1,6 @@
 package app.anora.quran;
 
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,7 +25,9 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(PlaybackPlugin.class);
         registerPlugin(SpeechPlugin.class);
         registerPlugin(AudioPlugin.class);
+        registerPlugin(WidgetPlugin.class);
         super.onCreate(savedInstanceState);
+        fromWidget(getIntent());
         immersive();
         fastestRefresh();
         watchCutout();
@@ -45,6 +48,20 @@ public class MainActivity extends BridgeActivity {
                 return true;
             }
         });
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        fromWidget(intent);
+    }
+
+    /** A tap on a home-screen widget names the screen to open ("az:sab", "page:25"); the page picks it up. */
+    private void fromWidget(Intent i) {
+        if (i == null || !i.hasExtra(AnoraWidget.EXTRA_GO)) return;
+        WidgetPlugin.deliver(i.getStringExtra(AnoraWidget.EXTRA_GO));
+        i.removeExtra(AnoraWidget.EXTRA_GO);
     }
 
     /** Camera hole / notch size in CSS px (top, right, bottom, left); read by the page through Playback.insets. */

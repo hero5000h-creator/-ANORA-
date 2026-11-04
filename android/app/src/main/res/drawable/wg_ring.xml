@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- the tasbih counter's ring: a faint track and a gold arc that grows clockwise from the top -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape android:shape="ring" android:innerRadiusRatio="2.45" android:thicknessRatio="22" android:useLevel="false">
+            <solid android:color="#26FFFFFF" />
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <rotate android:fromDegrees="270" android:toDegrees="270" android:pivotX="50%" android:pivotY="50%">
+            <shape android:shape="ring" android:innerRadiusRatio="2.45" android:thicknessRatio="22" android:useLevel="true">
+                <gradient android:type="sweep" android:startColor="#FFC9A25C" android:endColor="#FFF0C98A" />
+            </shape>
+        </rotate>
+    </item>
+</layer-list>
