@@ -3539,7 +3539,7 @@ function seg(id){if(!aud)return null;const s=sOf(id)+1,a=aOf(id),rows=aud.surahs
   const i=rows.findIndex(r=>r[0]===a);if(i<0)return null;const pad=String(s).padStart(3,"0");
   const src=DL[reciter].has(s)&&audBase?CAP.convertFileSrc(`${audBase}${reciter}/${pad}.mp3`):aud.folder+pad+".mp3";
   return{src,s,start:a===1?0:rows[i][1],end:rows[i][2],last:i===rows.length-1}}
-function auSeek(ms){const go=()=>{try{AU.currentTime=ms/1000}catch(e){}};AU.readyState>=1?go():AU.addEventListener("loadedmetadata",go,{once:true})}
+function auSeek(ms){player.sk=performance.now();const go=()=>{try{AU.currentTime=ms/1000}catch(e){}};AU.readyState>=1?go():AU.addEventListener("loadedmetadata",go,{once:true})}
 AU.onerror=()=>{if(!player.on)return;const g=player.seg;
   /* a downloaded file that went missing: forget it and stream instead */
   if(g&&!/^https?:\/\/cdn/.test(g.src)&&DL[reciter].delete(g.s)){dlSave(reciter);auSrc="";startAyah(false);return}
@@ -3566,6 +3566,8 @@ function startAyah(resume,flow){
     if(player.on)AU.play().catch(e=>{if(e&&e.name!=="AbortError")AU.onerror()});
     const tick=()=>{if(!player.on||player.seg!==g)return;const t=AU.currentTime*1000;
       $("pBar").style.width=(100*Math.min(1,Math.max(0,(t-g.start)/(g.end-g.start)))).toFixed(1)+"%";
+      /* the page fell behind the player (it slept in the background): catch up instead of jumping back */
+      if(!AU.ended&&!rep.on&&(t>g.end+1500||t<g.start-1500)&&auResync())return;
       if(AU.ended||(!g.last&&t>=g.end-25)){ayahDone();return}
       player.raf=requestAnimationFrame(tick)};
     player.tick=tick;if(player.on)player.raf=requestAnimationFrame(tick);return}
@@ -3578,6 +3580,11 @@ function startAyah(resume,flow){
     player.raf=requestAnimationFrame(tick)};
   player.tick=null;if(player.on)player.raf=requestAnimationFrame(tick);
 }
+/* the ayah the player is really in (same surah file); true when the page moved to it */
+function auResync(){const g=player.seg;if(!player.on||!g||!aud||auSrc!==g.src||AU.readyState<1||AU.seeking||performance.now()-(player.sk||0)<2500)return false;const t=AU.currentTime*1000,s=sOf(player.id),rows=aud.surahs[s+1];if(!rows)return false;
+  let a=0;for(const r of rows)if(r[0]>0&&(r[0]===1?0:r[1])<=t+50)a=r[0];if(!a)return false;const id=SST[s]+a-1;if(id===player.id)return false;
+  player.id=id;startAyah(true);return true}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&player.on&&player.tick)player.tick()});
 /* rAF sleeps when the screen is off; timeupdate keeps the ayah steps going */
 AU.addEventListener("timeupdate",()=>{if(player.on&&player.tick&&document.hidden)player.tick()});
 AU.addEventListener("ended",()=>{if(player.on&&player.tick)player.tick()});
@@ -3605,9 +3612,15 @@ try{const ms=navigator.mediaSession;if(ms){
   ms.setActionHandler("stop",()=>stopPlay())}}catch(e){}
 /* ---------- recitation in the background (foreground service with a notification) ---------- */
 let bgOn=store.get("mushaf.bg")!=="0";
-const bgInfo=()=>({title:`${SUR[sOf(player.id)][0]} · الآية ${ar(aOf(player.id))}`,text:RECS[reciter],playing:player.on});
+/* ayah starts (ms) in the surah file now playing: the notification's next / previous use them by themselves
+   when the page is asleep in the background */
+const ayStarts=id=>{const rows=aud&&aud.surahs[sOf(id)+1];return rows?rows.filter(r=>r[0]>0).map(r=>r[0]===1?0:r[1]):[]};
+const bgInfo=()=>({title:`${SUR[sOf(player.id)][0]} · الآية ${ar(aOf(player.id))}`,text:RECS[reciter],playing:player.on,starts:ayStarts(player.id)});
 function bgSync(){mediaSync();if(PLAT!=="android")return;if(bgOn&&!$("player").hidden&&player.id)nat("Playback","start",bgInfo()).catch(()=>{});else nat("Playback","stop").catch(()=>{})}
 natOn("Playback","action",d=>{const a=d&&d.a,open=!$("player").hidden;if(!a)return;
+  /* next / previous: say we have it, so the service does not jump as well; a press that waited too long
+     (the page was asleep) was already done by the service */
+  if(a==="next"||a==="prev"){if(d.t&&Date.now()-d.t>700){auResync();return}if(d.n)nat("Playback","ack",{n:d.n}).catch(()=>{})}
   if(a==="toggle"){if(open)setPlaying(!player.on)}else if(a==="play"){if(open&&!player.on)setPlaying(true)}else if(a==="pause"){if(open&&player.on)setPlaying(false)}
   else if(a==="next"){if(open)$("pNext").click()}else if(a==="prev"){if(open)$("pPrev").click()}else if(a==="stop")stopPlay()});
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&!bgOn&&player.on)setPlaying(false)});

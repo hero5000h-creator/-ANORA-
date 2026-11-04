@@ -32,6 +32,24 @@ import com.getcapacitor.annotation.CapacitorPlugin
 @CapacitorPlugin(name = "Audio")
 class AudioPlugin : Plugin() {
 
+    companion object {
+        /** The live plugin, so the media session (PlaybackService) can play / pause / seek without the page. */
+        @JvmField var inst: AudioPlugin? = null
+    }
+
+    override fun load() {
+        inst = this
+    }
+
+    /* Direct control for the lock screen / notification / headset buttons. They act on the player at once,
+       on the main thread, even when the web view is slow or asleep in the background; the page is told
+       afterwards and only follows. */
+    fun playNow() = main.post { player?.let { if (it.playbackState == Player.STATE_IDLE) it.prepare(); it.play() } }
+    fun pauseNow() = main.post { player?.pause() }
+    fun seekNow(ms: Long) = main.post { player?.let { it.seekTo(ms.coerceAtLeast(0L)); emitTime() } }
+    /** Where the player is now (ms), or -1 with no file. Main thread only. */
+    fun posNow(): Long = player?.takeIf { it.mediaItemCount > 0 }?.currentPosition ?: -1L
+
     private var player: ExoPlayer? = null
     private val main = Handler(Looper.getMainLooper())
 
@@ -158,6 +176,7 @@ class AudioPlugin : Plugin() {
     }
 
     override fun handleOnDestroy() {
+        if (inst === this) inst = null
         main.removeCallbacks(ticker)
         player?.release()
         player = null

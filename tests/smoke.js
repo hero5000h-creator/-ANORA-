@@ -4,7 +4,7 @@ const {chromium}=require("playwright");const fs=require("fs"),path=require("path
 const WWW=path.join(__dirname,"..","www"),TONE=fs.readFileSync(path.join(__dirname,"tone.mp3"));
 const src=fs.readFileSync(path.join(WWW,"index.html"),"utf8"),hook='recUI();audData(reciter).then(d=>{if(!aud)aud=d});';
 if(!src.includes(hook))throw new Error("test hook point not found in www/index.html");
-fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={playFrom,P:()=>player,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,turn:{rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
+fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={playFrom,P:()=>player,aud:()=>aud,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,turn:{rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
 const types={".html":"text/html",".js":"text/javascript",".json":"application/json",".woff2":"font/woff2",".ttf":"font/ttf",".css":"text/css"};
 const srv=http.createServer((q,r)=>{const f=path.join(WWW,decodeURIComponent(q.url.split("?")[0]));
   fs.readFile(f,(e,b)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{"content-type":types[path.extname(f)]||"application/octet-stream"});r.end(b)})}).listen(0);
@@ -34,7 +34,7 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       MA.addEventListener("ended",()=>em("ended"));MA.addEventListener("loadedmetadata",()=>em("loaded",{dur:MA.duration*1000}));MA.addEventListener("error",()=>em("error",{msg:"x"}));window.__MA=MA;
       const AP={load:o=>{MA.src=o.url},play:()=>MA.play(),pause:()=>MA.pause(),seek:o=>{MA.currentTime=o.ms/1000},rate:o=>{MA.playbackRate=o.rate},stop:()=>{MA.pause();MA.removeAttribute("src")}};
       window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>"android",convertFileSrc:u=>u,isPluginAvailable:n=>n==="Audio",addListener:(pl,ev,fn)=>{window.__L[pl+ev]=fn},
-        nativePromise:(pl,m,o)=>pl==="Audio"?Promise.resolve().then(()=>AP[m](o||{})).then(()=>({})):m==="getUri"?Promise.resolve({uri:"file:///d/"+o.path}):Promise.resolve({})}});
+        nativePromise:(pl,m,o)=>pl==="Audio"?Promise.resolve().then(()=>AP[m](o||{})).then(()=>({})):pl==="Playback"&&m==="ack"?(window.__ack=o.n,Promise.resolve({})):m==="getUri"?Promise.resolve({uri:"file:///d/"+o.path}):Promise.resolve({})}});
     await p.route(/\.mp3(\?|$)/,r=>{const h=r.request().headers().range,B=TONE;if(h){const m=/bytes=(\d+)-(\d*)/.exec(h),a=+m[1],e=m[2]?+m[2]:B.length-1;
       return r.fulfill({status:206,headers:{"content-type":"audio/mpeg","accept-ranges":"bytes","content-range":`bytes ${a}-${e}/${B.length}`},body:B.subarray(a,e+1)})}
       r.fulfill({status:200,headers:{"content-type":"audio/mpeg","accept-ranges":"bytes"},body:B})});
@@ -68,6 +68,15 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     /* the next ayah follows on its own: jump near the end of this ayah and wait */
     {const r=await p.evaluate(async()=>{const id=__smk.P().id,g=__smk.P().seg;__smk.AU.currentTime=(g.end-600)/1000;await new Promise(z=>setTimeout(z,1800));return [id,__smk.P().id,__smk.P().on]});
       ok(r[1]===r[0]+1&&r[2],`${name}: recitation moves on to the next ayah (${r[0]} → ${r[1]})`)}
+    /* the page fell behind the player (asleep in the background): it catches up to the ayah being heard, no jump back */
+    {const r=await p.evaluate(async()=>{const P=__smk.P(),s=__smk.SST[2],rows=__smk.aud().surahs[3],row=rows.find(x=>x[0]===P.id-s+2);if(!row)return ["no row"];window.__id0=P.id;
+        P.sk=0;const W=z=>new Promise(r=>setTimeout(r,z));__smk.AU.currentTime=(row[1]+400)/1000;P.sk=0;await W(1500);return [P.id-s+1,row[0],P.on]});
+      ok(r[0]===r[1]&&r[2],`${name}: page catches up with the player after sleeping (${r})`)}
+    /* a late notification "next" (the service already did it) is not done twice; a fresh one is confirmed */
+    {const r=await p.evaluate(async()=>{const P=__smk.P(),id=P.id,W=z=>new Promise(r=>setTimeout(r,z));window.__ack=0;
+        window.__L.Playbackaction({a:"next",n:5,t:Date.now()-5000});await W(300);const late=P.id;
+        window.__L.Playbackaction({a:"next",n:6,t:Date.now()});await W(300);const out=[id,late,P.id,window.__ack];__smk.playFrom(window.__id0);await W(1200);return out});
+      ok(r[1]===r[0]&&r[2]===r[0]+1&&r[3]===6,`${name}: late notification "next" ignored, fresh one done and confirmed (${r})`)}
     /* the system pausing the player (headphones unplugged, a call) pauses the app too */
     {const r=await p.evaluate(async()=>{window.__L.Audiohalt&&window.__L.Audiohalt({reason:3});await new Promise(z=>setTimeout(z,300));const off=!__smk.P().on;__smk.setPlaying(true);await new Promise(z=>setTimeout(z,800));return [off,__smk.P().on&&!__smk.AU.paused]});
       ok(r[0]&&r[1],`${name}: a system pause pauses the app, and play resumes (${r})`)}

@@ -7,12 +7,15 @@ import android.view.Display;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.view.View;
+import android.webkit.RenderProcessGoneDetail;
+import android.webkit.WebView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
+import com.getcapacitor.WebViewListener;
 
 public class MainActivity extends BridgeActivity {
 
@@ -25,6 +28,23 @@ public class MainActivity extends BridgeActivity {
         immersive();
         fastestRefresh();
         watchCutout();
+        survivePageLoss();
+    }
+
+    /**
+     * If Android ends the web view's page process (low memory with the app in the background), the default
+     * is to crash the whole app. Instead, open the app again: the page then offers "كمّل التلاوة" from the
+     * last ayah heard.
+     */
+    private void survivePageLoss() {
+        if (getBridge() == null) return;
+        getBridge().addWebViewListener(new WebViewListener() {
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                runOnUiThread(MainActivity.this::recreate);
+                return true;
+            }
+        });
     }
 
     /** Camera hole / notch size in CSS px (top, right, bottom, left); read by the page through Playback.insets. */
