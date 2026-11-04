@@ -982,6 +982,14 @@ html[data-paper="sky"] .pnum{color:var(--gold)}
 .mfilt button{flex:none}
 .mfilt button b{font-weight:400;color:var(--muted);font-size:12.5px}
 .row .star.mk{background:none;box-shadow:inset 0 0 0 1.5px var(--c);color:var(--c)}
+.grp.mkh{margin-top:6px}
+.mkc{display:block;width:calc(100% - 8px);margin:8px 4px;padding:14px 16px 11px;box-sizing:border-box;text-align:right;background:var(--paper);border:1px solid var(--line);border-inline-start:3px solid var(--c);border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:transform .16s var(--ease),background-color .2s}
+.mkc:active{transform:scale(.985)}
+.mkc q{quotes:none;display:block;font-family:var(--f-quran);font-size:calc(20px * var(--tfz));line-height:2;color:var(--ink);text-wrap:pretty}
+.mkc small{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.mkc small i{width:8px;height:8px;border-radius:50%;background:var(--c);flex:none}
+.mkc small b{color:var(--bar-ink);font-weight:600}
+.mkc small span+span::before{content:"·";margin-inline-end:8px}
 /* v48 splash wears the sky theme */
 html[data-paper="sky"] #loading{background:#06080d;background-image:radial-gradient(1px 1px at 18% 22%,#fff9,transparent 2px),radial-gradient(1px 1px at 72% 14%,#fff8,transparent 2px),radial-gradient(1.4px 1.4px at 84% 40%,#fffa,transparent 2px),radial-gradient(1px 1px at 30% 68%,#fff7,transparent 2px),radial-gradient(1.2px 1.2px at 58% 82%,#fff9,transparent 2px),radial-gradient(1px 1px at 10% 88%,#fff6,transparent 2px),radial-gradient(1px 1px at 46% 36%,#fff5,transparent 2px),radial-gradient(1px 1px at 92% 74%,#fff7,transparent 2px),radial-gradient(60% 45% at 20% 20%,rgba(70,110,125,.22),transparent),radial-gradient(55% 40% at 85% 30%,rgba(150,95,70,.18),transparent),radial-gradient(70% 50% at 50% 70%,rgba(60,85,110,.16),transparent)}
 /*v49*/
@@ -4099,7 +4107,10 @@ function renderList(anim){
     const all=marks.get(),m=all.filter(id=>(!q||strip(SUR[sOf(id)][0]).includes(q))&&(!mFilt||mgrp.of(id)===mFilt));
     if(all.length&&!q){const cnt=k=>all.filter(id=>mgrp.of(id)===k).length;h+=`<div class="mfilt" id="mFilt"><button data-mf="" aria-pressed="${!mFilt}">الكل <b>${ar(all.length)}</b></button>`+MG.filter(g=>cnt(g.k)).map(g=>`<button data-mf="${g.k}" style="--c:${g.c}" aria-pressed="${mFilt===g.k}"><i></i>${g.n} <b>${ar(cnt(g.k))}</b></button>`).join("")+`</div>`}
     if(bm&&!q){const id=pStart(bm);h+=`<button class="row" data-p="${bm}"><span class="star" style="color:var(--gold)">★</span><span class="rn"><b>علامة الصفحة</b><small>سورة ${SUR[sOf(id)][0]} · الجزء ${ar(jOf(id))}</small></span><span class="pg-n"><em>صفحة</em>${ar(bm)}</span></button>`}
-    m.forEach(id=>{h+=`<button class="row" data-p="${pOf(id)}" data-a="${id}"><span class="star mk" style="--c:${mgC(mgrp.of(id))}">${ar(aOf(id))}</span><span class="rn"><b>${SUR[sOf(id)][0]}</b><small><q>${words(id,6)}</q></small></span><span class="pg-n"><em>صفحة</em>${ar(pOf(id))}</span></button>`});
+    /* marked ayat as cards in mushaf order, grouped under their surah; the ayah shown whole, a long one cut at a word (never mid-word) */
+    const ms=m.slice().sort((a,b)=>a-b);let ls=-1;
+    ms.forEach(id=>{const s=sOf(id);if(s!==ls){ls=s;h+=`<div class="grp mkh"><span>${SUR[s][0]}</span><span>${ar(ms.filter(x=>sOf(x)===s).length)}</span></div>`}
+      h+=`<button class="mkc" data-p="${pOf(id)}" data-a="${id}" style="--c:${mgC(mgrp.of(id))}" aria-label="${SUR[s][0]} آية ${ar(aOf(id))}، صفحة ${ar(pOf(id))}"><q>${words(id,26)}</q><small><i></i><span>${SUR[s][0]}: <b>${ar(aOf(id))}</b></span><span>الصفحة ${ar(pOf(id))}</span></small></button>`});
     const nt=notes.get(),nk=Object.keys(nt).map(Number).filter(id=>!q||strip(SUR[sOf(id)][0]).includes(q)).sort((a,b)=>nt[b].at-nt[a].at||a-b);
     if(nk.length)h+=`<div class="grp"><span>تأمّلاتي</span><span>${ar(nk.length)}</span></div>`+nk.map(id=>`<button class="row" data-p="${pOf(id)}" data-a="${id}" data-note="1"><span class="star" style="color:var(--orn)">${ar(aOf(id))}</span><span class="rn"><b>${SUR[sOf(id)][0]} · ${dayLabel(nt[id].at)}</b><small>${escH(nt[id].t.slice(0,90))}</small></span><span class="pg-n"><em>صفحة</em>${ar(pOf(id))}</span></button>`).join("");
     if(!h)h='<div class="empty">لا توجد علامات ولا تأمّلات بعد. اضغط مطوّلاً على آية ثم اختر «علامة»، أو اكتب في «تأمّلي».</div>';
