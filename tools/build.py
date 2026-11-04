@@ -3,7 +3,7 @@ import os, shutil
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 S = lambda *p: os.path.join(root, 'src', *p)
 app = open(S('app.html'), encoding='utf-8').read()
-app = (app.replace('/*FONT*/', open(S('font.css'), encoding='utf-8').read() + open(S('amiri.css'), encoding='utf-8').read())
+app = (app.replace('/*FONT*/', open(S('font.css'), encoding='utf-8').read() + open(S('amiri.css'), encoding='utf-8').read() + open(S('suranames.css'), encoding='utf-8').read())
           .replace('/*DATA*/', open(S('data.js'), encoding='utf-8').read())
           .replace('/*QP*/', '')
           .replace('/*K*/', open(S('k.js'), encoding='utf-8').read())

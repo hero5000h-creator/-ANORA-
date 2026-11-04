@@ -182,6 +182,12 @@ html.phoneM #bookwrap::after{display:none}
 .rub,.sj{color:var(--gold)}
 .rub{margin-inline-end:.15em}
 .sh{position:relative;display:flex;align-items:center;justify-content:center;gap:.7em;margin:.06em 0;padding:0 1.5em;line-height:1.6;background:var(--o-sura,var(--o-head)) center/100% 100% no-repeat}
+/* the name in the Madinah mushaf's own calligraphy; the words stay in the page for reading aloud and copying */
+.sh-n[data-sn]>span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.sh-n[data-sn]{display:flex;direction:ltr;align-items:center}
+.sh-n[data-sn]::before,.sh-n[data-sn]::after{font-family:"SuraNames";font-weight:400;font-size:calc(var(--lh,2em) * .62);line-height:1;color:var(--ink);font-feature-settings:"liga" 1;position:relative;top:.06em}
+.sh-n[data-sn]::before{content:attr(data-sn)}
+.sh-n[data-sn]::after{content:"surah";margin-left:.1em}
 .sh-n{font-family:var(--f-display);font-weight:700;color:var(--ink);font-size:min(.78em,calc(var(--lh,2em) * .48));line-height:1;white-space:nowrap;position:relative;top:.1em}
 .sh-i{font-family:var(--f-ui);font-size:.42em;color:var(--muted);white-space:nowrap}
 .pf{text-align:center;padding-top:0;line-height:1;font-family:var(--f-display);font-weight:700;font-size:calc(var(--pw) * .04);color:var(--ink);font-variant-numeric:tabular-nums}
@@ -1799,7 +1805,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
 <div id="ceList"></div><button class="ceadd" id="ceAdd">+ أضف لوناً</button>
 <div class="ce-s"><span id="ceStrL"></span><div class="seg" id="ceStr"></div><div class="cepv" id="cePv"></div></div>
 <button class="ceres" id="ceReset">استرجاع الألوان الأصلية</button></div></div>
-<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>مواقيت الصلاة</h4><p>تُحسب على جهازك بمكتبة adhan-js من Batoul Apps (رخصة MIT)، دون إنترنت. موقعك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوات المشايخ: محمود خليل الحصري، ومشاري العفاسي، ومحمد صدّيق المنشاوي، وعبد الباسط عبد الصمد، وأبو بكر الشاطري، وإدريس أبكر، وأحمد محمد عامر (رواية حفص عن عاصم) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>المتشابهات</h4><p>قائمة الآيات المتشابهة التي يلتبس فيها الحفّاظ من مشروع Quran_Mutashabihat_Data للأخ وقار أحمد، المبني على عمل القارئ إدريس العاصم رحمه الله، برخصة CC0 (ملك عام). أما الكلمات الملوّنة فيستخرجها التطبيق من نص المصحف نفسه.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b><span class="src-du">لا تنسونا من صالح دعائكم</span></div></div></div>
+<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p><p>أسماء السور في الصفحة بخط مصحف المدينة من مجمع الملك فهد لطباعة المصحف الشريف (خط sura_names عن موقع Quran.com)، والإطار حولها من رسم أنورا.</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>مواقيت الصلاة</h4><p>تُحسب على جهازك بمكتبة adhan-js من Batoul Apps (رخصة MIT)، دون إنترنت. موقعك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوات المشايخ: محمود خليل الحصري، ومشاري العفاسي، ومحمد صدّيق المنشاوي، وعبد الباسط عبد الصمد، وأبو بكر الشاطري، وإدريس أبكر، وأحمد محمد عامر (رواية حفص عن عاصم) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>المتشابهات</h4><p>قائمة الآيات المتشابهة التي يلتبس فيها الحفّاظ من مشروع Quran_Mutashabihat_Data للأخ وقار أحمد، المبني على عمل القارئ إدريس العاصم رحمه الله، برخصة CC0 (ملك عام). أما الكلمات الملوّنة فيستخرجها التطبيق من نص المصحف نفسه.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b><span class="src-du">لا تنسونا من صالح دعائكم</span></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="si-g" id="siGrid"></div>
@@ -1975,7 +1981,7 @@ function pageHTML(p){
       if(c&&tx.indexOf("\u06DD")<0)st+=`display:inline-block;transform:scaleX(${c});transform-origin:${i===0?"right":i===n-1?"left":"center"};`;
       return `<span${a?` data-a="${a}"`:""}${wi>=0?` data-w="${wi}"`:""}${st?` style='${st}'`:""}>${esc(tx)}</span>`};
     if(k!=="t"){const inner=ws.map((t,i)=>word(t,i,ws.length)).join(" ");
-      return k==="s"?`<div class="ln sh"><span class="sh-n">${inner}</span></div>`:`<div class="ln"><div class="lb mid">${inner}</div></div>`}
+      return k==="s"?`<div class="ln sh"><span class="sh-n" data-sn="${String(sOf(id)+1).padStart(3,"0")}">${inner}</span></div>`:`<div class="ln"><div class="lb mid">${inner}</div></div>`}
     let h="",open=false;ws.forEach((t,i)=>{const end=(typeof t==="string"?t:t[0]).indexOf("\u06DD")>=0;
       if(i){const g=s[i-1],a=open?` data-a="${id}"`:"";h+=g>=0?`<span class="sp"${a} style="width:${g}em"> </span>`:`<span class="sp"${a} style="width:0;margin-left:${g}em"> </span>`}
       {const tx=typeof t==="string"?t:t[0];if(tx.trim()==="۞")HZW.add(id+":"+wn)}h+=word(t,i,ws.length,id,end?-1:wn++);if(end){id++;wn=0}open=!end});
@@ -2740,7 +2746,7 @@ function rasterPage(p){
   wrap.id="app";wrap.className=$("app").className;wrap.setAttribute("dir","rtl");wrap.style.height=H+"px";wrap.style.padding="0";/* the camera-cutout padding of the real #app would push the page image down */
   const bk=document.createElement("div");bk.id="book";bk.style.cssText=`position:relative;direction:ltr;width:${W}px;height:${H}px`;
   const c=el.cloneNode(true);c.querySelectorAll(".shd,.hlb.m,.hlb.p,.hlb.press").forEach(x=>x.remove());/* passing highlights are left out so the images survive each new ayah */
-  c.style.left="0";c.style.top="0";c.style.transform="none";c.style.clipPath="none";c.style.visibility="visible";c.classList.remove("ghost");
+  c.style.left="0";c.style.top="0";c.style.transform="none";c.style.clipPath="none";c.style.visibility="visible";c.style.opacity="";c.classList.remove("ghost","pk","nb","t3","sld","bld");
   bk.appendChild(c);wrap.appendChild(bk);
   const html=new XMLSerializer().serializeToString(wrap);
   const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(W*dpr)}" height="${Math.round(H*dpr)}" viewBox="0 0 ${W} ${H}"><foreignObject x="0" y="0" width="${W}" height="${H}"><div xmlns="http://www.w3.org/1999/xhtml" class="rrt ${root.className}"${[...root.attributes].filter(x=>x.name.startsWith("data-")).map(x=>` ${x.name}="${x.value.replace(/[&"<]/g,"")}"`).join("")}><style><![CDATA[${css.replace(/\]\]>/g,"")}]]></style>${html}</div></foreignObject></svg>`;
@@ -2896,21 +2902,38 @@ function ornaments(){
     const knot=(cx,cy)=>{const r=13,q=r*.55;
       return `<circle cx="${cx}" cy="${cy}" r="${r}"/><path d="M${cx-r} ${cy}Q${cx} ${cy-q*2.4} ${cx+r} ${cy}Q${cx} ${cy+q*2.4} ${cx-r} ${cy}Z"/><path d="M${cx} ${cy-r}Q${cx+q*2.4} ${cy} ${cx} ${cy+r}Q${cx-q*2.4} ${cy} ${cx} ${cy-r}Z"/><circle cx="${cx}" cy="${cy}" r="2.6" fill="${k}"/>`};
     const vine=(x0,x1)=>{const m=(x0+x1)/2;return `<path d="M${x0} 40C${m-6} 18 ${m+6} 18 ${x1} 40C${m+6} 62 ${m-6} 62 ${x0} 40Z"/><path d="M${m} 14Q${m-7} 22 ${m} 27Q${m+7} 22 ${m} 14Z" fill="${k}"/><path d="M${m} 66Q${m-7} 58 ${m} 53Q${m+7} 58 ${m} 66Z" fill="${k}"/>`};
-    /* a woven chain: overlapping rings, with a four-petal flower in each ring and a bead where two rings cross */
-    const panel=(a,b,id)=>{const n=5,w=(b-a)/n;let h=`<clipPath id="${id}"><rect x="${a}" y="12" width="${b-a}" height="56"/></clipPath><g clip-path="url(#${id})">`;
-      for(let i=-1;i<=n;i++){const cx=a+w*(i+.5);h+=`<circle cx="${cx}" cy="40" r="${w*.78}"/><circle cx="${cx}" cy="40" r="${w*.78-4}" stroke-width=".7"/>`}
-      h+="</g>";for(let i=0;i<n;i++){const cx=a+w*(i+.5),q=w*.32;
-        h+=`<path d="M${cx} ${40-q*1.6}Q${cx+q} 40 ${cx} ${40+q*1.6}Q${cx-q} 40 ${cx} ${40-q*1.6}Z"/><path d="M${cx-q*1.6} 40Q${cx} ${40-q} ${cx+q*1.6} 40Q${cx} ${40+q} ${cx-q*1.6} 40Z"/><circle cx="${cx}" cy="40" r="2.4" fill="${k}"/>`;
-        if(i<n-1)h+=`<circle cx="${cx+w/2}" cy="40" r="2" fill="${k}"/><circle cx="${cx+w/2}" cy="17" r="1.6" fill="${k}"/><circle cx="${cx+w/2}" cy="63" r="1.6" fill="${k}"/>`}
-      return h};
+    /* arabesque panels: a lobed medallion in the middle, scrolling vines that curl into spirals on both sides */
+    const f2=v=>v.toFixed(1);
+    const spiral=(cx,cy,r,dir,rot)=>{let d="";for(let t=0;t<=1.0001;t+=.05){const a=rot+dir*t*Math.PI*2.6,rr=r*(1-t*.82);d+=(t?"L":"M")+f2(cx+rr*Math.cos(a))+" "+f2(cy+rr*Math.sin(a))}return `<path d="${d}"/>`};
+    const leaf=(x,y,dx,dy)=>`<path d="M${f2(x)} ${f2(y)}Q${f2(x+dx*.5-dy*.35)} ${f2(y+dy*.5+dx*.35)} ${f2(x+dx)} ${f2(y+dy)}Q${f2(x+dx*.5+dy*.35)} ${f2(y+dy*.5-dx*.35)} ${f2(x)} ${f2(y)}Z" fill="${k}"/>`;
+    const panel=(a,b)=>{const c=(a+b)/2,hw=30,L=[];
+      /* lobed medallion filling the band's height */
+      const lob=(o,sw)=>{const t=12+o,bt=68-o,l=c-hw+o,r=c+hw-o;return `<path d="M${l} 40Q${l} ${t+6} ${c-12} ${t+2}Q${c-6} ${t-2} ${c} ${t}Q${c+6} ${t-2} ${c+12} ${t+2}Q${r} ${t+6} ${r} 40Q${r} ${bt-6} ${c+12} ${bt-2}Q${c+6} ${bt+2} ${c} ${bt}Q${c-6} ${bt+2} ${c-12} ${bt-2}Q${l} ${bt-6} ${l} 40Z" stroke-width="${sw}"/>`};
+      L.push(lob(0,2.2),lob(4,.9));
+      for(let q=0;q<8;q++){const an=q*Math.PI/4+Math.PI/8;L.push(leaf(c+Math.cos(an)*4,40+Math.sin(an)*4,Math.cos(an)*13,Math.sin(an)*13))}
+      L.push(`<circle cx="${c}" cy="40" r="4" fill="${p}" stroke-width="1.2"/><circle cx="${c}" cy="40" r="1.6" fill="${k}"/>`);
+      /* scrolls to both ends: a main stem, spirals up and down, leaves where they branch */
+      [-1,1].forEach(sd=>{const x0=c+sd*hw,x1=sd<0?a:b,len=Math.abs(x1-x0),m=x0+sd*len*.5;
+        L.push(`<path d="M${x0} 40C${f2(x0+sd*10)} 28 ${f2(m-sd*8)} 24 ${f2(m)} 40S${f2(x1-sd*8)} 56 ${f2(x1-sd*2)} 40" stroke-width="2"/>`);
+        L.push(spiral(x0+sd*len*.27,24,10,sd,Math.PI*.6),spiral(x0+sd*len*.27,56,10,-sd,-Math.PI*.6));
+        L.push(spiral(x0+sd*len*.76,22,8,-sd,Math.PI*.4),spiral(x0+sd*len*.76,58,8,sd,-Math.PI*.4));
+        L.push(leaf(m,40,sd*9,-12),leaf(m,40,sd*9,12),leaf(x0,40,sd*12,-9),leaf(x0,40,sd*12,9));
+        L.push(leaf(x0+sd*len*.27,34,sd*-2,-9),leaf(x0+sd*len*.27,46,sd*-2,9),leaf(x0+sd*len*.76,33,sd*3,-8),leaf(x0+sd*len*.76,47,sd*3,8))});
+      return `<g stroke-width="1.6">${L.join("")}</g>`};
+    /* the name field ends in a rounded lobe with a small curl above and below, as a printed mushaf draws it */
+    const cap=(o)=>{const x0=212+o,x1=508-o,y0=12+o,y1=68-o,h=y1-y0,r=h/6,e=h/2.2;
+      /* straight top and bottom, each end a curve of three small lobes */
+      let d=`M${x0+e} ${y0}H${x1-e}`;
+      d+=`Q${x1-e*.25} ${y0} ${x1-r*.6} ${y0+h/3}A${r} ${r} 0 0 1 ${x1-r*.6} ${y0+2*h/3}Q${x1-e*.25} ${y1} ${x1-e} ${y1}`;
+      d+=`H${x0+e}Q${x0+e*.25} ${y1} ${x0+r*.6} ${y0+2*h/3}A${r} ${r} 0 0 1 ${x0+r*.6} ${y0+h/3}Q${x0+e*.25} ${y0} ${x0+e} ${y0}Z`;return d};
     const sura=`<svg xmlns="http://www.w3.org/2000/svg" width="${W0}" height="${H0}" viewBox="0 0 ${W0} ${H0}" preserveAspectRatio="none">
-      <rect x="2" y="3" width="716" height="74" fill="${p}" stroke="${k}" stroke-width="3"/>
-      <rect x="7.5" y="8.5" width="705" height="63" fill="none" stroke="${k}" stroke-width="1.1"/>
-      <g fill="none" stroke="${k}" stroke-width="1.5" stroke-linejoin="round">${panel(12,192,"pl")}${panel(528,708,"pr")}</g>
-      <g stroke="${k}" stroke-width="1.1"><path d="M194 9V71M199 9V71M521 9V71M526 9V71"/></g>
-      <path d="M244 11H476Q508 11 513 40Q508 69 476 69H244Q212 69 207 40Q212 11 244 11Z" fill="${p}" stroke="${k}" stroke-width="2.4"/>
-      <path d="M246 15.5H474Q502 15.5 507.5 40Q502 64.5 474 64.5H246Q218 64.5 212.5 40Q218 15.5 246 15.5Z" fill="none" stroke="${kl}" stroke-width="1"/>
-      <g fill="${k}"><circle cx="203.5" cy="40" r="2.6"/><circle cx="516.5" cy="40" r="2.6"/></g></svg>`;
+      <rect x="2" y="3" width="716" height="74" fill="${p}" stroke="${k}" stroke-width="3.4"/>
+      <rect x="7.5" y="8.5" width="705" height="63" fill="none" stroke="${k}" stroke-width="1.2"/>
+      <g fill="none" stroke="${k}" stroke-linecap="round" stroke-linejoin="round">${panel(14,194)}${panel(526,706)}</g>
+      <g stroke="${k}" stroke-width="1.2"><path d="M200 9V71M524 9V71M196 9V71M520 9V71"/></g>
+      <path d="${cap(0)}" fill="${p}" stroke="${k}" stroke-width="2.6"/>
+      <path d="${cap(4.5)}" fill="none" stroke="${k}" stroke-width="1"/>
+      <g fill="none" stroke="${k}" stroke-width="1.3" stroke-linecap="round">${spiral(214,14,6,1,Math.PI)}${spiral(214,66,6,-1,Math.PI)}${spiral(506,14,6,-1,0)}${spiral(506,66,6,1,0)}</g></svg>`;
     root.style.setProperty("--o-sura",svg(sura))}
   /* page-number medallion */
   let petals="";for(let i=0;i<8;i++){const a=i*45;petals+=`<ellipse cx="20" cy="7.5" rx="4.2" ry="6.5" transform="rotate(${a} 20 20)"/>`}
