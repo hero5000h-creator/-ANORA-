@@ -1408,10 +1408,10 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
 @media (prefers-reduced-motion:reduce){.hint .hsw svg{animation:none}}
 #book>.sld{will-change:transform;backface-visibility:hidden}
 /* the gutter: on a spread the paper darkens softly into the spine, so the two pages read as one bound book */
-html.spreadM .pg.gL{box-shadow:inset calc(var(--pw) * -.05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(60,40,10,.20),inset -1px 0 0 rgba(0,0,0,.10)}
-html.spreadM .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(60,40,10,.20),inset 1px 0 0 rgba(0,0,0,.10)}
-html[data-theme="dark"].spreadM .pg.gL{box-shadow:inset calc(var(--pw) * -.05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(0,0,0,.45)}
-html[data-theme="dark"].spreadM .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(0,0,0,.45)}
+.pg.gL{box-shadow:inset calc(var(--pw) * -.05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(60,40,10,.20),inset -1px 0 0 rgba(0,0,0,.10)}
+.pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(60,40,10,.20),inset 1px 0 0 rgba(0,0,0,.10)}
+html[data-theme="dark"] .pg.gL{box-shadow:inset calc(var(--pw) * -.05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(0,0,0,.45)}
+html[data-theme="dark"] .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(0,0,0,.45)}
 #leaf3{position:absolute;top:0;z-index:3;transform-style:preserve-3d;will-change:transform}
 .lf3{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform-style:preserve-3d}
 .lf3.bk{transform:rotateY(180deg)}
@@ -1847,7 +1847,10 @@ function get(p){
 function place(el,x,z){
   el.style.left=x+"px";el.style.clipPath="";el.style.transform="";el.style.visibility="";el.style.zIndex=z||1;el._o=x;
   /* which side the spine is on, for the gutter shade of a bound book */
-  el.classList.toggle("gL",mode==="spread"&&x===0);el.classList.toggle("gR",mode==="spread"&&x===W);
+  /* one page at a time: still shade the side the spine would be on (odd pages are right-hand pages), so a hafiz
+     always knows whether this is the right or the left page of the printed mushaf */
+  const pn=+el.dataset.p||0,sL=mode==="spread"?x===0:pn%2===0,sR=mode==="spread"?x===W:pn%2===1;
+  el.classList.toggle("gL",sL);el.classList.toggle("gR",sR);
   book.appendChild(el);return el;
 }
 
