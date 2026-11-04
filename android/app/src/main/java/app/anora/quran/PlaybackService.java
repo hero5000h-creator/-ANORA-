@@ -12,7 +12,9 @@ import android.content.IntentFilter;
 import android.content.pm.ServiceInfo;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -34,17 +36,73 @@ public class PlaybackService extends Service {
     private PowerManager.WakeLock wl;
     private MediaSessionCompat session;
     private AudioManager am;
+    private final Handler main = new Handler(Looper.getMainLooper());
+    /** Start of every ayah (ms) in the surah file now playing, from the page; used when the page cannot answer. */
+    private long[] starts = new long[0];
+    /** Skip requests sent to the page, and the last one it confirmed. */
+    private static int skipN = 0;
+    static volatile int ackN = 0;
 
 
     private final BroadcastReceiver noisy = new BroadcastReceiver() {
         @Override
         public void onReceive(Context c, Intent i) {
-            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(i.getAction()) && playing) emit("pause");
+            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(i.getAction()) && playing && inst != null) inst.act("pause");
         }
     };
 
-    private static void emit(String a) {
-        if (PlaybackPlugin.inst != null) PlaybackPlugin.inst.emit(a);
+    private static void emit(String a, int n) {
+        if (PlaybackPlugin.inst != null) PlaybackPlugin.inst.emit(a, n);
+    }
+
+    /**
+     * A button outside the app (notification, lock screen, headset, car, watch).
+     * Play and pause happen here straight away on the native player, and the notification flips at once;
+     * the page is told after, so its own buttons follow. Before, every press only went to the page, and with
+     * the app in the background the page often did not run, so nothing happened.
+     * Next / previous need the ayah list, so the page does them; if it does not confirm within a moment,
+     * the service jumps by itself using the ayah starts the page gave it.
+     */
+    void act(String a) {
+        if ("toggle".equals(a)) a = playing ? "pause" : "play";
+        AudioPlugin ap = AudioPlugin.inst;
+        switch (a) {
+            case "play":
+            case "pause": {
+                boolean on = "play".equals(a);
+                if (ap != null) { if (on) ap.playNow(); else ap.pauseNow(); }
+                if (playing != on) { playing = on; refresh(); }
+                emit(a, 0);
+                break;
+            }
+            case "next":
+            case "prev": {
+                final int n = ++skipN;
+                final boolean fwd = "next".equals(a);
+                emit(a, n);
+                main.postDelayed(() -> { if (ackN < n) skipSelf(fwd); }, 900);
+                break;
+            }
+            case "stop":
+                if (ap != null) ap.pauseNow();
+                emit("stop", 0);
+                stopSelf();
+                break;
+        }
+    }
+
+    /** The page did not answer a next / previous press: jump to the neighbouring ayah start in this file. */
+    private void skipSelf(boolean fwd) {
+        AudioPlugin ap = AudioPlugin.inst;
+        long[] st = starts;
+        if (ap == null || st.length == 0) return;
+        long pos = ap.posNow();
+        if (pos < 0) return;
+        int i = 0;
+        for (int k = 0; k < st.length; k++) if (st[k] <= pos + 250) i = k;
+        int j = fwd ? i + 1 : (pos - st[i] > 2500 ? i : i - 1);
+        if (j < 0 || j >= st.length) return;
+        ap.seekNow(st[j]);
     }
 
     @Override
@@ -58,11 +116,11 @@ public class PlaybackService extends Service {
         am = (AudioManager) getSystemService(AUDIO_SERVICE);
         session = new MediaSessionCompat(this, "anora");
         session.setCallback(new MediaSessionCompat.Callback() {
-            @Override public void onPlay() { emit("play"); }
-            @Override public void onPause() { emit("pause"); }
-            @Override public void onSkipToNext() { emit("next"); }
-            @Override public void onSkipToPrevious() { emit("prev"); }
-            @Override public void onStop() { emit("stop"); }
+            @Override public void onPlay() { act("play"); }
+            @Override public void onPause() { act("pause"); }
+            @Override public void onSkipToNext() { act("next"); }
+            @Override public void onSkipToPrevious() { act("prev"); }
+            @Override public void onStop() { act("stop"); }
         });
         session.setActive(true);
     }
@@ -70,14 +128,16 @@ public class PlaybackService extends Service {
     @Override
     public int onStartCommand(Intent i, int flags, int startId) {
         String a = i != null ? i.getAction() : null;
-        if (TOGGLE.equals(a)) { emit("toggle"); return START_NOT_STICKY; }
-        if (NEXT.equals(a)) { emit("next"); return START_NOT_STICKY; }
-        if (PREV.equals(a)) { emit("prev"); return START_NOT_STICKY; }
-        if (STOP.equals(a)) { emit("stop"); stopSelf(); return START_NOT_STICKY; }
+        if (TOGGLE.equals(a)) { act("toggle"); return START_NOT_STICKY; }
+        if (NEXT.equals(a)) { act("next"); return START_NOT_STICKY; }
+        if (PREV.equals(a)) { act("prev"); return START_NOT_STICKY; }
+        if (STOP.equals(a)) { act("stop"); return START_NOT_STICKY; }
         if (i != null) {
             title = i.getStringExtra("title") != null ? i.getStringExtra("title") : title;
             text = i.getStringExtra("text") != null ? i.getStringExtra("text") : text;
             playing = i.getBooleanExtra("playing", true);
+            long[] st = i.getLongArrayExtra("starts");
+            if (st != null) starts = st;
         }
         inst = this;
         channel();
@@ -95,10 +155,17 @@ public class PlaybackService extends Service {
         return START_NOT_STICKY;
     }
 
-    void update(String t, String x, boolean p) {
-        title = t;
-        text = x;
-        playing = p;
+    void update(String t, String x, boolean p, long[] st) {
+        main.post(() -> {
+            title = t;
+            text = x;
+            playing = p;
+            if (st != null) starts = st;
+            refresh();
+        });
+    }
+
+    private void refresh() {
         apply();
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (nm != null) nm.notify(1, build());
@@ -190,6 +257,7 @@ public class PlaybackService extends Service {
     @Override
     public void onDestroy() {
         inst = null;
+        main.removeCallbacksAndMessages(null);
         lock(false);
         if (noisyOn) { try { unregisterReceiver(noisy); } catch (Exception e) { } noisyOn = false; }
         if (session != null) session.release();
