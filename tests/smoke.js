@@ -54,7 +54,7 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     ok(!errs.length,`${name}: no script errors on load ${errs.join(" | ")}`);
     /* home-screen widgets: the page sends what they show, and a tap on one opens the screen it names */
     {const w=await p.evaluate(()=>window.__wg||null);
-      ok(w&&w.page>=1&&w.sur&&w.cats&&w.cats.sab&&w.cats.sab.of>0&&w.cats.sab.f0&&w.cats.sab.f0.t&&Array.isArray(w.pt)&&w.free.length,`${name}: widget data sent (page ${w&&w.page}, ${w&&w.sur}, ${w&&w.cats&&w.cats.sab&&w.cats.sab.of} morning adhkar)`);
+      ok(w&&w.page>=1&&w.sur&&w.cats&&w.cats.sab&&w.cats.sab.of>0&&w.cats.sab.f0&&w.cats.sab.f0.t&&Array.isArray(w.pt)&&typeof w.ptc==="string"&&w.free.length,`${name}: widget data sent (page ${w&&w.page}, ${w&&w.sur}, ${w&&w.cats&&w.cats.sab&&w.cats.sab.of} morning adhkar)`);
       const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));window.__wgGo="az:mas";window.__L.Widgetopen({});await W(900);
         const az=!document.getElementById("az").hidden,tt=document.getElementById("azTitle").textContent;window.__wgGo="page:77";window.__L.Widgetopen({});await W(1600);
         return {az,tt,closed:document.getElementById("az").hidden,cur:__smk.turn.cur()}});

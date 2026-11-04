@@ -36,9 +36,9 @@ public class AnoraWidget extends AppWidgetProvider {
     static final String PREFS = "anora_widget";
     static final String TICK = "app.anora.quran.WIDGET_TICK";
     static final String EXTRA_GO = "anora_go";
-    private static final long MIN = 60_000L, DAY = 86_400_000L;
-    private static final int[] SAL = { 0, 2, 3, 4, 5 };
-    private static final String[] PT_NAMES = { "الفجر", "الشروق", "الظهر", "العصر", "المغرب", "العشاء" };
+    static final long MIN = 60_000L, DAY = 86_400_000L;
+    static final int[] SAL = { 0, 2, 3, 4, 5 };
+    static final String[] PT_NAMES = { "الفجر", "الشروق", "الظهر", "العصر", "المغرب", "العشاء" };
 
     @Override
     public void onUpdate(Context c, AppWidgetManager m, int[] ids) {
@@ -60,16 +60,26 @@ public class AnoraWidget extends AppWidgetProvider {
 
     @Override
     public void onDisabled(Context c) {
-        AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
-        if (am != null) am.cancel(tick(c));
+        if (count(c) == 0) {
+            AlarmManager am = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
+            if (am != null) am.cancel(tick(c));
+        }
     }
 
-    /** Redraw every placed adhkar widget (and the tasbih, which shares nothing but is cheap). */
+    /** How many adhkar and prayer widgets are placed (both wake on the same alarm). */
+    static int count(Context c) {
+        AppWidgetManager m = AppWidgetManager.getInstance(c);
+        return m.getAppWidgetIds(new ComponentName(c, AnoraWidget.class)).length + m.getAppWidgetIds(new ComponentName(c, PrayerWidget.class)).length;
+    }
+
+    /** Redraw every placed adhkar and prayer-times widget, and wake again at the next change. */
     static void refresh(Context c) {
         AppWidgetManager m = AppWidgetManager.getInstance(c);
         int[] ids = m.getAppWidgetIds(new ComponentName(c, AnoraWidget.class));
         for (int id : ids) draw(c, m, id);
-        if (ids.length > 0) schedule(c);
+        int[] pw = m.getAppWidgetIds(new ComponentName(c, PrayerWidget.class));
+        for (int id : pw) PrayerWidget.draw(c, m, id);
+        if (ids.length + pw.length > 0) schedule(c);
     }
 
     // ---------------------------------------------------------------- what to show
