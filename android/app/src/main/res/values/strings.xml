@@ -6,6 +6,8 @@
     <string name="custom_url_scheme">app.anora.quran</string>
     <string name="wg_adhkar">أذكار أنورا</string>
     <string name="wg_adhkar_desc">ذكر الوقت ومواقيت الصلاة ومتابعة القراءة</string>
+    <string name="wg_prayer">مواقيت الصلاة · أنورا</string>
+    <string name="wg_prayer_desc">الصلاة القادمة والوقت الباقي وأوقات اليوم</string>
     <string name="wg_tasbih">مسبحة أنورا</string>
     <string name="wg_tasbih_desc">سبّح من الشاشة الرئيسية بلمسة</string>
 </resources>

@@ -1434,7 +1434,8 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-occ button.ok{border-color:rgba(127,224,192,.45)}
 .az-sec{margin:22px 2px 8px;font-family:var(--f-display);font-size:17px;font-weight:700;color:#f3e3bf}
 /* settings: reminders and the weak-isnad switch */
-.az-wg{flex:none;height:38px;padding:0 12px;background:rgba(217,180,108,.1);border-color:rgba(217,180,108,.32);color:#f3e3bf}
+#azWgRow{flex-wrap:wrap;gap:8px;padding:10px 0}#azWgRow>span{flex:1 0 100%}
+.az-wg{flex:1;height:38px;padding:0 10px;background:rgba(217,180,108,.1);border-color:rgba(217,180,108,.32);color:#f3e3bf}
 .az-set{display:grid;gap:2px;padding:6px 14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
 .az-row{display:flex;align-items:center;gap:10px;min-height:52px;font-size:14.5px}
 .az-row+.az-row{border-top:1px solid rgba(255,255,255,.07)}
@@ -1926,7 +1927,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
       <div class="az-set" id="azSet">
         <div class="az-row" id="azRemRow"><span>تذكير أذكار الصباح<small id="azRemNote">إشعار هادئ كل يوم</small></span><input type="time" id="azRemM" value="06:30" aria-label="وقت تذكير الصباح"><button class="az-sw" id="azRemMs" role="switch" aria-checked="false" aria-label="تذكير أذكار الصباح"></button></div>
         <div class="az-row" id="azRemRow2"><span>تذكير أذكار المساء</span><input type="time" id="azRemE" value="17:30" aria-label="وقت تذكير المساء"><button class="az-sw" id="azRemEs" role="switch" aria-checked="false" aria-label="تذكير أذكار المساء"></button></div>
-        <div class="az-row" id="azWgRow" hidden><span>على الشاشة الرئيسية<small>ذكر الوقت ومواقيت الصلاة، أو مسبحة بلمسة</small></span><button class="az-btn az-wg" data-wg="adhkar">الأذكار</button><button class="az-btn az-wg" data-wg="tasbih">المسبحة</button></div>
+        <div class="az-row" id="azWgRow" hidden><span>على الشاشة الرئيسية<small>مواقيت الصلاة، ذكر الوقت، أو مسبحة بلمسة</small></span><button class="az-btn az-wg" data-wg="prayer">المواقيت</button><button class="az-btn az-wg" data-wg="adhkar">الأذكار</button><button class="az-btn az-wg" data-wg="tasbih">المسبحة</button></div>
         <div class="az-row"><span>إخفاء ما في إسناده كلام<small>يبقى الصحيح والحسن فقط</small></span><button class="az-sw" id="azWeak" role="switch" aria-checked="false" aria-label="إخفاء ما في إسناده كلام"></button></div>
       </div>
       <p class="az-streak" id="azStreak"></p>
@@ -5058,7 +5059,8 @@ function wgData(){const d=azSt.get(),cats={};
     cats[k]={name:c.name,sub:c.sub,of:it.length,n:it.filter(x=>azDoneN(x,p)).length,nx:nx?wgItem(nx):null,f0:it.length?wgItem(it[0]):null}}
   const pt=[],P=ptGet();if(ptReady(P))for(let i=-1;i<14;i++){const t=ptTimes(new Date(Date.now()+i*864e5),P);if(t)pt.push(PT_KEYS.map(k=>t[k]))}
   const s=sOf(pStart(Math.max(1,Math.min(NP,cur))));
-  return {day:today(),page:cur,sur:SUR[s][0],pt,cats,free:AZ_FREE}}
+  const ptm=ptReady(P)?(PT_M.find(x=>x.k===P.m)||{}).n||"":"";
+  return {day:today(),page:cur,sur:SUR[s][0],pt,ptc:ptReady(P)?P.city||"موقعي":"",ptm,cats,free:AZ_FREE}}
 function wgSend(){try{if(PLAT!=="android")return;nat("Widget","update",wgData()).catch(()=>{})}catch(e){}}
 function wgPush(now){try{if(PLAT!=="android")return}catch(e){return}clearTimeout(wgPush.t);if(now)wgSend();else wgPush.t=setTimeout(wgSend,1200)}
 function wgGo(g){if(!g)return;const i=String(g).indexOf(":"),a=i<0?g:g.slice(0,i),b=i<0?"":g.slice(i+1);
