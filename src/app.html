@@ -3009,7 +3009,9 @@ $("aMark").onclick=()=>{const prevG=mgrp.get()[selA]||"";const on=marks.toggle(s
 /* a pill slides under the chosen tab of a tab group */
 function pillTo(g){if(!g||!g.offsetWidth)return;let p=g.querySelector(".tpill");const fresh=!p;if(fresh){p=document.createElement("i");p.className="tpill";g.prepend(p)}
   const b=g.querySelector('[aria-selected="true"]');if(!b)return;const gr=g.getBoundingClientRect(),br=b.getBoundingClientRect();
-  if(fresh)p.style.transition="none";p.style.width=br.width+"px";p.style.transform=`translateX(${br.left-gr.right+br.width}px)`;
+  /* screen sizes are zoomed with large text (--uz) but the pill's own sizes are not: divide the zoom back out */
+  const z=g.offsetWidth?gr.width/g.offsetWidth:1;
+  if(fresh)p.style.transition="none";p.style.width=br.width/z+"px";p.style.transform=`translateX(${(br.left-gr.right+br.width)/z}px)`;
   if(fresh){void p.offsetWidth;p.style.transition=""}}
 const TFZ=[1,1.12,1.25,1.4],TFZN=["عادي","كبير","أكبر","الأكبر"];let tfz=Math.max(0,TFZ.indexOf(+store.get("mushaf.tfz")||1));
 function setTfz(i){tfz=i;root.style.setProperty("--tfz",TFZ[i]);store.set("mushaf.tfz",TFZ[i])}
