@@ -133,6 +133,12 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         return {j:f(new adhan.PrayerTimes(c,d,new adhan.CalculationParameters("Other",16,14,0,4))),m:f(new adhan.PrayerTimes(c,d,adhan.CalculationMethod.MuslimWorldLeague()))}});
       const inOrder=a=>a.every((x,i)=>!i||x>a[i-1]);
       ok(inOrder(r.j)&&inOrder(r.m)&&r.m[0]>="04:45"&&r.m[0]<="05:15"&&r.m[4]>="16:55"&&r.m[4]<="17:20"&&r.j[4]>r.m[4],`${name}: prayer times for Baghdad look right ${JSON.stringify(r)}`)}
+    {/* المتشابهات: the switch colours the twin phrases on the open page (page 51, built next to the open page 50, holds 3:10 and 3:11 from the huffaz' list) and takes them off again */
+      await p.evaluate(()=>document.getElementById("bMut").click());await p.waitForTimeout(1800);
+      const on=await p.evaluate(()=>[...new Set([...document.querySelectorAll('.pg[data-p="51"] .ms')].map(w=>+w.dataset.a))]);
+      await p.evaluate(()=>document.getElementById("bMut").click());await p.waitForTimeout(800);
+      const off=await p.evaluate(()=>document.querySelectorAll(".pg .ms,.pg .md,#flBody .ms,#flBody .md").length);
+      ok(on.length>=2&&!off,`${name}: similar phrases coloured on the page and cleared when switched off (ayat ${on.join(",")}; ${off} left)`)}
     await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});

@@ -9,6 +9,7 @@
    Reading comfort first: no pure white or black, low-contrast ornaments, one thin frame, generous line spacing. */
 :root{
   --tj-md:#b23a30;--tj-gh:#2c8a4e;--tj-qa:#2768ad;--tj-s:#a39f95;
+  --ms1:#17808a;--ms2:#8b4ea6;--ms3:#b0631a;--ms4:#2f66b3;--ms5:#b23d63;--ms6:#4f8a26;
   --rib:#8c2a33;--rib-d:#5a141b;--rib-l:#b44a52;
   --desk:#e8e5dc;
   --bar:#f6f4ee;
@@ -56,6 +57,7 @@
 :root[data-cover="green"]{--cover:#3e5a4b}:root[data-cover="navy"]{--cover:#2c3a55}:root[data-cover="maroon"]{--cover:#6a2a2f}:root[data-cover="brown"]{--cover:#6b4c2e}:root[data-cover="black"]{--cover:#2b2926}
 :root[data-paper="night"]{
   --tj-md:#e07a6c;--tj-gh:#6cc08a;--tj-qa:#79a9e0;--tj-s:#6d6a64;
+  --ms1:#5cc3c8;--ms2:#c597e0;--ms3:#e5a061;--ms4:#86aef0;--ms5:#ec8aa8;--ms6:#9ccc6e;
   --rib:#6e2229;--rib-d:#3f0e13;--rib-l:#8d3a41;
   --desk:#111213;--bar:#17181a;--bar-ink:#d6d1c6;--muted:#aba69c;--paper:#1c1d1f;--paper-edge:#2a2a2b;--ink:#cfc9bc;
   --orn:#8fab9b;--gold:#ad9a72;--rule:rgba(207,201,188,.16);--line:rgba(214,209,198,.09);--gut:rgba(0,0,0,.22);--hl:rgba(255,255,255,.04);
@@ -592,6 +594,23 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #app.tajweed .tj-gh{color:var(--tj-gh)}
 #app.tajweed .tj-qa{color:var(--tj-qa)}
 #app.tajweed .tj-s{color:var(--tj-s)}
+/* المتشابهات: a hafiz's coloured pen. The similar phrase takes the pen's ink; the word where the wording parts carries dots under it */
+#app.mut:not(.memo) #book .lb [data-a]:is(.ms,.md),#flBody :is(.ms,.md),#shText :is(.ms,.md){color:var(--mc)}
+#app.mut:not(.memo) #book .lb [data-a]:is(.ms,.md) .tj{color:inherit}
+#app.mut:not(.memo) #book .lb [data-a].md,#flBody .md,#shText .md{background:radial-gradient(circle,var(--mc) 45%,transparent 55%) 0 84%/.24em .2em repeat-x}
+.simh{display:flex;flex-direction:column;gap:2px;margin:4px 2px 8px;font-family:var(--f-ui)}
+.simh b{font-size:13px;color:var(--orn)}
+.simh span{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.simh i,.tjk.msk span::before{display:inline-block;width:14px;height:8px;border-radius:2px}
+.simh i.k1,.msk .k1::before{background:var(--ms1)}
+.simh i.k2,.msk .k2::before{background:radial-gradient(circle,var(--ms1) 45%,transparent 55%) 0 50%/5px 5px repeat-x;border-radius:0}
+.simh i.k2{background-image:radial-gradient(circle,var(--ms3) 45%,transparent 55%)}
+.tjk.msk .k3::before{background:none;width:0;margin:0}
+.simr.mut{border-right-color:var(--ms1)}
+.simr.mut q mark{color:var(--ms1)}
+.simr q b.mdf{font-weight:inherit;background:radial-gradient(circle,var(--ms3) 45%,transparent 55%) 0 86%/.24em .2em repeat-x}
+.mutgo{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;min-height:48px;margin:6px 0 4px;padding:10px 14px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--orn) 55%,transparent);background:color-mix(in srgb,var(--orn) 7%,transparent);color:var(--orn);font:600 14px var(--f-ui)}
+.mutgo small{font-weight:400;font-size:12px;color:var(--muted)}
 .tjk{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--muted);margin-top:4px}
 .tjk span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-left:5px}
 .posture{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px}
@@ -929,6 +948,7 @@ html.thumb #fPrefs[aria-expanded="true"]{background:var(--orn);color:var(--bar)}
 /* v43 black paper: true black for OLED screens in the dark, ink a little dimmer so it does not glare */
 :root[data-paper="black"]{
   --tj-md:#d4705f;--tj-gh:#5fae7c;--tj-qa:#6d9bd2;--tj-s:#5f5c57;
+  --ms1:#5cc3c8;--ms2:#c597e0;--ms3:#e5a061;--ms4:#86aef0;--ms5:#ec8aa8;--ms6:#9ccc6e;
   --desk:#000;--bar:#060606;--bar-ink:#cfc9bd;--muted:#a8a39b;--paper:#000;--paper-edge:#161616;--ink:#bfb9ac;
   --orn:#86a291;--gold:#a3916b;--rule:rgba(200,195,182,.14);--line:rgba(214,209,198,.08);--gut:rgba(255,255,255,.025);--hl:rgba(255,255,255,.03);
   --shadow:rgba(0,0,0,.7);--scrim:rgba(0,0,0,.65);--sel:rgba(134,162,145,.13);--tint:rgba(134,162,145,.05);--cover:#0d0d0d;--age:transparent;--grain-o:0;color-scheme:dark}
@@ -936,6 +956,7 @@ html[data-paper="black"] #stage{background-image:none}
 /* v46 sky: the adhkar's night sky around the book; the page itself stays a calm dark leaf with cream ink and warm gold */
 :root[data-paper="sky"]{
   --tj-md:#e48474;--tj-gh:#72c493;--tj-qa:#86b2e6;--tj-s:#6c7080;
+  --ms1:#5cc3c8;--ms2:#c597e0;--ms3:#e5a061;--ms4:#86aef0;--ms5:#ec8aa8;--ms6:#9ccc6e;
   --rib:#6e2229;--rib-d:#3f0e13;--rib-l:#8d3a41;
   --desk:#06080d;--bar:#0c1120;--bar-ink:#e3ddd0;--muted:#b0b5c2;--paper:#111624;--paper-edge:#1e2536;--ink:#e2d8c3;
   --orn:#8fb6c6;--gold:#c6a36a;--rule:rgba(226,216,195,.15);--line:rgba(226,221,208,.09);--gut:rgba(0,0,0,.28);--hl:rgba(255,255,255,.04);
@@ -1601,6 +1622,8 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
       <div class="posture" id="volRow" hidden><span>أزرار الصوت تقلّب الصفحة<small>زر خفض الصوت للصفحة التالية، والرفع للسابقة. أثناء التلاوة يعودان للتحكم بالصوت</small></span><button class="tg" id="bVol" role="switch" aria-checked="false" aria-label="أزرار الصوت تقلّب الصفحة"></button></div>
       <div class="posture"><span>ألوان التجويد<small>المد والغنة والإخفاء والقلقلة</small></span><button class="tg" id="bTaj" role="switch" aria-checked="false" aria-label="ألوان التجويد"></button></div>
       <div class="tjk" id="tjKey" hidden><span style="--c:var(--tj-md)">مد لازم وواجب وجائز</span><span style="--c:var(--tj-gh)">غنة وإخفاء وإقلاب وإدغام بغنة</span><span style="--c:var(--tj-qa)">قلقلة</span><span style="--c:var(--tj-s)">ما لا يُلفظ</span></div>
+      <div class="posture"><span>المتشابهات الملوّنة<small>تلوين العبارات التي تتكرر بلفظ قريب في موضع آخر، عوناً على ضبط الحفظ</small></span><button class="tg" id="bMut" role="switch" aria-checked="false" aria-label="المتشابهات الملوّنة"></button></div>
+      <div class="tjk msk" id="msKey" hidden><span class="k1">اللون: عبارة لها نظيرة في موضع آخر</span><span class="k2">النقاط: الكلمة التي يختلف فيها اللفظ</span><span class="k3">المس الكلمة الملوّنة لترى نظيرتها</span></div>
       <div class="posture"><span>العلامات على الصفحة<small>خط ملوّن تحت الآيات المعلَّمة ونقطة عند الملاحظات</small></span><button class="tg" id="bMkShow" role="switch" aria-checked="true" aria-label="إظهار العلامات على الصفحة"></button></div>
       <div class="posture"><span>وضع نصف الفتح<small>المصحف فوق المفصل والتفسير تحته</small></span><button class="tg" id="bTable" role="switch" aria-checked="false" aria-label="معاينة وضع نصف الفتح"></button></div>
       </section>
@@ -1707,7 +1730,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
 </div>
 <div id="dimV" aria-hidden="true"></div>
 <div id="easyBox" role="dialog" aria-modal="true" aria-labelledby="easyQ" hidden><div class="si easy"><b id="easyQ">أتريد خطاً أكبر وأزراراً أقل؟</b><p>نكبّر خط القرآن وخط الواجهة كله، ونخفي الأدوات المتقدمة. ويمكنك تغيير ذلك لاحقاً من الإعدادات ← المظهر.</p><button class="eyes" id="easyY">نعم، كبّره</button><button class="eno" id="easyN">لا، أبقِه كما هو</button></div></div>
-<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>مواقيت الصلاة</h4><p>تُحسب على جهازك بمكتبة adhan-js من Batoul Apps (رخصة MIT)، دون إنترنت. موقعك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
+<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>مواقيت الصلاة</h4><p>تُحسب على جهازك بمكتبة adhan-js من Batoul Apps (رخصة MIT)، دون إنترنت. موقعك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>المتشابهات</h4><p>قائمة الآيات المتشابهة التي يلتبس فيها الحفّاظ من مشروع Quran_Mutashabihat_Data للأخ وقار أحمد، المبني على عمل القارئ إدريس العاصم رحمه الله، برخصة CC0 (ملك عام). أما الكلمات الملوّنة فيستخرجها التطبيق من نص المصحف نفسه.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="si-g" id="siGrid"></div>
@@ -1946,7 +1969,7 @@ function buildPage(p){
   if(p<=2) el.classList.add("opening");
   el.innerHTML=`<div class="frame"><div class="ph"><span class="j">الجزء ${ar(jOf(id))}</span><span>سورة ${SUR[sOf(id)][0]}</span></div>
     <div class="box"><div class="lines">${pageHTML(p)}</div></div><div class="pf"><span>${ar(p)}</span></div></div><div class="gut"></div>`;
-  sjMark(el);if(tajOn)tajPage(el);
+  sjMark(el);if(tajOn)tajPage(el);mutPage(el,p);
   measure.appendChild(el);
   fit(el);
   if(p>2)hizbMarks(el);
@@ -2510,11 +2533,11 @@ function renderFlow(){
   const B=AW[1].join(" ");let h="",para=[];
   const flush=()=>{if(para.length)h+=`<p class="fltx">${para.join(" ")}</p>`;para=[]};
   for(let p=cur;p<=last;p++){
-    flush();h+=`<div class="flpg">صفحة ${ar(p)}</div>`;
+    flush();h+=`<div class="flpg">صفحة ${ar(p)}</div>`;const MC=mutOn&&MUT?mutCols(p):null;
     for(let id=pStart(p);id<=pEnd(p);id++){
       const si=sOf(id);
       if(aOf(id)===1){flush();h+=`<div class="fh">سورة ${SUR[si][0]}</div>`;if(si!==0&&si!==8)h+=`<p class="fb">${escH(B)}</p>`}
-      para.push(`<span class="fa${id===selA?" sel":""}${hlK(id)?" hk":""}" data-a="${id}"${hlK(id)?` style="--c:${hlC(hlK(id))}"`:""}>${AW[id].map(w=>escH(qY(w))).join(" ")}&nbsp;<span class="an">۝${ar(aOf(id))}</span></span>`);
+      para.push(`<span class="fa${id===selA?" sel":""}${hlK(id)?" hk":""}" data-a="${id}"${hlK(id)?` style="--c:${hlC(hlK(id))}"`:""}>${MC&&MC.has(id)?mutLine(id,MC.get(id)):AW[id].map(w=>escH(qY(w))).join(" ")}&nbsp;<span class="an">۝${ar(aOf(id))}</span></span>`);
     }
   }
   flush();
@@ -2655,7 +2678,7 @@ function rasterPage(p){
 }
 /* after a page turn only pages not yet drawn are added; a change to what pages show redraws them all */
 let rasterKey="";
-function rasterDirtyLazy(){const k=[bmNow(),W,H,mode,/* only classes that change how a page looks: passing UI states (calm bars, a toast) must not throw the page images away */["memo","mhint","tajweed","full"].filter(c=>$("app").classList.contains(c)).join(" "),root.dataset.paper,memo.on?JSON.stringify([...memo.rev])+JSON.stringify(memo.range)+(store.get("mushaf.memoErr")||""):""].join("|");
+function rasterDirtyLazy(){const k=[bmNow(),W,H,mode,/* only classes that change how a page looks: passing UI states (calm bars, a toast) must not throw the page images away */["memo","mhint","tajweed","mut","full"].filter(c=>$("app").classList.contains(c)).join(" "),root.dataset.paper,memo.on?JSON.stringify([...memo.rev])+JSON.stringify(memo.range)+(store.get("mushaf.memoErr")||""):""].join("|");
   if(k!==rasterKey){rasterKey=k;rasterDirty()}else{clearTimeout(RS.t);RS.t=setTimeout(rasterSoon,350)}}
 function rasterSoon(){
   /* only the phone's curl uses page images; the spread's 3D leaf moves the pages themselves */
@@ -2905,7 +2928,8 @@ function hlBands(id,cl){const out=[];{
   return out;
 }
 let lastW=0,lpAt=0;
-function ayahAt(x,y){const el=document.elementFromPoint(x,y);const s=el&&el.closest&&el.closest("#book [data-a]");lastW=s&&s.dataset.w?+s.dataset.w:0;return s?+s.dataset.a:0}
+let lastMs=0;
+function ayahAt(x,y){const el=document.elementFromPoint(x,y);const s=el&&el.closest&&el.closest("#book [data-a]");lastW=s&&s.dataset.w?+s.dataset.w:0;lastMs=s&&mutOn&&(s.classList.contains("ms")||s.classList.contains("md"))?performance.now():0;return s?+s.dataset.a:0}
 const ref=id=>`سورة ${SUR[sOf(id)][0]} · الآية ${ar(aOf(id))}`;
 let toastT;function toast(m){const t=$("toast"),a=$("app"),f=document.querySelector("#app>.foot");t.textContent=m;t.style.pointerEvents="";
   /* toasts never sit on the mushaf text: they take the top bar's place for a moment (or the very top edge in calm reading) */
@@ -2954,13 +2978,15 @@ let sheetFocus=null,sheetAt=0;
 function openAyah(id){
   if(memo.on){revealAyah(id);return}
   if(inTable){renderDeck();deckSelect(id,true);return}
+  /* a press on a coloured word opens the ayah at its twins */
+  if(lastMs&&performance.now()-lastMs<2500)shK="sim";lastMs=0;
   selA=id;wSel=lastW;lastW=0;wxLemma=-1;wxN=WX_PAGE;paintHL();hideHint();sheetAt=performance.now();
   const sh=$("sheet");
   $("shTitle").textContent="سورة "+SUR[sOf(id)][0];$("shNum").textContent=ar(aOf(id));$("shPos").textContent=`الآية ${ar(aOf(id))} من ${ar(SUR[sOf(id)][1])}`;$("sheet").setAttribute("aria-label",ref(id));
   $("shMeta").textContent=`الآية ${ar(aOf(id))} · الجزء ${ar(jOf(id))}${document.documentElement.classList.contains("uzL")&&innerWidth<700?"":` · الحزب ${ar((qOf(id)>>2)+1)}`} · صفحة ${ar(pOf(id))} · حفص\u00a0عن\u00a0عاصم`;
   if(!deckPages().includes(pOf(id)))showAyahPage(id);
   if(flowActive())requestAnimationFrame(()=>{renderFlow();const s=$("flBody").querySelector(".fa.sel");if(s)s.scrollIntoView({block:"center",behavior:reduce?"auto":"smooth"})});
-  $("shText").innerHTML=`${AW[id].map((w,i)=>`<span class="w" data-w="${i}">${escH(qY(w))}</span>`).join(" ")} <span class="an">۝${ar(aOf(id))}</span>`;
+  $("shText").innerHTML=`${mutLine(id,mutOn&&MUT&&mutWords(id)?mutCols(pOf(id)).get(id):0,"w")} <span class="an">۝${ar(aOf(id))}</span>`;
   $("aMark").setAttribute("aria-pressed",String(marks.has(id)));aGrpUI();$("aHl").setAttribute("aria-pressed",String(!!hlK(id)));hlPalUI();$("aNote").setAttribute("aria-pressed",String(!!(notes.get()[id]&&notes.get()[id].t)));
   $("shPrev").disabled=id<=1;$("shNext").disabled=id>=NA;
   shBody(id);
@@ -3175,7 +3201,7 @@ function shBody(id){
     /* tapping the note opens the writing window at the top of the screen */
     $("ntT").onclick=$("ntT").onfocus=e=>{e.target.blur();noteOpen(id)};
     const d=$("ntDel");if(d)d.onclick=()=>{const was=notes.get()[id];notes.set(id,"");shBody(id);toastU("حُذف التأمّل",()=>{notes.set(id,was);if(selA===id)shBody(id)})}}
-  else{src.innerHTML="<span>مواضع متشابهة اللفظ</span><span>تعين على ضبط الحفظ</span>";tf.innerHTML=simHTML(id)}
+  else{src.innerHTML="<span>مواضع متشابهة اللفظ</span><span>تعين على ضبط الحفظ</span>";load(()=>MUT,mutData,()=>simAll(id),"المتشابهات")}
 }
 /* ---------- word explorer: what a word means, where it comes from, and every place it occurs ----------
    words.json (from the Quranic Arabic Corpus, mustafa0x/quran-morphology) holds, for every word on the page,
@@ -3254,7 +3280,7 @@ $("tfSel").onclick=e=>{const b=e.target.closest("button");if(!b)return;tfK=b.dat
 document.querySelectorAll(".shtabs button").forEach(b=>b.onclick=()=>{shK=b.dataset.k==="more"?moreK:b.dataset.k;if(selA)shBody(selA)});
 $("moreSel").onclick=e=>{const b=e.target.closest("button");if(!b)return;shK=b.dataset.m;if(selA)shBody(selA)};
 $("shText").addEventListener("click",e=>{const w=e.target.closest(".w");if(!w||!selA)return;wSel=+w.dataset.w;wxLemma=-1;wxN=WX_PAGE;shK="wd";shBody(selA)});
-$("shTafsir").addEventListener("click",e=>{if(wxClick(e))return;const b=e.target.closest(".simr");if(!b)return;const a=+b.dataset.a;openAyah(a);showAyahPage(a)});
+$("shTafsir").addEventListener("click",e=>{if(wxClick(e))return;if(e.target.closest("#mutGo")){setMut(true);return}const b=e.target.closest(".simr");if(!b)return;const a=+b.dataset.a;openAyah(a);showAyahPage(a)});
 
 /* Arabic is matched on its letters only: harakat, Quranic marks, hamza seats and alif (including the small
    alif of the Uthmani script) are ignored, so a search typed in plain spelling finds the Uthmani text.
@@ -3314,12 +3340,68 @@ function similar(id){
   const groups=new Map();r.forEach(([j,o])=>{const key=W[j].join(" ");const g=groups.get(key);if(g)g.more++;else groups.set(key,{j,o,more:0})});
   return [...groups.values()].slice(0,8);
 }
-function simHTML(id){
-  const L=similar(id);if(!L.length)return muted("لا توجد في القرآن آية تشبه هذه الآية في لفظها.");
+function simAll(id){const cur=mutHTML(id),skip=new Set();if(MUT)(MUT.get(id)||[]).forEach(e=>e.ms.forEach(m=>m.forEach(x=>skip.add(x))));
+  const rest=simHTML(id,skip,!!cur);
+  return (cur?`<div class="simh"><b>من قائمة متشابهات الحفّاظ</b><span><i class="k1"></i>ما تشترك فيه الآيتان <i class="k2"></i>الكلمة التي يختلف فيها اللفظ</span></div>${cur}`:"")+
+    (cur&&rest?`<div class="simh"><b>مواضع أخرى تشترك في اللفظ</b></div>`:"")+rest+
+    (mutOn?"":`<button class="mutgo" id="mutGo"><span>لوّن المتشابهات على صفحات المصحف</span><small>يُطفأ من الإعدادات متى شئت</small></button>`)}
+function simHTML(id,skip,quiet){
+  const L=similar(id).filter(g=>!skip||!skip.has(g.j+1));if(!L.length)return quiet?"":muted("لا توجد في القرآن آية تشبه هذه الآية في لفظها.");
   const {G}=simIndex();
   return L.map(({j,o,more})=>{const g=G[j],hit=new Set();o.k.forEach(k=>{const p=g.get(k);hit.add(p);hit.add(p+1)});
     return `<button class="simr" data-a="${j+1}"><small><span>سورة ${SUR[sOf(j+1)][0]} · الآية ${ar(aOf(j+1))}</span><span>${more?`وتتكرر في ${more>2?nPl(more)+" أخرى":more===1?"موضع آخر":"موضعين آخرين"} · `:""}صفحة ${ar(pOf(j+1))}</span></small><q>${markWords(j+1,t=>hit.has(t))}</q></button>`}).join("");
 }
+
+/* ---------- المتشابهات: the phrases a hafiz mixes up, coloured on the page ----------
+   Which ayat resemble which comes from Waqar144/Quran_Mutashabihat_Data (CC0 1.0, after Qari Idrees al-Asim, رحمه الله):
+   a list kept by huffaz, not every shared phrase. Which words they share is read from the mushaf text itself:
+   runs of two or more words found in both. The word where the wording parts from its twin gets a dotted line,
+   because that is the spot where the tongue slips into the other ayah. */
+let mutOn=store.get("mushaf.mut")==="1",MUT=null,mutLoad=null;const MUTW=new Map();
+function mutData(){if(!mutLoad)mutLoad=fetch("mutashabihat.json").then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{const m=new Map(),seen=new Set();
+    const add=(id,s,ms)=>{const k=id+"|"+s+"|"+ms.join(";");if(seen.has(k))return;seen.add(k);let a=m.get(id);if(!a)m.set(id,a=[]);a.push({s,ms})};
+    /* both ways: an ayah that only appears on the right side of an entry still knows its twin */
+    d.forEach(([s,ms])=>{s.forEach(id=>add(id,s,ms));ms.forEach(x=>x.forEach(id=>add(id,x,[s])))});
+    MUT=m;MUTW.clear();return m}).catch(()=>{mutLoad=null;throw 0});return mutLoad}
+const mutN=w=>norm(w,false).n.replace(/[^ء-ي]/g,"");
+const mutWs=ids=>{const r=[];ids.forEach(id=>AW[id].forEach((w,i)=>{const n=mutN(w);if(n)r.push({id,i,n})}));return r};
+/* words of A and B that sit in a run of at least two words found in both (one, when an ayah is that short) */
+function mutRuns(A,B){const a=new Array(A.length).fill(false),b=new Array(B.length).fill(false),min=Math.min(2,A.length,B.length);let pv=new Array(B.length+1).fill(0);
+  for(let i=1;i<=A.length;i++){const cu=new Array(B.length+1).fill(0);
+    for(let j=1;j<=B.length;j++)if(A[i-1].n===B[j-1].n){cu[j]=pv[j-1]+1;if(cu[j]>=min)for(let k=0;k<cu[j];k++){a[i-1-k]=true;b[j-1-k]=true}}pv=cu}
+  return [a,b]}
+/* word index → 1 shared with a twin, 2 the word beside a shared run where the wording parts */
+function mutState(W,sh,id,st){W.forEach((w,k)=>{if(w.id!==id)return;if(sh[k])st.set(w.i,1);else if(!st.has(w.i)&&(sh[k-1]||sh[k+1]))st.set(w.i,2)});return st}
+function mutWords(id){if(!MUT)return null;if(MUTW.has(id))return MUTW.get(id);const E=MUT.get(id);let out=null;
+  if(E){const st=new Map();E.forEach(({s,ms})=>{const A=mutWs(s),sh=new Array(A.length).fill(false);
+      ms.forEach(m=>mutRuns(A,mutWs(m))[0].forEach((v,k)=>{if(v)sh[k]=true}));mutState(A,sh,id,st)});
+    if([...st.values()].includes(1))out=st}
+  MUTW.set(id,out);return out}
+/* one colour per mutashabih on a page; ayat that make up one passage together keep one colour */
+const MUTC=6;
+function mutCols(p){const c=new Map();let n=0;
+  for(let id=pStart(p);id<=pEnd(p);id++){if(!mutWords(id))continue;
+    const prev=id-1,E=MUT.get(id)||[],joint=c.has(prev)&&E.some(e=>e.s.includes(prev)&&e.s.includes(id));
+    c.set(id,joint?c.get(prev):(n++%MUTC)+1)}
+  return c}
+function mutPage(el,p){if(!mutOn||!MUT)return;const C=mutCols(p);if(!C.size)return;
+  el.querySelectorAll(".lb > span[data-a][data-w]").forEach(w=>{const id=+w.dataset.a,c=C.get(id);if(!c)return;const v=mutWords(id).get(+w.dataset.w);if(!v)return;
+    w.classList.add(v===1?"ms":"md");w.style.setProperty("--mc",`var(--ms${c})`)})}
+/* the words of an ayah as text, shared phrases coloured (for the large-print flow and the ayah sheet) */
+function mutLine(id,c,cls){const m=mutOn&&MUT&&c?mutWords(id):null;
+  return AW[id].map((w,i)=>{const v=m&&m.get(i),t=escH(qY(w));return `<span${cls?` class="${cls}${v?v===1?" ms":" md":""}"`:v?` class="${v===1?"ms":"md"}"`:""}${cls?` data-w="${i}"`:""}${v?` style="--mc:var(--ms${c})"`:""}>${t}</span>`}).join(" ")}
+function setMut(on,quiet){mutOn=on;store.set("mushaf.mut",on?"1":"");$("app").classList.toggle("mut",on);$("bMut").setAttribute("aria-checked",String(on));$("msKey").hidden=!on;
+  const go=()=>{rebuild();flowShown=false;if(flowActive())renderFlow();rasterDirtyLazy();if(selA&&!$("sheet").hidden)shBody(selA)};
+  if(on&&!MUT)mutData().then(go,()=>{if(!quiet)toast("تعذّر تحميل المتشابهات")});else go();
+  if(on&&!quiet)toast("المتشابهات ملوّنة · المس كلمة ملوّنة لترى نظيرتها")}
+/* the ayah sheet: the twins from the huffaz' list first, each with what it shares and where it parts */
+function mutHTML(id){const E=MUT&&MUT.get(id);if(!E)return"";const done=new Set();let h="";
+  E.forEach(({s,ms})=>ms.forEach(m=>{const k=m.join(",");if(done.has(k)||m.includes(id))return;done.add(k);
+    const A=mutWs(s),B=mutWs(m),[,sb]=mutRuns(A,B),st=new Map();m.forEach(x=>st.set(x,mutState(B,sb,x,new Map())));
+    const txt=m.map(x=>AW[x].map((w,i)=>{const v=st.get(x).get(i),t=escH(qY(w));return v===1?`<mark>${t}</mark>`:v===2?`<b class="mdf">${t}</b>`:t}).join(" ").replace(/<\/mark> <mark>/g," ")+` <span class="an">۝${ar(aOf(x))}</span>`).join(" ");
+    const where=m.length>1?`سورة ${SUR[sOf(m[0])][0]} · الآيات ${ar(aOf(m[0]))}–${ar(aOf(m[m.length-1]))}`:`سورة ${SUR[sOf(m[0])][0]} · الآية ${ar(aOf(m[0]))}`;
+    h+=`<button class="simr mut" data-a="${m[0]}"><small><span>${where}</span><span>صفحة ${ar(pOf(m[0]))}</span></small><q>${txt}</q></button>`}));
+  return h}
 
 /* ---------- "test me": quick questions from what is being memorised ---------- */
 const QZ={scope:"m",qs:[],i:0,ok:0,wrong:[]};
@@ -3708,6 +3790,7 @@ function posture(){
   if(on){app.style.setProperty("--top",top+"px");app.style.setProperty("--gap",gap+"px")}
   $("bTable").setAttribute("aria-checked",String(tableSim));
   $("bTaj").setAttribute("aria-checked",String(tajOn));$("tjKey").hidden=!tajOn;
+  $("bMut").setAttribute("aria-checked",String(mutOn));$("msKey").hidden=!mutOn;
 }
 let deckPage=0;
 function memoAct(){const ps=deckPages();for(const p of ps){if(cache.has(p)&&(memo.rev.get(p)||0)<pageWords(p).length)return p}return ps[0]}
@@ -3741,6 +3824,7 @@ $("deckList").addEventListener("click",e=>{
 $("deckList").addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("dk")){e.preventDefault();e.target.click()}});
 $("bTaj").onclick=e=>{e.stopPropagation();tajOn=!tajOn;store.set("mushaf.tajweed",tajOn?"1":"");$("app").classList.toggle("tajweed",tajOn);
   $("bTaj").setAttribute("aria-checked",String(tajOn));$("tjKey").hidden=!tajOn;rebuild();rasterDirtyLazy()};
+$("bMut").onclick=e=>{e.stopPropagation();setMut(!mutOn)};
 $("bTable").onclick=e=>{e.stopPropagation();tableSim=!tableSim;store.set("mushaf.table",tableSim?"1":"");showPrefs(false);resize()};
 
 
@@ -4735,7 +4819,7 @@ root.dir="rtl";root.lang="ar";
 function start(){if(started)return;started=true;
   {const pp=store.get("mushaf.paper");setPaper(["light","sepia","night","black","sky","auto"].includes(pp)?pp:"light")}
   setWarm(store.get("mushaf.warm"));$("bWake").setAttribute("aria-checked",String(wakeOn));$("bSnd").setAttribute("aria-checked",String(sndOn));$("bBuzz").setAttribute("aria-checked",String(buzzOn));wake();
-  addEventListener("pointerdown",wake,{passive:true});$("app").classList.toggle("tajweed",tajOn);markView();setCover(root.dataset.cover,false);ornaments();resize();{const l=$("loading"),w=reduce?0:Math.max(0,800-(performance.now()-splT));setTimeout(()=>{l.classList.add("out");if(!reduce){const bw=$("bookwrap");bw.classList.add("intro");setTimeout(()=>bw.classList.remove("intro"),800)}setTimeout(()=>l.remove(),reduce?0:600)},w)}{const n=+store.get("mushaf.hintN")||0;store.set("mushaf.hintN",String(n+1));if(n>=3)hideHint();else setTimeout(hideHint,6000)}
+  addEventListener("pointerdown",wake,{passive:true});$("app").classList.toggle("tajweed",tajOn);if(mutOn)setMut(true,true);markView();setCover(root.dataset.cover,false);ornaments();resize();{const l=$("loading"),w=reduce?0:Math.max(0,800-(performance.now()-splT));setTimeout(()=>{l.classList.add("out");if(!reduce){const bw=$("bookwrap");bw.classList.add("intro");setTimeout(()=>bw.classList.remove("intro"),800)}setTimeout(()=>l.remove(),reduce?0:600)},w)}{const n=+store.get("mushaf.hintN")||0;store.set("mushaf.hintN",String(n+1));if(n>=3)hideHint();else setTimeout(hideHint,6000)}
   if((!store.get("mushaf.intro")&&!navigator.webdriver)||/[?&]intro\b/.test(location.search))setTimeout(()=>guide(true),400);
   else if((hadLast&&!navigator.webdriver)||/[?&]cont\b/.test(location.search))setTimeout(contShow,500);else setCalm(false);
   setTfz(tfz)}
