@@ -19,6 +19,16 @@ android {
         }
     }
     signingConfigs {
+        /* one fixed key for the test APK, so each new build installs over the old one.
+           It comes from CI secrets (ANORA_TEST_KEYSTORE_B64 / _PASSWORD, see android.yml), never from the repo. */
+        debug {
+            if (System.getenv("ANORA_TEST_KEYSTORE")) {
+                storeFile file(System.getenv("ANORA_TEST_KEYSTORE"))
+                storePassword System.getenv("ANORA_TEST_KEYSTORE_PASSWORD")
+                keyAlias "anora-test"
+                keyPassword System.getenv("ANORA_TEST_KEYSTORE_PASSWORD")
+            }
+        }
         /* the upload key comes from CI secrets (see .github/workflows/release.yml); without them release builds stay unsigned */
         release {
             if (System.getenv("ANORA_KEYSTORE")) {
@@ -30,6 +40,9 @@ android {
         }
     }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
         release {
             if (System.getenv("ANORA_KEYSTORE")) signingConfig signingConfigs.release
             minifyEnabled false
