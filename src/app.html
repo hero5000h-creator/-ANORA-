@@ -1408,6 +1408,11 @@ html.phoneM .tfsel button{height:40px;padding:0 16px;font-size:14px;border-radiu
 html.phoneM .shtabs button{height:42px;font-size:15px}
 html.phoneM .tfh{font-size:13.5px}
 html.phoneM #prefs{padding:14px}
+/* the menu always ends above the screen edge, also with large text and a camera cutout */
+html.phoneM #prefs{max-height:calc((100dvh - var(--cutT,0px) - var(--cutB,0px) - var(--bh,60px) - 20px) / var(--uz,1))}
+/* simple mode shows words under the bar buttons: the buttons grow to hold icon and word */
+html.phoneM.simple .bar .tools .ib,html.phoneM.simple .bar #bPrefs{width:auto;min-width:54px;height:auto;min-height:50px;flex-direction:column;gap:2px;padding:5px 6px 4px}
+html.phoneM.simple .bar .tools .ib svg{flex:none}
 html.phoneM .qa.q4 .qt,html.phoneM .qt{font-size:14px}
 html.phoneM .qa.q4>#bToday,html.phoneM .qa.q4>#bFull,html.phoneM .qa.q4>#bAuto,html.phoneM .qa.q4>#bStudy{flex:1 1 0;min-width:0;min-height:48px;padding:6px 4px;gap:4px;font-size:13.5px}
 html.phoneM .qa.q4>.qt span{white-space:normal;line-height:1.2}
