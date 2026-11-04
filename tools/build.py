@@ -6,7 +6,8 @@ app = open(S('app.html'), encoding='utf-8').read()
 app = (app.replace('/*FONT*/', open(S('font.css'), encoding='utf-8').read() + open(S('amiri.css'), encoding='utf-8').read())
           .replace('/*DATA*/', open(S('data.js'), encoding='utf-8').read())
           .replace('/*QP*/', '')
-          .replace('/*K*/', open(S('k.js'), encoding='utf-8').read()))
+          .replace('/*K*/', open(S('k.js'), encoding='utf-8').read())
+          .replace('/*ADHAN*/', open(S('adhan.js'), encoding='utf-8').read()))
 # ---- Quran text lock: the mushaf text and the page words must match the reviewed release ----
 import hashlib, json, re, sys
 def jsval(path, name):
