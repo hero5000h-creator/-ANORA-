@@ -298,6 +298,7 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
 .qtag{justify-self:center;font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
 .sub .rn q{font-size:17px}
 .empty{padding:30px 16px;text-align:center;color:var(--muted)}
+.row.srapx{justify-content:center;text-align:center}.row.srapx b{color:var(--orn)}
 .dnote{padding:8px 18px 12px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line)}
 
 #loading{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:var(--desk);background-image:radial-gradient(90% 70% at 50% 45%,color-mix(in srgb,var(--desk) 40%,var(--paper)),var(--desk));transition:opacity .55s var(--ease),transform .55s var(--ease)}
@@ -3289,11 +3290,65 @@ function hitRow(r){
   const T=toks(r.id),on=T.map(w=>w[2]>r.s&&w[1]<r.e),f=on.indexOf(true),l=on.lastIndexOf(true);
   return `<button class="row" data-p="${pOf(r.id)}" data-a="${r.id}"><span class="star">${ar(aOf(r.id))}</span><span class="rn"><b>${SUR[sOf(r.id)][0]}</b><q class="snip">${markWords(r.id,i=>on[i],f-5,l+6)}</q></span><span class="pg-n"><em>صفحة</em>${ar(pOf(r.id))}</span></button>`;
 }
+/* Exact-word search. Each word of the mushaf is compared whole, so «قال» finds قال and never قل، قالوا or فقال.
+   Harakat, Quranic marks and the hamza seat are ignored, and the Uthmani spellings are allowed both ways:
+   the small (dagger) alif may be read as an alif or left out (الكتاب / الرحمن), and a small waw or ya as a letter or not. */
+const SMALL={"ۥ":"و","ۦ":"ي","ۧ":"ي"},WDROP=/[ً-ٟۖ-ۭـء]/;
+function wForms(w){const f=[];
+  for(const dag of [0,1])for(const sm of [0,1]){let n="";
+    for(let i=0;i<w.length;i++){const c=w[i];
+      if(c==="و"&&w[i+1]==="ٰ"&&dag)continue; // صلوٰة read صلاة
+      if(c==="ٰ"){if(dag)n+="ا";continue}
+      if(SMALL[c]){if(sm)n+=SMALL[c];continue}
+      if("أإآٱ".includes(c)){n+="ا";continue}
+      if(WDROP.test(c)||/[^؀-ۿ]/.test(c))continue;
+      n+=MAPC[c]||c}
+    if(n&&!f.includes(n))f.push(n)}
+  return f}
+let WX=null;
+function wIndex(){if(WX)return WX;const T=[],inv=new Map();
+  const C=new Map();
+  for(let i=0;i<NA;i++){const t=[];toks(i+1).forEach((w,o)=>{let f=C.get(w[0]);if(!f)C.set(w[0],f=wForms(w[0]));if(!f.length)return;
+      f.forEach(x=>{let l=inv.get(x);if(!l)inv.set(x,l=[]);l.push(i,t.length)});t.push({f,o})});T.push(t)}
+  return WX={T,inv}}
+/* letters joined to the front of a word: و ف ب ك ل and their pairs, the future س, and لل for ل + ال */
+const WPRE=["و","ف","ب","ك","ل","س","وب","فب","ول","فل","وك","فك","وس","فس"];
+/* the Uthmani script joins the vocative يا and the ها of attention to the next word: يَٰقَوۡمِ، يَٰٓأَيُّهَا، هَٰٓأَنتُمۡ */
+function wordSearch(q){
+  const V=[q,q.replace(/(^|\s)(يا|ها)\s+/g,"$1$2")].filter((v,i,a)=>a.indexOf(v)===i),by=new Map(),n={ex:0,pre:0};
+  V.forEach(v=>wordFind(v,by,n));if(!by.size&&!V.some(v=>v.split(/\s+/).some(w=>wForms(w).length)))return null;
+  const R=[...by.values()].sort((a,b)=>a.id-b.id);
+  return {ex:R.filter(r=>r.ex),pre:R.filter(r=>!r.ex),nEx:n.ex,nPre:n.pre}}
+function wordFind(q,by,n){
+  const Q=q.split(/\s+/).map(wForms).filter(f=>f.length);if(!Q.length)return;
+  const {T,inv}=wIndex(),first=new Map();
+  Q[0].forEach(f=>{first.set(f,0);const al=f.startsWith("ال")&&f.length>3;
+    WPRE.forEach(p=>{if(!first.has(p+f))first.set(p+f,1);if(al&&(p==="و"||p==="ف"))first.has(p+"ل"+f.slice(1))||first.set(p+"ل"+f.slice(1),1)});
+    if(al&&!first.has("ل"+f.slice(1)))first.set("ل"+f.slice(1),1)});
+  first.forEach((pre,f)=>{const l=inv.get(f);if(!l)return;
+    for(let x=0;x<l.length;x+=2){const i=l[x],k=l[x+1],t=T[i];if(k+Q.length>t.length)continue;
+      let ok=true;for(let j=1;j<Q.length&&ok;j++)ok=Q[j].some(y=>t[k+j].f.includes(y));if(!ok)continue;
+      let r=by.get(i);if(!r)by.set(i,r={id:i+1,ex:false,on:new Set(),k:new Set()});
+      if(r.k.has(k))continue;r.k.add(k); // one word may be reached by more than one spelling
+      if(pre)n.pre++;else{n.ex++;r.ex=true}
+      for(let j=0;j<Q.length;j++)r.on.add(t[k+j].o)}})}
+const SR_MAX=300;
+function wRow(r){const T=toks(r.id),on=T.map((w,i)=>r.on.has(i)),f=on.indexOf(true),l=on.lastIndexOf(true);
+  return `<button class="row" data-p="${pOf(r.id)}" data-a="${r.id}"><span class="star">${ar(aOf(r.id))}</span><span class="rn"><b>${SUR[sOf(r.id)][0]}</b><q class="snip">${markWords(r.id,i=>on[i],f-5,l+6)}</q></span><span class="pg-n"><em>صفحة</em>${ar(pOf(r.id))}</span></button>`}
+const nTimes=n=>n===1?"مرة واحدة":n===2?"مرتين":`${ar(n)} ${n<11?"مرات":"مرة"}`,nAyat=n=>n===1?"آية واحدة":n===2?"آيتين":`${ar(n)} ${n<11?"آيات":"آية"}`;
+let srApx=false,srApxQ="";
 function searchHTML(q){
   if(norm(q,false).n.replace(/ /g,"").length<2)return '<div class="empty">اكتب كلمة أو جزءاً من آية بالإملاء المعتاد، دون تشكيل. مثال: «الصلاة» أو «ربنا آتنا».</div>';
-  const R=searchText(q),ex=R.filter(r=>!r.loose),lo=R.filter(r=>r.loose);let h="";
-  if(ex.length)h+=`<div class="grp"><span>في نص القرآن</span><span>${ex.length>=400?"أكثر من ":""}${nPl(ex.length)}</span></div>`+ex.map(hitRow).join("");
-  if(lo.length)h+=`<div class="grp"><span>نتائج تقريبية</span><span>${ar(lo.length)}</span></div>`+lo.map(hitRow).join("");
+  if(srApxQ!==q){srApx=false;srApxQ=q}
+  const W=wordSearch(q);let h="";
+  const list=(a)=>a.slice(0,SR_MAX).map(wRow).join("")+(a.length>SR_MAX?`<div class="empty">تُعرض أول ${ar(SR_MAX)} آية. زد كلمة لتضييق البحث.</div>`:"");
+  if(W&&W.ex.length)h+=`<div class="grp"><span>الكلمة نفسها</span><span>${nTimes(W.nEx)} في ${nAyat(W.ex.length)}</span></div>`+list(W.ex);
+  if(W&&W.pre.length)h+=`<div class="grp"><span>متصلة بحرف (و، ف، ب، ك، ل)</span><span>${nAyat(W.pre.length)}</span></div>`+list(W.pre);
+  if(!srApx){
+    if(!h)h='<div class="empty">لم ترد هذه الكلمة بعينها في القرآن.</div>';
+    return h+'<button class="row srapx" id="srApx"><span class="rn"><b>عرض الكلمات القريبة منها</b><small>مثل الكلمات التي تحتويها أو تُكتب قريباً منها</small></span></button>'}
+  const seen=new Set([...(W?W.ex:[]),...(W?W.pre:[])].map(r=>r.id)),R=searchText(q).filter(r=>!seen.has(r.id));
+  if(R.length)h+=`<div class="grp"><span>كلمات قريبة</span><span>${R.length>=400?"أكثر من ":""}${nAyat(R.length)}</span></div>`+R.map(hitRow).join("");
   return h||'<div class="empty">لم توجد هذه العبارة في القرآن. جرّب كلمة أقصر.</div>';
 }
 /* similar ayat: ayat that share rare two-word phrases, weighted by how rare each phrase is */
@@ -4035,6 +4090,7 @@ document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   $("q").value="";pillTo(document.querySelector(".tabs"));
   renderList(true);$("list").scrollTop=0;const c=$("list").querySelector(".cur");c&&c.scrollIntoView({block:"center"});
 });
+$("q").addEventListener("focus",()=>setTimeout(wIndex,60),{once:true}); // the word index is ready by the first letter
 let qT;$("q").addEventListener("input",()=>{clearTimeout(qT);qT=setTimeout(()=>{renderList();$("list").scrollTop=0},180)});
 const surRow=(s,i,cs)=>`<button class="row${i===cs?" cur":""}" data-p="${pOf(s[3])}"><span class="star">${ar(i+1)}</span><span class="rn"><b>${s[0]}</b><small>${s[2]?"مكية":"مدنية"} · ${ar(s[1])} ${s[1]>10||s[1]<3?"آية":"آيات"} · الجزء ${ar(jOf(s[3]))}</small></span><span class="pg-n"><em>صفحة</em>${ar(pOf(s[3]))}</span></button>`;
 /* one search box for everything: surah names and numbers, a juz or page number, and the text of the Quran */
@@ -4121,7 +4177,7 @@ function renderList(anim){
 }
 $("list").addEventListener("input",e=>{if(e.target.id==="hlQ"){hlQ=e.target.value;$("hlRows").innerHTML=hlRows()}});
 $("list").addEventListener("change",e=>{const k=e.target.dataset&&e.target.dataset.hren;if(k){hl.rename(k,e.target.value);e.target.value=hl.names()[k];toast("تغيّر اسم الموضوع")}});
-$("list").addEventListener("click",e=>{if(e.target.closest("#hlQ,[data-hren]"))return;const hb=e.target.closest("[data-hby]");if(hb){hlBy=hb.dataset.hby;store.set("mushaf.hlBy",hlBy);document.querySelectorAll("[data-hby]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.hby===hlBy)));$("hlRows").innerHTML=hlRows();return}const mf=e.target.closest("[data-mf]");if(mf){mFilt=mf.dataset.mf;const sc=$("list").scrollTop;renderList(true);$("list").scrollTop=sc;return}const jm=e.target.closest("[data-jm]");if(jm){const j=+jm.dataset.jm;jmOpen=jmOpen===j?0:j;const old=$("list").querySelector(".jmap");if(old){const t=document.createElement("div");t.innerHTML=jmapHTML();const n=t.firstElementChild;old.replaceWith(n);n.classList.add("re")}return}
+$("list").addEventListener("click",e=>{if(e.target.closest("#hlQ,[data-hren]"))return;if(e.target.closest("#srApx")){srApx=true;const sc=$("list").scrollTop;renderList();$("list").scrollTop=sc;return}const hb=e.target.closest("[data-hby]");if(hb){hlBy=hb.dataset.hby;store.set("mushaf.hlBy",hlBy);document.querySelectorAll("[data-hby]").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.hby===hlBy)));$("hlRows").innerHTML=hlRows();return}const mf=e.target.closest("[data-mf]");if(mf){mFilt=mf.dataset.mf;const sc=$("list").scrollTop;renderList(true);$("list").scrollTop=sc;return}const jm=e.target.closest("[data-jm]");if(jm){const j=+jm.dataset.jm;jmOpen=jmOpen===j?0:j;const old=$("list").querySelector(".jmap");if(old){const t=document.createElement("div");t.innerHTML=jmapHTML();const n=t.firstElementChild;old.replaceWith(n);n.classList.add("re")}return}
   if(e.target.closest("#qzOpen")){closeIndex();setTimeout(quizOpen,reduce?0:280);return}const b=e.target.closest("[data-p]");if(!b)return;closeIndex();const a=+b.dataset.a||0;if(b.dataset.memo&&!memo.on)setTimeout(()=>setMemo(true),reduce?0:300);
   if(b.dataset.note){setTimeout(()=>{goTo(+b.dataset.p);shK="nt";setTimeout(()=>openAyah(a),reduce?0:350)},reduce?0:260);return}
   setTimeout(()=>{goTo(+b.dataset.p);if(a){selA=a;paintHL();setTimeout(()=>{if(selA===a&&$("sheet").hidden){selA=0;paintHL()}},2600)}},reduce?0:260)});
