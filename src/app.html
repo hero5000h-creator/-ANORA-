@@ -157,11 +157,7 @@ html.phoneM .pf{font-size:calc(var(--pw) * .05);margin-top:.15em}
 html.phoneM #stage{background:var(--paper);background-image:none}
 /* the leather cover behind the page would peek out as a dark strip in the spare room above and below */
 html.phoneM #bookwrap::after{display:none}
-/* tall phones in calm reading: the band kept for the top bar is not left empty; the surah and page stay there, faint */
-html.phoneM #app.calm>.bar{opacity:1;transform:none;pointer-events:none;background:transparent;box-shadow:none;border-color:transparent}
-html.phoneM #app.calm>.bar>*{transition:opacity .3s}
-html.phoneM #app.calm>.bar>:not(.where){opacity:0}
-html.phoneM #app.calm>.bar>.where{opacity:.62}
+/* tall phones: the page fills the whole screen; the bars float over its own header and page number (which say the same) */
 /* fifteen lines per page, each line holds exactly the words of the printed Madinah mushaf */
 /* The 1405H Madinah print, line for line: each line has its printed width, its words keep the letter
    stretches the print uses (font features) and each space its exact width, all in em. */
@@ -224,6 +220,8 @@ html[data-theme="dark"][data-cover="green"]{--cover:#1d2622}html[data-theme="dar
 .hm.jz small{font-family:var(--f-ui);font-weight:600;font-size:.56em;color:var(--gold)}
 /* the opening pages: al-Fatiha and the start of al-Baqarah sit in an illuminated arched panel, as in the printed mushaf */
 .pg.opening .box{background:var(--o-open) center/100% 100% no-repeat;padding:0 15%}
+/* tall phones: the arch opens wider so the longest line of al-Fatiha stays inside its walls */
+html.phoneM .pg.opening .box{background-size:116% 100%}
 /* rehal: on a half-folded Fold the book rests on a carved wooden stand */
 #rehal{display:none}
 #app.table #rehal{display:block;position:absolute;left:-24px;right:-24px;top:-12px;bottom:-20px;z-index:-2;border-radius:8px;pointer-events:none;
@@ -1381,9 +1379,6 @@ html.phoneM #sheet{border-color:var(--b-rim);border-radius:12px 12px 0 0}
 html.phoneM #sheet .shh{background:linear-gradient(var(--bar),var(--b-bg));box-shadow:none;border-bottom:3px double var(--b-rim)}
 html.phoneM #sheet .grab{background:var(--b-rim)}
 
-/* calm reading: the band goes, the centred title with its diamonds stays faint */
-html.phoneM #app.calm>.bar{background:transparent;border-bottom-color:transparent}
-html.phoneM #app.calm>.bar::after{opacity:0}
 
 /* ---- design review fixes (2026-11-03) ---- */
 #toast .tundo{margin-inline-start:12px;padding:6px 14px;min-height:36px;border-radius:999px;border:1px solid var(--gold);color:var(--gold);font:inherit;font-weight:700;background:transparent;pointer-events:auto}
@@ -1818,7 +1813,8 @@ function fit(el){
   /* the print's letters are taller than this font's: set it larger and narrow each line back to the width */
   const rowH=outer.clientHeight/15, bw=box.clientWidth, f=Math.min(bw/LW*1.2, rowH/1.5);
   box.style.fontSize=f+"px"; box.style.setProperty("--cx",Math.min(1,bw*.995/(LW*f)).toFixed(4));
-  box.style.setProperty("--lh",rowH*(opening?1.1:1)+"px");
+  /* the opening pages on a tall phone: the arch is tall, so the lines spread through it instead of huddling in the middle */
+  box.style.setProperty("--lh",rowH*(opening?(root.classList.contains("phoneM")?1.4:1.1):1)+"px");
   /* a device whose shaping runs wider than the print data would push words past the frame: narrow that line */
   box.querySelectorAll(".lb:not(.mid)").forEach(l=>{l.style.removeProperty("--fx");const sw=l.scrollWidth,cw=l.clientWidth;if(sw>cw+.5)l.style.setProperty("--fx",(cw/sw).toFixed(4))});
 }
@@ -1869,10 +1865,10 @@ function resize(){
   const r=stage.getBoundingClientRect(), full=!inTable&&(r.width<1000||matchMedia("(pointer:coarse)").matches), pad=inTable?24:full?0:18;
   let SW=r.width, SH=r.height, cx=r.width/2, cy=r.height/2, force=null;
   /* bars that must stay up (memorising, recitation) get their own room so they never cover a line */
-  /* tall phones keep room for both bars, so a bar that appears never covers the page header or number */
+  /* tall phones use the whole screen: the bars, when they show, cover only the page's own header and number */
   const tall=full&&!inTable&&!inStudy&&r.height/r.width>1.75;
   if($("app").classList.contains("ovl")){const f=document.querySelector(".foot"),mo=$("app").classList.contains("memo"),
-    t0=mo||tall?document.querySelector(".bar").offsetHeight:0, b0=mo||tall||f.classList.contains("playing")?f.offsetHeight:0;
+    t0=mo?document.querySelector(".bar").offsetHeight:0, b0=mo||f.classList.contains("playing")?f.offsetHeight:0;
     SH-=t0+b0;cy=t0+SH/2}
   const sg=inStudy?null:segments();
   if(sg){const [a,b]=sg;
@@ -1887,10 +1883,10 @@ function resize(){
     auto=(SW>=600&&wd>=280&&hd>=hs*.62)||(SW>=480&&SW/SH>=.74&&wd>=200);
   const m=inStudy?"single":force||(pv==="2"?"spread":pv==="1"?"single":auto?"spread":"single");
   let w=Math.floor(m==="spread"?wd:ws), h=Math.floor(m==="spread"?hd:hs);
-  /* tall phones (20:9): the page stops at about 1:2.08 so the extra height does not turn into gaps between lines;
-     what is left over goes 40% above and 60% below, on paper-coloured ground so it reads as one sheet */
+  /* tall phones: the page fills a 20:9 screen; only a taller one (21:9 and up) stops at 1:2.2 so lines do not drift apart,
+     the little left over split evenly on paper-coloured ground so it reads as one sheet */
   const phone=tall&&m==="single";root.classList.toggle("phoneM",phone);
-  if(phone&&h/w>2.08){const h2=Math.floor(w*2.08);cy+=(h-h2)*.1;h=h2}
+  if(phone&&h/w>2.2)h=Math.floor(w*2.2);
   edges.room=(Math.min(cx,SW-cx+(sg?0:0))-(m==="spread"?w:w/2));
   wrap.style.left=cx+"px";wrap.style.top=cy+"px";
   $("app").classList.toggle("full",full);
@@ -2764,8 +2760,9 @@ function ayahAt(x,y){const el=document.elementFromPoint(x,y);const s=el&&el.clos
 const ref=id=>`سورة ${SUR[sOf(id)][0]} · الآية ${ar(aOf(id))}`;
 let toastT;function toast(m){const t=$("toast"),a=$("app"),f=document.querySelector("#app>.foot");t.textContent=m;t.style.pointerEvents="";
   /* toasts never sit on the mushaf text: they take the top bar's place for a moment (or the very top edge in calm reading) */
-  {const bar=document.querySelector("#app>.bar"),calmO=a.classList.contains("ovl")&&a.classList.contains("calm")&&!root.classList.contains("phoneM");
-    const br=bar&&bar.getBoundingClientRect(),th=t.offsetHeight||40;t.style.bottom="auto";
+  {const bar=document.querySelector("#app>.bar"),ph=root.classList.contains("phoneM"),calmO=a.classList.contains("ovl")&&a.classList.contains("calm")&&!ph;
+    /* a phone in calm reading: the bar is slid away, the toast takes its usual band (over the page's own header, never the text) */
+    const br0=bar&&bar.getBoundingClientRect(),br=ph&&a.classList.contains("calm")&&br0?{top:br0.top+br0.height+6,height:br0.height}:br0,th=t.offsetHeight||40;t.style.bottom="auto";
     const z=root.classList.contains("uzL")?(parseFloat(root.style.getPropertyValue("--uz"))||1):1;
     const inBar=!calmO&&br&&br.height>8;t.classList.toggle("inbar",!!inBar);
     if(inBar){t.style.top=br.top/z+"px";t.style.height=br.height/z+"px"}else{t.style.top="calc(6px + env(safe-area-inset-top,0px))";t.style.height=""}}

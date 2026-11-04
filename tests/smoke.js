@@ -17,7 +17,8 @@ const LAYOUT=(want)=>{const out=[],vw=innerWidth,vh=innerHeight,vis=e=>e&&!e.hid
     const x=Math.min(vw-2,Math.max(1,r.left+r.width/2)),y=Math.min(vh-2,Math.max(1,r.top+Math.min(40,r.height/2)));const h=document.elementFromPoint(x,y);
     if(!h||!e.contains(h))out.push(id+" covered by "+(h?(h.id||h.className||h.tagName):"nothing"))}
   const t=document.getElementById("toast");if(t&&t.classList.contains("on")){const r=t.getBoundingClientRect();
-    if([...document.querySelectorAll("#book .pg [data-a],#flow [data-a]")].some(w=>{const q=w.getBoundingClientRect();return q.width&&q.right>r.left&&q.left<r.right&&q.bottom>r.top+2&&q.top<r.bottom-2}))out.push("toast over Quran text")}
+    const fl=document.getElementById("flow"),flOn=vis(fl);/* the book lies hidden under the flow text while it is open */
+    if([...document.querySelectorAll(flOn?"#flow [data-a]":"#book .pg [data-a]")].some(w=>{const q=w.getBoundingClientRect();return q.width&&q.right>r.left&&q.left<r.right&&q.bottom>r.top+2&&q.top<r.bottom-2}))out.push("toast over Quran text")}
   for(const id of want||[]){const e=document.getElementById(id);if(!vis(e)&&!(id==="toast"&&e&&e.classList.contains("on")))out.push(id+" expected but not showing")}
   return out};
 const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.length,`${m}: layout clean ${o.join(", ")}`)};
