@@ -39,6 +39,18 @@ jobs:
           cache: gradle
       - run: npm ci
       - run: npm run sync
+      - name: Load the fixed test signing key
+        env:
+          KEY_B64: ${{ secrets.ANORA_TEST_KEYSTORE_B64 }}
+          KEY_PW: ${{ secrets.ANORA_TEST_KEYSTORE_PASSWORD }}
+        run: |
+          if [ -n "$KEY_B64" ]; then
+            echo "$KEY_B64" | base64 -d > "$RUNNER_TEMP/anora-test.jks"
+            echo "ANORA_TEST_KEYSTORE=$RUNNER_TEMP/anora-test.jks" >> "$GITHUB_ENV"
+            echo "ANORA_TEST_KEYSTORE_PASSWORD=$KEY_PW" >> "$GITHUB_ENV"
+          else
+            echo "::warning::ANORA_TEST_KEYSTORE_B64 secret is missing: this APK gets a one-off key and will not install over the previous build."
+          fi
       - name: Build debug APK
         working-directory: android
         run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
