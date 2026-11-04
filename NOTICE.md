@@ -12,6 +12,7 @@ The ANORA app code is licensed under the GNU GPL v3 or later (see `LICENSE`). Ea
 | التفسير الميسّر | King Fahd Complex for the Printing of the Holy Qur'an | Used with permission |
 | المختصر في التفسير | Markaz Tafsir (مركز تفسير للدراسات القرآنية) | Permission requested |
 | تفسير السعدي، الجلالين، ابن كثير، البغوي، الميسّر في غريب القرآن | Digital text from [spa5k/tafsir_api](https://github.com/spa5k/tafsir_api) | Rights belong to their owners |
+| Mutashabihat list (which ayat a hafiz tends to confuse), used for the coloured similar phrases | [Waqar144/Quran_Mutashabihat_Data](https://github.com/Waqar144/Quran_Mutashabihat_Data) by Waqar Ahmed, after the work of Qari Idrees al-Asim; converted by `tools/mutashabihat.py` into `data/mutashabihat.json`. The shared words are worked out in the app from the mushaf text. | CC0 1.0 (`licenses/CC0-1.0.txt`), credited at the author's request |
 | Adhkar | «حصن المسلم», Sa'id ibn Ali ibn Wahf al-Qahtani | Takhrij reviewed |
 | Recitation audio (Al-Husary, Mishary Alafasy) and ayah timings | [MP3Quran.net](https://mp3quran.net) | Written permission from the MP3Quran team (support@mp3quran.com, 2026-11-03): use of the recitations and reciter list in ANORA for non-commercial, religious purposes, with attribution to MP3Quran.com inside the app. |
 | UI fonts: Amiri, Amiri Quran, Scheherazade New, IBM Plex Sans Arabic | Google Fonts | SIL OFL 1.1 (`licenses/OFL-1.1.txt`) |
