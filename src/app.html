@@ -621,6 +621,21 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 .simr q b.mdf{font-weight:inherit;background:radial-gradient(circle,var(--ms3) 45%,transparent 55%) 0 86%/.24em .2em repeat-x}
 .mutgo{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;min-height:48px;margin:6px 0 4px;padding:10px 14px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--orn) 55%,transparent);background:color-mix(in srgb,var(--orn) 7%,transparent);color:var(--orn);font:600 14px var(--f-ui)}
 .mutgo small{font-weight:400;font-size:12px;color:var(--muted)}
+/* motion where things used to just appear (2026-11-04 review) */
+#moreSel:not([hidden]),#tfSel:not([hidden]),.tjk:not([hidden]),#dlBox:not([hidden]){animation:fadeUp .28s var(--ease) both}
+#player:not([hidden]),#memo:not([hidden]){animation:rise .32s var(--ease) both}
+#app.mutIn #book .lb [data-a]:is(.ms,.md),#app.mutIn #flBody :is(.ms,.md){animation:inkUp .55s var(--ease) both}
+@keyframes inkUp{from{color:var(--ink)}}
+.cer.new{animation:fadeUp .3s var(--ease) both}
+.cer .cesw i{transition:transform .2s var(--spring),box-shadow .2s}
+.cesw:active i{transform:scale(.9)}
+.cepk button{transition:transform .16s var(--ease),box-shadow .2s}
+.cepk button:active{transform:scale(.88)}
+.ceadd,.ceres,.pbtn,.rsel select{transition:transform .16s var(--ease),background-color .2s,border-color .2s}
+.ceadd:active,.pbtn:active{transform:scale(.97)}
+#pRec.bump{animation:fadeUp .3s var(--ease)}
+.mutgo{transition:transform .16s var(--ease),background-color .2s}
+.mutgo:active{transform:scale(.98)}
 .tjk{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--muted);margin-top:4px}
 .tjk span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--c);margin-left:5px}
 .posture{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px}
@@ -771,7 +786,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #app.ovl.calm>.bar{transform:translateY(calc(-100% - 6px));box-shadow:none}
 #app.ovl.calm>.foot{transform:translateY(calc(100% + 6px));box-shadow:none}
 #app.ovl.calm>.foot.memo-on,#app.ovl.calm>.foot.playing{transform:none}
-#app.ovl #flow{top:var(--bh,52px);bottom:var(--fh,56px);transition:top .4s var(--ease),bottom .4s var(--ease)}
+#app.ovl #flow{top:var(--bh,52px);bottom:var(--fh,56px)}
 #app.ovl.calm #flow{top:0;bottom:0}
 #app.ovl:not(.calm) #flInfo{visibility:hidden}
 #app.ovl #zoomR{bottom:calc(var(--fh,56px) + 12px)}
@@ -867,7 +882,7 @@ html.spreadM:not(.study) #cont{box-shadow:0 -56px 44px -6px var(--paper),0 10px 
 #flow{position:absolute;inset:0;z-index:6;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;background:var(--paper);color:var(--ink);-webkit-user-select:none;user-select:none}
 #flow[hidden]{display:none}
 #flow::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:var(--grain-o);background:var(--grain),var(--fiber)}
-.flbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:4px;padding:6px 10px;background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.flbar{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:4px;padding:6px 10px;background:color-mix(in srgb,var(--paper) 97%,transparent);border-bottom:1px solid var(--line)}
 #flInfo{flex:1;text-align:center;font-size:13.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #flBody{position:relative;padding:14px max(18px,5vw) 40px;max-width:calc(640px * var(--flz,1));margin:0 auto}
 #flBody.in{animation:flIn .32s var(--ease)}
@@ -888,7 +903,7 @@ html.spreadM:not(.study) #cont{box-shadow:0 -56px 44px -6px var(--paper),0 10px 
 .ib.fz{display:flex;align-items:baseline;gap:1px;width:auto;padding:0 8px}
 html.uzL .flbar .ib{zoom:var(--uz,1);color:var(--ink)}html.uzL .ib.fz{min-width:52px;justify-content:center;font-weight:700;border:1px solid var(--line);border-radius:12px;margin-inline:2px}
 /* open Fold, large print: when a side panel opens, the text moves to the free half instead of hiding under it */
-html.thumb #flow{transition:padding .3s var(--ease)}
+
 #app:has(#prefs:not([hidden])) .bar{z-index:8}
 #app>.bar .where{transition:opacity .2s}#app.toasting>.bar .where{opacity:0}
 /* large print size buttons say what they do, big enough for any finger */#flow .ib.fz{align-items:center;line-height:1;min-width:72px;height:44px;border:1px solid var(--line);border-radius:12px}#flow .ib.fz .aa,#flow .ib.fz sub{display:none}#flow .ib.fz .fzw{display:inline;font-size:15px;font-weight:600}
@@ -980,7 +995,7 @@ html[data-paper="sky"] #bookwrap::before{box-shadow:0 10px 30px -12px rgba(0,0,0
 /* the glass sits on a pseudo-element: a backdrop-filter on the bar itself would become the containing block of the
    fixed menu inside it and push that menu off screen (Fold thumb layout) */
 html[data-paper="sky"] .bar,html[data-paper="sky"] .foot{background:transparent;border-color:rgba(255,255,255,.06)}
-html[data-paper="sky"] .bar::before,html[data-paper="sky"] .foot::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:rgba(10,14,26,.5);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2)}
+html[data-paper="sky"] .bar::before,html[data-paper="sky"] .foot::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background:rgba(10,14,26,.86)}
 html[data-paper="sky"] body::before{background:rgba(10,14,26,.5)}
 html[data-paper="sky"] #prefs,html[data-paper="sky"] #drawer,html[data-paper="sky"] #sheet:not(.x){background:rgba(13,18,32,.97);border-color:rgba(255,255,255,.08)}
 html[data-paper="sky"] .ib,html[data-paper="sky"] .qt{border-radius:12px}
@@ -1255,7 +1270,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 #azSky{position:absolute;inset:0;width:100%;height:100%}
 .az-in{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;max-width:620px;margin:0 auto;padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);box-sizing:border-box}
 .az-top{display:flex;align-items:center;gap:10px;padding:12px 0 6px}
-.az-ib{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#d9d3c6;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);transition:transform .16s var(--ease),background-color .2s}
+.az-ib{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:#d9d3c6;transition:transform .16s var(--ease),background-color .2s}
 .az-ib:active{transform:scale(.92)}
 .az-ib svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .az-tt{flex:1;min-width:0;display:grid;justify-items:center;text-align:center}
@@ -1270,7 +1285,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-hero h2{margin:8px 0 4px;font-family:var(--f-display);font-size:30px;font-weight:700}
 .az-hero p{margin:0;color:rgba(234,230,220,.78);font-size:14px}
 .az-cats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.az-cat{position:relative;display:grid;gap:8px;text-align:start;padding:16px 14px 14px;border-radius:20px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:inherit;overflow:hidden;
+.az-cat{position:relative;display:grid;gap:8px;text-align:start;padding:16px 14px 14px;border-radius:20px;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.035)),rgba(8,11,18,.55);border:1px solid rgba(255,255,255,.09);color:inherit;overflow:hidden;
   transition:transform .18s var(--ease),border-color .25s;animation:rise .45s var(--ease) both}
 .az-cat:nth-child(2){animation-delay:.05s}.az-cat:nth-child(3){animation-delay:.1s}.az-cat:nth-child(4){animation-delay:.15s}.az-cat:nth-child(5){animation-delay:.2s}
 .az-cat:active{transform:scale(.97)}
@@ -1407,7 +1422,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-sw[aria-checked="true"]{background:#d9b46c}
 .az-sw[aria-checked="true"]::after{transform:translateX(-20px);background:#140a05}
 /* the whole category as a list, for reading without counting */
-.az-list{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);background:rgba(6,8,13,.94);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fadeUp .3s var(--ease)}
+.az-list{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;padding:env(safe-area-inset-top,0px) 16px env(safe-area-inset-bottom,0px);background:rgba(6,8,13,.97);animation:fadeUp .3s var(--ease)}
 .az-list[hidden]{display:none}
 .az-list .lh{display:flex;align-items:center;gap:10px;padding:10px 0 8px}
 .az-list .lh b{flex:1;font-family:var(--f-display);font-size:18px}
@@ -3240,7 +3255,7 @@ $("colEd").addEventListener("click",e=>{const t=e.target;if(t.id==="colEd"||t.cl
     if(n){toast(`هذا اللون على ${n===1?"آية واحدة":ar(n)+" آيات"}، أزلها أولاً أو غيّر لونه`);return}
     L.splice(i,1);CE.pick=-1;ceSave();ceUI();toastU("حُذف اللون",()=>{L.splice(i,0,c);ceSave();if(!$("colEd").hidden)ceUI()});return}
   if(b.id==="ceAdd"){const used=new Set(L.map(c=>c.c.toLowerCase())),c=COLS.find(x=>!used.has(x.toLowerCase()))||COLS[0];
-    L.push({k:"u"+Date.now().toString(36),c,n:"لون "+ar(L.length+1)});CE.pick=L.length-1;ceSave();ceUI();
+    L.push({k:"u"+Date.now().toString(36),c,n:"لون "+ar(L.length+1)});CE.pick=L.length-1;ceSave();ceUI();{const rs=$("ceList").querySelectorAll(".cer");rs[rs.length-1]&&rs[rs.length-1].classList.add("new")}
     const r=$("ceList").querySelectorAll(".cen");const inp=r[r.length-1];if(inp){inp.select();inp.scrollIntoView({block:"nearest"})}return}
   if(b.dataset.cs){store.set(CE.w==="hl"?"mushaf.hlStr":"mushaf.mkStr",b.dataset.cs);colStrApply();ceUI();rasterDirtyLazy();return}
   if(b.id==="ceReset"){const key=CE.w==="hl"?"mushaf.hlSet":"mushaf.mgSet",was=store.get(key)||"",wasN=store.get("mushaf.hlNames")||"",def=CE.w==="hl"?HLC0:MG0,keep=new Set(def.map(c=>c.k));
@@ -3543,7 +3558,7 @@ function mutPage(el,p){if(!mutOn||!MUT)return;const C=mutCols(p);if(!C.size)retu
 function mutLine(id,c,cls){const m=mutOn&&MUT&&c?mutWords(id):null;
   return AW[id].map((w,i)=>{const v=m&&m.get(i),t=escH(qY(w));return `<span${cls?` class="${cls}${v?v===1?" ms":" md":""}"`:v?` class="${v===1?"ms":"md"}"`:""}${cls?` data-w="${i}"`:""}${v?` style="--mc:var(--ms${c})"`:""}>${t}</span>`}).join(" ")}
 function setMut(on,quiet){mutOn=on;store.set("mushaf.mut",on?"1":"");$("app").classList.toggle("mut",on);$("bMut").setAttribute("aria-checked",String(on));$("msKey").hidden=!on;
-  const go=()=>{rebuild();flowShown=false;if(flowActive())renderFlow();rasterDirtyLazy();if(selA&&!$("sheet").hidden)shBody(selA)};
+  const go=()=>{const a=$("app");if(on&&!reduce){a.classList.add("mutIn");clearTimeout(setMut.t);setMut.t=setTimeout(()=>a.classList.remove("mutIn"),900)}rebuild();flowShown=false;if(flowActive())renderFlow();rasterDirtyLazy();if(selA&&!$("sheet").hidden)shBody(selA)};
   if(on&&!MUT)mutData().then(go,()=>{if(!quiet)toast("تعذّر تحميل المتشابهات")});else go();
   if(on&&!quiet)toast("المتشابهات ملوّنة · المس كلمة ملوّنة لترى نظيرتها")}
 /* the ayah sheet: the twins from the huffaz' list first, each with what it shares and where it parts */
@@ -3768,7 +3783,7 @@ const AUD={},AU=PLAT==="android"&&NATIVE&&CAP.isPluginAvailable&&CAP.isPluginAva
 const setRate=r=>{try{AU.playbackRate=r;AU.preservesPitch=true}catch(e){}};setRate(+store.get("mushaf.rate")||1);
 const AUDD={},audData=r=>AUD[r]||(AUD[r]=fetch(`audio/${r}.json`).then(x=>{if(!x.ok)throw 0;return x.json()}).then(d=>{AUDD[r]=d;try{dlUI()}catch(e){}return d}).catch(()=>{delete AUD[r];return null}));
 const fmtSize=b=>b>=1e9?`${ar((b/1073741824).toFixed(1)).replace(".","٫")} غيغا`:`${ar(Math.max(1,Math.round(b/1048576)))} ميغا`;
-function recUI(){$("pRec").textContent=RECS[reciter];if(typeof dlUI==="function"&&$("dlBox"))try{dlUI()}catch(e){}["recSel","pRecSel"].forEach(id=>{const x=$(id);if(!x)return;if(!x.options.length)x.innerHTML=Object.entries(RECS).map(([k,n])=>`<option value="${k}">${n}</option>`).join("");x.value=reciter})}
+function recUI(){{const e=$("pRec");if(e.textContent!==RECS[reciter]){e.textContent=RECS[reciter];e.classList.remove("bump");void e.offsetWidth;e.classList.add("bump")}}if(typeof dlUI==="function"&&$("dlBox"))try{dlUI()}catch(e){}["recSel","pRecSel"].forEach(id=>{const x=$(id);if(!x)return;if(!x.options.length)x.innerHTML=Object.entries(RECS).map(([k,n])=>`<option value="${k}">${n}</option>`).join("");x.value=reciter})}
 /* the slice of the surah file for one ayah; ayah 1 starts at 0 so the basmala/isti'adha before it is heard */
 function seg(id){if(!aud)return null;const s=sOf(id)+1,a=aOf(id),rows=aud.surahs[s];if(!rows)return null;
   const i=rows.findIndex(r=>r[0]===a);if(i<0)return null;const pad=String(s).padStart(3,"0");
