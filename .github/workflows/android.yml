@@ -45,7 +45,13 @@ jobs:
           KEY_PW: ${{ secrets.ANORA_TEST_KEYSTORE_PASSWORD }}
         run: |
           if [ -n "$KEY_B64" ]; then
-            echo "$KEY_B64" | base64 -d > "$RUNNER_TEMP/anora-test.jks"
+            # pasted secrets often pick up spaces or line breaks; drop them
+            KEY_PW=$(printf %s "$KEY_PW" | tr -d '[:space:]')
+            printf %s "$KEY_B64" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/anora-test.jks"
+            if ! keytool -list -keystore "$RUNNER_TEMP/anora-test.jks" -storepass "$KEY_PW" -alias anora-test >/dev/null 2>&1; then
+              echo "::error::The test key secrets do not match: ANORA_TEST_KEYSTORE_PASSWORD does not open ANORA_TEST_KEYSTORE_B64 (or one was pasted incompletely)."
+              exit 1
+            fi
             echo "ANORA_TEST_KEYSTORE=$RUNNER_TEMP/anora-test.jks" >> "$GITHUB_ENV"
             echo "ANORA_TEST_KEYSTORE_PASSWORD=$KEY_PW" >> "$GITHUB_ENV"
           else
