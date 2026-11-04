@@ -2,7 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Amiri+Quran&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Amiri+Quran&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
 <style>
 /*FONT*/
 /* Layout: one-screen reader built for long reading. Quiet bars, a page that fills the screen, the index slides in from the right.
@@ -1291,7 +1291,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .ib.azb{width:40px;height:40px;border-radius:10px;background:transparent;color:var(--gold)}
 .ib.azb:hover{background:var(--sel)}
 .ib.azb svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.5}
-.ib.azb.due::after{content:"";position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--bar),0 0 8px var(--gold);animation:azDot 2.4s ease-in-out 3}
+.ib.azb.due::after{content:"";position:absolute;top:6px;left:6px;width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 2px var(--bar)}
 .ib.azb{position:relative}
 @keyframes azDot{50%{transform:scale(1.35)}}
 html.thumb .fthumb.azb{color:var(--gold)}
@@ -1438,7 +1438,7 @@ html[data-theme="dark"] .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var
       <h3 class="qh">الإعدادات</h3>
       <div class="ptabs" role="tablist" aria-label="الإعدادات"><button role="tab" data-pg="look" aria-selected="true">المظهر</button><button role="tab" data-pg="read" aria-selected="false">القراءة</button><button role="tab" data-pg="dev" aria-selected="false">الشاشة والصوت</button></div>
       <section class="pgrp" data-pg="look">
-      <div><h3>حجم كتابات التطبيق</h3><div class="seg" id="uzSeg"><button class="sw" data-uz="1">عادي</button><button class="sw" data-uz="1.15" style="font-size:15px">كبير</button><button class="sw" data-uz="1.3" style="font-size:17px">أكبر</button></div></div>
+      <div><h3>حجم خط الواجهة</h3><div class="seg" id="uzSeg"><button class="sw" data-uz="1">عادي</button><button class="sw" data-uz="1.15" style="font-size:15px">كبير</button><button class="sw" data-uz="1.3" style="font-size:17px">أكبر</button></div></div>
       <div class="posture"><span>الوضع البسيط<small>يُبقي الأساسيات فقط: القراءة والاستماع والعلامة والأذكار</small></span><button class="tg" id="bSimple" role="switch" aria-checked="false" aria-label="الوضع البسيط"></button></div>
       <div><h3>لون الورق</h3><div class="seg c5 c6" id="paperSeg">
         <button class="sw" data-paper="light"><i style="background:#faf7f0;color:#2b2824">بسم</i>فاتح</button>
@@ -1560,7 +1560,7 @@ html[data-theme="dark"] .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var
     <button role="tab" id="t-h" aria-selected="false" data-t="h">الأجزاء</button>
     <button role="tab" id="t-m" aria-selected="false" data-t="m">سجلّي</button>
     <button role="tab" id="t-r" aria-selected="false" data-t="r">الحفظ</button>
-    <button role="tab" id="t-c" aria-selected="false" data-t="c">ألواني</button>
+    <button role="tab" id="t-c" aria-selected="false" data-t="c">الألوان</button>
   </div>
   <div class="list" id="list" role="tabpanel"></div>
   <div class="dnote">رواية حفص عن عاصم · ترقيم صفحات مصحف المدينة (٦٠٤ صفحة)</div>
@@ -1575,7 +1575,7 @@ html[data-theme="dark"] .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var
   </div>
 </div>
 <div id="dimV" aria-hidden="true"></div>
-<div id="easyBox" role="dialog" aria-modal="true" aria-labelledby="easyQ" hidden><div class="si easy"><b id="easyQ">تريد الكتابة أكبر والأزرار أقل؟</b><p>نكبّر خط القرآن وكل كتابات التطبيق، ونخفي الأدوات المتقدمة. ويمكنك تغيير ذلك لاحقاً من الإعدادات ← المظهر.</p><button class="eyes" id="easyY">نعم، كبّرها</button><button class="eno" id="easyN">لا، أبقِه كما هو</button></div></div>
+<div id="easyBox" role="dialog" aria-modal="true" aria-labelledby="easyQ" hidden><div class="si easy"><b id="easyQ">أتريد خطاً أكبر وأزراراً أقل؟</b><p>نكبّر خط القرآن وخط الواجهة كله، ونخفي الأدوات المتقدمة. ويمكنك تغيير ذلك لاحقاً من الإعدادات ← المظهر.</p><button class="eyes" id="easyY">نعم، كبّره</button><button class="eno" id="easyN">لا، أبقِه كما هو</button></div></div>
 <div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -1953,7 +1953,7 @@ function setup3D(kind,target){
   f.shF=face(f.front,false);f.shB=face(f.back,true);
   const sh=el=>{const d=document.createElement("div");d.className="sh3";el.appendChild(d);return d};
   f.sU=sh(f.under);f.sS=sh(f.still);
-  book.appendChild(leaf);f.leaf=leaf;book.style.perspective=Math.round(W*3.2)+"px";book.style.perspectiveOrigin=`${W}px 50%`;
+  book.appendChild(leaf);f.leaf=leaf;book.style.perspective=Math.round(W*6)+"px";book.style.perspectiveOrigin=`${W}px 50%`;
   flip=f;return f;
 }
 function render3D(f){
@@ -1972,6 +1972,9 @@ function render3D(f){
 }
 function setupFlip(kind,target){
   if(mode==="spread")return setup3D(kind,target);
+  /* the page images for the curl are not drawn yet (just opened, or the page just changed): glide instead of
+     falling back to the flat fold, which repaints a whole page of text every frame */
+  if(!reduce&&(!rimg(cur)||!rimg(target)))return setupSlide(kind,target);
   book.replaceChildren();
   const f={kind,target,spineX:W,cy:H};
   if(mode==="spread"){
@@ -2074,10 +2077,11 @@ const turnPick=()=>{const t=store.get("mushaf.turn");return t==="slide"||t==="no
 const turnSt=()=>reduce?"none":turnPick();
 function setupSlide(kind,target){
   book.replaceChildren();$("app").classList.add("turning");
-  const vw=mode==="spread"?2*W:W,dir=kind==="fwd"?1:-1,f={slide:true,kind,target,vw,dir,els:[],P:[0,0]};
+  /* spreads travel as whole books with a little desk between them, so no false pair of pages is ever seen side by side */
+  const vw=mode==="spread"?2*W+Math.round(W*.08):W,dir=kind==="fwd"?1:-1,f={slide:true,kind,target,vw,dir,els:[],P:[0,0]};
   const put=(p,x,z)=>{const e=place(get(p),x,z);e.classList.add("sld");f.els.push(e)};
   /* the next pages wait just off the edge they come in from: on the left going forward (the mushaf reads right to left) */
-  if(mode==="spread"){put(cur,W,2);put(cur+1,0,2);put(target,W-dir*vw,1);put(target+1,-dir*vw,1)}
+  if(mode==="spread"){put(cur,W,2);put(cur+1,0,2);put(target,W-dir*vw,1);put(target+1,-dir*vw,1);f.els[2].style.boxShadow=f.els[3].style.boxShadow=""}
   else{put(cur,0,2);put(target,-dir*vw,1)}
   book.style.overflow="hidden";flip=f;return f;
 }
@@ -2156,6 +2160,7 @@ stage.addEventListener("pointermove",e=>{
       down.drag=f;down.x=b[0];down.y=b[1];hideHint();}
     if(!f){f=setupFlip(kind,cur+(kind==="fwd"?1:-1)*(mode==="spread"?2:1));f.cy=down.y<H*.33?0:H;f.P=[f.reverse?2*W:0,f.cy]}
     if(!f.slide&&!f.jump){f.peek=false;down.drag=f;down.base=f.P.slice();down.x=b[0];down.y=b[1];hideHint()}
+    else if(f.slide&&down.drag!==f){f.P=[0,0];down.drag=f;down.x=b[0];down.y=b[1];hideHint()}
   }
   if(down.drag==="none") return;
   if(down.drag.slide||down.drag.jump){const f=down.drag,lim=f.dir*f.vw;let x=b[0]-down.x;
@@ -2302,7 +2307,7 @@ function peekMove(e,b){
   const corners=mode==="spread"?[[0,H,"fwd"],[0,0,"fwd"],[2*W,H,"back"],[2*W,0,"back"]]:[[0,H,"fwd"],[0,0,"fwd"]];
   for(const [cx,cy,kind] of corners){
     if(Math.hypot(b[0]-cx,b[1]-cy)<R*.8&&canGo(kind)){
-      const f=setupFlip(kind,cur+(kind==="fwd"?1:-1)*(mode==="spread"?2:1));f.cy=cy;f.peek=true;
+      const f=setupFlip(kind,cur+(kind==="fwd"?1:-1)*(mode==="spread"?2:1));if(f.slide){finish(f,false);return}f.cy=cy;f.peek=true;
       const pb=[cx+(b[0]-cx)*.9+(kind==="fwd"?12:-12),cy+(b[1]-cy)*.9+(cy?-12:12)];f.P=[f.a*(pb[0]-f.sx0),pb[1]];render(f);return;
     }
   }
@@ -2361,7 +2366,7 @@ function renderFlow(){
     for(let id=pStart(p);id<=pEnd(p);id++){
       const si=sOf(id);
       if(aOf(id)===1){flush();h+=`<div class="fh">سورة ${SUR[si][0]}</div>`;if(si!==0&&si!==8)h+=`<p class="fb">${escH(B)}</p>`}
-      para.push(`<span class="fa${id===selA?" sel":""}${hlK(id)?" hk":""}" data-a="${id}"${hlK(id)?` style="--c:${hlC(hlK(id))}"`:""}>${AW[id].map(escH).join(" ")}&nbsp;<span class="an">۝${ar(aOf(id))}</span></span>`);
+      para.push(`<span class="fa${id===selA?" sel":""}${hlK(id)?" hk":""}" data-a="${id}"${hlK(id)?` style="--c:${hlC(hlK(id))}"`:""}>${AW[id].map(w=>escH(qY(w))).join(" ")}&nbsp;<span class="an">۝${ar(aOf(id))}</span></span>`);
     }
   }
   flush();
@@ -2503,7 +2508,8 @@ let rasterKey="";
 function rasterDirtyLazy(){const k=[bmNow(),W,H,mode,/* only classes that change how a page looks: passing UI states (calm bars, a toast) must not throw the page images away */["memo","mhint","tajweed","full"].filter(c=>$("app").classList.contains(c)).join(" "),root.dataset.paper,selA,playA,memo.on?JSON.stringify([...memo.rev])+JSON.stringify(memo.range)+(store.get("mushaf.memoErr")||""):""].join("|");
   if(k!==rasterKey){rasterKey=k;rasterDirty()}else{clearTimeout(RS.t);RS.t=setTimeout(rasterSoon,350)}}
 function rasterSoon(){
-  if(reduce)return;
+  /* only the phone's curl uses page images; the spread's 3D leaf moves the pages themselves */
+  if(reduce||mode==="spread")return;
   const want=mode==="spread"?[cur+1,cur,cur+2,cur-1,cur+3,cur-2]:[cur,cur+1,cur-1];
   RS.queue=want.filter(p=>p>=1&&p<=NP&&!RS.img.has(p));
   if(RS.busy)return;
@@ -2557,7 +2563,7 @@ function drawCurl(f,M,n,d,k){
     x0=Math.max(0,Math.floor(x0-2));y0=Math.max(0,Math.floor(y0-2));x1=Math.min(W,Math.ceil(x1+2));y1=Math.min(H,Math.ceil(y1+2));
     if(x1>x0&&y1>y0){const kx=img.width/W,ky=img.height/H;/* the page image has no paper of its own: lay paper first so the page below never shows through */x.fillStyle=c.paper;x.fillRect(x0,y0,x1-x0,y1-y0);x.drawImage(img,x0*kx,y0*ky,(x1-x0)*kx,(y1-y0)*ky,x0,y0,x1-x0,y1-y0)}
     x.setTransform(T[0],T[1],T[2],T[3],T[4],T[5]);
-    if(veil){x.globalAlpha=.97;x.fillStyle=c.paper;x.fill();x.globalAlpha=1}
+    if(veil){x.fillStyle=c.paper;x.fill()}
     if(shade){x.fillStyle=shade;x.fill()}
     x.restore();
   };
@@ -2568,8 +2574,8 @@ function drawCurl(f,M,n,d,k){
     x.save();x.setTransform(dpr,0,0,dpr,0,0);x.beginPath();fp.map(q=>ap(S2B,q)).forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.closePath();x.setTransform(1,0,0,1,0,0);x.fillStyle=g;x.fill();x.restore()}}
   if(umax<=0)return;
   /* shadow the roll throws on the page underneath, just beyond its outer edge */
-  {const r0=Math.min(R,umax),w=10+R*1.6,p0=ap(S2B,[M[0]+n[0]*r0,M[1]+n[1]*r0]),p1=ap(S2B,[M[0]+n[0]*(r0+w),M[1]+n[1]*(r0+w)]);
-    const g=x.createLinearGradient(p0[0],p0[1],p1[0],p1[1]);g.addColorStop(0,`rgba(0,0,0,${(.30*k).toFixed(3)})`);g.addColorStop(.35,`rgba(0,0,0,${(.10*k).toFixed(3)})`);g.addColorStop(1,"rgba(0,0,0,0)");
+  {const r0=Math.min(R,umax),w=16+R*2.4,p0=ap(S2B,[M[0]+n[0]*r0,M[1]+n[1]*r0]),p1=ap(S2B,[M[0]+n[0]*(r0+w),M[1]+n[1]*(r0+w)]);
+    const g=x.createLinearGradient(p0[0],p0[1],p1[0],p1[1]);g.addColorStop(0,`rgba(0,0,0,${(.42*k).toFixed(3)})`);g.addColorStop(.35,`rgba(0,0,0,${(.16*k).toFixed(3)})`);g.addColorStop(1,"rgba(0,0,0,0)");
     const poly=band(r0,r0+w).map(q=>ap(S2B,q));
     if(poly.length>2){x.save();x.setTransform(dpr,0,0,dpr,0,0);x.beginPath();poly.forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.closePath();x.fillStyle=g;x.fill();x.restore()}}
   const N=Math.max(10,Math.min(24,Math.round(R)));
@@ -2584,7 +2590,7 @@ function drawCurl(f,M,n,d,k){
   /* the roll's outer silhouette */
   if(umax>half){const a0=ap(S2B,[M[0]+n[0]*R-n[1]*3*(W+H),M[1]+n[1]*R+n[0]*3*(W+H)]),a1=ap(S2B,[M[0]+n[0]*R+n[1]*3*(W+H),M[1]+n[1]*R-n[0]*3*(W+H)]);
     x.save();x.setTransform(dpr,0,0,dpr,0,0);const sp=[[0,0],[W,0],[W,H],[0,H]].map(q=>ap(S2B,q));x.beginPath();sp.forEach((q,i)=>i?x.lineTo(q[0],q[1]):x.moveTo(q[0],q[1]));x.closePath();x.clip();
-    x.strokeStyle=`rgba(0,0,0,${(.22*k).toFixed(3)})`;x.lineWidth=1;x.beginPath();x.moveTo(a0[0],a0[1]);x.lineTo(a1[0],a1[1]);x.stroke();x.restore()}
+    x.restore()}
   /* back lying flat past the roll, with a soft shadow on the page below it */
   if(umax>full){const poly=band(full,umax+1),sp=Math.max(0,-u([W,f.cy])-full)*land,pe=Math.max(1,umax-full),Ms=strip(full,-sp,-(pe-sp)/pe);
     const T=mul(D,mul(S2B,Ms));x.save();x.setTransform(T[0],T[1],T[2],T[3],T[4],T[5]);
@@ -2682,7 +2688,7 @@ function hijri(){try{return new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura
 function contShow(){const c=$("cont"),id=pStart(cur);azNudgeHide();
   {const h=new Date().getHours();$("cHi").textContent=h<4?"ليلة مباركة":h<12?"صباح الخير":h<17?"طاب يومك":"مساء الخير";
    const wd=new Intl.DateTimeFormat("ar",{weekday:"long"}).format(new Date()),hj=hijri();$("cDate").innerHTML=`<em>${wd}</em>${hj}`}
-  {const a=aydId(),b=$("cAy");b.innerHTML=`<small>آية اليوم</small><q>${escH(txt(a).replace(/[۞۩]/g,"").trim())} <span class="an">۝${ar(aOf(a))}</span></q><span>سورة ${SUR[sOf(a)][0]} · صفحة ${ar(pOf(a))}</span>`;b.onclick=()=>{contHide();showAyahPage(a);setTimeout(()=>openAyah(a),reduce?0:700)}}
+  {const a=aydId(),b=$("cAy");b.innerHTML=`<small>آية اليوم</small><q>${escH(qY(txt(a).replace(/[۞۩]/g,"").trim()))} <span class="an">۝${ar(aOf(a))}</span></q><span>سورة ${SUR[sOf(a)][0]} · صفحة ${ar(pOf(a))}</span>`;b.onclick=()=>{contHide();showAyahPage(a);setTimeout(()=>openAyah(a),reduce?0:700)}}
   root.style.setProperty("--fh",document.querySelector(".foot").offsetHeight+"px");
   $("cWhere").textContent=`تكمل من سورة ${SUR[sOf(id)][0]} · صفحة ${ar(cur)}`;
   {const pl=+store.get("mushaf.playLast"),b=$("cPl");b.hidden=!(pl>0&&pl<=NA);if(!b.hidden){b.textContent=`كمّل التلاوة · ${repRef(pl)}`;b.onclick=()=>{contHide();setTimeout(()=>playFrom(pl),reduce?0:300)}}}
@@ -2799,7 +2805,7 @@ function openAyah(id){
   $("shMeta").textContent=`الآية ${ar(aOf(id))} · الجزء ${ar(jOf(id))}${document.documentElement.classList.contains("uzL")&&innerWidth<700?"":` · الحزب ${ar((qOf(id)>>2)+1)}`} · صفحة ${ar(pOf(id))} · حفص\u00a0عن\u00a0عاصم`;
   if(!deckPages().includes(pOf(id)))showAyahPage(id);
   if(flowActive())requestAnimationFrame(()=>{renderFlow();const s=$("flBody").querySelector(".fa.sel");if(s)s.scrollIntoView({block:"center",behavior:reduce?"auto":"smooth"})});
-  $("shText").innerHTML=`${AW[id].map((w,i)=>`<span class="w" data-w="${i}">${escH(w)}</span>`).join(" ")} <span class="an">۝${ar(aOf(id))}</span>`;
+  $("shText").innerHTML=`${AW[id].map((w,i)=>`<span class="w" data-w="${i}">${escH(qY(w))}</span>`).join(" ")} <span class="an">۝${ar(aOf(id))}</span>`;
   $("aMark").setAttribute("aria-pressed",String(marks.has(id)));aGrpUI();$("aHl").setAttribute("aria-pressed",String(!!hlK(id)));hlPalUI();$("aNote").setAttribute("aria-pressed",String(!!(notes.get()[id]&&notes.get()[id].t)));
   $("shPrev").disabled=id<=1;$("shNext").disabled=id>=NA;
   shBody(id);
@@ -2999,6 +3005,8 @@ function shBody(id){
 /* ---------- word explorer: what a word means, where it comes from, and every place it occurs ----------
    words.json (from the Quranic Arabic Corpus, mustafa0x/quran-morphology) holds, for every word on the page,
    its root, lemma, the segment that carries them, and its segments (prefix, stem, suffix) with a description. */
+/* the Madinah print never dots a final yā' (فِى، ٱلَّذِى): text shown outside the page font follows it */
+const qY=t=>t.replace(/ي(?=[\u064B-\u0652\u0670\u06D6-\u06ED]*(?:\s|$))/g,"ى");
 const AW=[null,[]];for(const pg of K)for(const ln of pg){if(ln[0]!=="t")continue;for(const t of ln[6]){const x=typeof t==="string"?t:t[0];if(x.indexOf("\u06DD")>=0)AW.push([]);else AW[AW.length-1].push(x)}}
 let WD=null,wdLoad=null,wSel=0,wxLemma=-1,wxN=0;const WX_PAGE=30;
 function wdData(){if(!wdLoad)wdLoad=Promise.all([fetch("words.json").then(r=>{if(!r.ok)throw 0;return r.json()}),gharib().catch(()=>null)]).then(([d])=>{
@@ -3522,7 +3530,7 @@ function renderDeck(){
   let h="";
   for(let id=a0;id<=a1;id++){
     const head=aOf(id)===1?`<div class="lbl" style="font-family:var(--f-display);font-size:18px;color:var(--orn);margin:6px 4px">سورة ${SUR[sOf(id)][0]}</div>`:"";
-    h+=`${head}<div class="dk${id===selA?" on":""}" data-id="${id}" role="button" tabindex="0"><div class="dk-a"><span class="star">${ar(aOf(id))}</span><q>${escH(txt(id))}</q></div><div class="tf" data-tf="${id}">${TF?tfHTML(TF[id-1]):""}</div>${acts}</div>`;
+    h+=`${head}<div class="dk${id===selA?" on":""}" data-id="${id}" role="button" tabindex="0"><div class="dk-a"><span class="star">${ar(aOf(id))}</span><q>${escH(qY(txt(id)))}</q></div><div class="tf" data-tf="${id}">${TF?tfHTML(TF[id-1]):""}</div>${acts}</div>`;
   }
   $("deckList").innerHTML=h;$("deckList").scrollTop=0;
   if(!TF)tafsir().then(()=>{$("deckList").querySelectorAll("[data-tf]").forEach(e=>e.innerHTML=tfHTML(TF[+e.dataset.tf-1]))},()=>{});
@@ -3867,7 +3875,7 @@ function renderList(anim){
   if(raw){L.innerHTML=findHTML(raw);return}
   const q="",num=NaN;
   /* on a spread, a surah that opens on the facing page is the one being read */
-  const curId=mode==="spread"&&cur<NP&&sOf(pStart(cur+1))!==sOf(pStart(cur))&&SST[sOf(pStart(cur+1))-1]>=pStart(cur+1)?pStart(cur+1):pStart(cur), cs=sOf(curId), cj=jOf(curId), cq=qOf(curId);
+  const s2=mode==="spread"&&cur<NP?sOf(pEnd(cur+1)):-1,curId=s2>=0&&SST[s2]>pEnd(cur)?SST[s2]:pStart(cur), cs=sOf(curId), cj=jOf(curId), cq=qOf(curId);
   let h="";
   const bm=+store.get("mushaf.bookmark");
   if(bm&&!q&&tab!=="m"&&tab!=="r"&&tab!=="q"){const id=pStart(bm);h+=`<button class="row" data-p="${bm}"><span class="star" style="color:var(--gold)">★</span><span class="rn"><b>العلامة المحفوظة</b><small>سورة ${SUR[sOf(id)][0]} · الجزء ${ar(jOf(id))}</small></span><span class="pg-n"><em>صفحة</em>${ar(bm)}</span></button>`}
@@ -4214,7 +4222,7 @@ const AZ_CATS=[
   list:()=>[{q:[2,255,255],n:1,s:"آية الكرسي · رواه الحاكم"},...AZ_MAIN.map(x=>({t:x.t,n:x.n,s:x.s})),{q:[112],n:3,s:"الإخلاص · رواه أبو داود والترمذي"},{q:[113],n:3,s:"الفلق"},{q:[114],n:3,s:"الناس"},
    {t:"سُبْحَانَ اللَّهِ وَبِحَمْدِهِ",n:100,s:"<em>حُطَّت خطاياه وإن كانت مثل زبد البحر</em> · متفق عليه"},
    {t:"لَا إِلَٰهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ، وَهُوَ عَلَىٰ كُلِّ شَيْءٍ قَدِيرٌ",n:10,s:"رواه النسائي"},
-   {t:"أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ",n:100,s:"متفق عليه"},
+   {t:"أَسْتَغْفِرُ اللَّهَ وَأَتُوبُ إِلَيْهِ",n:100,s:"رواه مسلم، وللبخاري نحوه"},
    {t:"اللَّهُمَّ صَلِّ وَسَلِّمْ عَلَىٰ نَبِيِّنَا مُحَمَّدٍ",n:10,s:"رواه الطبراني، وفي إسناده كلام"}]},
  {k:"mas",name:"أذكار المساء",sub:"بعد العصر حتى الليل",ic:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',glow:"#8fb8ff",
   list:()=>[{q:[2,255,255],n:1,s:"آية الكرسي"},...AZ_MAIN.map(x=>({t:x.e||x.t,n:x.n,s:x.s})),{q:[112],n:3,s:"الإخلاص"},{q:[113],n:3,s:"الفلق"},{q:[114],n:3,s:"الناس"},
@@ -4238,7 +4246,7 @@ const AZ_FREE=["سُبْحَانَ اللَّهِ","الْحَمْدُ لِلَ�
 const azSt={get(){let d;try{d=JSON.parse(store.get("mushaf.az")||"{}")}catch(e){d={}}const t=today();if(d.d!==t){const keep={st:d.st||{last:0,n:0},fp:d.fp||0,ft:d.ft||33,tot:d.tot||0};d={d:t,p:{},done:{},fc:0,...keep}}return d},save(d){store.set("mushaf.az",JSON.stringify(d))}};
 let azOpen=false,azCat=null,azI=0,azList=[],azCount=0,azPh=0,azAnim=null,azRaf=0,azSkyRaf=0;
 function azQText(q){const [s,a,b]=q,si=s-1,from=a||1,to=b||SUR[si][1];let h=a?`<span class="bas">أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ</span><br>`:`<span class="bas">${AZ_BAS}</span><br>`;
-  for(let k=from;k<=to;k++){const id=SST[si]+k-1;h+=AW[id].map(w=>escH(w.replace(/[۞۩]/g,""))).filter(Boolean).join(" ")+` <span class="an">۝${ar(k)}</span> `}return h}
+  for(let k=from;k<=to;k++){const id=SST[si]+k-1;h+=AW[id].map(w=>escH(qY(w.replace(/[۞۩]/g,"")))).filter(Boolean).join(" ")+` <span class="an">۝${ar(k)}</span> `}return h}
 function azOpenUI(){if(azOpen)return;azOpen=true;showPrefs(false);const z=$("az");z.hidden=false;z.classList.remove("in");void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true");azHome();azSky(true);try{history.replaceState(null,"","#adhkar")}catch(e){}}
 function azClose(){azOpen=false;setTimeout(()=>{try{azMarkDue()}catch(e){}},0);$("az").hidden=true;$("app").removeAttribute("aria-hidden");cancelAnimationFrame(azSkyRaf);cancelAnimationFrame(azRaf);try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
 function azNowCat(){const h=new Date().getHours();return h>=4&&h<11?"sab":h>=15&&h<20?"mas":h>=21||h<3?"nom":""}
@@ -4246,7 +4254,7 @@ function azHome(){
   azCat=null;$("azHome").hidden=false;$("azRun").hidden=true;$("azDone").hidden=true;
   $("azTitle").textContent="الأذكار";$("azSub").textContent="";$("azBack").hidden=true;
   const d=azSt.get(),now=azNowCat(),h=new Date().getHours();
-  $("azGreet").textContent=h>=4&&h<12?"صباح الخير · ابدأ يومك بذكر الله":h<17?"طاب يومك · ﴿أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ﴾":"مساء الخير · اختم يومك بذكر الله";
+  $("azGreet").textContent=h>=4&&h<12?"صباح الخير · ابدأ يومك بذكر الله":h<17?"طاب يومك · ﴿أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ﴾ [الرعد: ٢٨]":"مساء الخير · اختم يومك بذكر الله";
   $("azCats").innerHTML=AZ_CATS.map(c=>{const L=c.list(),dn=L.filter((x,i)=>(d.p[c.k]||{})[i]>=x.n).length,ok=c.k!=="free"&&L.length&&dn===L.length;
     const sub=c.k==="free"?(d.fc?`اليوم ${numW(d.fc,"تسبيحة","تسبيحتان","تسبيحات","تسبيحة")}`:"ابدأ التسبيح"):ok?"أتممتها اليوم":`${numW(L.length,"ذكر واحد","ذكران","أذكار","ذكراً")} · ${c.sub}`;
     return `<button class="az-cat${ok?" ok":""}" data-az="${c.k}" style="--glow:${c.glow}55;--glowc:${c.glow}"><i><svg viewBox="0 0 24 24">${c.ic}</svg></i><b>${c.name}</b><small>${sub}</small>${c.k!=="free"?`<span class="pb"><s style="width:0" data-w="${L.length?dn/L.length*100:0}"></s></span>`:""}${c.k===now&&!ok?`<span class="now">الآن</span>`:""}<span class="chk"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>`}).join("");
