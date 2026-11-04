@@ -4,7 +4,7 @@ const {chromium}=require("playwright");const fs=require("fs"),path=require("path
 const WWW=path.join(__dirname,"..","www"),TONE=fs.readFileSync(path.join(__dirname,"tone.mp3"));
 const src=fs.readFileSync(path.join(WWW,"index.html"),"utf8"),hook='recUI();audData(reciter).then(d=>{if(!aud)aud=d});';
 if(!src.includes(hook))throw new Error("test hook point not found in www/index.html");
-fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={playFrom,P:()=>player,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),turn:{rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
+fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={playFrom,P:()=>player,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,turn:{rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
 const types={".html":"text/html",".js":"text/javascript",".json":"application/json",".woff2":"font/woff2",".ttf":"font/ttf",".css":"text/css"};
 const srv=http.createServer((q,r)=>{const f=path.join(WWW,decodeURIComponent(q.url.split("?")[0]));
   fs.readFile(f,(e,b)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{"content-type":types[path.extname(f)]||"application/octet-stream"});r.end(b)})}).listen(0);
@@ -31,7 +31,7 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       const MA=new Audio(),em=(e,d)=>{const f=window.__L["Audio"+e];f&&f(d||{})},tm=()=>em("time",{ms:MA.currentTime*1000,playing:!MA.paused&&!MA.ended});
       setInterval(()=>{if(!MA.paused)tm()},200);MA.addEventListener("playing",tm);MA.addEventListener("pause",tm);MA.addEventListener("seeked",tm);
       MA.addEventListener("ended",()=>em("ended"));MA.addEventListener("loadedmetadata",()=>em("loaded",{dur:MA.duration*1000}));MA.addEventListener("error",()=>em("error",{msg:"x"}));window.__MA=MA;
-      const AP={load:o=>{MA.src=o.url},play:()=>MA.play(),pause:()=>MA.pause(),seek:o=>{MA.currentTime=o.ms/1000},stop:()=>{MA.pause();MA.removeAttribute("src")}};
+      const AP={load:o=>{MA.src=o.url},play:()=>MA.play(),pause:()=>MA.pause(),seek:o=>{MA.currentTime=o.ms/1000},rate:o=>{MA.playbackRate=o.rate},stop:()=>{MA.pause();MA.removeAttribute("src")}};
       window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>"android",convertFileSrc:u=>u,isPluginAvailable:n=>n==="Audio",addListener:(pl,ev,fn)=>{window.__L[pl+ev]=fn},
         nativePromise:(pl,m,o)=>pl==="Audio"?Promise.resolve().then(()=>AP[m](o||{})).then(()=>({})):m==="getUri"?Promise.resolve({uri:"file:///d/"+o.path}):Promise.resolve({})}});
     await p.route(/\.mp3(\?|$)/,r=>{const h=r.request().headers().range,B=TONE;if(h){const m=/bytes=(\d+)-(\d*)/.exec(h),a=+m[1],e=m[2]?+m[2]:B.length-1;
@@ -53,6 +53,9 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     ok(!errs.length,`${name}: no script errors on load ${errs.join(" | ")}`);
     ok(await p.evaluate(()=>__smk.nativeAudio),`${name}: Android uses the native player`);
     const lock=await p.evaluate(()=>document.getElementById("qLockMsg").textContent);ok(/مطابق/.test(lock),`${name}: Quran text lock matches`);
+    {const r=await p.evaluate(()=>{const S=__smk;let bad=[];for(let id=1;id<=S.NA&&bad.length<3;id++)for(const w of S.AW[id]){const q=S.qY(w);if(/ي[\u064B-\u065F\u0670\u06D6-\u06ED]*$/.test(q))bad.push(q)}
+      return {bad,a:S.qY("ٱلَّذِيٓ"),b:S.qY("فِيٓ"),c:S.qY("فِيهِ")}});
+      ok(!r.bad.length&&r.a==="ٱلَّذِىٓ"&&r.b==="فِىٓ"&&r.c==="فِيهِ",`${name}: final yā' is dotless everywhere, also before maddah (${r.bad.join(" ")||"ok"})`)}
     await p.evaluate(()=>__smk.playFrom(__smk.SST[2]+3));await p.waitForTimeout(3000);
     let s=await p.evaluate(()=>({on:__smk.P().on,paused:__smk.AU.paused,t:__smk.AU.currentTime}));
     ok(s.on&&!s.paused,`${name}: recitation keeps playing 3s after start (on=${s.on} paused=${s.paused})`);
@@ -69,7 +72,7 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       ok(r[0]&&r[1],`${name}: a system pause pauses the app, and play resumes (${r})`)}
     await p.evaluate(()=>document.getElementById("pRep").click());await p.waitForTimeout(700);await lay(p,`${name}: repeat panel`,["repBox"]);
     /* tapping an ayah sets the range end; tapping before "from" keeps the range within 300 */
-    {const r=await p.evaluate(async()=>{const S=__smk.SST[2];const tap=async id=>{const w=[...document.querySelectorAll('#book .pg [data-a="'+id+'"]')].map(e=>e.getBoundingClientRect()).find(q=>q.width&&q.top>0&&q.bottom<innerHeight);
+    {const r=await p.evaluate(async()=>{const S=__smk.SST[2];const tap=async id=>{const w=[...document.querySelectorAll('#book .pg [data-a="'+id+'"]')].map(e=>e.getBoundingClientRect()).find(q=>{if(!(q.width&&q.top>0&&q.bottom<innerHeight))return false;const h=document.elementFromPoint(q.left+q.width/2,q.top+q.height/2);return h&&h.closest("#book")});
         if(!w)return false;const o={bubbles:true,clientX:w.left+w.width/2,clientY:w.top+w.height/2,pointerId:9,isPrimary:true};document.elementFromPoint(o.clientX,o.clientY).dispatchEvent(new PointerEvent("pointerdown",o));await new Promise(z=>setTimeout(z,150));return true};
       const t=await tap(S+6),to=document.getElementById("rbTo").textContent,open=!document.getElementById("repBox").hidden;return {t,to,open}});
       ok(r.t&&r.open&&/٧/.test(r.to),`${name}: tapping an ayah sets the repeat end (${r.to})`)}

@@ -144,6 +144,13 @@ class AudioPlugin : Plugin() {
         }
     }
 
+    /** Recitation speed (0.5–2); ExoPlayer keeps the pitch and the setting carries over to the next file. */
+    @PluginMethod
+    fun rate(call: PluginCall) {
+        val r = call.data.optDouble("rate", 1.0).toFloat().coerceIn(0.5f, 2f)
+        onMain(call) { p -> p.setPlaybackSpeed(r) }
+    }
+
     @PluginMethod
     fun stop(call: PluginCall) = onMain(call) { p ->
         p.stop()

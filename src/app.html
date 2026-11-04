@@ -73,7 +73,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 .bar{background:var(--bar);border-bottom:1px solid var(--line);padding-block:6px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;align-items:center;gap:12px;position:relative;z-index:5}
 .where{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
 .where b{font-family:var(--f-display);font-size:20px;font-weight:700;line-height:1.25;color:var(--bar-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.where small{font-size:13.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.where small{font-size:14.5px;color:color-mix(in srgb,var(--bar-ink) 82%,var(--bar));font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tools{display:flex;gap:2px;align-items:center}
 .ib{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;color:var(--muted)}
 .ib:hover{background:var(--sel);color:var(--bar-ink)}
@@ -545,8 +545,8 @@ html.simple .bar .tools .tcap{display:block;font-size:11.5px;line-height:1.2;whi
 .rbr>span{color:var(--muted)}
 .rbr>b{text-align:center;font-family:var(--f-display);font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rst{width:34px;height:34px;border-radius:50%;background:var(--sel);color:var(--orn);font-size:18px;line-height:1}
-.rseg{grid-column:2/5;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:3px;border-radius:11px;background:var(--sel)}
-.rseg button{height:30px;border-radius:8px;font:inherit;font-size:13px;color:var(--muted)}
+.rseg{grid-column:2/5;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;padding:3px;border-radius:11px;background:var(--sel)}
+.rseg button{height:30px;border-radius:8px;font:inherit;font-size:13.5px;color:color-mix(in srgb,var(--bar-ink) 80%,var(--bar))}
 .rseg button[aria-pressed="true"]{background:var(--bar);color:var(--orn);font-weight:600;box-shadow:0 1px 3px var(--line)}
 .rbb{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
 @media (min-width:380px){#repBox{width:min(420px,calc(100% - 24px));grid-template-columns:1fr 1fr;column-gap:14px;row-gap:10px}
@@ -555,9 +555,9 @@ html.simple .bar .tools .tcap{display:block;font-size:11.5px;line-height:1.2;whi
 #repBox.out{animation:boxOut .2s cubic-bezier(.4,0,1,1) forwards;pointer-events:none}
 .rbhint{grid-column:1/-1;font-size:12.5px;color:var(--muted);text-align:center}
 html.thumb #repBox.side{top:calc(var(--bh,56px) / var(--uz,1));bottom:calc((var(--fh,56px) + env(safe-area-inset-bottom,0px)) / var(--uz,1));left:0;width:calc(50vw / var(--uz,1));max-width:none;transform:none;border-radius:0;border:0;border-inline-start:1px solid var(--line);padding:22px max(18px,calc((50vw - 460px) / 2));overflow:auto;box-shadow:14px 0 40px -18px var(--shadow);animation:dockIn .34s var(--ease);row-gap:16px}
-html.thumb #repBox.side{grid-template-rows:auto auto auto 1fr auto;align-content:stretch}html.thumb #repBox.side .rbhint{align-self:start}html.thumb #repBox.side .rbb{align-self:end;padding-top:12px;border-top:1px solid var(--line)}
+html.thumb #repBox.side{grid-template-rows:auto auto auto auto 1fr auto;align-content:stretch}html.thumb #repBox.side .rbhint{align-self:start}html.thumb #repBox.side .rbb{align-self:end;padding-top:12px;border-top:1px solid var(--line)}
 #shMeta{white-space:normal;text-overflow:clip;line-height:1.5}
-html.thumb #prefsX{box-shadow:0 -22px 18px -8px var(--bar)}
+html.thumb #prefsX{box-shadow:0 -10px 12px -6px var(--bar)}
 html.thumb #repBox.side.sR{left:auto;right:0;border-inline-start:0;border-inline-end:1px solid var(--line);box-shadow:-14px 0 40px -18px var(--shadow)}
 html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opacity:0}}
 @keyframes palIn{from{opacity:0;transform:translateY(-6px)}}
@@ -790,7 +790,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #cont{position:fixed;z-index:26;left:50%;bottom:calc(var(--fh,56px) + 14px + env(safe-area-inset-bottom,0px));width:min(380px,calc(100% - 28px));transform:translate(-50%,0);
   background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 40px -16px var(--shadow);padding:14px 16px;display:grid;gap:10px;
   transition:opacity .35s var(--ease),transform .35s var(--ease)}
-html.spreadM:not(.study) #cont{left:75%;width:min(400px,calc(50% - 28px))}
+html.spreadM:not(.study) #cont{left:25%;width:min(400px,calc(50% - 28px))}
 /* the lines it covers fade out above it, so no line of the page is seen cut in half */
 html.spreadM:not(.study) #cont{box-shadow:0 -56px 44px -6px var(--paper),0 10px 30px rgba(0,0,0,.12)}
 #cont[hidden]{display:none}
@@ -806,7 +806,8 @@ html.spreadM:not(.study) #cont{box-shadow:0 -56px 44px -6px var(--paper),0 10px 
 #cont .cw span{display:block;height:5px;border-radius:3px;background:var(--sel);overflow:hidden}
 #cont .cw span i{display:block;height:100%;width:0;background:var(--orn);border-radius:3px;transition:width .9s var(--ease) .25s}
 #cont .cb{display:flex;gap:8px;justify-content:flex-end}
-.ctb{height:36px;padding:0 16px;border-radius:18px;font-size:13.5px;color:var(--muted);border:1px solid var(--line)}
+.ctb{height:38px;padding:0 16px;border-radius:19px;font-size:14.5px;color:var(--bar-ink);border:1px solid color-mix(in srgb,var(--bar-ink) 22%,transparent)}
+#cRv{border-color:color-mix(in srgb,var(--gold) 70%,transparent);background:color-mix(in srgb,var(--gold) 10%,transparent);font-weight:600}
 .ctb.solid{background:var(--orn);color:var(--bar);border-color:var(--orn);font-weight:600}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}}
 #toast{position:fixed;z-index:40;left:50%;top:8px;bottom:auto;transform:translate(-50%,-8px);max-width:calc((100vw - 24px) / var(--uz,1));box-sizing:border-box;text-align:center;opacity:0;pointer-events:none;
@@ -830,7 +831,7 @@ html.spreadM:not(.study) #cont{box-shadow:0 -56px 44px -6px var(--paper),0 10px 
 /* footer: the page number sits in a small framed box, today's wird beside it */
 .pnum{min-width:0;display:grid;justify-items:center;line-height:1.1;padding:3px 10px;border-radius:9px;background:var(--sel)}
 .pnum b{font-family:var(--f-display);font-size:15px;font-weight:700;color:var(--bar-ink)}
-.pnum small{font-size:12.5px;color:var(--muted)}
+.pnum small{font-size:13.5px;color:color-mix(in srgb,var(--bar-ink) 80%,var(--bar))}
 /* the swipe hint sits low over the desk, shown only on the first few visits */
 .hint{top:auto;bottom:10px;box-shadow:0 6px 18px -8px var(--shadow)}
 
@@ -1278,7 +1279,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-btn{height:42px;padding:0 18px;border-radius:21px;border:1px solid rgba(255,255,255,.16);color:inherit;font-size:14px;transition:transform .16s var(--ease)}
 .az-btn.solid{background:#d9b46c;border-color:#d9b46c;color:#140a05;font-weight:700}
 .az-btn:active{transform:scale(.95)}
-@media (min-width:700px){.az-cats{grid-template-columns:repeat(3,1fr)}}
+@media (min-width:700px){.az-cats{grid-template-columns:repeat(4,1fr)}}
 /* adhkar in the mushaf's own night colours: charcoal, gold, one quiet accent */
 .az-cat{--glowc:#d9b46c!important;--glow:#d9b46c2e!important;background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.015));border-color:rgba(217,180,108,.22)}
 .az-cat::after{opacity:.35}
@@ -1297,11 +1298,11 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .ib.azb{position:relative}
 @keyframes azDot{50%{transform:scale(1.35)}}
 html.thumb .fthumb.azb{color:var(--gold)}
-.cazb{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:13px;background:linear-gradient(150deg,#1a2330,#0d1118);color:#f3ead9;font-size:13.5px;text-align:start;box-shadow:inset 0 0 0 1px rgba(240,201,138,.22)}
+.cazb{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:13px;background:color-mix(in srgb,var(--gold) 9%,var(--bar));color:var(--bar-ink);font-size:14.5px;text-align:start;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent);border-inline-start:3px solid var(--gold)}
 .cazb[hidden]{display:none}
-.cazb svg{width:20px;height:20px;flex:none;fill:none;stroke:#f0c98a;stroke-width:1.5}
+.cazb svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--gold);stroke-width:1.5}
 .cazb span{flex:1}
-.cazb b{color:#f0c98a;font-size:17px}
+.cazb b{color:var(--gold);font-size:17px}
 #azNudge{position:absolute;z-index:7;bottom:14px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;max-width:calc(100% - 32px);padding:8px 14px 8px 12px;border-radius:999px;
   background:linear-gradient(150deg,#1a2330ee,#0d1118ee);color:#f3ead9;font-size:13.5px;white-space:nowrap;box-shadow:0 10px 28px -10px rgba(0,0,0,.5),inset 0 0 0 1px rgba(240,201,138,.25);animation:nudgeIn .5s var(--spring);transition:opacity .35s,transform .35s var(--ease)}
 #azNudge[hidden]{display:none}
@@ -1327,7 +1328,7 @@ html.phoneM #app>.bar::after{content:"";position:absolute;left:10px;right:10px;b
 html.phoneM .where{align-items:center;text-align:center}
 html.phoneM .where b{font-size:19px;color:var(--bar-ink);letter-spacing:0}
 html.phoneM .where b::before,html.phoneM .where b::after{content:"";display:inline-block;width:6px;height:6px;margin-inline:9px;vertical-align:4px;transform:rotate(45deg);background:var(--gold);opacity:.8}
-html.phoneM .where small{font-size:12.5px;color:color-mix(in srgb,var(--bar-ink) 70%,var(--bar))}
+html.phoneM .where small{font-size:13.5px;color:color-mix(in srgb,var(--bar-ink) 80%,var(--bar))}
 html.phoneM #jprog{bottom:-3px;background:var(--gold);opacity:.8}
 
 /* square framed buttons, 44px, gold hairline, ink in the cover green */
@@ -1434,7 +1435,7 @@ html[data-theme="dark"] .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var
         <button class="qt" id="bAdhkar"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg><span>الأذكار</span></button>
         <button class="qt adv" id="bAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6.5 4.5h8l3 3v12h-11z"/><path d="M14.5 4.5v3h3"/><path d="M10 11.5l4 2.5-4 2.5z"/></svg><span>تقليب تلقائي</span></button>
         <button class="qt adv" id="bFull"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>قراءة هادئة</span></button>
-        <button class="qt" id="bToday"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/></svg><span>ورد اليوم</span></button>
+        <button class="qt" id="bToday"><svg viewBox="0 0 24 24"><path d="M12 6.5c-2-1.6-4.6-2-7.5-1.6v12.6c2.9-.4 5.5 0 7.5 1.6 2-1.6 4.6-2 7.5-1.6V4.9c-2.9-.4-5.5 0-7.5 1.6zM12 6.5v12.6"/></svg><span>ورد اليوم</span></button>
         <button class="qt adv" id="bStudy" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M12 4.5v15M6 9h3.5M6 12h3.5M6 15h2"/></svg><span>وضع الدراسة</span></button>
       </div>
       <h3 class="qh">الإعدادات</h3>
@@ -1590,8 +1591,9 @@ html[data-theme="dark"] .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var
   <div class="rbh"><b>تكرار مقطع للحفظ</b><button class="ib" id="rbX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="rbr"><span>من</span><button class="rst" data-rs="f-1" aria-label="قبل">−</button><b id="rbFrom"></b><button class="rst" data-rs="f1" aria-label="بعد">+</button></div>
   <div class="rbr"><span>إلى</span><button class="rst" data-rs="t-1" aria-label="قبل">−</button><b id="rbTo"></b><button class="rst" data-rs="t1" aria-label="بعد">+</button></div>
-  <div class="rbr"><span>كل آية</span><div class="rseg" id="rbEach"><button data-v="1">مرة</button><button data-v="3">٣</button><button data-v="5">٥</button><button data-v="10">١٠</button></div></div>
+  <div class="rbr"><span>كل آية</span><div class="rseg" id="rbEach"><button data-v="1">مرة</button><button data-v="3">٣</button><button data-v="5">٥</button><button data-v="10">١٠</button><button data-v="0" aria-label="بلا حد">∞</button></div></div>
   <div class="rbr"><span>المقطع</span><div class="rseg" id="rbAll"><button data-v="1">مرة</button><button data-v="3">٣</button><button data-v="7">٧</button><button data-v="0">∞</button></div></div>
+  <div class="rbr"><span>سرعة التلاوة</span><div class="rseg" id="rbSpd"><button data-v="0.75">أبطأ</button><button data-v="1">عادية</button><button data-v="1.25">أسرع</button></div></div>
   <div class="rbr"><span>مهلة للترديد</span><div class="rseg" id="rbGap"><button data-v="0">بدون</button><button data-v="1">بطولها</button></div></div>
   <small class="rbhint">المس آية في الصفحة لتكون آخر المقطع</small>
   <div class="rbb"><button class="ctb" id="rbTest">اختبر نفسي</button><button class="ctb" id="rbOff">بدون تكرار</button><button class="ctb solid" id="rbGo">ابدأ التكرار</button></div>
@@ -2065,7 +2067,7 @@ const eHand=s0=>t=>s0*(t*t*t-2*t*t+t)+(3*t*t-2*t*t*t);
 function finish(f,done){
   cancelAnimationFrame(f.raf);
   if(f.b3){[f.sU,f.sS].forEach(d=>d.remove());book.style.perspective="";flip=null;if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide();setTimeout(partNote,60)}layoutIdle();return}
-  if(f.slide){f.els.forEach(e=>{e.style.transform="";e.style.filter="";e.classList.remove("sld")});book.style.overflow=mode==="single"?"hidden":"visible";
+  if(f.slide){f.els.forEach(e=>{e.style.transform="";e.style.filter="";e.style.opacity="";e.classList.remove("sld")});book.style.overflow=mode==="single"?"hidden":"visible";
     flip=null;if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide();setTimeout(partNote,60)}layoutIdle();return}
   [f.under,f.front].forEach(e=>{e.querySelectorAll(".shd").forEach(s=>s.remove());e.style.clipPath="";e.style.transform="";e.style.visibility=""});
   if(f.back&&!f.back.classList.contains("ghost")){f.back.querySelectorAll(".shd").forEach(s=>s.remove());f.back.style.transform="";f.back.style.clipPath=""}
@@ -2091,7 +2093,8 @@ function renderSlide(f){
   const x=f.P[0],k=Math.min(1,Math.abs(x)/f.vw);
   f.els.forEach(e=>{e.style.transform=x?`translate3d(${x.toFixed(2)}px,0,0)`:""});
   /* the incoming page is a touch dim until it arrives, so the eye follows it in */
-  f.els.forEach((e,i)=>{if(e.style.zIndex==="1")e.style.filter=k<1?`brightness(${(.94+.06*k).toFixed(3)})`:""});
+  /* opacity, not a filter: it stays on the compositor, so the slide holds 120 fps */
+  f.els.forEach(e=>{if(e.style.zIndex==="1")e.style.opacity=k<1?(.9+.1*k).toFixed(3):""});
 }
 /* a quiet word when the pages just opened begin a new juz or hizb, the way a printed mushaf marks it in the margin */
 function partNote(){
@@ -2490,7 +2493,7 @@ function rasterPage(p){
   RS.vars.forEach(v=>{const val=cs.getPropertyValue(v);if(val)wrap.style.setProperty(v,val)});
   wrap.id="app";wrap.className=$("app").className;wrap.setAttribute("dir","rtl");wrap.style.height=H+"px";
   const bk=document.createElement("div");bk.id="book";bk.style.cssText=`position:relative;direction:ltr;width:${W}px;height:${H}px`;
-  const c=el.cloneNode(true);c.querySelectorAll(".shd").forEach(x=>x.remove());
+  const c=el.cloneNode(true);c.querySelectorAll(".shd,.hlb.m,.hlb.p,.hlb.press").forEach(x=>x.remove());/* passing highlights are left out so the images survive each new ayah */
   c.style.left="0";c.style.top="0";c.style.transform="none";c.style.clipPath="none";c.style.visibility="visible";c.classList.remove("ghost");
   bk.appendChild(c);wrap.appendChild(bk);
   const html=new XMLSerializer().serializeToString(wrap);
@@ -2507,7 +2510,7 @@ function rasterPage(p){
 }
 /* after a page turn only pages not yet drawn are added; a change to what pages show redraws them all */
 let rasterKey="";
-function rasterDirtyLazy(){const k=[bmNow(),W,H,mode,/* only classes that change how a page looks: passing UI states (calm bars, a toast) must not throw the page images away */["memo","mhint","tajweed","full"].filter(c=>$("app").classList.contains(c)).join(" "),root.dataset.paper,selA,playA,memo.on?JSON.stringify([...memo.rev])+JSON.stringify(memo.range)+(store.get("mushaf.memoErr")||""):""].join("|");
+function rasterDirtyLazy(){const k=[bmNow(),W,H,mode,/* only classes that change how a page looks: passing UI states (calm bars, a toast) must not throw the page images away */["memo","mhint","tajweed","full"].filter(c=>$("app").classList.contains(c)).join(" "),root.dataset.paper,memo.on?JSON.stringify([...memo.rev])+JSON.stringify(memo.range)+(store.get("mushaf.memoErr")||""):""].join("|");
   if(k!==rasterKey){rasterKey=k;rasterDirty()}else{clearTimeout(RS.t);RS.t=setTimeout(rasterSoon,350)}}
 function rasterSoon(){
   /* only the phone's curl uses page images; the spread's 3D leaf moves the pages themselves */
@@ -2679,7 +2682,9 @@ $("bStudy").onclick=()=>{showPrefs(false);study=!study;store.set("mushaf.study",
 let calmT;
 function setCalm(on){const a=$("app");clearTimeout(calmT);
   if(on&&(memo.on||inStudy||!$("prefs").hidden||indexOpen||inTable||a.classList.contains("imm")||($("sheet").classList.contains("on")&&!inStudy)||!$("guide").hidden||!$("cont").hidden||document.activeElement===$("range")))on=false;
-  a.classList.toggle("calm",on);if(!on&&started)calmT=setTimeout(()=>setCalm(true),7000)}
+  a.classList.toggle("calm",on);if(!on&&started)calmT=setTimeout(calmLater,7000)}
+/* the bars never come or go in the middle of a page turn: the layout would jump under the moving page */
+function calmLater(){if(flip||down||busy){calmT=setTimeout(calmLater,600);return}setCalm(true)}
 ["pointerdown","keydown","input"].forEach(t=>{document.querySelector(".bar").addEventListener(t,()=>{if(!$("app").classList.contains("calm"))setCalm(false)});document.querySelector(".foot").addEventListener(t,()=>{if(!$("app").classList.contains("calm"))setCalm(false)})});
 /* welcome back: where you stopped and today's portion */
 const hadLast=+store.get("mushaf.last")>1;
@@ -2688,7 +2693,7 @@ const AYD=[[2,152],[2,186],[3,139],[3,173],[7,23],[13,28],[14,7],[20,114],[39,53
 const aydId=()=>{const [s,a]=AYD[today()%AYD.length];return SST[s-1]+a-1};
 function hijri(){try{return new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-arab",{day:"numeric",month:"long"}).format(new Date())}catch(e){return ""}}
 function contShow(){const c=$("cont"),id=pStart(cur);azNudgeHide();
-  {const h=new Date().getHours();$("cHi").textContent=h<4?"ليلة مباركة":h<12?"صباح الخير":h<17?"طاب يومك":"مساء الخير";
+  {const h=new Date().getHours();$("cHi").textContent=greetW(h);
    const wd=new Intl.DateTimeFormat("ar",{weekday:"long"}).format(new Date()),hj=hijri();$("cDate").innerHTML=`<em>${wd}</em>${hj}`}
   {const a=aydId(),b=$("cAy");b.innerHTML=`<small>آية اليوم</small><q>${escH(qY(txt(a).replace(/[۞۩]/g,"").trim()))} <span class="an">۝${ar(aOf(a))}</span></q><span>سورة ${SUR[sOf(a)][0]} · صفحة ${ar(pOf(a))}</span>`;b.onclick=()=>{contHide();showAyahPage(a);setTimeout(()=>openAyah(a),reduce?0:700)}}
   root.style.setProperty("--fh",document.querySelector(".foot").offsetHeight+"px");
@@ -3010,7 +3015,8 @@ function shBody(id){
    words.json (from the Quranic Arabic Corpus, mustafa0x/quran-morphology) holds, for every word on the page,
    its root, lemma, the segment that carries them, and its segments (prefix, stem, suffix) with a description. */
 /* the Madinah print never dots a final yā' (فِى، ٱلَّذِى): text shown outside the page font follows it */
-const qY=t=>t.replace(/ي(?=[\u064B-\u0652\u0670\u06D6-\u06ED]*(?:\s|$))/g,"ى");
+const greetW=h=>h<4?"طابت ليلتك":h<12?"صباح الخير":h<17?"طاب يومك":"مساء الخير";
+const qY=t=>t.replace(/ي(?=[\u064B-\u0655\u0670\u06D6-\u06ED]*(?:\s|$))/g,"ى");
 const AW=[null,[]];for(const pg of K)for(const ln of pg){if(ln[0]!=="t")continue;for(const t of ln[6]){const x=typeof t==="string"?t:t[0];if(x.indexOf("\u06DD")>=0)AW.push([]);else AW[AW.length-1].push(x)}}
 let WD=null,wdLoad=null,wSel=0,wxLemma=-1,wxN=0;const WX_PAGE=30;
 function wdData(){if(!wdLoad)wdLoad=Promise.all([fetch("words.json").then(r=>{if(!r.ok)throw 0;return r.json()}),gharib().catch(()=>null)]).then(([d])=>{
@@ -3246,7 +3252,7 @@ function softHide(el){if(el.hidden||el.classList.contains("out"))return;if(reduc
   el.classList.add("out");const done=()=>{el.classList.remove("out");el.hidden=true;if(el.id==="repBox")try{paintHL()}catch(e){}};el.addEventListener("animationend",done,{once:true});setTimeout(()=>{if(el.classList.contains("out"))done()},400)}
 const repRef=id=>`${SUR[sOf(id)][0]} ${ar(aOf(id))}`;
 function repUI(){try{paintHL()}catch(e){}$("pRepCap").textContent=rep.on?"يكرر":"تكرار";$("rbFrom").textContent=repRef(rep.from);$("rbTo").textContent=repRef(rep.to);
-  [["rbEach",rep.each],["rbAll",rep.all],["rbGap",rep.gap||0]].forEach(([k,v])=>$(k).querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.v===v))));
+  [["rbEach",rep.each],["rbAll",rep.all],["rbGap",rep.gap||0],["rbSpd",+store.get("mushaf.rate")||1]].forEach(([k,v])=>$(k).querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.v===v))));
   $("pRep").setAttribute("aria-pressed",String(rep.on))}
 function repOpen(){const id=player.id||selA||pStart(cur);
   if(!rep.on||rep.from>id||rep.to<id){rep.from=id;const pe=pStart(cur+(mode==="spread"?2:1))-1;rep.to=Math.min(NA,Math.max(id,Math.min(id+4,pe>id?pe:id+4)))}
@@ -3267,7 +3273,7 @@ function repPlace(){const b=$("repBox");if(b.hidden)return;b.classList.remove("t
   if(st.length){if(!st.some(([l])=>inR(l)))ext=Math.max(...st.map(([,z])=>top?z.bottom+3-edge:edge-(z.top-3)))}
   else{const nx=ls.map(([,z])=>top?z.top-edge:edge-z.bottom).filter(d=>d>0);if(nx.length)ext=Math.max(0,Math.min(...nx)-2)}
   if(ext>0&&ext<80)b.style.minHeight=q.height+ext+"px"}
-function repTitle(){return rep.on?` · ${rep.each>1?`الآية ${ar(rep.ei+1)}/${ar(rep.each)} · `:""}المقطع ${ar(rep.ri+1)}/${rep.all?ar(rep.all):"∞"}`:""}
+function repTitle(){return rep.on?` · ${rep.each!==1?`الآية ${ar(rep.ei+1)}/${rep.each?ar(rep.each):"∞"} · `:""}المقطع ${ar(rep.ri+1)}/${rep.all?ar(rep.all):"∞"}`:""}
 $("pRep").onclick=e=>{e.stopPropagation();$("repBox").hidden?repOpen():softHide($("repBox"))};
 $("rbX").onclick=()=>softHide($("repBox"));
 /* a tap anywhere outside closes it */
@@ -3278,7 +3284,7 @@ addEventListener("pointerdown",e=>{if($("repBox").hidden||e.target.closest("#rep
   softHide($("repBox"))},true);
 $("repBox").addEventListener("click",e=>{const st=e.target.closest("[data-rs]");
   if(st){const k=st.dataset.rs[0],d=+st.dataset.rs.slice(1);if(k==="f"){rep.from=Math.max(1,Math.min(rep.to,rep.from+d))}else{rep.to=Math.min(NA,Math.max(rep.from,rep.to+d))}repUI();return}
-  const sg=e.target.closest(".rseg button");if(sg){rep[{rbEach:"each",rbAll:"all",rbGap:"gap"}[sg.parentNode.id]]=+sg.dataset.v;repUI();return}});
+  const sg=e.target.closest(".rseg button");if(sg&&sg.parentNode.id==="rbSpd"){store.set("mushaf.rate",sg.dataset.v);setRate(+sg.dataset.v);repUI();toast(+sg.dataset.v===1?"سرعة التلاوة عادية":+sg.dataset.v<1?"تلاوة أبطأ قليلاً":"تلاوة أسرع قليلاً");return}if(sg){rep[{rbEach:"each",rbAll:"all",rbGap:"gap"}[sg.parentNode.id]]=+sg.dataset.v;repUI();return}});
 ["pointerdown","click"].forEach(t=>$("repBox").addEventListener(t,e=>e.stopPropagation()));
 $("rbGo").onclick=()=>{rep.on=true;rep.ei=0;rep.ri=0;repSave();softHide($("repBox"));repUI();
   if($("player").hidden)playFrom(rep.from);else{player.id=rep.from;if(!player.on)setPlaying(true);else startAyah(false)}
@@ -3288,7 +3294,7 @@ $("rbOff").onclick=()=>{rep.on=false;softHide($("repBox"));repUI();if(player.id)
 /* the next ayah to play after this one ends: repeats first, then the passage, then onward */
 function nextPlay(){const id=player.id;
   if(rep.on&&id>=rep.from&&id<=rep.to){
-    if(++rep.ei<rep.each)return id;rep.ei=0;
+    if(!rep.each){rep.ei++;return id}if(++rep.ei<rep.each)return id;rep.ei=0;
     if(id<rep.to)return id+1;
     if(++rep.ri<rep.all||rep.all===0)return rep.from;
     rep.on=false;repUI();toast("تمّ التكرار، بارك الله فيك");try{navigator.vibrate&&navigator.vibrate([12,60,12])}catch(e){}return 0}
@@ -3340,7 +3346,7 @@ let reciter=RECS[store.get("mushaf.reciter")]?store.get("mushaf.reciter"):"husar
 function natAudio(){
   const L={},on=(t,f,o)=>{(L[t]=L[t]||[]).push({f,once:!!(o&&o.once)})},
     fire=t=>{const ls=L[t]||[];L[t]=ls.filter(x=>!x.once);ls.forEach(x=>{try{x.f()}catch(e){}});if(t==="error"&&A.onerror)A.onerror()};
-  let src="",pos=0,at=0,playing=false,rs=0,ended=false;
+  let src="",pos=0,at=0,playing=false,rs=0,ended=false,rate=1;
   natOn("Audio","time",d=>{if(!d)return;pos=+d.ms||0;at=performance.now();playing=!!d.playing;fire("timeupdate")});
   natOn("Audio","loaded",()=>{if(rs<1){rs=1;fire("loadedmetadata")}});
   natOn("Audio","ended",()=>{ended=true;playing=false;fire("ended")});
@@ -3350,13 +3356,15 @@ function natAudio(){
     get src(){return src},
     set src(u){src=u;rs=0;ended=false;pos=0;playing=false;
       nat("Audio","load",{url:String(u).replace(/^https?:\/\/localhost\/_capacitor_file_/,"file://")}).catch(()=>fire("error"))},
-    get currentTime(){return (pos+(playing?performance.now()-at:0))/1000},
+    get currentTime(){return (pos+(playing?(performance.now()-at)*rate:0))/1000},
+    get playbackRate(){return rate},set playbackRate(v){rate=+v||1;nat("Audio","rate",{rate}).catch(()=>{})},
     set currentTime(v){pos=v*1000;at=performance.now();ended=false;nat("Audio","seek",{ms:Math.max(0,Math.round(pos))}).catch(()=>{})},
     get readyState(){return rs},get ended(){return ended},get paused(){return !playing&&!A._want},_want:false,
     play(){ended=false;A._want=true;return nat("Audio","play").catch(e=>{A._want=false;throw e})},
     pause(){A._want=false;playing=false;nat("Audio","pause").catch(()=>{})}};
   return A}
 const AUD={},AU=PLAT==="android"&&NATIVE&&CAP.isPluginAvailable&&CAP.isPluginAvailable("Audio")&&store.get("mushaf.webAudio")!=="1"?natAudio():new Audio();AU.preload="auto";
+const setRate=r=>{try{AU.playbackRate=r;AU.preservesPitch=true}catch(e){}};setRate(+store.get("mushaf.rate")||1);
 const AUDD={},audData=r=>AUD[r]||(AUD[r]=fetch(`audio/${r}.json`).then(x=>{if(!x.ok)throw 0;return x.json()}).then(d=>{AUDD[r]=d;try{dlUI()}catch(e){}return d}).catch(()=>{delete AUD[r];return null}));
 const fmtSize=b=>b>=1e9?`${ar((b/1073741824).toFixed(1)).replace(".","٫")} غيغا`:`${ar(Math.max(1,Math.round(b/1048576)))} ميغا`;
 function recUI(){$("pRec").textContent=RECS[reciter];if(typeof dlUI==="function"&&$("dlBox"))try{dlUI()}catch(e){}document.querySelectorAll("#recSeg [data-rec]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rec===reciter)))}
@@ -3374,7 +3382,7 @@ function ayahDone(){const id=player.id,n=nextPlay();if(!n){stopPlay();return}
   /* repeating to memorise: a silence as long as the ayah, for the student to say it back */
   if(rep.on&&rep.gap&&player.on){const g=seg(id),d=Math.min(30000,Math.max(1500,g?g.end-g.start:ayahDur(id)));
     player.seg=null;cancelAnimationFrame(player.raf);AU.pause();clearTimeout(player.gapT);$("pTitle").textContent="دورك: ردّدها…";
-    player.gapT=setTimeout(()=>{if(!player.on||player.id!==id)return;player.id=n;startAyah(false,false)},d);return}
+    player.gapT=setTimeout(()=>{if(!player.on||player.id!==id)return;player.id=n;startAyah(false,false)},d/(AU.playbackRate||1));return}
   player.id=n;startAyah(false,n===id+1)}
 function playFrom(id){
   closeAyah();player.id=id;player.left=ayahDur(id);$("player").hidden=false;document.querySelector(".foot").classList.add("playing");resize();hideHint();
@@ -3651,7 +3659,7 @@ function micStart(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
   if(PLAT==="android"&&NATIVE){LS.on=true;LS.nat=true;LS.done=0;LS.miss=0;$("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent="أسمعك… اقرأ من حفظك";
-    nat("Speech","start").catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"ما انسمح بالميكروفون. اسمح به من إعدادات الجهاز ثم جرّب مرة ثانية.":/unavailable/.test(m)?"ما لقينا خدمة التعرّف على الكلام بالجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
+    nat("Speech","start").catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
   if(!SR){no("التسميع بالصوت غير متاح في هذا المتصفح. جرّبه في Chrome، وسيكون مدمجاً في التطبيق.");return}
   const r=new SR();r.lang="ar-SA";r.continuous=true;r.interimResults=false;r.maxAlternatives=1;
   LS.rec=r;LS.on=true;LS.used=0;LS.miss=0;
@@ -4262,7 +4270,7 @@ function azHome(){
   azCat=null;$("azHome").hidden=false;$("azRun").hidden=true;$("azDone").hidden=true;
   $("azTitle").textContent="الأذكار";$("azSub").textContent="";$("azBack").hidden=true;
   const d=azSt.get(),now=azNowCat(),h=new Date().getHours();
-  $("azGreet").textContent=h>=4&&h<12?"صباح الخير · ابدأ يومك بذكر الله":h<17?"طاب يومك · ﴿أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ﴾ [الرعد: ٢٨]":"مساء الخير · اختم يومك بذكر الله";
+  $("azGreet").textContent=h<4?"طابت ليلتك · اختم يومك بذكر الله":h<12?"صباح الخير · ابدأ يومك بذكر الله":h<17?"طاب يومك · ﴿أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ﴾ [الرعد: ٢٨]":"مساء الخير · اختم يومك بذكر الله";
   $("azCats").innerHTML=AZ_CATS.map(c=>{const L=c.list(),dn=L.filter((x,i)=>(d.p[c.k]||{})[i]>=x.n).length,ok=c.k!=="free"&&L.length&&dn===L.length;
     const sub=c.k==="free"?(d.fc?`اليوم ${numW(d.fc,"تسبيحة","تسبيحتان","تسبيحات","تسبيحة")}`:"ابدأ التسبيح"):ok?"أتممتها اليوم":`${numW(L.length,"ذكر واحد","ذكران","أذكار","ذكراً")} · ${c.sub}`;
     return `<button class="az-cat${ok?" ok":""}" data-az="${c.k}" style="--glow:${c.glow}55;--glowc:${c.glow}"><i><svg viewBox="0 0 24 24">${c.ic}</svg></i><b>${c.name}</b><small>${sub}</small>${c.k!=="free"?`<span class="pb"><s style="width:0" data-w="${L.length?dn/L.length*100:0}"></s></span>`:""}${c.k===now&&!ok?`<span class="now">الآن</span>`:""}<span class="chk"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>`}).join("");
