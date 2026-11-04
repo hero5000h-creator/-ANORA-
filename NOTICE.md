@@ -6,6 +6,7 @@ The ANORA app code is licensed under the GNU GPL v3 or later (see `LICENSE`). Ea
 |---|---|---|
 | Madinah 1405H line layout and the "QMH Old Madina" font | [quran-madina-html](https://www.npmjs.com/package/quran-madina-html) by Ojuba | ["Waqf" General Public License 2.0](https://github.com/ojuba-org/waqf/tree/master/2.0) |
 | Quran text (used to verify the layout text, ayah by ayah) | QuranEnc via [quran-json](https://www.npmjs.com/package/quran-json) | CC BY 4.0 (`licenses/CC-BY-4.0.txt`) |
+| Prayer time calculation | [adhan-js](https://github.com/batoulapps/adhan-js) 4.4.6, © 2016 Batoul Apps (bundled as `src/adhan.js`) | MIT (`licenses/MIT.txt`) |
 | Page, juz, hizb and surah tables | [quran-meta](https://www.npmjs.com/package/quran-meta), © 2020 Quran-Center | MIT (`licenses/MIT.txt`) |
 | Word morphology (roots, lemmas, grammar) | Quranic Arabic Corpus via [quran-morphology](https://github.com/mustafa0x/quran-morphology) | GNU GPL |
 | التفسير الميسّر | King Fahd Complex for the Printing of the Holy Qur'an | Used with permission |
