@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 and older. Downloaded recitations are large and can be fetched again; leaving them out
+     keeps the backup under the 25 MB limit, so bookmarks, notes and the khatma are always saved. -->
+<full-backup-content>
+    <exclude domain="file" path="audio" />
+</full-backup-content>

@@ -13,7 +13,7 @@
   --desk:#e8e5dc;
   --bar:#f6f4ee;
   --bar-ink:#2f2c27;
-  --muted:#6b665d;
+  --muted:#57534b;
   --paper:#faf7f0;
   --paper-edge:#e4ded0;
   --ink:#2b2824;           /* soft black, never #000 */
@@ -37,27 +37,27 @@
   --f-ui:"IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --desk:#111213;--bar:#17181a;--bar-ink:#d6d1c6;--muted:#9c978e;--paper:#1c1d1f;--paper-edge:#2a2a2b;--ink:#cfc9bc;
+  --desk:#111213;--bar:#17181a;--bar-ink:#d6d1c6;--muted:#aba69c;--paper:#1c1d1f;--paper-edge:#2a2a2b;--ink:#cfc9bc;
   --orn:#8fab9b;--gold:#ad9a72;--rule:rgba(207,201,188,.16);--line:rgba(214,209,198,.09);--gut:rgba(0,0,0,.22);--hl:rgba(255,255,255,.04);
   --shadow:rgba(0,0,0,.5);--scrim:rgba(0,0,0,.55);--sel:rgba(143,171,155,.12);--tint:rgba(143,171,155,.05);--cover:#1d2622;--age:rgba(0,0,0,.28);--grain-o:.14;color-scheme:dark}}
 :root[data-theme="dark"]{
-  --desk:#111213;--bar:#17181a;--bar-ink:#d6d1c6;--muted:#9c978e;--paper:#1c1d1f;--paper-edge:#2a2a2b;--ink:#cfc9bc;
+  --desk:#111213;--bar:#17181a;--bar-ink:#d6d1c6;--muted:#aba69c;--paper:#1c1d1f;--paper-edge:#2a2a2b;--ink:#cfc9bc;
   --orn:#8fab9b;--gold:#ad9a72;--rule:rgba(207,201,188,.16);--line:rgba(214,209,198,.09);--gut:rgba(0,0,0,.22);--hl:rgba(255,255,255,.04);
   --shadow:rgba(0,0,0,.5);--scrim:rgba(0,0,0,.55);--sel:rgba(143,171,155,.12);--tint:rgba(143,171,155,.05);--cover:#1d2622;--age:rgba(0,0,0,.28);--grain-o:.14;color-scheme:dark}
 /* reader's own paper choice wins over the system theme */
 :root[data-paper="light"]{
-  --desk:#e8e5dc;--bar:#f6f4ee;--bar-ink:#2f2c27;--muted:#6b665d;--paper:#faf7f0;--paper-edge:#e4ded0;--ink:#2b2824;
+  --desk:#e8e5dc;--bar:#f6f4ee;--bar-ink:#2f2c27;--muted:#57534b;--paper:#faf7f0;--paper-edge:#e4ded0;--ink:#2b2824;
   --orn:#55705f;--gold:#a08c62;--rule:rgba(90,78,52,.22);--line:rgba(47,44,39,.10);--gut:rgba(60,50,30,.07);--hl:rgba(255,255,255,.22);
   --shadow:rgba(40,34,24,.18);--scrim:rgba(30,28,24,.35);--sel:rgba(85,112,95,.10);--tint:rgba(85,112,95,.055);--cover:#3e5a4b;--age:rgba(150,118,64,.10);--grain-o:.26;color-scheme:light}
 :root[data-paper="sepia"]{
-  --desk:#e2d6bf;--bar:#efe5d1;--bar-ink:#3b3126;--muted:#6e604d;--paper:#f3e9d4;--paper-edge:#dccfb4;--ink:#3a3026;
+  --desk:#e2d6bf;--bar:#efe5d1;--bar-ink:#3b3126;--muted:#5a4e3e;--paper:#f3e9d4;--paper-edge:#dccfb4;--ink:#3a3026;
   --orn:#6b6243;--gold:#97794a;--rule:rgba(110,85,50,.24);--line:rgba(59,49,38,.12);--gut:rgba(90,60,20,.08);--hl:rgba(255,250,235,.25);
   --shadow:rgba(70,50,20,.2);--scrim:rgba(40,30,20,.35);--sel:rgba(107,98,67,.12);--tint:rgba(120,96,52,.07);--cover:#6b4c2e;--age:rgba(140,96,40,.14);--grain-o:.3;color-scheme:light}
 :root[data-cover="green"]{--cover:#3e5a4b}:root[data-cover="navy"]{--cover:#2c3a55}:root[data-cover="maroon"]{--cover:#6a2a2f}:root[data-cover="brown"]{--cover:#6b4c2e}:root[data-cover="black"]{--cover:#2b2926}
 :root[data-paper="night"]{
   --tj-md:#e07a6c;--tj-gh:#6cc08a;--tj-qa:#79a9e0;--tj-s:#6d6a64;
   --rib:#6e2229;--rib-d:#3f0e13;--rib-l:#8d3a41;
-  --desk:#111213;--bar:#17181a;--bar-ink:#d6d1c6;--muted:#9c978e;--paper:#1c1d1f;--paper-edge:#2a2a2b;--ink:#cfc9bc;
+  --desk:#111213;--bar:#17181a;--bar-ink:#d6d1c6;--muted:#aba69c;--paper:#1c1d1f;--paper-edge:#2a2a2b;--ink:#cfc9bc;
   --orn:#8fab9b;--gold:#ad9a72;--rule:rgba(207,201,188,.16);--line:rgba(214,209,198,.09);--gut:rgba(0,0,0,.22);--hl:rgba(255,255,255,.04);
   --shadow:rgba(0,0,0,.5);--scrim:rgba(0,0,0,.55);--sel:rgba(143,171,155,.12);--tint:rgba(143,171,155,.05);--cover:#1d2622;--age:rgba(0,0,0,.28);--grain-o:.14;color-scheme:dark}
 
@@ -89,7 +89,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 .qa{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px}
 /* v60 one calm grid of the eight things people reach for, four to a row, the most used first */
 .qa.q4{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}.qa.q4>.qt{flex:1 0 calc((100% - 18px) / 4);box-sizing:border-box}.qa.q4>[hidden]{display:none}
-.qa.q4 .qt{min-height:64px;padding:8px 2px;font-size:11.5px;border-radius:14px}
+.qa.q4 .qt{min-height:64px;padding:8px 2px;font-size:12.5px;border-radius:14px}
 .qlink{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;margin-top:4px;padding:10px;border-top:1px solid var(--line);font:inherit;font-size:12.5px;color:var(--muted);background:none}
 .qlink svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
 /* switches: a clear off (soft grey track) and on (accent track, knob slides to the end) */
@@ -291,15 +291,15 @@ html[data-theme="dark"][data-cover="green"]{--cover:#1d2622}html[data-theme="dar
 .rn small{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rn q{quotes:none;font-family:var(--f-quran);font-size:16px;color:var(--bar-ink)}
 .pg-n{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:left;min-width:44px}
-.pg-n em{display:block;font-style:normal;font-size:10.5px;letter-spacing:.02em}
+.pg-n em{display:block;font-style:normal;font-size:11.5px;letter-spacing:.02em}
 .grp{position:sticky;top:0;z-index:1;background:var(--bar);padding:12px 10px 6px;font-size:12.5px;font-weight:600;color:var(--orn);letter-spacing:.02em;display:flex;justify-content:space-between;border-bottom:1px solid var(--line)}
 .sub{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;width:100%;text-align:right;padding:6px 8px;border-radius:10px}
 .sub:hover{background:var(--sel)}
 .sub.cur{background:var(--sel)}
-.qtag{justify-self:center;font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap}
+.qtag{justify-self:center;font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
 .sub .rn q{font-size:17px}
 .empty{padding:30px 16px;text-align:center;color:var(--muted)}
-.dnote{padding:8px 18px 12px;font-size:11.5px;color:var(--muted);border-top:1px solid var(--line)}
+.dnote{padding:8px 18px 12px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line)}
 
 #loading{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:var(--desk);background-image:radial-gradient(90% 70% at 50% 45%,color-mix(in srgb,var(--desk) 40%,var(--paper)),var(--desk));transition:opacity .55s var(--ease),transform .55s var(--ease)}
 #loading.out{opacity:0;transform:scale(1.03);pointer-events:none}
@@ -423,7 +423,7 @@ html.study #sheet .shh{padding-top:10px}
 .wxf{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
 .wxf button{display:inline-flex;align-items:baseline;gap:6px;padding:2px 11px;border-radius:15px;border:1px solid var(--line);color:var(--bar-ink)}
 .wxf button q{quotes:none;font-family:var(--f-quran);font-size:18px}
-.wxf button span{font-size:11.5px;color:var(--muted)}
+.wxf button span{font-size:12.5px;color:var(--muted)}
 .wxf button[aria-pressed="true"]{border-color:var(--orn);background:var(--sel);color:var(--orn)}
 .simr q mark,.wxr q mark{background:none;color:var(--orn)}
 .wxr[aria-current]{box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--orn) 55%,transparent)}
@@ -447,12 +447,12 @@ mark{background:color-mix(in srgb,var(--gold) 30%,transparent);color:inherit;bor
 .stc{margin:10px 6px 4px;padding:14px 14px 10px;border:1px solid var(--line);border-radius:14px;background:var(--bar)}
 .stc .st3{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:6px}
 .stc .st3 b{display:block;font-size:22px;font-weight:600;color:var(--orn);line-height:1.2}
-.stc .st3 small{font-size:11.5px;color:var(--muted)}
+.stc .st3 small{font-size:12.5px;color:var(--muted)}
 .stc .bars{display:flex;align-items:flex-end;gap:3px;height:46px;margin:14px 2px 4px;direction:ltr}
 .stc .bars i{flex:1;border-radius:3px 3px 1px 1px;background:var(--orn);opacity:.55;min-height:2px}
 .stc .bars i.z{background:var(--line);opacity:1}
 .stc .bars i.t{opacity:.95}
-.stc .cap{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.stc .cap{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
 .stc .more{font-size:12px;color:var(--muted);margin-top:8px;text-align:center;line-height:1.8}
 .tfh{margin:4px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:600;color:var(--muted);display:flex;justify-content:space-between;align-items:baseline;gap:10px}
 .tfh span:first-child{color:var(--orn);font-family:var(--f-display);font-size:15.5px;font-weight:700}
@@ -487,9 +487,9 @@ html.android body::before{height:var(--cutT,0px)}
 .pbar i{display:block;height:100%;width:0;background:var(--orn);border-radius:3px}
 #player .ib{width:40px;height:44px;align-content:center;gap:2px}
 #player .ib svg{width:20px;height:20px}
-#player .cap{font-size:10px;line-height:1;color:var(--muted);white-space:nowrap}
+#player .cap{font-size:11px;line-height:1;color:var(--muted);white-space:nowrap}
 #pStop{margin-inline-start:8px}
-#player .cap{font-size:10.5px;color:color-mix(in srgb,var(--bar-ink) 72%,var(--bar))}
+#player .cap{font-size:11.5px;color:color-mix(in srgb,var(--bar-ink) 72%,var(--bar))}
 /* phones: two rows. Title and reciter get the full width, the five buttons share the row under them */
 @media (max-width:620px){
   #player{grid-template-columns:auto repeat(5,1fr);grid-template-rows:auto auto;row-gap:2px;column-gap:2px;padding-block:6px 2px}
@@ -503,7 +503,7 @@ html.android body::before{height:var(--cutT,0px)}
 }
 #pRep[aria-pressed="true"] .cap{color:var(--orn);font-weight:600}
 .bkp{display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--line);font-size:13.5px}
-.bkp small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px}
+.bkp small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
 .bkb{display:flex;gap:8px}.bkb .ctb{flex:1}
 .ctb:disabled{opacity:.6}
 /* app-wide text size: everything but the mushaf page itself grows */
@@ -516,9 +516,8 @@ html.uzL.thumb #prefs{max-height:calc((100dvh - var(--fh,56px) - 90px) / var(--u
 html.uzL .si,html.uzL .sbx{width:min(400px,calc(100% / var(--uz,1)));max-height:calc((100dvh - 32px) / var(--uz,1))}
 /* open Fold: settings are a full-height side panel between the bars, scrolling inside, not a floating card */
 html.thumb body #prefs{top:calc(var(--bh,56px) / var(--uz,1));bottom:calc((var(--fh,56px) + env(safe-area-inset-bottom,0px)) / var(--uz,1));left:0;max-height:none;width:50vw;border-radius:0;border:0;border-inline-start:1px solid var(--line);padding:18px max(18px,calc((50vw - 520px) / 2));box-shadow:14px 0 40px -18px var(--shadow);transform-origin:left center;animation:dockIn .34s var(--ease)}
-.pclose{display:none}
-html.thumb .pclose{display:flex;position:sticky;bottom:-18px;order:99;margin:4px 0 -18px;padding:10px 0 calc(12px + env(safe-area-inset-bottom,0px));border-radius:0;align-items:center;justify-content:center;gap:8px;min-height:56px;background:var(--bar);color:var(--bar-ink);font-size:16px;font-weight:600;border-top:1px solid var(--line);box-shadow:0 -14px 18px -8px var(--bar)}
-html.thumb .pclose svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.pclose{display:flex;position:sticky;bottom:-18px;order:99;margin:4px 0 -18px;padding:10px 0 calc(12px + env(safe-area-inset-bottom,0px));border-radius:0;align-items:center;justify-content:center;gap:8px;min-height:56px;background:var(--bar);color:var(--bar-ink);font-size:16px;font-weight:600;border-top:1px solid var(--line);box-shadow:0 -14px 18px -8px var(--bar)}
+.pclose svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 /* open Fold: the sources page is a side panel over the left page too */
 html.thumb #srcBox{place-items:stretch end;padding:0;background:transparent}
 html.thumb #srcBox .si.src{width:50vw;max-height:none;margin:calc(var(--bh,56px)) 0 calc(var(--fh,56px));border-radius:0;box-shadow:14px 0 40px -18px var(--shadow);border-inline-start:1px solid var(--line);padding-inline:max(18px,calc((50vw - 560px) / 2))}
@@ -531,7 +530,7 @@ html.simple .adv{display:none!important}
 .tcap{display:none}
 html.simple .bar .tools .ib{flex-direction:column;display:inline-flex;align-items:center;justify-content:flex-end;gap:1px;width:auto;min-width:42px;height:52px;padding:0 1px 5px}
 html.simple .bar .tools .dnb svg{inset:6px 0 auto 0}html.simple .bar .tools .ib:not(.dnb) svg{margin-bottom:auto;margin-top:6px}
-html.simple .bar .tools .tcap{display:block;font-size:10.5px;line-height:1.2;white-space:nowrap;color:var(--bar-ink);font-family:var(--f-ui)}
+html.simple .bar .tools .tcap{display:block;font-size:11.5px;line-height:1.2;white-space:nowrap;color:var(--bar-ink);font-family:var(--f-ui)}
 .rpt{display:flex;align-items:center;gap:8px;margin:18px auto 4px;padding:8px 14px;border-radius:18px;border:1px solid var(--line);font-size:13px;color:var(--muted)}
 .rpt svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .dlbar{height:4px;border-radius:2px;background:var(--sel);overflow:hidden}.dlbar i{display:block;height:100%;width:0;background:var(--orn);border-radius:2px;transition:width .3s}
@@ -602,8 +601,8 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 .tg::after{content:"";position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:var(--bar);box-shadow:0 1px 3px var(--shadow);transition:transform .2s}
 .tg[aria-checked="true"]{background:var(--orn)}
 .tg[aria-checked="true"]::after{transform:translateX(-18px)}
-.tg::before{content:"مطفأ";position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);font-size:11.5px;color:var(--muted);white-space:nowrap;pointer-events:none}
-.tg[aria-checked="true"]::before{content:"شغّال";color:var(--orn)}
+.tg::before{content:"معطّل";position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;pointer-events:none}
+.tg[aria-checked="true"]::before{content:"مفعّل";color:var(--orn)}
 .posture:has(>.tg)>span:first-child{padding-inline-end:42px}
 
 /* memorisation: hidden words keep their place on the line as a faint dash */
@@ -640,14 +639,14 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #app.imm .foot.memo-on{display:flex}
 .minfo{flex:1;min-width:0;display:grid;gap:2px;padding-inline:4px}
 .minfo b{font-family:var(--f-display);font-size:16px;font-weight:700;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.minfo small{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.minfo small{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:560px){#memo{flex-wrap:wrap;justify-content:center;row-gap:6px;gap:6px}#memo .minfo{flex:1 1 calc(100% - 56px)}#memo .mb{padding:0 10px;font-size:13px}}
 .mb{height:36px;padding:0 12px;border-radius:10px;background:var(--sel);color:var(--orn);font-size:13px;font-weight:600;white-space:nowrap}
 .mb.solid{background:var(--orn);color:var(--bar)}
 #memo .rate{display:flex;gap:6px}
 #memo:not(.done) .rate,#memo.done .step{display:none}
 @media (max-width:520px){.mb{padding:0 9px;font-size:12.5px}}
-.due{font-size:11px;font-weight:600;color:var(--orn);white-space:nowrap}
+.due{font-size:12px;font-weight:600;color:var(--orn);white-space:nowrap}
 .due.late{color:var(--gold)}
 
 /* khatma planner card (top of the index) and today's wird in the footer */
@@ -656,7 +655,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 .rcl{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
 .rc{flex:none;display:grid;gap:1px;text-align:right;padding:7px 12px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;cursor:pointer;animation:fadeUp .35s var(--ease) calc(var(--i)*45ms) both}
 .rc b{font-family:var(--f-display);font-size:14px;font-weight:700;white-space:nowrap}
-.rc small{font-size:11px;color:var(--muted)}
+.rc small{font-size:12px;color:var(--muted)}
 .rc:active{transform:scale(.97)}
 #kh{margin:0 16px 12px;padding:12px 14px;border-radius:14px;background:var(--paper);border:1px solid var(--line);display:grid;gap:10px}
 .kh-t{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -678,7 +677,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 .gk-grid button.tk{border:1px solid var(--c);background:color-mix(in srgb,var(--c) 16%,transparent);color:var(--bar-ink)}
 .gk-grid button.me{border:1.5px solid var(--orn);background:color-mix(in srgb,var(--orn) 14%,transparent);color:var(--orn)}
 .gk-grid button.dn{background:color-mix(in srgb,var(--c) 34%,var(--paper));border-style:solid;border-color:transparent;color:var(--bar-ink)}
-.gk-grid button.dn::after{content:"✓";position:absolute;top:1px;left:4px;font-size:10px}
+.gk-grid button.dn::after{content:"✓";position:absolute;top:1px;left:4px;font-size:11px}
 .gk-grid button.sel{box-shadow:0 0 0 2px var(--gold)}
 .gk-act{display:grid;gap:8px;padding:10px;border-radius:10px;background:var(--sel)}
 .gk-ppl{display:flex;flex-wrap:wrap;gap:6px}
@@ -850,7 +849,7 @@ html.spreadM:not(.study) #cont{left:75%;width:min(400px,calc(50% - 28px))}
 .fa .an{color:var(--orn)}
 .fh{display:flex;justify-content:center;align-items:center;height:calc(40px * var(--flz,1));margin:14px 0 6px;background:var(--o-head) center/100% 100% no-repeat;font-family:var(--f-display);font-weight:700;color:var(--orn);font-size:calc(17px * var(--flz,1))}
 .fb{text-align:center;font-family:var(--f-quran);font-size:calc(24px * var(--flz,1));margin:0 0 4px;color:var(--ink)}
-.flpg{display:flex;align-items:center;gap:10px;margin:18px 0 8px;color:var(--muted);font-size:12px}
+.flpg{display:flex;align-items:center;gap:10px;margin:18px 0 8px;color:var(--muted);font-size:14px;font-weight:600}
 .flpg::before,.flpg::after{content:"";flex:1;height:1px;background:var(--rule)}
 .flend{display:grid;justify-items:center;gap:6px;margin-top:22px;color:var(--muted);font-size:12.5px}
 .flend i{display:block;width:30px;height:30px;background:var(--o-num) center/contain no-repeat}
@@ -861,7 +860,7 @@ html.uzL .flbar .ib{zoom:var(--uz,1);color:var(--ink)}html.uzL .ib.fz{min-width:
 html.thumb #flow{transition:padding .3s var(--ease)}
 #app:has(#prefs:not([hidden])) .bar{z-index:8}
 #app>.bar .where{transition:opacity .2s}#app.toasting>.bar .where{opacity:0}
-html.uzL .ib.fz{align-items:center;line-height:1}.fzw{display:none}html.uzL .ib.fz .aa,html.uzL .ib.fz sub{display:none}html.uzL .ib.fz .fzw{display:inline;font-size:15px}html.uzL .ib.fz{min-width:64px;height:40px}
+/* large print size buttons say what they do, big enough for any finger */#flow .ib.fz{align-items:center;line-height:1;min-width:72px;height:44px;border:1px solid var(--line);border-radius:12px}#flow .ib.fz .aa,#flow .ib.fz sub{display:none}#flow .ib.fz .fzw{display:inline;font-size:15px;font-weight:600}
 html.thumb #app:has(#prefs:not([hidden])) #flow,html.thumb:has(#srcBox:not([hidden])) #flow{padding-left:50vw}
 html.thumb:has(#sheet.dock:not(.dR):not([hidden])) #flow{padding-left:50vw}
 html.thumb:has(#sheet.dock.dR:not([hidden])) #flow{padding-right:50vw}
@@ -928,7 +927,7 @@ html.thumb #fPrefs[aria-expanded="true"]{background:var(--orn);color:var(--bar)}
 /* v43 black paper: true black for OLED screens in the dark, ink a little dimmer so it does not glare */
 :root[data-paper="black"]{
   --tj-md:#d4705f;--tj-gh:#5fae7c;--tj-qa:#6d9bd2;--tj-s:#5f5c57;
-  --desk:#000;--bar:#060606;--bar-ink:#cfc9bd;--muted:#96918a;--paper:#000;--paper-edge:#161616;--ink:#bfb9ac;
+  --desk:#000;--bar:#060606;--bar-ink:#cfc9bd;--muted:#a8a39b;--paper:#000;--paper-edge:#161616;--ink:#bfb9ac;
   --orn:#86a291;--gold:#a3916b;--rule:rgba(200,195,182,.14);--line:rgba(214,209,198,.08);--gut:rgba(255,255,255,.025);--hl:rgba(255,255,255,.03);
   --shadow:rgba(0,0,0,.7);--scrim:rgba(0,0,0,.65);--sel:rgba(134,162,145,.13);--tint:rgba(134,162,145,.05);--cover:#0d0d0d;--age:transparent;--grain-o:0;color-scheme:dark}
 html[data-paper="black"] #stage{background-image:none}
@@ -936,7 +935,7 @@ html[data-paper="black"] #stage{background-image:none}
 :root[data-paper="sky"]{
   --tj-md:#e48474;--tj-gh:#72c493;--tj-qa:#86b2e6;--tj-s:#6c7080;
   --rib:#6e2229;--rib-d:#3f0e13;--rib-l:#8d3a41;
-  --desk:#06080d;--bar:#0c1120;--bar-ink:#e3ddd0;--muted:#9ea4b3;--paper:#111624;--paper-edge:#1e2536;--ink:#e2d8c3;
+  --desk:#06080d;--bar:#0c1120;--bar-ink:#e3ddd0;--muted:#b0b5c2;--paper:#111624;--paper-edge:#1e2536;--ink:#e2d8c3;
   --orn:#8fb6c6;--gold:#c6a36a;--rule:rgba(226,216,195,.15);--line:rgba(226,221,208,.09);--gut:rgba(0,0,0,.28);--hl:rgba(255,255,255,.04);
   --shadow:rgba(0,0,0,.6);--scrim:rgba(2,4,10,.6);--sel:rgba(143,182,198,.13);--tint:rgba(143,182,198,.05);--cover:#141b2e;--age:rgba(0,0,0,.25);--grain-o:.1;
   --wood-l:#3a2c22;--wood-d:#1f1610;color-scheme:dark}
@@ -960,7 +959,7 @@ html[data-paper="sky"] .pnum{color:var(--gold)}
 #cont .ch .cd{margin-inline-start:auto;text-align:end;font-size:12px;color:var(--muted);line-height:1.5}
 #cont .ch .cd em{display:block;font-style:normal;color:var(--gold);font-weight:600}
 .cay{position:relative;display:block;width:100%;text-align:center;padding:12px 14px 10px;border-radius:14px;background:var(--paper);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 34%,transparent),inset 0 0 0 4px var(--paper),inset 0 0 0 5px color-mix(in srgb,var(--gold) 16%,transparent);color:var(--ink)}
-.cay>small{display:block;font-size:11.5px;color:var(--gold);font-weight:600;letter-spacing:.3px;margin-bottom:4px}
+.cay>small{display:block;font-size:12.5px;color:var(--gold);font-weight:600;letter-spacing:.3px;margin-bottom:4px}
 .cay q{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;quotes:none;font-family:var(--f-quran);font-size:19px;line-height:1.85}
 .cay q .an{color:var(--orn);font-size:.9em}
 .cay>span{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
@@ -979,7 +978,7 @@ html[data-paper="sky"] .pnum{color:var(--gold)}
 .mfilt{display:flex;gap:6px;overflow-x:auto;padding:2px 16px 10px;scrollbar-width:none}
 .mfilt::-webkit-scrollbar{display:none}
 .mfilt button{flex:none}
-.mfilt button b{font-weight:400;color:var(--muted);font-size:11.5px}
+.mfilt button b{font-weight:400;color:var(--muted);font-size:12.5px}
 .row .star.mk{background:none;box-shadow:inset 0 0 0 1.5px var(--c);color:var(--c)}
 /* v48 splash wears the sky theme */
 html[data-paper="sky"] #loading{background:#06080d;background-image:radial-gradient(1px 1px at 18% 22%,#fff9,transparent 2px),radial-gradient(1px 1px at 72% 14%,#fff8,transparent 2px),radial-gradient(1.4px 1.4px at 84% 40%,#fffa,transparent 2px),radial-gradient(1px 1px at 30% 68%,#fff7,transparent 2px),radial-gradient(1.2px 1.2px at 58% 82%,#fff9,transparent 2px),radial-gradient(1px 1px at 10% 88%,#fff6,transparent 2px),radial-gradient(1px 1px at 46% 36%,#fff5,transparent 2px),radial-gradient(1px 1px at 92% 74%,#fff7,transparent 2px),radial-gradient(60% 45% at 20% 20%,rgba(70,110,125,.22),transparent),radial-gradient(55% 40% at 85% 30%,rgba(150,95,70,.18),transparent),radial-gradient(70% 50% at 50% 70%,rgba(60,85,110,.16),transparent)}
@@ -995,7 +994,7 @@ html[data-theme="dark"] .hlb.hk{background:color-mix(in srgb,var(--c) 24%,transp
 .hlpal[hidden]{display:none}
 .hlpal .hd{display:flex;flex-direction:column;align-items:center;gap:5px;width:52px;padding:0;background:none;border:0;font:inherit;cursor:pointer;animation:pop .35s var(--spring) calc(var(--i)*35ms) both}
 .hlpal .hd i{width:34px;height:34px;border-radius:50%;border:2px solid var(--paper);background:var(--c);box-shadow:0 0 0 1px var(--line);position:relative;transition:transform .2s var(--spring)}
-.hlpal .hd span{font-size:11.5px;line-height:1.25;color:var(--muted);max-width:52px;text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.hlpal .hd span{font-size:12.5px;line-height:1.25;color:var(--muted);max-width:52px;text-align:center;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .hlpal .hd[aria-pressed="true"] span{color:var(--ink);font-weight:600}
 .hlpal .hd[aria-pressed="true"] i{box-shadow:0 0 0 2px var(--c),0 0 0 4px var(--paper);transform:scale(1.08)}
 .hlpal .hd[aria-pressed="true"] i::after{content:"";position:absolute;inset:9px 8px 11px;border:solid #fff;border-width:0 0 2.5px 2.5px;transform:rotate(-45deg)}
@@ -1063,7 +1062,7 @@ html[data-theme="dark"] .dnb .dn-m{transform:none;opacity:1}
 .si-h .ib{position:absolute;left:-6px;top:-38px;width:34px;height:34px}
 .si-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .si-g div{display:grid;gap:2px;justify-items:center;text-align:center;padding:9px 4px;border-radius:12px;background:var(--sel)}
-.si-g div small{font-size:11.5px;color:var(--muted)}
+.si-g div small{font-size:12.5px;color:var(--muted)}
 .si-g div b{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
 .si-t h4{margin:0 0 4px;font-size:12.5px;color:var(--gold);font-weight:600}
 .si-t p{margin:0;font-size:15px;line-height:1.75}
@@ -1175,7 +1174,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .k.rd,.jp.rd{background:color-mix(in srgb,var(--orn) 30%,transparent)}
 .k.mz{box-shadow:inset 0 0 0 2px var(--gold)}
 .jps{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:5px}
-.jp{height:32px;border-radius:7px;border:1px solid var(--line);font-size:11.5px;font-variant-numeric:tabular-nums;color:var(--muted);transition:transform .16s var(--ease)}
+.jp{height:32px;border-radius:7px;border:1px solid var(--line);font-size:12.5px;font-variant-numeric:tabular-nums;color:var(--muted);transition:transform .16s var(--ease)}
 .jp.rd{color:var(--bar-ink)}
 .jp.mz{box-shadow:inset 0 0 0 2px var(--gold)}
 .jp.cur{border-color:var(--orn);color:var(--orn);font-weight:700}
@@ -1204,7 +1203,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 @keyframes azFloat{50%{transform:translateY(-5px) rotate(-6deg)}}
 .az-hero h2{margin:8px 0 4px;font-family:var(--f-display);font-size:30px;font-weight:700}
 .az-hero p{margin:0;color:rgba(234,230,220,.62);font-size:13.5px}
-.az-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+.az-cats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .az-cat{position:relative;display:grid;gap:8px;text-align:start;padding:16px 14px 14px;border-radius:20px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:inherit;overflow:hidden;
   transition:transform .18s var(--ease),border-color .25s;animation:rise .45s var(--ease) both}
 .az-cat:nth-child(2){animation-delay:.05s}.az-cat:nth-child(3){animation-delay:.1s}.az-cat:nth-child(4){animation-delay:.15s}.az-cat:nth-child(5){animation-delay:.2s}
@@ -1216,7 +1215,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-cat small{font-size:12px;color:rgba(234,230,220,.6)}
 .az-cat .pb{height:4px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
 .az-cat .pb s{display:block;height:100%;width:0;background:var(--glowc);border-radius:3px;transition:width .8s var(--ease)}
-.az-cat .now{position:absolute;top:12px;left:12px;font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--glowc);color:#0b0d12}
+.az-cat .now{position:absolute;top:12px;left:12px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--glowc);color:#0b0d12}
 .az-cat.ok .now{display:none}
 .az-cat .chk{position:absolute;top:12px;left:12px;width:22px;height:22px;border-radius:50%;background:var(--glowc);color:#0b0d12;display:none;place-items:center}
 .az-cat.ok .chk{display:grid}
@@ -1228,11 +1227,11 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-dots{display:flex;gap:4px;width:100%;margin:4px 0 6px}
 .az-dots i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transition:background-color .4s}
 .az-dots i.d{background:rgba(240,180,110,.75)}
-.az-dots i.c{background:#ff7a45;box-shadow:0 0 8px #ff7a45}
+.az-dots i.c{background:#d9b46c;box-shadow:0 0 8px #d9b46c}
 .az-free{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:4px 0}
 .az-free[hidden]{display:none}
 .az-chip{height:32px;padding:0 13px;border-radius:999px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:inherit;font-size:13px;transition:background-color .2s,border-color .2s,transform .16s var(--ease)}
-.az-chip[aria-pressed="true"]{background:rgba(255,122,69,.18);border-color:#ff7a45;color:#ffd9c7}
+.az-chip[aria-pressed="true"]{background:rgba(217,180,108,.18);border-color:#d9b46c;color:#f3e3bf}
 .az-chip:active{transform:scale(.94)}
 .az-card{flex:1;min-height:0;width:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:6px 4px}
 .az-card.sw{animation:azSw .38s var(--ease)}.az-card.swr{animation:azSwR .38s var(--ease)}
@@ -1243,19 +1242,19 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-txt .an{color:#f0c98a;font-weight:400}
 .az-div{display:flex;align-items:center;gap:10px;width:min(280px,70%);margin:14px 0 8px}
 .az-div i{flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent)}
-.az-div b{width:9px;height:9px;transform:rotate(45deg);background:#ff7a45;box-shadow:0 0 10px #ff7a45;border-radius:1px}
+.az-div b{width:9px;height:9px;transform:rotate(45deg);background:#d9b46c;box-shadow:0 0 10px #d9b46c;border-radius:1px}
 .az-note{margin:0;font-size:13px;color:rgba(234,230,220,.66);line-height:1.7;max-width:440px}
 .az-note em{font-style:normal;color:#f0c98a}
 .az-beads{position:relative;width:100vw;max-width:100vw;height:clamp(110px,16vh,150px);flex:none;touch-action:none;cursor:grab}
 #azBeads{position:absolute;inset:0;width:100%;height:100%}
-.az-plus{direction:ltr;position:absolute;left:calc(50% + 26px);top:22%;font-weight:700;font-size:15px;color:#ff9a6a;opacity:0;pointer-events:none}
+.az-plus{direction:ltr;position:absolute;left:calc(50% + 26px);top:22%;font-weight:700;font-size:15px;color:#e6c88a;opacity:0;pointer-events:none}
 .az-plus.go{animation:azPlus .7s ease-out}
 @keyframes azPlus{0%{opacity:0;transform:translateY(6px)}25%{opacity:1}100%{opacity:0;transform:translateY(-22px)}}
 .az-ring{position:relative;width:112px;height:112px;flex:none;margin:2px 0 4px;border-radius:50%;display:grid;place-items:center;color:inherit;background:radial-gradient(circle,rgba(10,14,20,.85) 58%,rgba(10,14,20,0) 72%)}
 .az-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
 .az-ring circle{fill:none;stroke-width:5}
 .az-ring .bg{stroke:rgba(255,255,255,.1)}
-.az-ring .fg{stroke:url(#azGrad);stroke:#ff7a45;stroke-linecap:round;stroke-dasharray:326.7;stroke-dashoffset:326.7;transition:stroke-dashoffset .35s var(--ease);filter:drop-shadow(0 0 4px rgba(255,122,69,.7))}
+.az-ring .fg{stroke:url(#azGrad);stroke:#d9b46c;stroke-linecap:round;stroke-dasharray:326.7;stroke-dashoffset:326.7;transition:stroke-dashoffset .35s var(--ease);filter:drop-shadow(0 0 4px rgba(217,180,108,.7))}
 .az-ring span{display:grid;justify-items:center;line-height:1}
 .az-ring b{font-size:36px;font-weight:700;font-variant-numeric:tabular-nums;color:#fff}
 .az-ring small{font-size:13px;color:rgba(234,230,220,.6);margin-top:4px;font-variant-numeric:tabular-nums}
@@ -1264,7 +1263,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-ring.full{animation:azFull .7s var(--ease)}
 .az-ring.full .fg{stroke:#f0c98a;filter:drop-shadow(0 0 8px rgba(240,201,138,.9))}
 @keyframes azFull{0%{box-shadow:0 0 0 0 rgba(240,201,138,.5)}100%{box-shadow:0 0 0 26px rgba(240,201,138,0)}}
-.az-hint{margin:2px 0 10px;font-size:11.5px;color:rgba(234,230,220,.45);text-align:center}
+.az-hint{margin:2px 0 10px;font-size:12.5px;color:rgba(234,230,220,.45);text-align:center}
 .az-done{position:absolute;inset:0;z-index:3;display:grid;place-items:center;padding:20px;background:rgba(4,6,10,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:fadeUp .4s var(--ease)}
 .az-done[hidden]{display:none}
 .az-dc{text-align:center;max-width:340px;padding:26px 22px;border-radius:24px;background:linear-gradient(160deg,rgba(255,255,255,.1),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.12);animation:pop .55s var(--ease) both}
@@ -1275,9 +1274,15 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-dc p{margin:0 0 18px;color:rgba(234,230,220,.7);font-size:13.5px;line-height:1.8}
 .az-db{display:flex;gap:8px;justify-content:center}
 .az-btn{height:42px;padding:0 18px;border-radius:21px;border:1px solid rgba(255,255,255,.16);color:inherit;font-size:14px;transition:transform .16s var(--ease)}
-.az-btn.solid{background:#ff7a45;border-color:#ff7a45;color:#140a05;font-weight:700}
+.az-btn.solid{background:#d9b46c;border-color:#d9b46c;color:#140a05;font-weight:700}
 .az-btn:active{transform:scale(.95)}
 @media (min-width:700px){.az-cats{grid-template-columns:repeat(3,1fr)}}
+/* adhkar in the mushaf's own night colours: charcoal, gold, one quiet accent */
+.az-cat{--glowc:#d9b46c!important;--glow:#d9b46c2e!important;background:linear-gradient(160deg,rgba(255,255,255,.05),rgba(255,255,255,.015));border-color:rgba(217,180,108,.22)}
+.az-cat::after{opacity:.35}
+.az-cat[data-az="free"]{grid-column:1/-1}
+.az-cat .now{color:#16130c}
+.az-moon{filter:drop-shadow(0 0 10px rgba(240,190,120,.35))}
 @media (prefers-reduced-motion:reduce){#az *{animation:none!important;transition:none!important}}
 
 /* v45: the adhkar are always one tap away: a beads button in the bar, and a gentle reminder at their times */
@@ -1353,7 +1358,7 @@ html.phoneM #player .pbar i{background:var(--gold)}
 html.phoneM #player .ib{color:var(--orn);border-radius:6px}
 html.phoneM #player .ib+.ib{border-inline-start:1px solid var(--b-soft);border-radius:0}
 html.phoneM #player .ib:active{background:color-mix(in srgb,var(--gold) 14%,transparent)}
-html.phoneM #player .cap{font-size:11px;color:var(--bar-ink)}
+html.phoneM #player .cap{font-size:12px;color:var(--bar-ink)}
 html.phoneM #pStop{margin-inline-start:0}
 
 /* 4 · menu: a framed page, gold rule inside the edge, tiles as framed boxes */
@@ -1402,6 +1407,11 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
 @keyframes hSw{0%,15%{transform:translateX(-6px);opacity:.3}50%{opacity:1}85%,100%{transform:translateX(6px);opacity:.3}}
 @media (prefers-reduced-motion:reduce){.hint .hsw svg{animation:none}}
 #book>.sld{will-change:transform;backface-visibility:hidden}
+/* the gutter: on a spread the paper darkens softly into the spine, so the two pages read as one bound book */
+html.spreadM .pg.gL{box-shadow:inset calc(var(--pw) * -.05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(60,40,10,.20),inset -1px 0 0 rgba(0,0,0,.10)}
+html.spreadM .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(60,40,10,.20),inset 1px 0 0 rgba(0,0,0,.10)}
+html[data-theme="dark"].spreadM .pg.gL{box-shadow:inset calc(var(--pw) * -.05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(0,0,0,.45)}
+html[data-theme="dark"].spreadM .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(0,0,0,.45)}
 #leaf3{position:absolute;top:0;z-index:3;transform-style:preserve-3d;will-change:transform}
 .lf3{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transform-style:preserve-3d}
 .lf3.bk{transform:rotateY(180deg)}
@@ -1429,7 +1439,7 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
       <div class="ptabs" role="tablist" aria-label="الإعدادات"><button role="tab" data-pg="look" aria-selected="true">المظهر</button><button role="tab" data-pg="read" aria-selected="false">القراءة</button><button role="tab" data-pg="dev" aria-selected="false">الشاشة والصوت</button></div>
       <section class="pgrp" data-pg="look">
       <div><h3>حجم كتابات التطبيق</h3><div class="seg" id="uzSeg"><button class="sw" data-uz="1">عادي</button><button class="sw" data-uz="1.15" style="font-size:15px">كبير</button><button class="sw" data-uz="1.3" style="font-size:17px">أكبر</button></div></div>
-      <div class="posture"><span>الوضع البسيط<small>يخلي الأساسيات بس: القراءة والاستماع والعلامة والأذكار</small></span><button class="tg" id="bSimple" role="switch" aria-checked="false" aria-label="الوضع البسيط"></button></div>
+      <div class="posture"><span>الوضع البسيط<small>يُبقي الأساسيات فقط: القراءة والاستماع والعلامة والأذكار</small></span><button class="tg" id="bSimple" role="switch" aria-checked="false" aria-label="الوضع البسيط"></button></div>
       <div><h3>لون الورق</h3><div class="seg c5 c6" id="paperSeg">
         <button class="sw" data-paper="light"><i style="background:#faf7f0;color:#2b2824">بسم</i>فاتح</button>
         <button class="sw" data-paper="sepia"><i style="background:#f3e9d4;color:#3a3026">بسم</i>دافئ</button>
@@ -1457,7 +1467,7 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
         <button class="sw" data-turn="slide">انزلاق</button>
         <button class="sw" data-turn="none">بدون حركة</button>
       </div></div>
-      <div class="posture" id="volRow" hidden><span>أزرار الصوت تقلّب الصفحة<small>زر خفض الصوت للصفحة التالية، والرفع للسابقة. وقت التلاوة ترجع تتحكم بالصوت</small></span><button class="tg" id="bVol" role="switch" aria-checked="false" aria-label="أزرار الصوت تقلّب الصفحة"></button></div>
+      <div class="posture" id="volRow" hidden><span>أزرار الصوت تقلّب الصفحة<small>زر خفض الصوت للصفحة التالية، والرفع للسابقة. أثناء التلاوة يعودان للتحكم بالصوت</small></span><button class="tg" id="bVol" role="switch" aria-checked="false" aria-label="أزرار الصوت تقلّب الصفحة"></button></div>
       <div class="posture"><span>ألوان التجويد<small>المد والغنة والإخفاء والقلقلة</small></span><button class="tg" id="bTaj" role="switch" aria-checked="false" aria-label="ألوان التجويد"></button></div>
       <div class="tjk" id="tjKey" hidden><span style="--c:var(--tj-md)">مد لازم وواجب وجائز</span><span style="--c:var(--tj-gh)">غنة وإخفاء وإقلاب وإدغام بغنة</span><span style="--c:var(--tj-qa)">قلقلة</span><span style="--c:var(--tj-s)">ما لا يُلفظ</span></div>
       <div class="posture"><span>العلامات على الصفحة<small>خط ملوّن تحت الآيات المعلَّمة ونقطة عند الملاحظات</small></span><button class="tg" id="bMkShow" role="switch" aria-checked="true" aria-label="إظهار العلامات على الصفحة"></button></div>
@@ -1469,11 +1479,11 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
         <div class="dlbar" hidden><i id="dlBar"></i></div>
         <div class="bkb"><button class="ctb" id="dlSur"></button><button class="ctb" id="dlAll"></button></div>
         <button class="ctb" id="dlDel" hidden>احذف تحميل هذا القارئ</button></div>
-      <div class="posture adv" id="waRow" hidden><span>مشغّل الصوت القديم<small>شغّله بس إذا التلاوة ما تشتغل زين. يتطبّق بعد إعادة فتح التطبيق</small></span><button class="tg" id="bWebAu" role="switch" aria-checked="false" aria-label="مشغّل الصوت القديم"></button></div>
-      <div class="posture" id="bgRow" hidden><span>التلاوة بالخلفية<small>تكمل التلاوة لو طلعت من التطبيق أو طفيت الشاشة</small></span><button class="tg" id="bBg" role="switch" aria-checked="true" aria-label="التلاوة بالخلفية"></button></div>
+      <div class="posture adv" id="waRow" hidden><span>مشغّل الصوت القديم<small>فعّله فقط إذا لم تعمل التلاوة جيداً. يُطبَّق بعد إعادة فتح التطبيق</small></span><button class="tg" id="bWebAu" role="switch" aria-checked="false" aria-label="مشغّل الصوت القديم"></button></div>
+      <div class="posture" id="bgRow" hidden><span>التلاوة بالخلفية<small>تستمر التلاوة إذا خرجت من التطبيق أو أطفأت الشاشة</small></span><button class="tg" id="bBg" role="switch" aria-checked="true" aria-label="التلاوة بالخلفية"></button></div>
       <div class="posture"><span>إبقاء الشاشة مضاءة<small>لا تنطفئ الشاشة وأنت تقرأ</small></span><button class="tg" id="bWake" role="switch" aria-checked="true" aria-label="إبقاء الشاشة مضاءة"></button></div>
       <div class="posture"><span>صوت الورق<small>حفيف خفيف عند قلب الصفحة</small></span><button class="tg" id="bSnd" role="switch" aria-checked="false" aria-label="صوت الورق"></button></div>
-      <div class="posture"><span>اهتزاز عند قلب الصفحة<small>نبضة خفيفة تحسّ بيها الورقة</small></span><button class="tg" id="bBuzz" role="switch" aria-checked="true" aria-label="اهتزاز عند قلب الصفحة"></button></div>
+      <div class="posture"><span>اهتزاز عند قلب الصفحة<small>نبضة خفيفة تشعر معها بالورقة</small></span><button class="tg" id="bBuzz" role="switch" aria-checked="true" aria-label="اهتزاز عند قلب الصفحة"></button></div>
       <div class="bkp"><span>نسخة احتياطية<small>علاماتك وتظليلك وملاحظاتك وحفظك وختمتك في ملف واحد، تنقلها لأي جهاز</small></span>
         <div class="bkb"><button class="ctb" id="bkOut">حفظ نسخة</button><button class="ctb" id="bkIn">استرجاع</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div></div>
       </section>
@@ -1495,7 +1505,7 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
     <div id="loading" role="status" aria-label="جارٍ تحميل المصحف"><div class="spl">
       <svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><g class="rose"><rect x="30" y="30" width="60" height="60" rx="2"/><rect x="30" y="30" width="60" height="60" rx="2" transform="rotate(45 60 60)"/><circle cx="60" cy="60" r="20"/></g><circle class="ring" cx="60" cy="60" r="52" opacity=".55"/><circle cx="60" cy="60" r="12" opacity=".5"/></g><circle class="core" cx="60" cy="60" r="4" fill="currentColor"/></svg>
       <b>أنورا</b><small>مصحف المدينة · برواية حفص عن عاصم</small><i></i></div></div>
-    <section id="flow" hidden aria-label="قراءة بخط كبير"><div class="flbar"><button class="ib" id="flBack" aria-label="العودة إلى صفحة المصحف"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg></button><span id="flInfo"></span><button class="ib fz" id="flMinus" aria-label="تصغير الخط"><span class="aa">أ</span><sub>−</sub><span class="fzw">صغّر</span></button><button class="ib fz" id="flPlus" aria-label="تكبير الخط"><span class="aa">أ</span><sub>+</sub><span class="fzw">كبّر</span></button></div><div id="flBody"></div></section>
+    <section id="flow" hidden aria-label="قراءة بخط كبير"><div class="flbar"><button class="ib" id="flBack" aria-label="العودة إلى صفحة المصحف"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg></button><span id="flInfo"></span><button class="ib fz" id="flMinus" aria-label="تصغير الخط"><span class="aa">أ</span><sub>−</sub><span class="fzw">تصغير</span></button><button class="ib fz" id="flPlus" aria-label="تكبير الخط"><span class="aa">أ</span><sub>+</sub><span class="fzw">تكبير</span></button></div><div id="flBody"></div></section>
     <button id="azNudge" hidden><i><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg></i><span id="azNudgeT"></span><b aria-hidden="true">‹</b></button>
     <div id="scrubBig" aria-hidden="true" hidden><small id="sbgS"></small><b id="sbgJ"></b><span id="sbgH"></span></div>
     <div id="autoBar" hidden role="group" aria-label="التقليب التلقائي">
@@ -1521,8 +1531,8 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
       <button class="ib" id="mExit" aria-label="إنهاء وضع الحفظ"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="minfo"><b id="mTitle">الحفظ</b><small id="mSub">المس الصفحة لتظهر الكلمة التالية</small></div>
       <button class="ib step" id="mMic" aria-pressed="false" title="سمّع بصوتك" aria-label="سمّع بصوتك"><svg viewBox="0 0 24 24"><rect x="9" y="3.5" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v2.5"/></svg></button>
-      <button class="mb step" id="mHint" aria-pressed="false" title="أول حرف من الكلمة الجاية">أول حرف</button>
-      <button class="mb step" id="mErr" title="الكلمة الجاية ما تذكرتها: تنكشف وتتسجّل غلطة">غلطت</button>
+      <button class="mb step" id="mHint" aria-pressed="false" title="أول حرف من الكلمة التالية">أول حرف</button>
+      <button class="mb step" id="mErr" title="لم أتذكّر الكلمة التالية: تُكشف وتُسجَّل خطأً">أخطأت</button>
       <button class="mb step" id="mAyah">أظهر الآية</button>
       <button class="mb step" id="mAll">أظهر الكل</button>
       <button class="mb step" id="mReset" aria-label="أخفِ الصفحة من جديد">أخفِ</button>
@@ -1565,8 +1575,8 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
   </div>
 </div>
 <div id="dimV" aria-hidden="true"></div>
-<div id="easyBox" role="dialog" aria-modal="true" aria-labelledby="easyQ" hidden><div class="si easy"><b id="easyQ">تريد الكتابة أكبر والأزرار أقل؟</b><p>نكبّر خط القرآن وكل كتابات التطبيق، ونخفي الأدوات المتقدمة. تكدر تغيّرها بعدين من الإعدادات ← المظهر.</p><button class="eyes" id="easyY">إي، كبّرها</button><button class="eno" id="easyN">لا، خلّيه مثل ما هو</button></div></div>
-<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
+<div id="easyBox" role="dialog" aria-modal="true" aria-labelledby="easyQ" hidden><div class="si easy"><b id="easyQ">تريد الكتابة أكبر والأزرار أقل؟</b><p>نكبّر خط القرآن وكل كتابات التطبيق، ونخفي الأدوات المتقدمة. ويمكنك تغيير ذلك لاحقاً من الإعدادات ← المظهر.</p><button class="eyes" id="easyY">نعم، كبّرها</button><button class="eno" id="easyN">لا، أبقِه كما هو</button></div></div>
+<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوة الشيخ محمود خليل الحصري والشيخ مشاري العفاسي (رواية حفص عن عاصم) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="si-g" id="siGrid"></div>
@@ -1580,7 +1590,8 @@ html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold)
   <div class="rbr"><span>إلى</span><button class="rst" data-rs="t-1" aria-label="قبل">−</button><b id="rbTo"></b><button class="rst" data-rs="t1" aria-label="بعد">+</button></div>
   <div class="rbr"><span>كل آية</span><div class="rseg" id="rbEach"><button data-v="1">مرة</button><button data-v="3">٣</button><button data-v="5">٥</button><button data-v="10">١٠</button></div></div>
   <div class="rbr"><span>المقطع</span><div class="rseg" id="rbAll"><button data-v="1">مرة</button><button data-v="3">٣</button><button data-v="7">٧</button><button data-v="0">∞</button></div></div>
-  <small class="rbhint">المس آية بالصفحة لتصير آخر المقطع</small>
+  <div class="rbr"><span>مهلة للترديد</span><div class="rseg" id="rbGap"><button data-v="0">بدون</button><button data-v="1">بطول الآية</button></div></div>
+  <small class="rbhint">المس آية في الصفحة لتكون آخر المقطع</small>
   <div class="rbb"><button class="ctb" id="rbTest">اختبر نفسي</button><button class="ctb" id="rbOff">بدون تكرار</button><button class="ctb solid" id="rbGo">ابدأ التكرار</button></div>
 </div>
 <div id="cont" role="status" hidden>
@@ -1690,6 +1701,8 @@ const SUR=META.surahs, SST=SUR.map(s=>s[3]), PAGES=META.pages, JUZ=META.juz, QTR
 const QSET=new Map(QTR.map((id,i)=>[id,i]));
 const JNAMES=["الأول","الثاني","الثالث","الرابع","الخامس","السادس","السابع","الثامن","التاسع","العاشر","الحادي عشر","الثاني عشر","الثالث عشر","الرابع عشر","الخامس عشر","السادس عشر","السابع عشر","الثامن عشر","التاسع عشر","العشرون","الحادي والعشرون","الثاني والعشرون","الثالث والعشرون","الرابع والعشرون","الخامس والعشرون","السادس والعشرون","السابع والعشرون","الثامن والعشرون","التاسع والعشرون","الثلاثون"];
 const QLAB=["","ربع الحزب","نصف الحزب","ثلاثة أرباع الحزب"];
+/* Arabic counted noun: 1 and 2 have their own forms, 3–10 take the plural, 11 and up the singular accusative */
+function numW(n,one,two,pl,acc){n=+n||0;const m=n%100;return n===1?one:n===2?two:ar(n)+" "+(m>=3&&m<=10?pl:acc)}
 const ar=n=>String(n).replace(/\d/g,d=>"٠١٢٣٤٥٦٧٨٩"[d]);
 function bs(a,x){let lo=0,hi=a.length-1;while(lo<hi){const m=(lo+hi+1)>>1;if(a[m]<=x)lo=m;else hi=m-1}return lo}
 const sOf=id=>bs(SST,id);                 // 0-based surah
@@ -1833,6 +1846,8 @@ function get(p){
 }
 function place(el,x,z){
   el.style.left=x+"px";el.style.clipPath="";el.style.transform="";el.style.visibility="";el.style.zIndex=z||1;el._o=x;
+  /* which side the spine is on, for the gutter shade of a bound book */
+  el.classList.toggle("gL",mode==="spread"&&x===0);el.classList.toggle("gR",mode==="spread"&&x===W);
   book.appendChild(el);return el;
 }
 
@@ -2041,13 +2056,13 @@ const eSlide=bez(.3,.1,.12,1);
 const eHand=s0=>t=>s0*(t*t*t-2*t*t+t)+(3*t*t-2*t*t*t);
 function finish(f,done){
   cancelAnimationFrame(f.raf);
-  if(f.b3){[f.sU,f.sS].forEach(d=>d.remove());book.style.perspective="";flip=null;if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide()}layoutIdle();return}
+  if(f.b3){[f.sU,f.sS].forEach(d=>d.remove());book.style.perspective="";flip=null;if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide();setTimeout(partNote,60)}layoutIdle();return}
   if(f.slide){f.els.forEach(e=>{e.style.transform="";e.style.filter="";e.classList.remove("sld")});book.style.overflow=mode==="single"?"hidden":"visible";
-    flip=null;if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide()}layoutIdle();return}
+    flip=null;if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide();setTimeout(partNote,60)}layoutIdle();return}
   [f.under,f.front].forEach(e=>{e.querySelectorAll(".shd").forEach(s=>s.remove());e.style.clipPath="";e.style.transform="";e.style.visibility=""});
   if(f.back&&!f.back.classList.contains("ghost")){f.back.querySelectorAll(".shd").forEach(s=>s.remove());f.back.style.transform="";f.back.style.clipPath=""}
   flip=null;
-  if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide()}
+  if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide();setTimeout(partNote,60)}
   layoutIdle();
 }
 /* how a page turns: "curl" lifts a real sheet, "slide" glides the pages sideways, "none" changes the page at once.
@@ -2069,9 +2084,17 @@ function renderSlide(f){
   /* the incoming page is a touch dim until it arrives, so the eye follows it in */
   f.els.forEach((e,i)=>{if(e.style.zIndex==="1")e.style.filter=k<1?`brightness(${(.94+.06*k).toFixed(3)})`:""});
 }
+/* a quiet word when the pages just opened begin a new juz or hizb, the way a printed mushaf marks it in the margin */
+function partNote(){
+  const ps=mode==="spread"?[cur,cur+1]:[cur];
+  for(const p of ps){if(p<1||p>NP)continue;const a=pStart(p),z=p<NP?pStart(p+1)-1:NA;
+    const k=qOf(z);if(k%4||QTR[k]<a)continue;
+    if(partNote.k===k)return;partNote.k=k;
+    toast(k%8?`بداية الحزب ${ar(k/4+1)}`:`بداية الجزء ${JNAMES[k/8]}`);return}
+}
 function jumpTurn(target){
   if(flip){cancelAnimationFrame(flip.raf);flip=null}
-  cur=target;store.set("mushaf.last",cur);setCalm(true);contHide();layoutIdle();paperFx();
+  cur=target;store.set("mushaf.last",cur);setCalm(true);contHide();layoutIdle();paperFx();partNote();
 }
 function cancelFlip(){if(flip){cancelAnimationFrame(flip.raf);finish(flip,false);busy=false}}
 
@@ -2331,7 +2354,7 @@ function renderFlow(){
   const B=AW[1].join(" ");let h="",para=[];
   const flush=()=>{if(para.length)h+=`<p class="fltx">${para.join(" ")}</p>`;para=[]};
   for(let p=cur;p<=last;p++){
-    if(p>cur){flush();h+=`<div class="flpg">صفحة ${ar(p)}</div>`}
+    flush();h+=`<div class="flpg">صفحة ${ar(p)}</div>`;
     for(let id=pStart(p);id<=pEnd(p);id++){
       const si=sOf(id);
       if(aOf(id)===1){flush();h+=`<div class="fh">سورة ${SUR[si][0]}</div>`;if(si!==0&&si!==8)h+=`<p class="fb">${escH(B)}</p>`}
@@ -2679,7 +2702,7 @@ $("prefs").addEventListener("click",e=>{e.stopPropagation();const t=e.target.clo
   if(b.dataset.paper){vt(()=>setPaper(b.dataset.paper,true));if(b.dataset.paper==="auto")toast("نهاري بالنهار، وليلي من المغرب إلى الفجر")}
   if(b.dataset.cover)vt(()=>setCover(b.dataset.cover,true));
   if(b.dataset.view)vt(()=>{store.set("mushaf.view",b.dataset.view);markView();resize()});
-  if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();toast(b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنب بعض":"الصفحة تتبدل فوراً بدون حركة")}
+  if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();toast(b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنباً إلى جنب":"تتبدّل الصفحة فوراً بلا حركة")}
 });
 $("bFull").onclick=e=>{e.stopPropagation();toggleFull()};
 document.addEventListener("pointerdown",e=>{if(!$("prefs").hidden&&!e.target.closest("#prefs,#bPrefs,#fPrefs"))showPrefs(false)});
@@ -2744,7 +2767,7 @@ function hlPalUI(){const el=$("hlPal");if(el.hidden||!selA)return;const k=hlK(se
 $("aHl").onclick=e=>{e.stopPropagation();const el=$("hlPal"),open=el.hidden;if(open){el.classList.remove("out");el.hidden=false;hlPalUI()}else softHide(el);$("aHl").setAttribute("aria-expanded",String(open))};
 $("hlPal").addEventListener("click",e=>{if(!selA)return;
   if(e.target.closest("#hlNext")){const k=hlK(selA),n=selA+1;if(!k||n>NA)return;hl.set(n,k);stepAyah(n,1);paintHL();rasterDirtyLazy();try{navigator.vibrate&&navigator.vibrate(6)}catch(x){}return}
-  const b=e.target.closest("[data-hk]");if(!b)return;const k=b.dataset.hk,old=hlK(selA),id=selA;hl.set(selA,k===old?"":k);if(old&&(k===old||!k))toastU("انشال التظليل",()=>{hl.set(id,old);if(selA===id)hlPalUI();paintHL();rasterDirtyLazy()});hlPalUI();paintHL();rasterDirtyLazy();
+  const b=e.target.closest("[data-hk]");if(!b)return;const k=b.dataset.hk,old=hlK(selA),id=selA;hl.set(selA,k===old?"":k);if(old&&(k===old||!k))toastU("أُزيل التظليل",()=>{hl.set(id,old);if(selA===id)hlPalUI();paintHL();rasterDirtyLazy()});hlPalUI();paintHL();rasterDirtyLazy();
   try{navigator.vibrate&&navigator.vibrate(6)}catch(x){}if(indexOpen)renderList()});
 const MG=[{k:"gn",n:"عامة",c:"#b09060"},{k:"hf",n:"للحفظ",c:"#5f9b7a"},{k:"td",n:"للتدبّر",c:"#5a86b8"},{k:"du",n:"دعاء",c:"#b8705a"}];
 const mgrp={get(){try{return JSON.parse(store.get("mushaf.mgrp")||"{}")}catch(e){return {}}},of(id){return this.get()[id]||"gn"},set(id,g){const d=this.get();if(g)d[id]=g;else delete d[id];store.set("mushaf.mgrp",JSON.stringify(d))}};
@@ -2909,7 +2932,7 @@ $("bkFile").onchange=async()=>{const f=$("bkFile").files[0];if(!f)return;
   try{const j=JSON.parse(await f.text());if(!j||j.app!=="mushaf"||typeof j.data!=="object")throw 0;
     const ks=Object.keys(j.data).filter(k=>k.startsWith("mushaf.")&&typeof j.data[k]==="string");if(!ks.length)throw 0;
     ks.forEach(k=>store.set(k,j.data[k]));toast(`استُرجعت ${ar(ks.length)} عنصر · يُعاد التحميل`);setTimeout(()=>location.reload(),1200)}
-  catch(x){toast("الملف ما يبيّن نسخة احتياطية من المصحف")}};
+  catch(x){toast("هذا الملف ليس نسخة احتياطية من المصحف")}};
 $("sbSave").onclick=async()=>{if(!sbBlob)return;let dl=null;try{dl=window.claude&&claude.use?await claude.use("downloads"):null}catch(e){}
   if(dl){try{await dl.save({filename:sbName(),data:sbBlob});toast("حُفظت الصورة")}catch(e){if(e&&e.code==="declined")return;toast(e&&e.code==="rate_limited"?"لحظة وحاول مرة أخرى":"الحفظ غير متاح هنا")}return}
   try{const a=document.createElement("a");a.href=sbUrl;a.download=sbName();document.body.appendChild(a);a.click();a.remove()}catch(e){toast("الحفظ غير متاح هنا")}};
@@ -3202,13 +3225,13 @@ $("qzClose").onclick=quizClose;
    The prototype has no audio files, so each ayah lasts as long as it would take to recite (from its length). */
 const player={id:0,on:false,t0:0,dur:0,left:0,raf:0};
 let rep=(()=>{try{const r=JSON.parse(store.get("mushaf.rep")||"null");if(r&&r.from)return {...r,on:false,ei:0,ri:0}}catch(e){}return {on:false,from:0,to:0,each:1,all:3,ei:0,ri:0}})();
-const repSave=()=>store.set("mushaf.rep",JSON.stringify({from:rep.from,to:rep.to,each:rep.each,all:rep.all}));
+const repSave=()=>store.set("mushaf.rep",JSON.stringify({from:rep.from,to:rep.to,each:rep.each,all:rep.all,gap:rep.gap||0}));
 /* close a small panel with its exit animation, then hide it (instant under reduced motion) */
 function softHide(el){if(el.hidden||el.classList.contains("out"))return;if(reduce){el.hidden=true;if(el.id==="repBox")try{paintHL()}catch(e){}return}
   el.classList.add("out");const done=()=>{el.classList.remove("out");el.hidden=true;if(el.id==="repBox")try{paintHL()}catch(e){}};el.addEventListener("animationend",done,{once:true});setTimeout(()=>{if(el.classList.contains("out"))done()},400)}
 const repRef=id=>`${SUR[sOf(id)][0]} ${ar(aOf(id))}`;
 function repUI(){try{paintHL()}catch(e){}$("pRepCap").textContent=rep.on?"يكرر":"تكرار";$("rbFrom").textContent=repRef(rep.from);$("rbTo").textContent=repRef(rep.to);
-  [["rbEach",rep.each],["rbAll",rep.all]].forEach(([k,v])=>$(k).querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.v===v))));
+  [["rbEach",rep.each],["rbAll",rep.all],["rbGap",rep.gap||0]].forEach(([k,v])=>$(k).querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.v===v))));
   $("pRep").setAttribute("aria-pressed",String(rep.on))}
 function repOpen(){const id=player.id||selA||pStart(cur);
   if(!rep.on||rep.from>id||rep.to<id){rep.from=id;const pe=pStart(cur+(mode==="spread"?2:1))-1;rep.to=Math.min(NA,Math.max(id,Math.min(id+4,pe>id?pe:id+4)))}
@@ -3240,13 +3263,13 @@ addEventListener("pointerdown",e=>{if($("repBox").hidden||e.target.closest("#rep
   softHide($("repBox"))},true);
 $("repBox").addEventListener("click",e=>{const st=e.target.closest("[data-rs]");
   if(st){const k=st.dataset.rs[0],d=+st.dataset.rs.slice(1);if(k==="f"){rep.from=Math.max(1,Math.min(rep.to,rep.from+d))}else{rep.to=Math.min(NA,Math.max(rep.from,rep.to+d))}repUI();return}
-  const sg=e.target.closest(".rseg button");if(sg){rep[sg.parentNode.id==="rbEach"?"each":"all"]=+sg.dataset.v;repUI();return}});
+  const sg=e.target.closest(".rseg button");if(sg){rep[{rbEach:"each",rbAll:"all",rbGap:"gap"}[sg.parentNode.id]]=+sg.dataset.v;repUI();return}});
 ["pointerdown","click"].forEach(t=>$("repBox").addEventListener(t,e=>e.stopPropagation()));
 $("rbGo").onclick=()=>{rep.on=true;rep.ei=0;rep.ri=0;repSave();softHide($("repBox"));repUI();
   if($("player").hidden)playFrom(rep.from);else{player.id=rep.from;if(!player.on)setPlaying(true);else startAyah(false)}
   toast(`تكرار من ${repRef(rep.from)} إلى ${repRef(rep.to)}`)};
 $("rbTest").onclick=()=>{const f=rep.from;repSave();softHide($("repBox"));stopPlay();showAyahPage(f);setTimeout(()=>{memo.range={from:f,to:rep.to};setMemo(true);toast(`سمّع من ${repRef(f)} إلى ${repRef(rep.to)}`)},reduce?0:650)};
-$("rbOff").onclick=()=>{rep.on=false;softHide($("repBox"));repUI();if(player.id)$("pTitle").textContent=`${SUR[sOf(player.id)][0]} — آية ${ar(aOf(player.id))}`;toast("رجعت التلاوة متتابعة")};
+$("rbOff").onclick=()=>{rep.on=false;softHide($("repBox"));repUI();if(player.id)$("pTitle").textContent=`${SUR[sOf(player.id)][0]} — آية ${ar(aOf(player.id))}`;toast("عادت التلاوة متتابعة")};
 /* the next ayah to play after this one ends: repeats first, then the passage, then onward */
 function nextPlay(){const id=player.id;
   if(rep.on&&id>=rep.from&&id<=rep.to){
@@ -3262,7 +3285,7 @@ function uzSet(v){v=["1","1.15","1.3"].includes(v)?v:"1";root.style.setProperty(
 uzSet(store.get("mushaf.uz")||"1");
 $("uzSeg").addEventListener("click",e=>{const b=e.target.closest("[data-uz]");if(!b)return;e.stopPropagation();store.set("mushaf.uz",b.dataset.uz);uzSet(b.dataset.uz);setTimeout(resize,50)});
 let simpleOn=store.get("mushaf.simple")==="1";root.classList.toggle("simple",simpleOn);$("bSimple").setAttribute("aria-checked",String(simpleOn));
-$("bSimple").onclick=e=>{e.stopPropagation();simpleOn=!simpleOn;store.set("mushaf.simple",simpleOn?"1":"0");root.classList.toggle("simple",simpleOn);$("bSimple").setAttribute("aria-checked",String(simpleOn));toast(simpleOn?"الوضع البسيط شغّال":"رجعت كل الأدوات")};
+$("bSimple").onclick=e=>{e.stopPropagation();simpleOn=!simpleOn;store.set("mushaf.simple",simpleOn?"1":"0");root.classList.toggle("simple",simpleOn);$("bSimple").setAttribute("aria-checked",String(simpleOn));toast(simpleOn?"الوضع البسيط مفعّل":"عادت كل الأدوات")};
 /* first run: one big question for people who need larger writing, instead of hunting through settings */
 function easyAsk(){if(store.get("mushaf.easyQ"))return;const x=$("easyBox");if(!x||!$("srcBox").hidden)return;
   x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));setTimeout(()=>$("easyY").focus({preventScroll:true}),80)}
@@ -3270,7 +3293,7 @@ function easyClose(){const x=$("easyBox");store.set("mushaf.easyQ","1");x.classL
 $("easyY").onclick=()=>{store.set("mushaf.uz","1.3");uzSet("1.3");if(!simpleOn)$("bSimple").click();easyClose();
   /* the Quran too: large-print reading */
   setTimeout(()=>{if(!flowOn)$("bFlow").click()},120)};
-$("easyN").onclick=()=>{easyClose();toast("تكدر تكبّر الكتابة من الإعدادات ← المظهر")};
+$("easyN").onclick=()=>{easyClose();toast("يمكنك تكبير الكتابة من الإعدادات ← المظهر")};
 setTimeout(easyAsk,1600);
 /* the bars change height with text size, simple mode, the player and the memo bar; keep the layout in step */
 if(window.ResizeObserver){let rq=0;const bb=document.querySelector("#app>.bar")||document.querySelector(".bar"),ff=document.querySelector("#app>.foot")||document.querySelector(".foot");
@@ -3332,7 +3355,12 @@ AU.onerror=()=>{if(!player.on)return;const g=player.seg;
   /* a downloaded file that went missing: forget it and stream instead */
   if(g&&!/^https?:\/\/cdn/.test(g.src)&&DL[reciter].delete(g.s)){dlSave(reciter);auSrc="";startAyah(false);return}
   toast("تعذّر تشغيل الصوت، تأكد من الإنترنت");setPlaying(false)};
-function ayahDone(){const id=player.id,n=nextPlay();if(!n){stopPlay();return}player.id=n;startAyah(false,n===id+1)}
+function ayahDone(){const id=player.id,n=nextPlay();if(!n){stopPlay();return}
+  /* repeating to memorise: a silence as long as the ayah, for the student to say it back */
+  if(rep.on&&rep.gap&&player.on){const g=seg(id),d=Math.min(30000,Math.max(1500,g?g.end-g.start:ayahDur(id)));
+    player.seg=null;cancelAnimationFrame(player.raf);AU.pause();clearTimeout(player.gapT);$("pTitle").textContent="دورك: ردّدها…";
+    player.gapT=setTimeout(()=>{if(!player.on||player.id!==id)return;player.id=n;startAyah(false,false)},d);return}
+  player.id=n;startAyah(false,n===id+1)}
 function playFrom(id){
   closeAyah();player.id=id;player.left=ayahDur(id);$("player").hidden=false;document.querySelector(".foot").classList.add("playing");resize();hideHint();
   if(aud)setPlaying(true);else audData(reciter).then(d=>{aud=d;if(!$("player").hidden&&player.id===id)setPlaying(true)});
@@ -3366,7 +3394,7 @@ AU.addEventListener("timeupdate",()=>{if(player.on&&player.tick&&document.hidden
 AU.addEventListener("ended",()=>{if(player.on&&player.tick)player.tick()});
 function setPlaying(on){
   if(!on&&player.on&&!player.seg)player.left-=performance.now()-player.t0;
-  player.on=on;try{volSync()}catch(e){}
+  player.on=on;try{volSync()}catch(e){}if(!on)clearTimeout(player.gapT);
   $("pIco").innerHTML=on?'<path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/>':'<path d="M8 5.5v13l10.5-6.5z"/>';
   $("pPlay").setAttribute("aria-label",on?"إيقاف مؤقت":"متابعة التلاوة");
   if(on)startAyah(true);else{cancelAnimationFrame(player.raf);AU.pause();bgSync()}
@@ -3394,7 +3422,7 @@ natOn("Playback","action",d=>{const a=d&&d.a,open=!$("player").hidden;if(!a)retu
   if(a==="toggle"){if(open)setPlaying(!player.on)}else if(a==="play"){if(open&&!player.on)setPlaying(true)}else if(a==="pause"){if(open&&player.on)setPlaying(false)}
   else if(a==="next"){if(open)$("pNext").click()}else if(a==="prev"){if(open)$("pPrev").click()}else if(a==="stop")stopPlay()});
 document.addEventListener("visibilitychange",()=>{if(document.hidden&&!bgOn&&player.on)setPlaying(false)});
-$("bgRow").hidden=PLAT!=="android";$("waRow").hidden=PLAT!=="android";$("bWebAu").setAttribute("aria-checked",String(store.get("mushaf.webAudio")==="1"));$("bWebAu").onclick=()=>{const on=store.get("mushaf.webAudio")!=="1";store.set("mushaf.webAudio",on?"1":"0");$("bWebAu").setAttribute("aria-checked",String(on));toast("يتطبّق بعد ما تسكّر التطبيق وتفتحه")};if(PLAT==="ios")bgOn=true;$("bBg").setAttribute("aria-checked",String(bgOn));
+$("bgRow").hidden=PLAT!=="android";$("waRow").hidden=PLAT!=="android";$("bWebAu").setAttribute("aria-checked",String(store.get("mushaf.webAudio")==="1"));$("bWebAu").onclick=()=>{const on=store.get("mushaf.webAudio")!=="1";store.set("mushaf.webAudio",on?"1":"0");$("bWebAu").setAttribute("aria-checked",String(on));toast("يُطبَّق بعد إغلاق التطبيق وفتحه")};if(PLAT==="ios")bgOn=true;$("bBg").setAttribute("aria-checked",String(bgOn));
 /* volume keys turn pages (Android, opt-in); while a recitation plays they go back to the volume */
 let volOn=store.get("mushaf.volKeys")==="1";
 function volSync(){if(PLAT==="android")nat("Playback","volKeys",{on:volOn&&!player.on}).catch(()=>{})}
@@ -3433,15 +3461,15 @@ async function dlOne(r,s){const d=await audData(r);if(!d)throw new Error("no dat
 async function dlMany(list){if(dlRun){dlRun.stop=true;return}
   const r=reciter,run={stop:false,s:list[0],f:0};dlRun=run;dlUI();let ok=true;
   for(const s of list){if(run.stop)break;if(DL[r].has(s))continue;run.s=s;run.f=0;run.len=0;dlUI();
-    try{await dlOne(r,s)}catch(e){ok=false;toast("توقف التحميل، تأكد من الإنترنت وحاول مرة ثانية");break}}
+    try{await dlOne(r,s)}catch(e){ok=false;toast("توقف التحميل، تأكد من الإنترنت وحاول مرة أخرى");break}}
   dlRun=null;dlUI();if(ok&&!run.stop)toast(list.length>1?"تم تحميل المصحف كامل":"تم التحميل، تسمعها هسة بدون إنترنت")}
-$("pDl").onclick=e=>{e.stopPropagation();const s=sOf(player.id)+1;if(DL[reciter].has(s)){toast(`سورة ${SUR[s-1][0]} محمّلة وتنسمع بدون إنترنت`);return}
-  if(dlRun){if(dlRun.s===s)dlRun.stop=true;else toast("انتظر يخلص التحميل الحالي");return}toast(`جارٍ تحميل سورة ${SUR[s-1][0]}…`);dlMany([s])};
+$("pDl").onclick=e=>{e.stopPropagation();const s=sOf(player.id)+1;if(DL[reciter].has(s)){toast(`سورة ${SUR[s-1][0]} محمّلة وتُسمع بلا إنترنت`);return}
+  if(dlRun){if(dlRun.s===s)dlRun.stop=true;else toast("انتظر حتى ينتهي التحميل الحالي");return}toast(`جارٍ تحميل سورة ${SUR[s-1][0]}…`);dlMany([s])};
 $("dlSur").onclick=e=>{e.stopPropagation();dlMany([dlTarget()])};
 $("dlAll").onclick=e=>{e.stopPropagation();dlMany(Array.from({length:114},(_,i)=>i+1))};
 $("dlDel").onclick=e=>{e.stopPropagation();const b=$("dlDel");if(!b.dataset.sure){b.dataset.sure="1";b.textContent="متأكد؟ اضغط مرة ثانية للحذف";setTimeout(()=>{delete b.dataset.sure;b.textContent="احذف تحميل هذا القارئ"},4000);return}
   delete b.dataset.sure;b.textContent="احذف تحميل هذا القارئ";const r=reciter;
-  nat("Filesystem","rmdir",{path:`audio/${r}`,directory:"DATA",recursive:true}).catch(()=>{}).then(()=>{DL[r].clear();dlSave(r);store.set("mushaf.dlb."+r,"0");if(auSrc&&!/^https?:\/\/cdn/.test(auSrc))auSrc="";dlUI();toast("انحذف التحميل")})};
+  nat("Filesystem","rmdir",{path:`audio/${r}`,directory:"DATA",recursive:true}).catch(()=>{}).then(()=>{DL[r].clear();dlSave(r);store.set("mushaf.dlb."+r,"0");if(auSrc&&!/^https?:\/\/cdn/.test(auSrc))auSrc="";dlUI();toast("حُذف التحميل")})};
 dlUI();
 $("aPlay").onclick=()=>playFrom(selA);
 /* a toast with "تراجع": the last removal can be put back for 5 seconds */
@@ -3567,8 +3595,8 @@ function rate(good){
 $("bMemo").onclick=()=>{showPrefs(false);memo.range=null;setMemo(!memo.on)};
 $("mExit").onclick=()=>setMemo(false);
 $("mErr").onclick=()=>{const nx=deckPages().map(p=>cache.has(p)&&pageWords(p)[memo.rev.get(p)||0]).find(Boolean);
-  if(nx){const E=mErrs();E.add(mKey(nx));store.set("mushaf.memoErr",JSON.stringify([...E]));revealNext(pOf(+nx.dataset.a));toast("سجّلتها غلطة وكشفتها، راح تطلع مظللة بالمراجعة");return}
-  const w=memo.last;if(!w||w.classList.contains("hid")){toast("اكشف الكلمة أولاً ثم سجّلها");return}const E=mErrs(),k=mKey(w),had=E.has(k);had?E.delete(k):E.add(k);store.set("mushaf.memoErr",JSON.stringify([...E]));paintMemo();rasterDirtyLazy();toast(had?"شلت العلامة عن الكلمة":"سجّلت الكلمة، راح تطلع مظللة بالمراجعة")};
+  if(nx){const E=mErrs();E.add(mKey(nx));store.set("mushaf.memoErr",JSON.stringify([...E]));revealNext(pOf(+nx.dataset.a));toast("سُجّلت خطأً وكُشفت، وستظهر مظلَّلة في المراجعة");return}
+  const w=memo.last;if(!w||w.classList.contains("hid")){toast("اكشف الكلمة أولاً ثم سجّلها");return}const E=mErrs(),k=mKey(w),had=E.has(k);had?E.delete(k):E.add(k);store.set("mushaf.memoErr",JSON.stringify([...E]));paintMemo();rasterDirtyLazy();toast(had?"شلت العلامة عن الكلمة":"سُجّلت الكلمة، وستظهر مظلَّلة في المراجعة")};
 $("mHint").onclick=()=>{memo.hint=!memo.hint;store.set("mushaf.memoHint",memo.hint?"1":"0");$("app").classList.toggle("mhint",memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));paintMemo();rasterDirtyLazy()};
 $("mAll").onclick=()=>{deckPages().forEach(p=>memo.rev.set(p,pageWords(p).length));paintMemo()};
 $("mReset").onclick=()=>{deckPages().forEach(p=>memo.rev.delete(p));document.querySelectorAll("#book .err").forEach(w=>w.classList.remove("err"));paintMemo()};
@@ -3821,7 +3849,7 @@ function hlTop(){const n=Object.keys(hl.get()).length;if(!n)return "";
   return `<div class="hltop"><input id="hlQ" type="search" placeholder="ابحث في ما ظلّلته: كلمة، سورة، أو موضوع" value="${escH(hlQ)}" autocomplete="off"><div class="hlseg"><button data-hby="c" aria-pressed="${hlBy==="c"}">حسب اللون</button><button data-hby="s" aria-pressed="${hlBy==="s"}">حسب السورة</button></div></div>`}
 function hlRows(){const d=hl.get(),nm=hl.names(),q=strip(hlQ.trim());
   let ids=Object.keys(d).map(Number).sort((a,b)=>a-b);
-  if(!ids.length)return '<div class="empty">ما ظلّلت شي بعد. اضغط مطوّلاً على آية، ثم «تظليل» واختر لوناً. كل لون له موضوع تكدر تغيّر اسمه من هنا.</div>';
+  if(!ids.length)return '<div class="empty">لم تظلّل شيئاً بعد. اضغط مطوّلاً على آية، ثم «تظليل» واختر لوناً. لكل لون موضوع يمكنك تغيير اسمه من هنا.</div>';
   if(q)ids=ids.filter(id=>strip(txt(id)).includes(q)||strip(SUR[sOf(id)][0]).includes(q)||strip(nm[d[id].k]||"").includes(q));
   if(!ids.length)return '<div class="empty">ما لگيت نتيجة.</div>';
   const row=id=>`<button class="row" data-p="${pOf(id)}" data-a="${id}"><span class="star hk" style="--c:${hlC(d[id].k)}">${ar(aOf(id))}</span><span class="rn"><b>${SUR[sOf(id)][0]}</b><small><q>${words(id,7)}</q></small></span><span class="pg-n"><em>صفحة</em>${ar(pOf(id))}</span></button>`;
@@ -3835,7 +3863,8 @@ function renderList(anim){
   L.classList.remove("anim");if(anim===true){void L.offsetWidth;L.classList.add("anim");clearTimeout(renderList.t);renderList.t=setTimeout(()=>L.classList.remove("anim"),900)}
   if(raw){L.innerHTML=findHTML(raw);return}
   const q="",num=NaN;
-  const curId=pStart(cur), cs=sOf(curId), cj=jOf(curId), cq=qOf(curId);
+  /* on a spread, a surah that opens on the facing page is the one being read */
+  const curId=mode==="spread"&&cur<NP&&sOf(pStart(cur+1))!==sOf(pStart(cur))&&SST[sOf(pStart(cur+1))-1]>=pStart(cur+1)?pStart(cur+1):pStart(cur), cs=sOf(curId), cj=jOf(curId), cq=qOf(curId);
   let h="";
   const bm=+store.get("mushaf.bookmark");
   if(bm&&!q&&tab!=="m"&&tab!=="r"&&tab!=="q"){const id=pStart(bm);h+=`<button class="row" data-p="${bm}"><span class="star" style="color:var(--gold)">★</span><span class="rn"><b>العلامة المحفوظة</b><small>سورة ${SUR[sOf(id)][0]} · الجزء ${ar(jOf(id))}</small></span><span class="pg-n"><em>صفحة</em>${ar(bm)}</span></button>`}
@@ -4216,7 +4245,7 @@ function azHome(){
   const d=azSt.get(),now=azNowCat(),h=new Date().getHours();
   $("azGreet").textContent=h>=4&&h<12?"صباح الخير · ابدأ يومك بذكر الله":h<17?"طاب يومك · ﴿أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ﴾":"مساء الخير · اختم يومك بذكر الله";
   $("azCats").innerHTML=AZ_CATS.map(c=>{const L=c.list(),dn=L.filter((x,i)=>(d.p[c.k]||{})[i]>=x.n).length,ok=c.k!=="free"&&L.length&&dn===L.length;
-    const sub=c.k==="free"?`اليوم ${ar(d.fc||0)} تسبيحة`:ok?"أتممتها اليوم":`${ar(L.length)} ذكراً · ${c.sub}`;
+    const sub=c.k==="free"?(d.fc?`اليوم ${numW(d.fc,"تسبيحة","تسبيحتان","تسبيحات","تسبيحة")}`:"ابدأ التسبيح"):ok?"أتممتها اليوم":`${numW(L.length,"ذكر واحد","ذكران","أذكار","ذكراً")} · ${c.sub}`;
     return `<button class="az-cat${ok?" ok":""}" data-az="${c.k}" style="--glow:${c.glow}55;--glowc:${c.glow}"><i><svg viewBox="0 0 24 24">${c.ic}</svg></i><b>${c.name}</b><small>${sub}</small>${c.k!=="free"?`<span class="pb"><s style="width:0" data-w="${L.length?dn/L.length*100:0}"></s></span>`:""}${c.k===now&&!ok?`<span class="now">الآن</span>`:""}<span class="chk"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>`}).join("");
   requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll("#azCats .pb s").forEach(s=>s.style.width=s.dataset.w+"%")));
   $("azStreak").textContent=d.st.n>1?`${ar(d.st.n)} أيام متتالية وأنت تذكر الله`:d.tot?`مجموع تسبيحاتك ${ar(d.tot)}`:"";
@@ -4268,38 +4297,31 @@ function azDrawBeads(){
   const {c,w,h,sp}=AZB;if(!c)return;c.clearRect(0,0,w,h);
   /* a hanging string: a catenary, lowest at the ring in the middle */
   const cx=w/2,top=h*.12,sag=h*.5,a=w*.34,y=x=>top+sag-sag*(Math.cosh((x-cx)/a)-1)/(Math.cosh(w/2/a)-1),R=sp*.38;
-  c.strokeStyle="rgba(200,225,230,.35)";c.lineWidth=1.2;c.beginPath();for(let x=0;x<=w;x+=6)x?c.lineTo(x,y(x)):c.moveTo(x,y(x));c.stroke();
+  c.strokeStyle="rgba(217,190,140,.35)";c.lineWidth=1.2;c.beginPath();for(let x=0;x<=w;x+=6)x?c.lineTo(x,y(x)):c.moveTo(x,y(x));c.stroke();
   /* the ring the beads pass through */
-  const ry=y(cx);c.save();c.strokeStyle="rgba(220,240,245,.5)";c.lineWidth=2;c.shadowColor="rgba(160,220,235,.6)";c.shadowBlur=10;c.beginPath();c.arc(cx,ry,R*1.75,0,7);c.stroke();c.restore();
+  const ry=y(cx);c.save();c.strokeStyle="rgba(230,205,150,.6)";c.lineWidth=2;c.shadowColor="rgba(217,180,108,.5)";c.shadowBlur=10;c.beginPath();c.arc(cx,ry,R*1.75,0,7);c.stroke();c.restore();
   const n=Math.ceil(w/sp/2)+2;
   for(let k=-n;k<=n;k++){const x=cx+(k+azPh)*sp,yy=y(x),d=Math.abs(x-cx)/sp,big=Math.max(0,1-d)*.28,r=R*(1+big);
-    const g=c.createRadialGradient(x-r*.35,yy-r*.4,r*.1,x,yy,r);g.addColorStop(0,"#e9fbff");g.addColorStop(.35,"#9fd3dc");g.addColorStop(1,"#3f7f8c");
-    c.save();c.shadowColor="rgba(120,200,215,.45)";c.shadowBlur=8;c.fillStyle=g;c.beginPath();c.arc(x,yy,r,0,7);c.fill();c.restore();
+    const g=c.createRadialGradient(x-r*.35,yy-r*.4,r*.1,x,yy,r);g.addColorStop(0,"#fff3d9");g.addColorStop(.35,"#d9b46c");g.addColorStop(1,"#6e5122");
+    /* amber beads; no per-bead blur, which costs frames on a 120Hz screen */c.fillStyle=g;c.beginPath();c.arc(x,yy,r,0,7);c.fill();
     c.fillStyle="rgba(255,255,255,.55)";c.beginPath();c.ellipse(x-r*.32,yy-r*.38,r*.26,r*.16,-.6,0,7);c.fill()}
 }
 function azBeadStep(){if(reduce){azDrawBeads();return}cancelAnimationFrame(azRaf);const from=azPh,t0=performance.now(),D=260;
   const st=now=>{const t=Math.min(1,(now-t0)/D),e=1-Math.pow(1-t,3);azPh=from+(-1-from)*e;azDrawBeads();if(t<1)azRaf=requestAnimationFrame(st);else{azPh=0;azDrawBeads()}};azRaf=requestAnimationFrame(st)}
-/* ---- the sky: stars that breathe, a nebula, and a small sun with its planets turning slowly ---- */
+/* ---- the sky: a still night with stars that breathe ---- */
 const AZS={stars:[],neb:null,w:0,h:0,t0:0};
 function azSky(start){
   const cv=$("azSky"),dpr=Math.min(2,devicePixelRatio||1),w=innerWidth,h=innerHeight;if(AZS.w!==w||AZS.h!==h||!AZS.neb){AZS.w=w;AZS.h=h;cv.width=w*dpr;cv.height=h*dpr;
     AZS.stars=Array.from({length:Math.round(w*h/2600)},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.2+.2,p:Math.random()*6.3,s:.5+Math.random()*1.5}));
     const nb=document.createElement("canvas");nb.width=w;nb.height=h;const n=nb.getContext("2d");n.fillStyle="#06080d";n.fillRect(0,0,w,h);
-    [[.2,.25,.7,"rgba(70,110,125,.30)"],[.85,.35,.6,"rgba(150,95,70,.26)"],[.55,.55,.8,"rgba(60,85,110,.22)"],[.3,.8,.6,"rgba(120,70,60,.2)"]].forEach(([x,y,r,col])=>{const g=n.createRadialGradient(x*w,y*h,0,x*w,y*h,r*Math.max(w,h));g.addColorStop(0,col);g.addColorStop(1,"rgba(0,0,0,0)");n.fillStyle=g;n.fillRect(0,0,w,h)});
+    [[.5,.05,.7,"rgba(217,180,108,.10)"],[.15,.6,.7,"rgba(60,70,80,.18)"],[.85,.75,.7,"rgba(70,60,45,.18)"]].forEach(([x,y,r,col])=>{const g=n.createRadialGradient(x*w,y*h,0,x*w,y*h,r*Math.max(w,h));g.addColorStop(0,col);g.addColorStop(1,"rgba(0,0,0,0)");n.fillStyle=g;n.fillRect(0,0,w,h)});
     AZS.neb=nb}
   const c=cv.getContext("2d");c.setTransform(dpr,0,0,dpr,0,0);
-  const planets=[[.16,.9,"#d9a77a",5.5],[.26,.55,"#9fc4d6",3.5],[.38,.33,"#e3b48c",7],[.52,.22,"#efd2b5",6,1],[.66,.14,"#a5c9e6",4.2]];
-  let last=0;
+    let last=0;
   const frame=now=>{if(!azOpen)return;azSkyRaf=requestAnimationFrame(frame);if(now-last<33)return;last=now;const t=now/1000;
     c.drawImage(AZS.neb,0,0,w,h);
-    for(const s of AZS.stars){const a=.35+.65*Math.abs(Math.sin(t*s.s*.6+s.p));c.globalAlpha=a;c.fillStyle="#fff";c.beginPath();c.arc(s.x,s.y,s.r,0,7);c.fill()}c.globalAlpha=1;
-    /* sun at the bottom with tilted orbits */
-    const sx=w/2,sy=h*1.0-Math.min(80,h*.08),R=Math.min(w,620)*.5;
-    c.strokeStyle="rgba(255,255,255,.07)";c.lineWidth=1;
-    planets.forEach(([rr])=>{c.beginPath();c.ellipse(sx,sy,R*rr*2.6,R*rr*.55,0,0,7);c.stroke()});
-    const sg=c.createRadialGradient(sx,sy,0,sx,sy,R*.55);sg.addColorStop(0,"rgba(255,240,220,1)");sg.addColorStop(.12,"rgba(255,150,80,.95)");sg.addColorStop(.3,"rgba(255,100,50,.35)");sg.addColorStop(1,"rgba(255,90,40,0)");c.fillStyle=sg;c.beginPath();c.arc(sx,sy,R*.55,0,7);c.fill();
-    planets.forEach(([rr,sp,col,pr,ring],i)=>{const a=t*sp*.25+i*1.7,px=sx+Math.cos(a)*R*rr*2.6,py=sy+Math.sin(a)*R*rr*.55,g=c.createRadialGradient(px-pr*.4,py-pr*.4,0,px,py,pr);g.addColorStop(0,"#fff");g.addColorStop(.4,col);g.addColorStop(1,"rgba(20,20,30,.9)");
-      c.globalAlpha=Math.sin(a)>0?1:.75;c.fillStyle=g;c.beginPath();c.arc(px,py,pr,0,7);c.fill();if(ring){c.strokeStyle="rgba(240,220,200,.7)";c.lineWidth=1.2;c.beginPath();c.ellipse(px,py,pr*2,pr*.6,-.3,0,7);c.stroke()}c.globalAlpha=1});
+    for(const s of AZS.stars){const a=.3+.45*Math.abs(Math.sin(t*s.s*.45+s.p));c.globalAlpha=a;c.fillStyle="#f3ead7";c.beginPath();c.arc(s.x,s.y,s.r,0,7);c.fill()}c.globalAlpha=1;
+    /* only the night sky: nothing moves over the words of dhikr but the slow breathing of the stars */
     if(reduce)cancelAnimationFrame(azSkyRaf)};
   cancelAnimationFrame(azSkyRaf);azSkyRaf=requestAnimationFrame(frame);
 }

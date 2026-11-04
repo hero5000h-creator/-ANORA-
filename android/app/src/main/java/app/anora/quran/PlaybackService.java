@@ -82,8 +82,15 @@ public class PlaybackService extends Service {
         inst = this;
         channel();
         Notification n = build();
-        if (Build.VERSION.SDK_INT >= 29) startForeground(1, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-        else startForeground(1, n);
+        /* Android 12+ refuses a foreground start while the app is in the background; the recitation then just
+           plays without the notification instead of the app crashing */
+        try {
+            if (Build.VERSION.SDK_INT >= 29) startForeground(1, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+            else startForeground(1, n);
+        } catch (Exception e) {
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         apply();
         return START_NOT_STICKY;
     }
