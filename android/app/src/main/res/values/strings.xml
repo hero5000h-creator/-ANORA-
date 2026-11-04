@@ -4,4 +4,8 @@
     <string name="title_activity_main">أنورا</string>
     <string name="package_name">app.anora.quran</string>
     <string name="custom_url_scheme">app.anora.quran</string>
+    <string name="wg_adhkar">أذكار أنورا</string>
+    <string name="wg_adhkar_desc">ذكر الوقت ومواقيت الصلاة ومتابعة القراءة</string>
+    <string name="wg_tasbih">مسبحة أنورا</string>
+    <string name="wg_tasbih_desc">سبّح من الشاشة الرئيسية بلمسة</string>
 </resources>

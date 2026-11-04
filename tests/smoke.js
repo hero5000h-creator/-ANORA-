@@ -34,7 +34,7 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       MA.addEventListener("ended",()=>em("ended"));MA.addEventListener("loadedmetadata",()=>em("loaded",{dur:MA.duration*1000}));MA.addEventListener("error",()=>em("error",{msg:"x"}));window.__MA=MA;
       const AP={load:o=>{MA.src=o.url},play:()=>MA.play(),pause:()=>MA.pause(),seek:o=>{MA.currentTime=o.ms/1000},rate:o=>{MA.playbackRate=o.rate},stop:()=>{MA.pause();MA.removeAttribute("src")}};
       window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>"android",convertFileSrc:u=>u,isPluginAvailable:n=>n==="Audio",addListener:(pl,ev,fn)=>{window.__L[pl+ev]=fn},
-        nativePromise:(pl,m,o)=>pl==="Audio"?Promise.resolve().then(()=>AP[m](o||{})).then(()=>({})):pl==="Playback"&&m==="ack"?(window.__ack=o.n,Promise.resolve({})):m==="getUri"?Promise.resolve({uri:"file:///d/"+o.path}):Promise.resolve({})}});
+        nativePromise:(pl,m,o)=>pl==="Widget"?Promise.resolve(m==="update"?(window.__wg=o,{}):m==="take"?(()=>{const g=window.__wgGo||null;window.__wgGo=null;return {go:g}})():{ok:false}):pl==="Audio"?Promise.resolve().then(()=>AP[m](o||{})).then(()=>({})):pl==="Playback"&&m==="ack"?(window.__ack=o.n,Promise.resolve({})):m==="getUri"?Promise.resolve({uri:"file:///d/"+o.path}):Promise.resolve({})}});
     await p.route(/\.mp3(\?|$)/,r=>{const h=r.request().headers().range,B=TONE;if(h){const m=/bytes=(\d+)-(\d*)/.exec(h),a=+m[1],e=m[2]?+m[2]:B.length-1;
       return r.fulfill({status:206,headers:{"content-type":"audio/mpeg","accept-ranges":"bytes","content-range":`bytes ${a}-${e}/${B.length}`},body:B.subarray(a,e+1)})}
       r.fulfill({status:200,headers:{"content-type":"audio/mpeg","accept-ranges":"bytes"},body:B})});
@@ -52,6 +52,13 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         await p.evaluate(()=>{document.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowRight"}))});await p.waitForTimeout(1100)}
       await p.evaluate(()=>localStorage.removeItem("mushaf.turn"))}
     ok(!errs.length,`${name}: no script errors on load ${errs.join(" | ")}`);
+    /* home-screen widgets: the page sends what they show, and a tap on one opens the screen it names */
+    {const w=await p.evaluate(()=>window.__wg||null);
+      ok(w&&w.page>=1&&w.sur&&w.cats&&w.cats.sab&&w.cats.sab.of>0&&w.cats.sab.f0&&w.cats.sab.f0.t&&Array.isArray(w.pt)&&w.free.length,`${name}: widget data sent (page ${w&&w.page}, ${w&&w.sur}, ${w&&w.cats&&w.cats.sab&&w.cats.sab.of} morning adhkar)`);
+      const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));window.__wgGo="az:mas";window.__L.Widgetopen({});await W(900);
+        const az=!document.getElementById("az").hidden,tt=document.getElementById("azTitle").textContent;window.__wgGo="page:77";window.__L.Widgetopen({});await W(1600);
+        return {az,tt,closed:document.getElementById("az").hidden,cur:__smk.turn.cur()}});
+      ok(r.az&&r.tt==="أذكار المساء"&&r.closed&&(r.cur===77||r.cur===76),`${name}: widget taps open the evening adhkar, then page 77 (${JSON.stringify(r)})`)}
     ok(await p.evaluate(()=>__smk.nativeAudio),`${name}: Android uses the native player`);
     const lock=await p.evaluate(()=>document.getElementById("qLockMsg").textContent);ok(/مطابق/.test(lock),`${name}: Quran text lock matches`);
     {const r=await p.evaluate(()=>{const S=__smk;let bad=[];for(let id=1;id<=S.NA&&bad.length<3;id++)for(const w of S.AW[id]){const q=S.qY(w);if(/ي[\u064B-\u065F\u0670\u06D6-\u06ED]*$/.test(q))bad.push(q)}

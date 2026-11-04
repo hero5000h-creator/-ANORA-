@@ -1410,6 +1410,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-occ button.ok{border-color:rgba(127,224,192,.45)}
 .az-sec{margin:22px 2px 8px;font-family:var(--f-display);font-size:17px;font-weight:700;color:#f3e3bf}
 /* settings: reminders and the weak-isnad switch */
+.az-wg{flex:none;height:38px;padding:0 12px;background:rgba(217,180,108,.1);border-color:rgba(217,180,108,.32);color:#f3e3bf}
 .az-set{display:grid;gap:2px;padding:6px 14px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
 .az-row{display:flex;align-items:center;gap:10px;min-height:52px;font-size:14.5px}
 .az-row+.az-row{border-top:1px solid rgba(255,255,255,.07)}
@@ -1900,6 +1901,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
       <div class="az-set" id="azSet">
         <div class="az-row" id="azRemRow"><span>تذكير أذكار الصباح<small id="azRemNote">إشعار هادئ كل يوم</small></span><input type="time" id="azRemM" value="06:30" aria-label="وقت تذكير الصباح"><button class="az-sw" id="azRemMs" role="switch" aria-checked="false" aria-label="تذكير أذكار الصباح"></button></div>
         <div class="az-row" id="azRemRow2"><span>تذكير أذكار المساء</span><input type="time" id="azRemE" value="17:30" aria-label="وقت تذكير المساء"><button class="az-sw" id="azRemEs" role="switch" aria-checked="false" aria-label="تذكير أذكار المساء"></button></div>
+        <div class="az-row" id="azWgRow" hidden><span>على الشاشة الرئيسية<small>ذكر الوقت ومواقيت الصلاة، أو مسبحة بلمسة</small></span><button class="az-btn az-wg" data-wg="adhkar">الأذكار</button><button class="az-btn az-wg" data-wg="tasbih">المسبحة</button></div>
         <div class="az-row"><span>إخفاء ما في إسناده كلام<small>يبقى الصحيح والحسن فقط</small></span><button class="az-sw" id="azWeak" role="switch" aria-checked="false" aria-label="إخفاء ما في إسناده كلام"></button></div>
       </div>
       <p class="az-streak" id="azStreak"></p>
@@ -1951,7 +1953,9 @@ const qOf=id=>bs(QTR,id);                 // 0..239
 const txt=id=>Q[sOf(id)][aOf(id)-1];
 const words=(id,k)=>{const w=txt(id).replace(/[۞۩]/g,"").trim().split(/\s+/);return w.slice(0,k).join(" ")+(w.length>k?" …":"")};
 const pStart=p=>PAGES[p-1], pEnd=p=>p<NP?PAGES[p]-1:NA;
-const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}if(WG_KEYS.has(k))wgPush()}};
+/* what the home-screen widgets show changes with these */
+const WG_KEYS=new Set(["mushaf.last","mushaf.az","mushaf.pt","mushaf.azWeak"]);
 const splT=performance.now();
 /* the opening screen already wears the reader's paper colour */
 {let pp=store.get("mushaf.paper");if(pp==="auto"){const n=store.get("mushaf.nightP");pp=matchMedia("(prefers-color-scheme: dark)").matches||sunDown()?(["night","black","sky"].includes(n)?n:"night"):(store.get("mushaf.dayP")==="sepia"?"sepia":"light")}if(["light","sepia","night","black","sky"].includes(pp)){const d=document.documentElement;d.dataset.paper=pp;d.dataset.theme=pp==="night"||pp==="black"||pp==="sky"?"dark":"light"}
@@ -4969,6 +4973,30 @@ async function azRemToggle(w){const r=azRemGet();r[w].on=!r[w].on;
 $("azRemMs").onclick=()=>azRemToggle("m");$("azRemEs").onclick=()=>azRemToggle("e");
 for(const [id,w] of [["azRemM","m"],["azRemE","e"]])$(id).addEventListener("change",e=>{const r=azRemGet();if(!/^\d\d:\d\d$/.test(e.target.value))return;r[w].t=e.target.value;store.set("mushaf.azRem",JSON.stringify(r));azRemApply()});
 $("azWeak").onclick=()=>{azWeakOff=!azWeakOff;store.set("mushaf.azWeak",azWeakOff?"1":"");azHome();try{azMarkDue()}catch(e){}};
+/* ---------- home-screen widgets (Android: AnoraWidget, TasbihWidget) ----------
+   The page hands the widget what it shows (today's adhkar progress and the next dhikr of each kind, prayer
+   times for the coming days, the last page read); the widget picks the kind due at the hour by itself.
+   A tap on the widget opens the app with "go": az:<kind> | az:home | az:pt | az:free | page:<n>. */
+function wgItem(x){if(x.q){const id=SST[x.q[0]-1]+(x.q[1]||1)-1;return {t:words(id,14),s:x.s||""}}return {t:x.t,s:(x.n>1?numW(x.n,"مرة","مرتين","مرات","مرة")+" · ":"")+(x.s||"")}}
+function wgData(){const d=azSt.get(),cats={};
+  for(const k of ["sab","mas","nom","sal"]){const c=AZ_CATS.find(x=>x.k===k);if(!c)continue;const it=azItems(c),p=d.p[k]||{},nx=it.find(x=>!azDoneN(x,p));
+    cats[k]={name:c.name,sub:c.sub,of:it.length,n:it.filter(x=>azDoneN(x,p)).length,nx:nx?wgItem(nx):null,f0:it.length?wgItem(it[0]):null}}
+  const pt=[],P=ptGet();if(ptReady(P))for(let i=-1;i<14;i++){const t=ptTimes(new Date(Date.now()+i*864e5),P);if(t)pt.push(PT_KEYS.map(k=>t[k]))}
+  const s=sOf(pStart(Math.max(1,Math.min(NP,cur))));
+  return {day:today(),page:cur,sur:SUR[s][0],pt,cats,free:AZ_FREE}}
+function wgSend(){try{if(PLAT!=="android")return;nat("Widget","update",wgData()).catch(()=>{})}catch(e){}}
+function wgPush(now){try{if(PLAT!=="android")return}catch(e){return}clearTimeout(wgPush.t);if(now)wgSend();else wgPush.t=setTimeout(wgSend,1200)}
+function wgGo(g){if(!g)return;const i=String(g).indexOf(":"),a=i<0?g:g.slice(0,i),b=i<0?"":g.slice(i+1);
+  if(a==="page"){if(azOpen)azClose();const n=+b;if(n>=1&&n<=NP&&n!==cur)goTo(n);return}
+  if(a==="az"){azOpenUI();if(b&&b!=="home"&&b!=="pt"&&azCatOf(b))azStart(b);else if(azCat)azHome()}}
+function wgTake(){nat("Widget","take").then(r=>wgGo(r&&r.go)).catch(()=>{})}
+natOn("Widget","open",wgTake);
+if(PLAT==="android"){setTimeout(wgTake,900);setTimeout(()=>wgPush(true),2500);
+  document.addEventListener("visibilitychange",()=>{if(document.hidden)wgPush(true)});
+  $("azWgRow").hidden=false;
+  $("azWgRow").addEventListener("click",async e=>{const b=e.target.closest("[data-wg]");if(!b)return;let ok=false;
+    try{ok=!!(await nat("Widget","pin",{kind:b.dataset.wg})).ok}catch(err){}
+    toast(ok?"اختر مكانها على الشاشة الرئيسية":"اضغط مطوّلاً على الشاشة الرئيسية، ثم «أدوات» أو «Widgets»، وابحث عن أنورا")})}
 natOn("LocalNotifications","localNotificationActionPerformed",a=>{const k=a&&a.notification&&a.notification.extra&&a.notification.extra.az;azOpenUI();if(k&&k!=="pt")azStart(k)});
 $("azFree").addEventListener("click",e=>{const b=e.target.closest(".az-chip");if(!b)return;e.stopPropagation();const d=azSt.get();
   if(b.dataset.fp!==undefined){d.fp=+b.dataset.fp;azList[0].t=AZ_FREE[d.fp]}if(b.dataset.ft!==undefined){d.ft=+b.dataset.ft;azList[0].n=d.ft}azSt.save(d);azCount=0;azFreeUI();azShow(0)});

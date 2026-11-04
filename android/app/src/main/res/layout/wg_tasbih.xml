@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen tasbih: tap anywhere to count; 33 سبحان الله, 33 الحمد لله, 33 الله أكبر, then the tahlil -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/wg_bg"
+    android:layoutDirection="rtl"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:id="@+id/tzTap"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tzName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="22dp"
+            android:layout_marginEnd="22dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/amiri_bold"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1"
+            android:text="سُبْحَانَ اللَّهِ"
+            android:textColor="#FFF0C98A"
+            android:textDirection="rtl"
+            android:textSize="16sp" />
+
+        <FrameLayout
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:layout_marginTop="6dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:contentDescription="@null"
+                android:src="@drawable/wg_ring_core" />
+
+            <ProgressBar
+                android:id="@+id/tzRing"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:indeterminate="false"
+                android:max="33"
+                android:progress="0"
+                android:progressDrawable="@drawable/wg_ring" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tzCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:includeFontPadding="false"
+                    android:text="٠"
+                    android:textColor="#FFF5F1E8"
+                    android:textSize="28sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tzOf"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="من ٣٣"
+                    android:textColor="#B3EAE6DC"
+                    android:textDirection="rtl"
+                    android:textSize="11sp" />
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/tzReset"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:layout_gravity="top|start"
+        android:contentDescription="ابدأ من جديد"
+        android:padding="8dp"
+        android:src="@drawable/wg_ic_reset" />
+</FrameLayout>
