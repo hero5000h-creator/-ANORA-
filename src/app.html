@@ -150,8 +150,9 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 /* mushaf ornament: a gilded band around the text block, drawn per paper colour (see ornaments()) */
 .pg:not(.blank) .box{border-style:solid;border-width:calc(var(--pw) * .042);border-image:var(--o-frame) 30 round;padding:calc(var(--pw) * .012) calc(var(--pw) * .016);margin:calc(var(--pw) * .006) 0}
 /* phones: a slimmer frame and margins give the text about 9% more width, so the letters grow */
-html.phoneM .pg .frame{inset:2.2% 1.6% 1.2% 1.6%}
-html.phoneM .pg:not(.blank) .box{border-width:calc(var(--pw) * .027);padding:calc(var(--pw) * .016) calc(var(--pw) * .012)}
+html.phoneM .pg .frame{inset:2.2% .8% 1.2% .8%}
+html.phoneM .pg:not(.blank) .box{border-width:calc(var(--pw) * .02);padding:calc(var(--pw) * .014) calc(var(--pw) * .006)}
+html.phoneM .hm:not(.jz):not(.sj){width:calc(var(--pw) * .068);height:calc(var(--pw) * .068)}html.phoneM .hm.q{width:calc(var(--pw) * .06);height:calc(var(--pw) * .06)}
 html.phoneM .ph{font-size:calc(var(--pw) * .047);padding:0 .3em .25em}
 html.phoneM .pf{font-size:calc(var(--pw) * .05);margin-top:.15em}
 html.phoneM #stage{background:var(--paper);background-image:none}
@@ -221,7 +222,7 @@ html[data-theme="dark"][data-cover="green"]{--cover:#1d2622}html[data-theme="dar
 /* the opening pages: al-Fatiha and the start of al-Baqarah sit in an illuminated arched panel, as in the printed mushaf */
 .pg.opening .box{background:var(--o-open) center/100% 100% no-repeat;padding:0 15%}
 /* tall phones: the arch opens wider so the longest line of al-Fatiha stays inside its walls */
-html.phoneM .pg.opening .box{background-size:116% 100%}
+html.phoneM .pg.opening .box{background-size:120% 100%}
 /* rehal: on a half-folded Fold the book rests on a carved wooden stand */
 #rehal{display:none}
 #app.table #rehal{display:block;position:absolute;left:-24px;right:-24px;top:-12px;bottom:-20px;z-index:-2;border-radius:8px;pointer-events:none;
@@ -1421,7 +1422,11 @@ html.phoneM .tg[aria-checked="true"]::after{transform:translateX(-20px)}
 html.phoneM #prefs .rng{font-size:13.5px}
 html.phoneM #warmR{height:44px}
 html.phoneM #pRec{font-size:13px}
-html.phoneM #player .cap{font-size:12.5px}
+html.phoneM #player .cap,html.phoneM #player .pinfo small{font-size:13.5px}
+html.phoneM .pnum small{font-size:13px}
+html.phoneM .acts button{font-size:13.5px}
+html.phoneM .pf span{font-size:.8em}
+html.phoneM #cont .ch .cd,html.phoneM .cay>span{font-size:13px}html.phoneM .cay>small{font-size:13.5px}
 html.phoneM #player .ib{min-height:48px}
 @media (max-width:390px){html.phoneM #app>.bar{padding-inline:10px}html.phoneM .where b::before,html.phoneM .where b::after{display:none}}
 /* menu: four main tools as tiles, the rest as a slim row under them */
@@ -1898,7 +1903,7 @@ function resize(){
   /* tall phones use the whole screen: the bars, when they show, cover only the page's own header and number */
   const tall=full&&!inTable&&!inStudy&&r.height/r.width>1.75;
   if($("app").classList.contains("ovl")){const f=document.querySelector(".foot"),mo=$("app").classList.contains("memo"),
-    t0=mo&&!tall?document.querySelector(".bar").offsetHeight:0, b0=mo||f.classList.contains("playing")?f.offsetHeight:0;
+    t0=mo&&!tall?document.querySelector(".bar").offsetHeight:0, b0=mo||f.classList.contains("playing")?Math.max(0,f.offsetHeight-(tall&&!mo?Math.round(SW*.11):0)):0;/* a phone's player covers only the page-number row, so the letters do not shrink */
     SH-=t0+b0;cy=t0+SH/2}
   const sg=inStudy?null:segments();
   if(sg){const [a,b]=sg;
