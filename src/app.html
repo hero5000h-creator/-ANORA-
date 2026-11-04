@@ -1456,6 +1456,22 @@ html[data-theme="dark"] .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var
 .lf3>.pg{position:absolute}.lf3>i{position:absolute;inset:0;pointer-events:none;z-index:6}
 .sh3{position:absolute;inset:0;pointer-events:none;z-index:6}
 #turnSeg .sw{flex:1}
+/* writing a note: a small window at the top of the screen, so the keyboard never covers what is being written */
+#noteBox{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.38);display:flex;justify-content:center;align-items:flex-start;padding:calc(10px + var(--cutT,0px) + env(safe-area-inset-top,0px)) 10px 0;box-sizing:border-box}
+#noteBox[hidden]{display:none}
+#noteBox .nb{box-sizing:border-box;width:min(560px,100%);background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);border-radius:16px;padding:10px 14px 12px;box-shadow:0 18px 50px -14px rgba(0,0,0,.55);display:grid;gap:10px;animation:nbIn .22s var(--ease)}
+@keyframes nbIn{from{opacity:0;transform:translateY(-10px)}}
+html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var(--uz,1)))}
+#noteBox .nb-h{display:flex;align-items:center;gap:8px;min-height:44px}
+#noteBox .nb-h b{font-family:var(--f-display);font-size:18px}
+#noteBox .nb-h small{flex:1;min-width:0;font-size:13.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#noteBox #nbX{width:44px;height:44px;justify-content:center}
+#noteBox #nbT{min-height:0;resize:none}
+#noteBox .nb-a{display:flex;gap:8px}
+#noteBox .nb-a button{min-height:46px;padding:0 22px;border-radius:12px;font-size:15px;font-weight:600;border:1px solid var(--line);background:transparent;color:var(--bar-ink)}
+#noteBox .nb-a #nbS{background:var(--orn);border-color:var(--orn);color:var(--bar)}
+#noteBox .nb-a #nbD{margin-inline-start:auto;color:#b4473f}
+.note textarea[readonly]{cursor:text}
 </style>
 
 
@@ -3001,7 +3017,25 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("shareBox").hidd
 
 $("bMkShow").setAttribute("aria-checked",String(markShow));
 $("bMkShow").onclick=e=>{e.stopPropagation();markShow=!markShow;store.set("mushaf.markShow",markShow?"1":"0");$("bMkShow").setAttribute("aria-checked",String(markShow));paintHL();rasterDirtyLazy()};
-$("aNote").onclick=()=>{if(!selA)return;shK="nt";shBody(selA);setTimeout(()=>{const t=$("sheet").querySelector(".note textarea");if(t){t.scrollIntoView({block:"center",behavior:reduce?"auto":"smooth"});t.focus({preventScroll:true})}},120)};
+$("aNote").onclick=()=>{if(!selA)return;noteOpen(selA)};
+/* the note is written in a window at the top of the screen: on a phone the keyboard rises over the lower half and would hide it */
+function noteOpen(id){let bx=$("noteBox");
+  if(!bx){bx=document.createElement("div");bx.id="noteBox";bx.setAttribute("role","dialog");bx.setAttribute("aria-modal","true");bx.setAttribute("aria-label","ملاحظة على الآية");
+    bx.innerHTML=`<div class="nb"><div class="nb-h"><b>ملاحظة</b><small id="nbR"></small><button class="ib" id="nbX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="note"><textarea id="nbT" dir="rtl" placeholder="ما الذي استوقفك في هذه الآية؟ اكتب خاطرة أو عملاً تنوي فعله…"></textarea></div><div class="nb-a"><button id="nbS">حفظ</button><button id="nbD">حذف</button></div></div>`;
+    document.body.appendChild(bx);
+    bx.addEventListener("click",e=>{e.stopPropagation();if(e.target===bx)noteClose(true)});bx.addEventListener("pointerdown",e=>e.stopPropagation());
+    $("nbX").onclick=()=>noteClose(true);$("nbS").onclick=()=>{noteClose(true);toast("حُفظت الملاحظة")};
+    $("nbD").onclick=()=>{const id=bx._id,was=notes.get()[id];notes.set(id,"");noteClose(false);toastU("حُذف التأمّل",()=>{notes.set(id,was);if(selA===id&&shK==="nt")shBody(id)})};
+    $("nbT").oninput=()=>{clearTimeout(ntTimer);ntTimer=setTimeout(()=>notes.set(bx._id,$("nbT").value),500)};
+    if(window.visualViewport)visualViewport.addEventListener("resize",noteFit);addEventListener("resize",noteFit);
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("noteBox").hidden){e.stopImmediatePropagation();noteClose(true)}},true)}
+  bx._id=id;const n=notes.get()[id];$("nbT").value=n?n.t:"";$("nbR").textContent=ref(id);$("nbD").hidden=!n;bx.hidden=false;noteFit();
+  $("nbT").focus({preventScroll:true});const L=$("nbT").value.length;try{$("nbT").setSelectionRange(L,L)}catch(e){}}
+function noteFit(){const bx=$("noteBox"),t=$("nbT");if(!bx||bx.hidden||!t)return;const z=root.classList.contains("uzL")?(parseFloat(root.style.getPropertyValue("--uz"))||1):1;
+  const vh=window.visualViewport?visualViewport.height:innerHeight,top=t.getBoundingClientRect().top;
+  /* about a quarter of the screen, and never below what the keyboard leaves visible */
+  t.style.height=Math.max(96,Math.min(innerHeight*.26,vh-top-74))/z+"px"}
+function noteClose(save){const bx=$("noteBox");if(!bx||bx.hidden)return;clearTimeout(ntTimer);if(save)notes.set(bx._id,$("nbT").value);$("nbT").blur();bx.hidden=true;if(selA===bx._id&&shK==="nt")shBody(bx._id)}
 $("aGrp").addEventListener("click",e=>{const b=e.target.closest("[data-mg]");if(!b||!selA)return;mgrp.set(selA,b.dataset.mg);aGrpUI();paintHL();rasterDirtyLazy();toast(`في مجموعة «${MG.find(g=>g.k===b.dataset.mg).n}»`);if(indexOpen)renderList()});
 $("aMark").onclick=()=>{const prevG=mgrp.get()[selA]||"";const on=marks.toggle(selA);if(!on)mgrp.set(selA,"");$("aMark").setAttribute("aria-pressed",String(on));aGrpUI();paintHL();rasterDirtyLazy();(on?toast("أُضيفت إلى العلامات"):(()=>{const id=selA,g=prevG;toastU("أُزيلت من العلامات",()=>{if(!marks.has(id))marks.toggle(id);if(g)mgrp.set(id,g);if(selA===id){$("aMark").setAttribute("aria-pressed","true");aGrpUI()}paintHL();rasterDirtyLazy()})})());if(indexOpen)renderList()};
 
@@ -3046,9 +3080,9 @@ function shBody(id){
   else if(k==="wd"){src.innerHTML="<span>مستكشف الكلمة</span><span>مدوّنة القرآن الكريم اللغوية</span>";load(()=>WD,wdData,()=>wxHTML(id,wSel),"تحليل الكلمات")}
   else if(k==="gh"){src.innerHTML="<span>الميسّر في غريب القرآن</span><span>مجمع الملك فهد</span>";load(()=>GH,gharib,()=>ghHTML(GH[id-1]),"معاني الكلمات")}
   else if(k==="nt"){src.innerHTML="<span>تأمّلي في هذه الآية</span><span>يُحفظ على جهازك</span>";
-    const n=notes.get()[id];tf.innerHTML=`<div class="note"><textarea id="ntT" dir="rtl" placeholder="ما الذي استوقفك في هذه الآية؟ اكتب خاطرة أو عملاً تنوي فعله…">${n?escH(n.t):""}</textarea><div class="nh"><span id="ntS">${n?"آخر تعديل "+dayLabel(n.at):""}</span>${n?'<button id="ntDel">حذف</button>':""}</div></div>`;
-    $("ntT").oninput=()=>{clearTimeout(ntTimer);ntTimer=setTimeout(()=>{notes.set(id,$("ntT").value);$("ntS").textContent="حُفظ"},500)};
-    $("ntT").onblur=()=>{clearTimeout(ntTimer);notes.set(id,$("ntT").value)};
+    const n=notes.get()[id];tf.innerHTML=`<div class="note"><textarea id="ntT" dir="rtl" readonly placeholder="ما الذي استوقفك في هذه الآية؟ اكتب خاطرة أو عملاً تنوي فعله…">${n?escH(n.t):""}</textarea><div class="nh"><span id="ntS">${n?"آخر تعديل "+dayLabel(n.at):""}</span>${n?'<button id="ntDel">حذف</button>':""}</div></div>`;
+    /* tapping the note opens the writing window at the top of the screen */
+    $("ntT").onclick=$("ntT").onfocus=e=>{e.target.blur();noteOpen(id)};
     const d=$("ntDel");if(d)d.onclick=()=>{const was=notes.get()[id];notes.set(id,"");shBody(id);toastU("حُذف التأمّل",()=>{notes.set(id,was);if(selA===id)shBody(id)})}}
   else{src.innerHTML="<span>مواضع متشابهة اللفظ</span><span>تعين على ضبط الحفظ</span>";tf.innerHTML=simHTML(id)}
 }
