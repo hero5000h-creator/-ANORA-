@@ -119,6 +119,15 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 #prefs h3{margin:0 0 8px;font-size:12.5px;font-weight:600;color:var(--muted)}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .seg.two{grid-template-columns:repeat(2,1fr)}
+/* reciter picker: the phone's own list, dressed as an ANORA field */
+.rsel{position:relative;display:block}
+.rsel select{appearance:none;-webkit-appearance:none;width:100%;min-height:48px;padding:0 14px 0 40px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:15px;cursor:pointer}
+.rsel svg{position:absolute;left:12px;top:50%;width:20px;height:20px;margin-top:-10px;stroke:var(--orn);stroke-width:2;fill:none;pointer-events:none}
+.rsel select:focus-visible{outline:2px solid var(--orn);outline-offset:2px}
+.prw{position:relative}
+.prw #pRec{text-decoration:underline dotted color-mix(in srgb,var(--muted) 60%,transparent);text-underline-offset:3px}
+#pRecSel{position:absolute;inset:-8px -4px;width:calc(100% + 8px);opacity:0;cursor:pointer;font-size:16px}
+
 .sw{display:grid;justify-items:center;gap:6px;padding:8px 4px;border-radius:10px;border:1px solid var(--line);font-size:13px}
 .sw[aria-pressed="true"]{border-color:var(--orn);box-shadow:inset 0 0 0 1px var(--orn)}
 .sw i{width:34px;height:24px;border-radius:6px;border:1px solid rgba(0,0,0,.12);display:grid;place-items:center;font-style:normal;font-family:"Scheherazade New",serif;font-size:15px}
@@ -1663,7 +1672,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
       <div class="posture"><span>وضع نصف الفتح<small>المصحف فوق المفصل والتفسير تحته</small></span><button class="tg" id="bTable" role="switch" aria-checked="false" aria-label="معاينة وضع نصف الفتح"></button></div>
       </section>
       <section class="pgrp" data-pg="dev" hidden>
-      <div><h3>القارئ</h3><div class="seg two" id="recSeg"><button class="sw" data-rec="husary">محمود خليل الحصري</button><button class="sw" data-rec="alafasy">مشاري العفاسي</button></div></div>
+      <div><h3>القارئ</h3><label class="rsel"><select id="recSel" aria-label="القارئ"></select><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></label></div>
       <div class="bkp" id="dlBox" hidden><span>الاستماع بدون إنترنت<small id="dlInfo"></small></span>
         <div class="dlbar" hidden><i id="dlBar"></i></div>
         <div class="bkb"><button class="ctb" id="dlSur"></button><button class="ctb" id="dlAll"></button></div>
@@ -1729,7 +1738,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
     </div>
     <div id="player" hidden>
       <button class="pp" id="pPlay" aria-label="إيقاف مؤقت"><svg viewBox="0 0 24 24" id="pIco"><path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg></button>
-      <div class="pinfo"><b id="pTitle"></b><div class="pbar"><i id="pBar"></i></div><small id="pRec">محمود خليل الحصري</small></div>
+      <div class="pinfo"><b id="pTitle"></b><div class="pbar"><i id="pBar"></i></div><small class="prw"><span id="pRec">محمود خليل الحصري</span><select id="pRecSel" aria-label="اختر القارئ"></select></small></div>
       <button class="ib" id="pPrev" aria-label="الآية السابقة"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg><span class="cap" id="pPrevCap">السابقة</span></button>
       <button class="ib" id="pNext" aria-label="الآية التالية"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span class="cap" id="pNextCap">التالية</span></button>
       <button class="ib" id="pRep" aria-label="تكرار مقطع" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3"/><path d="M4 11.5V10a3.5 3.5 0 0 1 3.5-3.5H20"/><path d="M7 20.5l-3-3 3-3"/><path d="M20 12.5V14a3.5 3.5 0 0 1-3.5 3.5H4"/></svg><span class="cap" id="pRepCap">تكرار</span></button>
@@ -3728,7 +3737,8 @@ if(NATIVE)root.classList.add("native",PLAT);if(PLAT==="android")setTimeout(()=>n
 const nat=(pl,m,o)=>NATIVE&&CAP.nativePromise?CAP.nativePromise(pl,m,o||{}):Promise.reject(new Error("web"));
 const natOn=(pl,ev,fn)=>{try{NATIVE&&CAP.addListener&&CAP.addListener(pl,ev,fn)}catch(e){}};
 /* ---------- real recitation (MP3Quran.net, per-surah files + ayah timings) ---------- */
-const RECS={husary:"محمود خليل الحصري",alafasy:"مشاري العفاسي"};
+/* reciters with ayah timings from MP3Quran.net (data/audio/<key>.json, made by tools/fetch_audio.py) */
+const RECS={husary:"محمود خليل الحصري",alafasy:"مشاري العفاسي",minshawi:"محمد صدّيق المنشاوي",abdulbasit:"عبد الباسط عبد الصمد",shatri:"أبو بكر الشاطري",abkar:"إدريس أبكر",amer:"أحمد محمد عامر"};
 let reciter=RECS[store.get("mushaf.reciter")]?store.get("mushaf.reciter"):"husary",aud=null,auSrc="";
 /* On Android the recitation plays in the app's own player (AudioPlugin.kt, Media3), not in the web view.
    natAudio() gives it the small part of the <audio> interface this file uses (src, currentTime, play, pause,
@@ -3758,7 +3768,7 @@ const AUD={},AU=PLAT==="android"&&NATIVE&&CAP.isPluginAvailable&&CAP.isPluginAva
 const setRate=r=>{try{AU.playbackRate=r;AU.preservesPitch=true}catch(e){}};setRate(+store.get("mushaf.rate")||1);
 const AUDD={},audData=r=>AUD[r]||(AUD[r]=fetch(`audio/${r}.json`).then(x=>{if(!x.ok)throw 0;return x.json()}).then(d=>{AUDD[r]=d;try{dlUI()}catch(e){}return d}).catch(()=>{delete AUD[r];return null}));
 const fmtSize=b=>b>=1e9?`${ar((b/1073741824).toFixed(1)).replace(".","٫")} غيغا`:`${ar(Math.max(1,Math.round(b/1048576)))} ميغا`;
-function recUI(){$("pRec").textContent=RECS[reciter];if(typeof dlUI==="function"&&$("dlBox"))try{dlUI()}catch(e){}document.querySelectorAll("#recSeg [data-rec]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.rec===reciter)))}
+function recUI(){$("pRec").textContent=RECS[reciter];if(typeof dlUI==="function"&&$("dlBox"))try{dlUI()}catch(e){}["recSel","pRecSel"].forEach(id=>{const x=$(id);if(!x)return;if(!x.options.length)x.innerHTML=Object.entries(RECS).map(([k,n])=>`<option value="${k}">${n}</option>`).join("");x.value=reciter})}
 /* the slice of the surah file for one ayah; ayah 1 starts at 0 so the basmala/isti'adha before it is heard */
 function seg(id){if(!aud)return null;const s=sOf(id)+1,a=aOf(id),rows=aud.surahs[s];if(!rows)return null;
   const i=rows.findIndex(r=>r[0]===a);if(i<0)return null;const pad=String(s).padStart(3,"0");
@@ -3821,9 +3831,10 @@ function setPlaying(on){
   if(on)startAyah(true);else{cancelAnimationFrame(player.raf);AU.pause();bgSync()}
 }
 function stopPlay(){$("repBox").hidden=true;rep.on=false;repUI();player.on=false;cancelAnimationFrame(player.raf);AU.pause();if(PLAT==="android")nat("Playback","stop").catch(()=>{});mediaSync();playA=0;$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
-$("recSeg").addEventListener("click",e=>{const b=e.target.closest("[data-rec]");if(!b||b.dataset.rec===reciter)return;
-  reciter=b.dataset.rec;store.set("mushaf.reciter",reciter);recUI();AU.pause();auSrc="";
-  audData(reciter).then(d=>{aud=d;if(player.on)startAyah(false)});toast(`القارئ: ${RECS[reciter]}`)});
+function setReciter(r){if(!RECS[r]||r===reciter)return;const was=player.on;
+  reciter=r;store.set("mushaf.reciter",reciter);recUI();AU.pause();auSrc="";
+  audData(reciter).then(d=>{aud=d;if(!d){toast("تعذّر تحميل توقيت هذا القارئ. تحقق من الاتصال");return}if(was&&player.on)startAyah(false)});toast(`القارئ: ${RECS[reciter]}`)}
+["recSel","pRecSel"].forEach(id=>{$(id).addEventListener("change",e=>setReciter(e.target.value));$(id).addEventListener("click",e=>e.stopPropagation())});
 recUI();audData(reciter).then(d=>{if(!aud)aud=d});
 /* ---------- lock screen, headset and car controls (Media Session, where the web view has it) ---------- */
 function mediaSync(){const ms=navigator.mediaSession;if(!ms)return;try{
@@ -3861,7 +3872,7 @@ $("bBg").onclick=e=>{e.stopPropagation();bgOn=!bgOn;store.set("mushaf.bg",bgOn?"
 /* ---------- downloads for listening offline ---------- */
 let audBase="",dlRun=null,dlT=0;
 const dlSet=r=>{try{return new Set(JSON.parse(store.get("mushaf.dl."+r)||"[]"))}catch(e){return new Set()}};
-const DL={husary:dlSet("husary"),alafasy:dlSet("alafasy")};
+const DL=Object.fromEntries(Object.keys(RECS).map(r=>[r,dlSet(r)]));
 function dlSave(r){store.set("mushaf.dl."+r,JSON.stringify([...DL[r]]))}
 if(NATIVE)nat("Filesystem","getUri",{path:"audio",directory:"DATA"}).then(r=>{audBase=r.uri.replace(/\/?$/,"/")}).catch(()=>{});
 const curSur=()=>sOf(pStart(cur))+1;
