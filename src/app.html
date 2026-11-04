@@ -2524,7 +2524,7 @@ function rasterPage(p){
   const css=rasterCSS(),cs=getComputedStyle(root),ver=RS.ver,dpr=Math.min(2,window.devicePixelRatio||1);
   const wrap=document.createElement("div");
   RS.vars.forEach(v=>{const val=cs.getPropertyValue(v);if(val)wrap.style.setProperty(v,val)});
-  wrap.id="app";wrap.className=$("app").className;wrap.setAttribute("dir","rtl");wrap.style.height=H+"px";
+  wrap.id="app";wrap.className=$("app").className;wrap.setAttribute("dir","rtl");wrap.style.height=H+"px";wrap.style.padding="0";/* the camera-cutout padding of the real #app would push the page image down */
   const bk=document.createElement("div");bk.id="book";bk.style.cssText=`position:relative;direction:ltr;width:${W}px;height:${H}px`;
   const c=el.cloneNode(true);c.querySelectorAll(".shd,.hlb.m,.hlb.p,.hlb.press").forEach(x=>x.remove());/* passing highlights are left out so the images survive each new ayah */
   c.style.left="0";c.style.top="0";c.style.transform="none";c.style.clipPath="none";c.style.visibility="visible";c.classList.remove("ghost");
