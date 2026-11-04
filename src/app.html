@@ -2478,7 +2478,9 @@ function markView(){const v=store.get("mushaf.view")||"auto";document.querySelec
    roll the back lies flat. Until a page's image is ready the turn falls back to the flat fold. */
 const RS={img:new Map(),ver:0,css:null,vars:null,busy:false,queue:[]};
 function rasterCSS(){
-  if(!RS.css){RS.css=[...document.querySelectorAll("style")].map(x=>x.textContent).join("\n");RS.vars=[...new Set(RS.css.match(/--[\w-]+/g)||[])]}
+  /* inside the SVG image there is no <html>: rules on html / :root (phone layout, paper, text size) are aimed at a stand-in
+     element carrying the root's classes, or the page would be drawn in another layout and jump at the start of each turn */
+  if(!RS.css){RS.css=[...document.querySelectorAll("style")].map(x=>x.textContent).join("\n").replace(/(^|[\s,}>(])(?:html|:root)(?=[.\[:\s{,>)])/g,"$1.rrt");RS.vars=[...new Set(RS.css.match(/--[\w-]+/g)||[])]}
   return RS.css;
 }
 function rasterDirty(){RS.ver++;RS.img.clear();clearTimeout(RS.t);RS.t=setTimeout(rasterSoon,350)}
@@ -2493,7 +2495,7 @@ function rasterPage(p){
   c.style.left="0";c.style.top="0";c.style.transform="none";c.style.clipPath="none";c.style.visibility="visible";c.classList.remove("ghost");
   bk.appendChild(c);wrap.appendChild(bk);
   const html=new XMLSerializer().serializeToString(wrap);
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(W*dpr)}" height="${Math.round(H*dpr)}" viewBox="0 0 ${W} ${H}"><foreignObject x="0" y="0" width="${W}" height="${H}"><div xmlns="http://www.w3.org/1999/xhtml"><style><![CDATA[${css.replace(/\]\]>/g,"")}]]></style>${html}</div></foreignObject></svg>`;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(W*dpr)}" height="${Math.round(H*dpr)}" viewBox="0 0 ${W} ${H}"><foreignObject x="0" y="0" width="${W}" height="${H}"><div xmlns="http://www.w3.org/1999/xhtml" class="rrt ${root.className}"${[...root.attributes].filter(x=>x.name.startsWith("data-")).map(x=>` ${x.name}="${x.value.replace(/[&"<]/g,"")}"`).join("")}><style><![CDATA[${css.replace(/\]\]>/g,"")}]]></style>${html}</div></foreignObject></svg>`;
   return new Promise(res=>{
     const img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
     img.onload=()=>{const ok=()=>{URL.revokeObjectURL(url);
