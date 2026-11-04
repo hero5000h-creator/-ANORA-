@@ -1868,7 +1868,7 @@ function resize(){
   /* tall phones use the whole screen: the bars, when they show, cover only the page's own header and number */
   const tall=full&&!inTable&&!inStudy&&r.height/r.width>1.75;
   if($("app").classList.contains("ovl")){const f=document.querySelector(".foot"),mo=$("app").classList.contains("memo"),
-    t0=mo?document.querySelector(".bar").offsetHeight:0, b0=mo||f.classList.contains("playing")?f.offsetHeight:0;
+    t0=mo&&!tall?document.querySelector(".bar").offsetHeight:0, b0=mo||f.classList.contains("playing")?f.offsetHeight:0;
     SH-=t0+b0;cy=t0+SH/2}
   const sg=inStudy?null:segments();
   if(sg){const [a,b]=sg;
