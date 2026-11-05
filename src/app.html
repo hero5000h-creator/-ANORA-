@@ -2845,8 +2845,15 @@ function rasterCSS(){
   if(!RS.css){RS.css=[...document.querySelectorAll("style")].map(x=>x.textContent).join("\n").replace(/(^|[\s,}>(])(?:html|:root)(?=[.\[:\s{,>)])/g,"$1.rrt");RS.vars=[...new Set(RS.css.match(/--[\w-]+/g)||[])]}
   return RS.css;
 }
+/* The fonts are files next to the page (fonts/*.woff2), but a page drawn as an SVG image may not load any file:
+   without this the turning page showed in a plain font, with "001 surah" for the surah title. Each font is read
+   once and put into the picture's style as a data: URL. */
+function rasterFonts(){if(RS.fp)return RS.fp;const css=rasterCSS(),U=[...new Set((css.match(/url\(["']?fonts\/[^)"']+/g)||[]).map(x=>x.replace(/^url\(["']?/,"")))];
+  const asData=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result));r.onerror=()=>rej(r.error);r.readAsDataURL(b)});
+  return RS.fp=Promise.all(U.map(u=>fetch(u).then(r=>{if(!r.ok)throw new Error(u);return r.blob()}).then(asData).then(d=>[u,d.replace(/^data:[^;,]*/,"data:font/"+(u.split(".").pop()||"woff2"))])))
+    .then(L=>{let c=RS.css;for(const [u,d] of L)c=c.split(u).join(d);RS.css=c;RS.img.clear()}).catch(()=>{RS.fp=null})}
 function rasterDirty(){RS.ver++;RS.img.clear();clearTimeout(RS.t);RS.t=setTimeout(rasterSoon,350)}
-function rasterPage(p){
+function rasterPage(p){if(!RS.fd)return rasterFonts().then(()=>{RS.fd=!/url\(["']?fonts\//.test(rasterCSS());return RS.fd?rasterPage(p):null});
   const el=cache.get(p);if(!el||p<1||p>NP)return Promise.resolve(null);
   const css=rasterCSS(),cs=getComputedStyle(root),ver=RS.ver,dpr=Math.min(2,window.devicePixelRatio||1);
   const wrap=document.createElement("div");
