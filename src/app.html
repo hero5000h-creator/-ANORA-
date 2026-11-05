@@ -318,6 +318,8 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
 .search input{width:100%;box-sizing:border-box;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:0 38px 0 12px;font:inherit;font-size:14px}
 .search svg{position:absolute;right:11px;top:10px;width:20px;height:20px;fill:none;stroke:var(--muted);stroke-width:1.8;stroke-linecap:round}
 .list{flex:1;overflow-y:auto;padding:10px 8px 16px;overscroll-behavior:contain;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 10px),transparent);mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 10px),transparent)}
+/* the index lists up to 270 rows (the hizb list quotes each opening in the Quran font): only the rows on screen are laid out */
+#list>.row{content-visibility:auto;contain-intrinsic-size:auto 56px}
 .row{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:12px;width:100%;text-align:right;padding:9px 8px;border-radius:10px}
 .row:hover{background:var(--sel)}
 .row.cur{background:var(--sel);box-shadow:inset -3px 0 0 var(--orn)}
@@ -2131,9 +2133,12 @@ function fit(el){
   /* a device whose shaping runs wider than the print data would push words past the frame: narrow that line */
   /* and whatever the cause (a device font size, display size, an odd screen), no line may run wider than the frame's inside */
   const inW=box.getBoundingClientRect().width;
-  box.querySelectorAll(".lb").forEach(l=>{l.style.removeProperty("--fx");const sw=l.scrollWidth,cw=l.clientWidth;let fx=sw>cw+.5?cw/sw:1;
-    const lw=l.getBoundingClientRect().width*fx;if(inW>0&&lw>inW*.998+.5)fx*=inW*.995/lw;
-    if(fx<.9999)l.style.setProperty("--fx",fx.toFixed(4))});
+  /* all writes, then all reads, then all writes: reading each line right after changing the one before forced a
+     full layout per line (15 per page, several pages at start), the biggest single cost of opening the app */
+  const L=[...box.querySelectorAll(".lb")];L.forEach(l=>l.style.removeProperty("--fx"));
+  const M=L.map(l=>{const sw=l.scrollWidth,cw=l.clientWidth;let fx=sw>cw+.5?cw/sw:1;
+    const lw=l.getBoundingClientRect().width*fx;if(inW>0&&lw>inW*.998+.5)fx*=inW*.995/lw;return fx});
+  L.forEach((l,i)=>{if(M[i]<.9999)l.style.setProperty("--fx",M[i].toFixed(4))});
 }
 /* the outer margin carries a medallion where a hizb or quarter begins (۞) and an arch where a sajda falls (۩) */
 function hizbMarks(el){
@@ -3621,12 +3626,15 @@ function wForms(w){const f=[];
       n+=MAPC[c]||c}
     if(n&&!f.includes(n))f.push(n)}
   return f}
-let WX=null;
-function wIndex(){if(WX)return WX;const T=[],inv=new Map();
-  const C=new Map();
-  for(let i=0;i<NA;i++){const t=[];toks(i+1).forEach((w,o)=>{let f=C.get(w[0]);if(!f)C.set(w[0],f=wForms(w[0]));if(!f.length)return;
+let WX=null,WXB=null;
+/* the word index takes about a second to build on a mid-range phone, which the first search used to wait for:
+   it is now built a few milliseconds at a time while the app sits idle, and a search before it is done finishes it */
+function wxStep(lim){const b=WXB||(WXB={T:[],inv:new Map(),C:new Map(),i:0}),t0=performance.now(),{T,inv,C}=b;
+  while(b.i<NA&&(lim==null||performance.now()-t0<lim)){const i=b.i++,t=[];toks(i+1).forEach((w,o)=>{let f=C.get(w[0]);if(!f)C.set(w[0],f=wForms(w[0]));if(!f.length)return;
       f.forEach(x=>{let l=inv.get(x);if(!l)inv.set(x,l=[]);l.push(i,t.length)});t.push({f,o})});T.push(t)}
-  return WX={T,inv}}
+  if(b.i>=NA){WX={T,inv};WXB=null}return WX}
+function wIndex(){return WX||wxStep(null)}
+if(window.requestIdleCallback)setTimeout(()=>{const go=d=>{if(WX)return;wxStep(Math.max(1,Math.min(8,d.timeRemaining()-1)));if(!WX)requestIdleCallback(go)};requestIdleCallback(go)},5000);
 /* letters joined to the front of a word: و ف ب ك ل and their pairs, the future س, and لل for ل + ال */
 const WPRE=["و","ف","ب","ك","ل","س","وب","فب","ول","فل","وك","فك","وس","فس"];
 /* the Uthmani script joins the vocative يا and the ها of attention to the next word: يَٰقَوۡمِ، يَٰٓأَيُّهَا، هَٰٓأَنتُمۡ */
