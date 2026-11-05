@@ -10,6 +10,7 @@ import android.view.WindowManager;
 import android.view.View;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebView;
+import androidx.activity.OnBackPressedCallback;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -32,6 +33,25 @@ public class MainActivity extends BridgeActivity {
         fastestRefresh();
         watchCutout();
         survivePageLoss();
+        backClosesPanels();
+    }
+
+    /**
+     * The back button (or the back swipe) first closes what is open in the page: the index, the ayah sheet,
+     * settings, adhkar, memorising... one layer at a time. Only when nothing is open does the app go to the
+     * background, without closing, so the recitation keeps playing and the page is where it was left.
+     */
+    private void backClosesPanels() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                WebView wv = getBridge() == null ? null : getBridge().getWebView();
+                if (wv == null) { moveTaskToBack(true); return; }
+                wv.evaluateJavascript("(window.anoraBack&&window.anoraBack())===true", v -> {
+                    if (!"true".equals(v)) moveTaskToBack(true);
+                });
+            }
+        });
     }
 
     /**

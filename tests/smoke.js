@@ -52,6 +52,12 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         await p.evaluate(()=>{document.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowRight"}))});await p.waitForTimeout(1100)}
       await p.evaluate(()=>localStorage.removeItem("mushaf.turn"))}
     ok(!errs.length,`${name}: no script errors on load ${errs.join(" | ")}`);
+    /* Android back: closes the open layer first (index, then settings), and only says "nothing open" when nothing is */
+    {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("bIndex").click();await W(500);
+        const a=window.anoraBack(),closed=!document.getElementById("drawer").classList.contains("on");await W(500);
+        document.getElementById("bPrefs").click();await W(300);const b=window.anoraBack(),pc=document.getElementById("prefs").hidden;await W(500);
+        const c=window.anoraBack();return {a,closed,b,pc,c}});
+      ok(r.a&&r.closed&&r.b&&r.pc&&r.c===false,`${name}: back closes the index, then settings, then lets the app go (${JSON.stringify(r)})`)}
     /* home-screen widgets: the page sends what they show, and a tap on one opens the screen it names */
     {const w=await p.evaluate(()=>window.__wg||null);
       ok(w&&w.page>=1&&w.sur&&w.cats&&w.cats.sab&&w.cats.sab.of>0&&w.cats.sab.f0&&w.cats.sab.f0.t&&Array.isArray(w.pt)&&typeof w.ptc==="string"&&w.free.length,`${name}: widget data sent (page ${w&&w.page}, ${w&&w.sur}, ${w&&w.cats&&w.cats.sab&&w.cats.sab.of} morning adhkar)`);
