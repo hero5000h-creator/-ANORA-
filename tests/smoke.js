@@ -4,7 +4,7 @@ const {chromium}=require("playwright");const fs=require("fs"),path=require("path
 const WWW=path.join(__dirname,"..","www"),TONE=fs.readFileSync(path.join(__dirname,"tone.mp3"));
 const src=fs.readFileSync(path.join(WWW,"index.html"),"utf8"),hook='recUI();audData(reciter).then(d=>{if(!aud)aud=d});';
 if(!src.includes(hook))throw new Error("test hook point not found in www/index.html");
-fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={playFrom,P:()=>player,aud:()=>aud,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,turn:{rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
+fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={playFrom,P:()=>player,aud:()=>aud,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,rcss:rasterCSS,turn:{rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
 const types={".html":"text/html",".js":"text/javascript",".json":"application/json",".woff2":"font/woff2",".ttf":"font/ttf",".css":"text/css"};
 const srv=http.createServer((q,r)=>{const f=path.join(WWW,decodeURIComponent(q.url.split("?")[0]));
   fs.readFile(f,(e,b)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{"content-type":types[path.extname(f)]||"application/octet-stream"});r.end(b)})}).listen(0);
@@ -42,8 +42,8 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     /* page turn: the page images for the curl must render (an invalid SVG once made every turn a flat fold),
        the curl / 3D spread must be the one used, and every turn style must move exactly one page (spread: two) */
     {const r=await p.evaluate(async()=>{const T=__smk.turn,c0=T.cur();const img=await T.rasterPage(c0);
-        const step=T.mode()==="spread"?2:1;const f=T.setupFlip("fwd",c0+step);const kind=f.b3?"3d":f.curl?"curl":"flat";T.finish(f,false);return {img:!!img,kind,c0,step}});
-      ok(r.img,`${name}: page image for the curl renders`);ok(r.kind===(name==="fold"?"3d":"curl"),`${name}: turn uses the ${name==="fold"?"3D spread":"curl"} (${r.kind})`);
+        const fontsIn=!/url\(["']?fonts\//.test(__smk.rcss());const step=T.mode()==="spread"?2:1;const f=T.setupFlip("fwd",c0+step);const kind=f.b3?"3d":f.curl?"curl":"flat";T.finish(f,false);return {img:!!img,kind,c0,step,fontsIn}});
+      ok(r.img,`${name}: page image for the curl renders`);ok(r.fontsIn,`${name}: the turning page image carries the mushaf fonts (no font file left to load)`);ok(r.kind===(name==="fold"?"3d":"curl"),`${name}: turn uses the ${name==="fold"?"3D spread":"curl"} (${r.kind})`);
       const bb=await p.locator("#book").boundingBox(),y=bb.y+bb.height*.6;
       for(const st of ["curl","slide","none"]){await p.evaluate(s=>localStorage.setItem("mushaf.turn",s),st);
         const c0=await p.evaluate(()=>__smk.turn.cur());
