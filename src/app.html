@@ -319,7 +319,7 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
 .search svg{position:absolute;right:11px;top:10px;width:20px;height:20px;fill:none;stroke:var(--muted);stroke-width:1.8;stroke-linecap:round}
 .list{flex:1;overflow-y:auto;padding:10px 8px 16px;overscroll-behavior:contain;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 10px),transparent);mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 10px),transparent)}
 /* the index lists up to 270 rows (the hizb list quotes each opening in the Quran font): only the rows on screen are laid out */
-#list>.row{content-visibility:auto;contain-intrinsic-size:auto 56px}
+#list>.row{content-visibility:auto;contain-intrinsic-size:auto 56px}#list>.sub{content-visibility:auto;contain-intrinsic-size:auto 50px}
 .row{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:12px;width:100%;text-align:right;padding:9px 8px;border-radius:10px}
 .row:hover{background:var(--sel)}
 .row.cur{background:var(--sel);box-shadow:inset -3px 0 0 var(--orn)}
@@ -2031,7 +2031,7 @@ const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const $=id=>document.getElementById(id);
 const stage=$("stage"), book=$("book"), wrap=$("bookwrap"), measure=$("measure");
-let W=300,H=450,mode="single",cur=1,cache=new Map(),flip=null,busy=false;
+let W=300,H=450,mode="single",cur=1,cache=new Map(),flip=null,busy=false;const pgStash=new Map();
 
 /* ---------- page building ---------- */
 /* font-feature-settings for a stretched word: "jp04=3,z12k" -> "q043","z12k" (the font's on/off twin of each
@@ -2119,9 +2119,16 @@ function buildPage(p){
 /* One font size per page: the longest printed line just fills the width, the others are justified to it. */
 /* One size per page: the printed line width (LW em) fills the text block, or fifteen lines fill its height. */
 let textK=1;
-function fit(el){
+/* every page of one size has the same text block, so its measures are taken once per size and kind of page: a page
+   built after that is laid out once instead of three times (a third of a turn's work on a mid phone) */
+const fitG=new Map();
+function fit(el,fresh){
   const box=el.querySelector(".lines"); if(!box) return;
-  const opening=el.classList.contains("opening"), outer=el.querySelector(".box");
+  const opening=el.classList.contains("opening"), phoneM=root.classList.contains("phoneM"), gk=W+"x"+H+(opening?"o":"")+(phoneM?"p":"");
+  let g=fresh?null:fitG.get(gk);
+  if(g){box.style.fontSize=g.fs;box.style.setProperty("--cx",g.cx);box.style.setProperty("--lh",g.lh)}
+  else{
+  const outer=el.querySelector(".box");
   /* the print's letters are taller than this font's: set it larger and narrow each line back to the width */
   const rowH=outer.clientHeight/15, bw=box.clientWidth, f=Math.min(bw/LW*1.2, rowH/1.5);
   box.style.fontSize=f+"px";
@@ -2129,10 +2136,12 @@ function fit(el){
   {const got=parseFloat(getComputedStyle(box).fontSize)||f;if(Math.abs(got/f-1)>.01){textK=f/got;root.style.setProperty("--tk",textK.toFixed(4));box.style.fontSize=f*textK+"px"}}
   box.style.setProperty("--cx",Math.min(1,bw*.995/(LW*f)).toFixed(4));
   /* the opening pages on a tall phone: the arch is tall, so the lines spread through it instead of huddling in the middle */
-  box.style.setProperty("--lh",rowH*(opening?(root.classList.contains("phoneM")?1.4:1.1):1)+"px");
+  box.style.setProperty("--lh",rowH*(opening?(phoneM?1.4:1.1):1)+"px");
+  g={fs:box.style.fontSize,cx:box.style.getPropertyValue("--cx"),lh:box.style.getPropertyValue("--lh"),inW:box.getBoundingClientRect().width};
+  if(rowH>0&&bw>0)fitG.set(gk,g)}
   /* a device whose shaping runs wider than the print data would push words past the frame: narrow that line */
   /* and whatever the cause (a device font size, display size, an odd screen), no line may run wider than the frame's inside */
-  const inW=box.getBoundingClientRect().width;
+  const inW=g.inW;
   /* all writes, then all reads, then all writes: reading each line right after changing the one before forced a
      full layout per line (15 per page, several pages at start), the biggest single cost of opening the app */
   const L=[...box.querySelectorAll(".lb")];L.forEach(l=>l.style.removeProperty("--fx"));
@@ -2224,7 +2233,15 @@ function resize(){
   resize.vw=innerWidth;resize.vh=innerHeight;
   cancelFlip();
   W=w;H=h;mode=m;root.classList.toggle("spreadM",m==="spread");root.classList.toggle("thumb",m==="spread"&&matchMedia("(pointer:coarse)").matches);
-  cache.forEach(e=>e.remove());cache.clear();
+  /* the player bar arriving or leaving changes the book's size and every page had to be laid out again (on a mid
+     phone a quarter of a second, felt as a stall right as the recitation starts or stops). The pages of the last
+     two sizes are kept aside, so going back to a size takes its pages as they were */
+  const ck=W+"x"+H+mode+(phone?"p":"")+(full?"f":"")+textK;
+  if(cache.size&&cache.ck&&cache.ck!==ck){cache.forEach(e=>{e.classList.add("pk");e.classList.remove("t3","sld","nb");e.style.transform="";e.style.opacity="";e.remove()});
+    pgStash.delete(cache.ck);pgStash.set(cache.ck,cache);while(pgStash.size>2)pgStash.delete(pgStash.keys().next().value)}
+  else cache.forEach(e=>e.remove());
+  cache=pgStash.get(ck)||new Map();pgStash.delete(ck);cache.ck=ck;
+  cache.forEach(e=>book.appendChild(e));
   document.documentElement.style.setProperty("--pw",W+"px");
   book.style.width=(mode==="spread"?2*W:W)+"px";book.style.overflow=mode==="single"?"hidden":"visible";book.style.height=H+"px";
   if(mode==="spread"&&cur%2===0)cur--;
@@ -2688,7 +2705,7 @@ function fitGuard(again){if(!again)fitGuard.n=0;clearTimeout(fitGuard.t);fitGuar
   book.querySelectorAll(":scope>.pg:not(.pk):not(.blank)").forEach(pg=>{
     const bx=pg.querySelector(".box");if(!bx)return;const br=bx.getBoundingClientRect(),bl=parseFloat(getComputedStyle(bx).borderLeftWidth)||0,inL=br.left+bl*.5,inR=br.right-bl*.5;
     if([...pg.querySelectorAll(".lb,.sh-n")].some(l=>{const r=l.getBoundingClientRect();return r.width&&(r.left<inL-1||r.right>inR+1)})){
-      const k=+(pg.dataset.g||0);if(k<2){pg.dataset.g=k+1;pg.classList.add("bld");fit(pg);pg.classList.remove("bld")}}
+      const k=+(pg.dataset.g||0);if(k<2){pg.dataset.g=k+1;pg.classList.add("bld");fit(pg,true);pg.classList.remove("bld")}}
     const pr=pg.getBoundingClientRect();if(pr.left<-2||pr.right>vw+2||pr.top<-2||pr.bottom>vh+2)off=true});
   if(off&&!fitGuard.re){fitGuard.re=1;window.__fitRe=(window.__fitRe||0)+1;W=0;resize();setTimeout(()=>fitGuard.re=0,1500)}
 },450)}
@@ -2852,6 +2869,8 @@ function rasterFonts(){if(RS.fp)return RS.fp;const css=rasterCSS(),U=[...new Set
   const asData=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result));r.onerror=()=>rej(r.error);r.readAsDataURL(b)});
   return RS.fp=Promise.all(U.map(u=>fetch(u).then(r=>{if(!r.ok)throw new Error(u);return r.blob()}).then(asData).then(d=>[u,d.replace(/^data:[^;,]*/,"data:font/"+(u.split(".").pop()||"woff2"))])))
     .then(L=>{let c=RS.css;for(const [u,d] of L)c=c.split(u).join(d);RS.css=c;RS.img.clear()}).catch(()=>{RS.fp=null})}
+/* page images are kept per book size (the player bar arriving or leaving changes it), so a size seen before needs none drawn again */
+const rk=p=>W+"x"+H+mode+":"+p;
 function rasterDirty(){RS.ver++;RS.img.clear();clearTimeout(RS.t);RS.t=setTimeout(rasterSoon,350)}
 function rasterPage(p){if(!RS.fd)return rasterFonts().then(()=>{RS.fd=!/url\(["']?fonts\//.test(rasterCSS());return RS.fd?rasterPage(p):null});
   const el=cache.get(p);if(!el||p<1||p>NP)return Promise.resolve(null);
@@ -2864,26 +2883,28 @@ function rasterPage(p){if(!RS.fd)return rasterFonts().then(()=>{RS.fd=!/url\(["'
   c.style.left="0";c.style.top="0";c.style.transform="none";c.style.clipPath="none";c.style.visibility="visible";c.style.opacity="";c.classList.remove("ghost","pk","nb","t3","sld","bld");
   bk.appendChild(c);wrap.appendChild(bk);
   const html=new XMLSerializer().serializeToString(wrap);
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(W*dpr)}" height="${Math.round(H*dpr)}" viewBox="0 0 ${W} ${H}"><foreignObject x="0" y="0" width="${W}" height="${H}"><div xmlns="http://www.w3.org/1999/xhtml" class="rrt ${root.className}"${[...root.attributes].filter(x=>x.name.startsWith("data-")).map(x=>` ${x.name}="${x.value.replace(/[&"<]/g,"")}"`).join("")}><style><![CDATA[${css.replace(/\]\]>/g,"")}]]></style>${html}</div></foreignObject></svg>`;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(W*dpr)}" height="${Math.round(H*dpr)}" viewBox="0 0 ${W} ${H}"><foreignObject x="0" y="0" width="${W}" height="${H}"><div xmlns="http://www.w3.org/1999/xhtml" class="rrt ${root.className}"${[...root.attributes].filter(x=>x.name.startsWith("data-")).map(x=>` ${x.name}="${x.value.replace(/[&"<]/g,"")}"`).join("")}><style><![CDATA[`,tail=`]]></style>${html}</div></foreignObject></svg>`;
+  /* the style (with the fonts in it, about a megabyte) is turned into bytes once and shared by every page image */
+  if(RS.cb!==css){RS.cb=css;RS.cbB=new Blob([css.replace(/\]\]>/g,"")])}
   return new Promise(res=>{
-    const img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+    const img=new Image(),url=URL.createObjectURL(new Blob([svg,RS.cbB,tail],{type:"image/svg+xml"}));
     img.onload=()=>{const ok=()=>{URL.revokeObjectURL(url);
         /* drawn once into a bitmap: painting the SVG itself would re-lay out the page for every strip */
         const cv=document.createElement("canvas");cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
         try{cv.getContext("2d").drawImage(img,0,0,cv.width,cv.height)}catch(e){res(null);return}
-        if(ver===RS.ver)RS.img.set(p,{img:cv,W,H});res(cv)};(img.decode?img.decode().then(ok,ok):ok())};
+        if(ver===RS.ver){const k=rk(p);RS.img.delete(k);RS.img.set(k,{img:cv,W,H});while(RS.img.size>6)RS.img.delete(RS.img.keys().next().value)}res(cv)};(img.decode?img.decode().then(ok,ok):ok())};
     img.onerror=()=>{URL.revokeObjectURL(url);res(null)};img.src=url;
   });
 }
 /* after a page turn only pages not yet drawn are added; a change to what pages show redraws them all */
 let rasterKey="";
-function rasterDirtyLazy(){const k=[bmNow(),W,H,mode,/* only classes that change how a page looks: passing UI states (calm bars, a toast) must not throw the page images away */["memo","mhint","tajweed","mut","full"].filter(c=>$("app").classList.contains(c)).join(" "),root.dataset.paper,memo.on?JSON.stringify([...memo.rev])+JSON.stringify(memo.range)+(store.get("mushaf.memoErr")||""):""].join("|");
+function rasterDirtyLazy(){const k=[bmNow(),/* only classes that change how a page looks: passing UI states (calm bars, a toast) must not throw the page images away */["memo","mhint","tajweed","mut","full"].filter(c=>$("app").classList.contains(c)).join(" "),root.dataset.paper,memo.on?JSON.stringify([...memo.rev])+JSON.stringify(memo.range)+(store.get("mushaf.memoErr")||""):""].join("|");
   if(k!==rasterKey){rasterKey=k;rasterDirty()}else{clearTimeout(RS.t);RS.t=setTimeout(rasterSoon,350)}}
 function rasterSoon(){
   /* only the phone's curl uses page images; the spread's 3D leaf moves the pages themselves */
   if(reduce||mode==="spread")return;
   const want=mode==="spread"?[cur+1,cur,cur+2,cur-1,cur+3,cur-2]:[cur,cur+1,cur-1];
-  RS.queue=want.filter(p=>p>=1&&p<=NP&&!RS.img.has(p));
+  RS.queue=want.filter(p=>p>=1&&p<=NP&&!RS.img.has(rk(p)));
   if(RS.busy)return;
   /* drawn only while nothing moves: a page drawn under the finger would stall the drag */
   const idle=fn=>window.requestIdleCallback?requestIdleCallback(fn,{timeout:1200}):setTimeout(fn,60);
@@ -2891,7 +2912,7 @@ function rasterSoon(){
     get(p);RS.busy=true;rasterPage(p).then(()=>idle(next))};
   RS.busy=true;idle(next);
 }
-const rimg=p=>{const r=RS.img.get(p);return r&&r.W===W&&r.H===H?r.img:null};
+const rimg=p=>{const r=RS.img.get(rk(p));return r&&r.W===W&&r.H===H?r.img:null};
 function curlSetup(f){
   f.curl=null;if(reduce)return;
   const fi=rimg(+f.front.dataset.p),ghost=f.back.classList.contains("ghost"),bi=ghost?fi:rimg(+f.back.dataset.p);
@@ -3072,7 +3093,7 @@ function ornaments(){
   root.style.setProperty("--o-hizb",svg(hizb));root.style.setProperty("--o-sajda",svg(sajda));
   root.style.setProperty("--o-frame",svg(frame));root.style.setProperty("--o-head",svg(head));root.style.setProperty("--o-num",svg(num));
 }
-function rebuild(){cancelFlip();cache.forEach(e=>e.remove());cache.clear();layoutIdle()}
+function rebuild(){cancelFlip();cache.forEach(e=>e.remove());cache.clear();pgStash.clear();layoutIdle()}
 function prefsOut(){const p=$("prefs");if(reduce||p.hidden)return;const g=p.cloneNode(true);g.classList.add("pOut");g.setAttribute("aria-hidden","true");g.inert=true;
   g.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));p.after(g);g.scrollTop=p.scrollTop;const rm=()=>g.remove();g.addEventListener("animationend",rm);setTimeout(rm,450)}
 function showPrefs(on){if(on)contHide();if(on)try{dlUI()}catch(e){}$("fPrefs").setAttribute("aria-expanded",String(on));if(on){clearTimeout(calmT);$("app").classList.remove("calm");try{azNudgeHide()}catch(e){}requestAnimationFrame(()=>pillTo(document.querySelector(".ptabs")))}if(!on)prefsOut();$("prefs").hidden=!on;$("bPrefs").setAttribute("aria-expanded",String(on))}
