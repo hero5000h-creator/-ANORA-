@@ -160,5 +160,19 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       const off=await p.evaluate(()=>document.querySelectorAll(".pg .ms,.pg .md,#flBody .ms,#flBody .md").length);
       ok(on.length>=2&&!off,`${name}: similar phrases coloured on the page and cleared when switched off (ayat ${on.join(",")}; ${off} left)`)}
     await ctx.close()}
+  /* saved data from an old version or an edited backup file (wrong shapes, a name with markup in it) must not
+     break the page or run as code */
+  {const ctx=await b.newContext({viewport:{width:412,height:891},hasTouch:true,isMobile:true});const p=await ctx.newPage();const errs=[];p.on("pageerror",e=>errs.push(e.message));
+    await p.addInitScript(()=>{const X='"><img src=x onerror="window.__x=1">';const S=(k,v)=>localStorage.setItem(k,v);
+      S("mushaf.last","2");S("mushaf.hintN","9");S("mushaf.easyQ","1");S("mushaf.marks","5");S("mushaf.notes","null");S("mushaf.recent","{}");S("mushaf.khatma","true");S("mushaf.az","null");
+      S("mushaf.hl",JSON.stringify({"10":{k:"y"}}));S("mushaf.hlNames",JSON.stringify({y:X}));S("mushaf.mgSet",JSON.stringify([{k:"a",c:"#e2b93b",n:"عام"},{k:"b",c:"#5fae7d",n:X}]))});
+    await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(3000);
+    const w=await p.$('#book .pg [data-a="10"]');const bb=w&&await w.boundingBox();
+    if(bb){await p.mouse.move(bb.x+bb.width/2,bb.y+bb.height/2);await p.mouse.down();await p.waitForTimeout(700);await p.mouse.up();await p.waitForTimeout(800);
+      await p.evaluate(()=>{const h=document.getElementById("aHl");h&&h.click()});await p.waitForTimeout(600)}
+    await p.evaluate(()=>{document.getElementById("bIndex").click()});await p.waitForTimeout(400);await p.evaluate(()=>document.getElementById("t-m").click());await p.waitForTimeout(500);
+    const r=await p.evaluate(()=>({lines:document.querySelectorAll("#book .pg .lb").length,x:window.__x||0}));
+    ok(r.lines>0&&!errs.length,`bad saved data: the page still opens (${r.lines} lines) ${errs.join(" | ")}`);ok(!r.x,"bad saved data: a colour name with markup stays text");
+    await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});
