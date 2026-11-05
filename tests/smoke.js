@@ -147,6 +147,14 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         window.__L.Speechheard&&window.__L.Speechheard({text:t,final:true});await new Promise(z=>setTimeout(z,300));
         return {on:document.getElementById("mMic").classList.contains("on"),moved:nx()!==a,shown:!a.classList.contains("hid")}});
       ok(r.on&&r.moved&&r.shown,`${name}: reciting by voice reveals the words heard ${JSON.stringify(r)}`)}
+    /* the recogniser's plain spelling, a lost first word and the ayah-end marker in between still carry the
+       cursor through two whole ayat, without marking anything wrong */
+    {const r=await p.evaluate(async()=>{const nx=()=>document.querySelector("#book .pg .nx");const a0=nx();if(!a0)return {err:"no cursor"};
+        const id=+a0.dataset.a,pg=a0.closest(".pg");const plain=t=>t.replace(/[\u064B-\u065F\u06D6-\u06ED\u08F0-\u08F2\u0640]/g,"").replace(/\u0670/g,"ا").replace(/ٱ/g,"ا");
+        const ws=[...pg.querySelectorAll(".lb [data-a][data-w]")].filter(w=>+w.dataset.a===id||+w.dataset.a===id+1).map(w=>plain(w.textContent));
+        window.__L.Speechheard({text:ws.slice(1).join(" "),final:true,alts:["كلام لا علاقة له",ws.slice(1).join(" ")]});await new Promise(z=>setTimeout(z,300));
+        const n=nx();return {from:id,to:n?+n.dataset.a:0,red:document.querySelectorAll("#book .pg .err").length}});
+      ok(r.to>r.from+1&&!r.red,`${name}: voice follows plain spelling past a lost word and an ayah end ${JSON.stringify(r)}`)}
     if(name==="phone"){/* prayer times are computed on the device: Baghdad, Ja'fari, a fixed day, in Baghdad time */
       const r=await p.evaluate(()=>{const c=new adhan.Coordinates(33.3152,44.3661),d=new Date(Date.UTC(2026,10,4,9));
         const f=t=>["fajr","sunrise","dhuhr","asr","maghrib","isha"].map(k=>t[k].toLocaleTimeString("en-GB",{timeZone:"Asia/Baghdad",hour:"2-digit",minute:"2-digit"}));

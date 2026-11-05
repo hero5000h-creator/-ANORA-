@@ -2,12 +2,14 @@ package app.anora.quran;
 
 import android.Manifest;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PermissionState;
 import com.getcapacitor.Plugin;
@@ -29,9 +31,30 @@ public class SpeechPlugin extends Plugin {
     private SpeechRecognizer rec;
     private boolean running = false;
     private final Handler main = new Handler(Looper.getMainLooper());
+    /** The next hidden words of the page, in plain spelling: the recogniser is asked to lean towards them. */
+    private ArrayList<String> bias = new ArrayList<>();
+
+    private void takeBias(PluginCall call) {
+        JSArray a = call.getArray("words", null);
+        if (a == null) return;
+        ArrayList<String> b = new ArrayList<>();
+        for (int k = 0; k < a.length() && b.size() < 60; k++) {
+            String w = a.optString(k, "");
+            if (!w.isEmpty()) b.add(w);
+        }
+        bias = b;
+    }
+
+    /** New words to lean towards; used from the next phrase on (the recogniser restarts after each pause). */
+    @PluginMethod
+    public void bias(PluginCall call) {
+        takeBias(call);
+        call.resolve();
+    }
 
     @PluginMethod
     public void start(PluginCall call) {
+        takeBias(call);
         if (getPermissionState("mic") != PermissionState.GRANTED) {
             requestPermissionForAlias("mic", call, "micAnswered");
             return;
@@ -92,7 +115,9 @@ public class SpeechPlugin extends Plugin {
         i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar-SA");
         i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-        i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1);
+        // several guesses per phrase: the page keeps the one that follows the mushaf furthest
+        i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
+        if (Build.VERSION.SDK_INT >= 33 && !bias.isEmpty()) i.putStringArrayListExtra(RecognizerIntent.EXTRA_BIASING_STRINGS, bias);
         // recitation has long breaths between ayat: wait longer before ending a phrase
         i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2500);
         i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 2500);
@@ -113,6 +138,11 @@ public class SpeechPlugin extends Plugin {
         JSObject o = new JSObject();
         o.put("text", r.get(0));
         o.put("final", fin);
+        if (fin) {
+            JSArray alts = new JSArray();
+            for (String x : r) alts.put(x);
+            o.put("alts", alts);
+        }
         notifyListeners("heard", o);
     }
 
