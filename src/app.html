@@ -3576,7 +3576,7 @@ $("shTafsir").addEventListener("click",e=>{if(wxClick(e))return;if(e.target.clos
 /* Arabic is matched on its letters only: harakat, Quranic marks, hamza seats and alif (including the small
    alif of the Uthmani script) are ignored, so a search typed in plain spelling finds the Uthmani text.
    The loose form also ignores waw and ya, which the Uthmani script often writes small or leaves out. */
-const DROP=/[ً-ٰٟۖ-ۭـءاأإآٱ]/,MAPC={"ة":"ه","ى":"ي","ئ":"ي","ؤ":"و"};
+const DROP=/[ً-ٰٟۖ-ۭـءاأإآٱ\u08F0-\u08F2]/,MAPC={"ة":"ه","ى":"ي","ئ":"ي","ؤ":"و"};
 function norm(t,loose){let n="",m=[],sp=true;
   for(let i=0;i<t.length;i++){let c=t[i];
     if(/\s/.test(c)){if(!sp){n+=" ";m.push(i);sp=true}continue}
@@ -4202,12 +4202,15 @@ const memo={on:false,rev:new Map(),range:null,last:null,hint:store.get("mushaf.m
   db(){return jget("mushaf.memo",{})},
   save(d){store.set("mushaf.memo",JSON.stringify(d))}};
 const pageWords=p=>{const el=cache.get(p),R=memo.range;return el?[...el.querySelectorAll(".lb [data-a]:not(.sp)")].filter(w=>w.textContent.indexOf("۝")<0&&(!R||(+w.dataset.a>=R.from&&+w.dataset.a<=R.to))):[]};
+/* words missed while reciting this session, shown in red; kept by key so a re-laid page keeps them */
+const LS={rec:null,on:false,used:0,miss:0,se:new Set()};
+function sErr(w){LS.se.add(mKey(w));w.classList.add("err")}
 const mKey=w=>w.dataset.a+":"+(w.dataset.w||"");
 const mErrs=()=>{try{return new Set(JSON.parse(store.get("mushaf.memoErr")||"[]"))}catch(e){return new Set()}};
 function applyMemo(p){
   if(memo.range)cache.get(p).querySelectorAll(".lb [data-a].hid").forEach(w=>{const a=+w.dataset.a;if(a<memo.range.from||a>memo.range.to)w.classList.remove("hid","nx")});
   const ws=pageWords(p),n=memo.rev.get(p)||0;
-  const E=mErrs();ws.forEach((w,i)=>{w.classList.toggle("hid",i>=n);w.classList.toggle("nx",i===n);w.classList.toggle("serr",E.has(mKey(w)));if(i===n-1)memo.last=w;if(memo.hint&&!w.dataset.f){const m=w.textContent.match(/^(?:\u0671[\u064B-\u065F\u0670\u06D6-\u06ED]*(?:\u0644[\u064B-\u065F\u0670\u06D6-\u06ED]*)?)?[\u0621-\u064A\u0671-\u06D3][\u064B-\u065F\u0670\u06D6-\u06ED]*/);if(m){let f=m[0];if(/\u0621[^\u0621-\u064A]*$/.test(f)){const r=w.textContent.slice(f.length).match(/^[\u0627\u0670][\u064B-\u065F\u0670\u06D6-\u06ED]*/);if(r)f+=r[0]}w.dataset.f=f}}});
+  const E=mErrs();ws.forEach((w,i)=>{w.classList.toggle("hid",i>=n);w.classList.toggle("nx",i===n);w.classList.toggle("serr",E.has(mKey(w)));w.classList.toggle("err",LS.se.has(mKey(w)));if(i===n-1)memo.last=w;if(memo.hint&&!w.dataset.f){const m=w.textContent.match(/^(?:\u0671[\u064B-\u065F\u0670\u06D6-\u06ED]*(?:\u0644[\u064B-\u065F\u0670\u06D6-\u06ED]*)?)?[\u0621-\u064A\u0671-\u06D3][\u064B-\u065F\u0670\u06D6-\u06ED]*/);if(m){let f=m[0];if(/\u0621[^\u0621-\u064A]*$/.test(f)){const r=w.textContent.slice(f.length).match(/^[\u0627\u0670][\u064B-\u065F\u0670\u06D6-\u06ED]*/);if(r)f+=r[0]}w.dataset.f=f}}});
   /* spaces follow the word after them */
   cache.get(p).querySelectorAll(".lb .sp").forEach(sp=>{const nxt=sp.nextElementSibling;sp.classList.toggle("hid",!!nxt&&nxt.classList.contains("hid"))});
   return Math.max(0,ws.length-n);
@@ -4230,7 +4233,7 @@ function revealAyah(id){
 }
 function setMemo(on){if(on)contHide();
   if(!on&&LS.on)micStop();
-  memo.on=on;memo.rev.clear();memo.last=null;if(!on)memo.range=null;
+  memo.on=on;memo.rev.clear();memo.last=null;LS.se.clear();if(!on)memo.range=null;
   if(on){stopPlay();closeAyah();hideHint();setCalm(false)}
   $("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
   $("bMemo").setAttribute("aria-pressed",String(on));
@@ -4252,46 +4255,76 @@ $("mErr").onclick=()=>{const nx=deckPages().map(p=>cache.has(p)&&pageWords(p)[me
   const w=memo.last;if(!w||w.classList.contains("hid")){toast("اكشف الكلمة أولاً ثم سجّلها");return}const E=mErrs(),k=mKey(w),had=E.has(k);had?E.delete(k):E.add(k);store.set("mushaf.memoErr",JSON.stringify([...E]));paintMemo();rasterDirtyLazy();toast(had?"شلت العلامة عن الكلمة":"سُجّلت الكلمة، وستظهر مظلَّلة في المراجعة")};
 $("mHint").onclick=()=>{memo.hint=!memo.hint;store.set("mushaf.memoHint",memo.hint?"1":"0");$("app").classList.toggle("mhint",memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));paintMemo();rasterDirtyLazy()};
 $("mAll").onclick=()=>{deckPages().forEach(p=>memo.rev.set(p,pageWords(p).length));paintMemo()};
-$("mReset").onclick=()=>{deckPages().forEach(p=>memo.rev.delete(p));document.querySelectorAll("#book .err").forEach(w=>w.classList.remove("err"));paintMemo()};
+$("mReset").onclick=()=>{deckPages().forEach(p=>memo.rev.delete(p));LS.se.clear();document.querySelectorAll("#book .err").forEach(w=>w.classList.remove("err"));paintMemo()};
 /* ---------- recitation check: read from memory and the page listens ----------
    Each word heard is matched to the next hidden word by its letters; a match shows it, a wrong word
    flashes, and a word missed twice is shown in red so it can be revised. Uses the browser's speech
    recognition where it is offered; the finished app would use its own recogniser. */
-const LS={rec:null,on:false,used:0,miss:0};
 const sk=t=>norm(t,true).n.replace(/ /g,"");
 function lev(a,b){if(Math.abs(a.length-b.length)>2)return 9;const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;
   for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
-const near=(a,b)=>a===b||(b.length>=4&&lev(a,b)<=Math.floor(b.length/4));
-function hiddenNext(k){const out=[];for(const p of deckPages()){const ws=pageWords(p),n=memo.rev.get(p)||0;for(let i=n;i<ws.length&&out.length<k;i++)out.push([p,ws[i]])}return out}
-function heard(word){
-  const w=sk(word);if(!w)return;
-  const nx=hiddenNext(3);if(!nx.length)return;
-  const t0=sk(nx[0][1].textContent),t1=nx[1]?sk(nx[1][1].textContent):"";
-  if(near(w,t0)){LS.miss=0;revealNext(nx[0][0]);return}
-  if(t1&&near(w,t0+t1)){LS.miss=0;revealNext(nx[0][0]);revealNext(nx[1][0]);return}
-  if(t1&&near(w,t1)){nx[0][1].classList.add("err");revealNext(nx[0][0]);revealNext(nx[1][0]);LS.miss=0;return}
-  /* "wa" read as its own word, or a short particle split off */
-  if(w.length<=2&&t0.startsWith(w))return;
+/* how many letters may differ: the recogniser writes plain modern spelling, the mushaf its own (and drops or
+   adds a letter here and there), so short words allow one, longer ones more */
+const near=(a,b)=>a===b||(b.length>=3&&lev(a,b)<=(b.length>=9?3:b.length>=6?2:1));
+/* the ayah-end markers (۝١) are in the page's word list but nobody says them: voice matching steps over them */
+const isMk=w=>!w.hasAttribute("data-w");
+function hiddenNext(k){const out=[];for(const p of deckPages()){const ws=pageWords(p),n=memo.rev.get(p)||0;for(let i=n;i<ws.length&&out.length<k;i++)if(!isMk(ws[i]))out.push([p,ws[i]])}return out}
+function skipMarks(){for(const p of deckPages()){const ws=pageWords(p);let n=memo.rev.get(p)||0;if(n>=ws.length)continue;
+  while(n<ws.length&&isMk(ws[n]))n++;if(n!==(memo.rev.get(p)||0)){memo.rev.set(p,n);paintMemo()}return}}
+/* Where a run of heard words lands in the upcoming hidden words. The recogniser often loses a word (most of all
+   the first one or two after each pause, while it restarts), splits one mushaf word in two (يا أيها) or joins two,
+   so each heard word is looked for in the next few hidden ones, alone or joined with its neighbour. Returns the
+   steps [heardIndex, heardUsed, hiddenIndex, hiddenCount]; used to pick the best of the recogniser's guesses and to act. */
+const LOOK=6;
+function align(W,T){const st=[];let k=0;
+  for(let i=0;i<W.length&&k<T.length;i++){const w=W[i],w2=i+1<W.length&&w.length>1&&W[i+1].length>1?w+W[i+1]:"";let hit=null;
+    for(let d=0;d<LOOK&&k+d<T.length&&!hit;d++){const t=T[k+d],t2=k+d+1<T.length&&t.length>1&&T[k+d+1].length>1?t+T[k+d+1]:"";
+      if(near(w,t))hit=[1,k+d,1];else if(w2&&near(w2,t))hit=[2,k+d,1];else if(t2&&near(w,t2))hit=[1,k+d,2]}
+    if(hit){st.push([i,...hit]);i+=hit[0]-1;k=hit[1]+hit[2]}}
+  return st}
+function heardWords(words,fin){
+  skipMarks();const nx=hiddenNext(LOOK*Math.max(2,words.length));if(!nx.length)return;
+  const T=nx.map(x=>sk(x[1].textContent)),W=words.map(sk).filter(w=>w&&!/^\d+$/.test(w));if(!W.length)return;
+  const st=align(W,T);let k=0;
+  for(const [,,at,n] of st){
+    /* hidden words passed over: one meaningful word right before a match was probably really skipped by the
+       reader (marked to revise); more than one is the recogniser missing a stretch, so they are just shown */
+    if(at-k===1&&T[k].length>=4)sErr(nx[k][1]);
+    for(let q=k;q<at+n;q++)revealNext(nx[q][0]);k=at+n;skipMarks()}
+  if(st.length){LS.miss=0;return}
+  /* nothing in the final text of a phrase fits: flash the word due, and after two such phrases show it in red */
+  if(!fin||W.every(w=>w.length<=2))return;
   const el=nx[0][1];el.classList.remove("miss");void el.offsetWidth;el.classList.add("miss");
-  if(++LS.miss>=2){el.classList.add("err");revealNext(nx[0][0]);LS.miss=0}
+  if(++LS.miss>=2){sErr(el);revealNext(nx[0][0]);LS.miss=0;skipMarks()}
 }
+const heard=word=>heardWords([word],true);
+/* of the recogniser's guesses for a phrase, the one that follows the mushaf furthest */
+function bestAlt(alts){if(alts.length<2)return alts[0]||"";const T=hiddenNext(60).map(x=>sk(x[1].textContent));
+  let best=alts[0],bs=-1;for(const a of alts){const st=align(String(a).trim().split(/\s+/).map(sk).filter(Boolean),T),sc=st.reduce((s,x)=>s+x[3],0);if(sc>bs){bs=sc;best=a}}return String(best)}
+/* the next hidden words in plain spelling, handed to the recogniser so it leans towards them (Android 13+) */
+function biasWords(){return [...new Set(hiddenNext(40).map(x=>x[1].textContent.replace(/[ً-ٟۖ-ࣰۭ-ࣲـ]/g,"").replace(/ٰ/g,"ا").replace(/ٱ/g,"ا")).filter(w=>w.length>1))]}
 function micStop(){const was=LS.on;LS.on=false;$("mMic").classList.remove("on");$("mMic").setAttribute("aria-pressed","false");try{LS.rec&&LS.rec.stop()}catch(e){}if(was&&LS.nat)nat("Speech","stop").catch(()=>{});LS.nat=false;paintMemo()}
 /* Android: the WebView has no speech recognition, so the app's own plugin listens (Speech: heard {text,final}).
    Partial text arrives while the user is still reciting; its words are matched as they come, except the last
    one, which can still change; the final text of the phrase settles the rest. */
 LS.done=0;
-natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;const ws=d.text.trim().split(/\s+/),upto=d.final?ws.length:ws.length-1;
-  for(let i=LS.done;i<upto;i++)heard(ws[i]);LS.done=d.final?0:Math.max(LS.done,upto)});
+natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
+  /* partial text: the last two words can still change, so they wait; the final text settles the phrase, read
+     from the guess that fits the mushaf best */
+  const txt=d.final&&Array.isArray(d.alts)&&d.alts.length?bestAlt(d.alts):d.text;
+  const ws=txt.trim().split(/\s+/),upto=d.final?ws.length:ws.length-2;
+  if(upto>LS.done)heardWords(ws.slice(LS.done,upto),d.final);LS.done=d.final?0:Math.max(LS.done,upto);
+  if(d.final)nat("Speech","bias",{words:biasWords()}).catch(()=>{})});
 natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
 function micStart(){
   const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
   if(PLAT==="android"&&NATIVE){LS.on=true;LS.nat=true;LS.done=0;LS.miss=0;$("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent="أسمعك… اقرأ من حفظك";
-    nat("Speech","start").catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
+    nat("Speech","start",{words:biasWords()}).catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
   if(!SR){no("التسميع بالصوت غير متاح في هذا المتصفح. جرّبه في Chrome، وسيكون مدمجاً في التطبيق.");return}
-  const r=new SR();r.lang="ar-SA";r.continuous=true;r.interimResults=false;r.maxAlternatives=1;
+  const r=new SR();r.lang="ar-SA";r.continuous=true;r.interimResults=false;r.maxAlternatives=5;
   LS.rec=r;LS.on=true;LS.used=0;LS.miss=0;
-  r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){if(!e.results[i].isFinal)continue;e.results[i][0].transcript.trim().split(/\s+/).forEach(heard)}};
+  r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){if(!e.results[i].isFinal)continue;heardWords(bestAlt([...e.results[i]].map(x=>x.transcript)).trim().split(/\s+/),true)}};
   r.onerror=e=>{if(e.error==="not-allowed"||e.error==="service-not-allowed"||e.error==="audio-capture")no("لم يُسمح بالميكروفون هنا. في التطبيق سيطلب الإذن مرة واحدة.");else if(e.error!=="no-speech"&&e.error!=="aborted")no("انقطع الاستماع، اضغط الميكروفون لتكمل.")};
   r.onend=()=>{if(LS.on){try{r.start()}catch(e){micStop()}}};
   try{r.start()}catch(e){no("تعذّر تشغيل الاستماع.");return}
