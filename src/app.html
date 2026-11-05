@@ -111,7 +111,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 
 /* reading settings */
 #prefs{box-sizing:border-box;position:absolute;top:calc(100% + 6px);left:max(12px,env(safe-area-inset-left,0px));z-index:30;width:min(320px,calc(100vw - 24px));background:var(--bar);color:var(--bar-ink);
-  border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px -8px var(--shadow);padding:14px;display:grid;gap:14px;max-height:calc(100dvh - 90px);overflow-y:auto;overscroll-behavior:contain}
+  border:1px solid var(--line);border-radius:14px;box-shadow:0 12px 32px -8px var(--shadow);padding:14px;display:grid;gap:14px;max-height:calc(100dvh - var(--bh,56px) - var(--cutT,0px) - 20px);overflow-y:auto;overscroll-behavior:contain}
 #prefs .rng{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;font-size:12px;color:var(--muted)}
 #prefs .rng input{width:100%;accent-color:var(--orn)}
 /* warm light: a soft amber veil over everything, for reading at night */
@@ -546,7 +546,7 @@ html.uzL{--muted:color-mix(in srgb,var(--bar-ink) 88%,var(--bar))}
 html.uzL #player .cap,html.uzL #player .pinfo small{color:var(--bar-ink)}
 html.uzL .tfg{color:var(--orn)}
 html.uzL .bar>*,html.uzL .foot>*,html.uzL #drawer,html.uzL #sheet .shh,html.uzL #sheet .shbody,html.uzL #toast,html.uzL #cont,html.uzL .si,html.uzL .sbx,html.uzL #repBox{zoom:var(--uz,1)}
-html.uzL #prefs{zoom:var(--uz,1);width:min(320px,calc((100vw - 24px) / var(--uz,1)));max-height:calc((100dvh - 90px) / var(--uz,1))}
+html.uzL #prefs{zoom:var(--uz,1);width:min(320px,calc((100vw - 24px) / var(--uz,1)));max-height:calc((100dvh - var(--bh,56px) - var(--cutT,0px) - 20px) / var(--uz,1))}
 html.uzL.thumb #prefs{max-height:calc((100dvh - var(--fh,56px) - 90px) / var(--uz,1))}
 html.uzL .si,html.uzL .sbx{width:min(400px,calc(100% / var(--uz,1)));max-height:calc((100dvh - 32px) / var(--uz,1))}
 /* open Fold: settings are a full-height side panel between the bars, scrolling inside, not a floating card */
@@ -854,7 +854,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #drawer.searching .tabs{opacity:.5}
 .tabs{transition:opacity .2s}
 /* continue card */
-#cont{position:fixed;z-index:26;left:50%;bottom:calc(var(--fh,56px) + 14px + env(safe-area-inset-bottom,0px));width:min(380px,calc(100% - 28px));transform:translate(-50%,0);
+#cont{box-sizing:border-box;position:fixed;z-index:26;left:50%;bottom:calc(var(--fh,56px) + 14px + env(safe-area-inset-bottom,0px));width:min(380px,calc(100% - 28px));transform:translate(-50%,0);
   background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 40px -16px var(--shadow);padding:14px 16px;display:grid;gap:10px;
   transition:opacity .35s var(--ease),transform .35s var(--ease)}
 html.spreadM:not(.study) #cont{left:25%;width:min(400px,calc(50% - 28px))}
@@ -928,7 +928,7 @@ html.spreadM:not(.study) #cont{box-shadow:0 -56px 44px -6px var(--paper),0 10px 
 html.uzL .flbar .ib{zoom:var(--uz,1);color:var(--ink)}html.uzL .ib.fz{min-width:52px;justify-content:center;font-weight:700;border:1px solid var(--line);border-radius:12px;margin-inline:2px}
 /* open Fold, large print: when a side panel opens, the text moves to the free half instead of hiding under it */
 
-#app:has(#prefs:not([hidden])) .bar{z-index:8}
+#app:has(#prefs:not([hidden])) .bar{z-index:10}/* above the auto-turn bar, so it never covers «إغلاق» */
 #app>.bar .where{transition:opacity .2s}#app.toasting>.bar .where{opacity:0}
 /* large print size buttons say what they do, big enough for any finger */#flow .ib.fz{align-items:center;line-height:1;min-width:72px;height:44px;border:1px solid var(--line);border-radius:12px}#flow .ib.fz .aa,#flow .ib.fz sub{display:none}#flow .ib.fz .fzw{display:inline;font-size:15px;font-weight:600}
 html.thumb #app:has(#prefs:not([hidden])) #flow,html.thumb:has(#srcBox:not([hidden])) #flow{padding-left:50vw}
@@ -1549,7 +1549,7 @@ html.phoneM #pStop{margin-inline-start:0}
 html.phoneM #prefs{left:8px;width:calc((100vw - 16px) / var(--uz,1));border-radius:8px;border:1px solid var(--b-rim);background:var(--bar);
   box-shadow:inset 0 0 0 4px var(--bar),inset 0 0 0 5px var(--b-soft),0 18px 40px -12px var(--shadow);padding:18px}
 html.phoneM .qa.q4 .qt,html.phoneM .qt{border-radius:7px;background:color-mix(in srgb,var(--gold) 7%,var(--bar));border:1px solid var(--b-soft)}
-html.phoneM .qt[aria-pressed="true"]{background:var(--orn);border-color:var(--orn)}
+html.phoneM .qt[aria-pressed="true"],html.phoneM .qa.q4 .qt[aria-pressed="true"]{background:var(--orn);border-color:var(--orn);color:var(--bar)}
 html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold) 70%,var(--bar-ink))}
 html.phoneM #prefs .qh::before{content:"";display:inline-block;width:6px;height:6px;margin-inline-end:8px;transform:rotate(45deg) translateY(-2px);background:var(--gold)}
 html.phoneM .ptabs{border-radius:7px;background:transparent;border:1px solid var(--b-soft)}
@@ -1659,6 +1659,16 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
 #noteBox .nb-a #nbS{background:var(--orn);border-color:var(--orn);color:var(--bar)}
 #noteBox .nb-a #nbD{margin-inline-start:auto;color:#b4473f}
 .note textarea[readonly]{cursor:text}
+/* round 19 (phones 6.2–6.9" and Fold 6–8): settings leave as softly as they came, on the cover screen and on the open Fold */
+#prefs.pOut{animation:menuOut .18s cubic-bezier(.5,0,.75,.4) forwards!important;pointer-events:none}
+html.thumb body #prefs.pOut{animation:dockOut .22s cubic-bezier(.5,0,.75,.4) forwards!important}
+@keyframes menuOut{to{opacity:0;transform:translateY(-6px) scale(.97)}}
+@keyframes dockOut{to{opacity:0;transform:translateX(-30px)}}
+/* the bars' shadow fades with them instead of snapping off */
+#app.ovl>.bar,#app.ovl>.foot{transition:opacity .4s var(--ease),transform .4s var(--ease),box-shadow .4s var(--ease)}
+/* memorising on a phone: the five step buttons share one row (no lone "أخفِ" on a second line); the hint stays one line so the bar never changes height mid-test */
+@media (max-width:560px){#memo .mb.step{flex:1 1 0;min-width:0;padding:0 4px;font-size:12.5px;overflow:hidden;text-overflow:ellipsis}}
+@media (max-width:370px){#memo .mb.step{font-size:12px;padding:0 2px}#memo{gap:4px}}
 </style>
 
 
@@ -2601,6 +2611,7 @@ function endPeek(){
 document.addEventListener("keydown",e=>{
   if($("drawer").classList.contains("on")){if(e.key==="Escape")closeIndex();return}
   if(e.key==="Escape"&&!$("sheet").hidden){closeAyah();return}
+  if(e.key==="Escape"&&!$("cont").hidden&&!$("cont").classList.contains("off")){contHide();return}
   if(e.key==="Escape"){if(!$("prefs").hidden)showPrefs(false);else if($("app").classList.contains("imm"))toggleFull();return}
   if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
   if(e.key==="ArrowLeft"||e.key==="PageDown"||e.key===" "){e.preventDefault();autoFlip("fwd")}
@@ -2982,7 +2993,9 @@ function ornaments(){
   root.style.setProperty("--o-frame",svg(frame));root.style.setProperty("--o-head",svg(head));root.style.setProperty("--o-num",svg(num));
 }
 function rebuild(){cancelFlip();cache.forEach(e=>e.remove());cache.clear();layoutIdle()}
-function showPrefs(on){if(on)try{dlUI()}catch(e){}$("fPrefs").setAttribute("aria-expanded",String(on));if(on){clearTimeout(calmT);$("app").classList.remove("calm");try{azNudgeHide()}catch(e){}requestAnimationFrame(()=>pillTo(document.querySelector(".ptabs")))}$("prefs").hidden=!on;$("bPrefs").setAttribute("aria-expanded",String(on))}
+function prefsOut(){const p=$("prefs");if(reduce||p.hidden)return;const g=p.cloneNode(true);g.classList.add("pOut");g.setAttribute("aria-hidden","true");g.inert=true;
+  g.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));p.after(g);g.scrollTop=p.scrollTop;const rm=()=>g.remove();g.addEventListener("animationend",rm);setTimeout(rm,450)}
+function showPrefs(on){if(on)contHide();if(on)try{dlUI()}catch(e){}$("fPrefs").setAttribute("aria-expanded",String(on));if(on){clearTimeout(calmT);$("app").classList.remove("calm");try{azNudgeHide()}catch(e){}requestAnimationFrame(()=>pillTo(document.querySelector(".ptabs")))}if(!on)prefsOut();$("prefs").hidden=!on;$("bPrefs").setAttribute("aria-expanded",String(on))}
 let study=store.get("mushaf.study")==="1",inStudy=false;
 function applyStudy(){
   const ok=innerWidth>=600&&!inTable,on=study&&ok,b=$("bStudy");b.hidden=!ok;b.setAttribute("aria-pressed",String(on));
@@ -3123,7 +3136,7 @@ function tfHTML(t){
     return `<p>${escH(l).replace(/﴿[^﴾]*﴾/g,m=>`<span class="q">${m}</span>`)}</p>`}).join("");
 }
 let sheetFocus=null,sheetAt=0;
-function openAyah(id){
+function openAyah(id){contHide();
   if(memo.on){revealAyah(id);return}
   if(inTable){renderDeck();deckSelect(id,true);return}
   /* a press on a coloured word opens the ayah at its twins */
@@ -3884,7 +3897,7 @@ function ayahDone(){const id=player.id,n=nextPlay();if(!n){stopPlay();return}
     player.gapT=setTimeout(()=>{if(!player.on||player.id!==id)return;player.id=n;startAyah(false,false)},d/(AU.playbackRate||1));return}
   player.id=n;startAyah(false,n===id+1)}
 function playFrom(id){
-  closeAyah();player.id=id;player.left=ayahDur(id);$("player").hidden=false;document.querySelector(".foot").classList.add("playing");resize();hideHint();
+  closeAyah();contHide();player.id=id;player.left=ayahDur(id);$("player").hidden=false;document.querySelector(".foot").classList.add("playing");resize();hideHint();
   if(aud)setPlaying(true);else audData(reciter).then(d=>{aud=d;if(!$("player").hidden&&player.id===id)setPlaying(true)});
 }
 function startAyah(resume,flow){
@@ -4127,7 +4140,7 @@ function revealAyah(id){
   const p=pOf(id),ws=pageWords(p);let last=-1;ws.forEach((w,i)=>{if(+w.dataset.a===id)last=i});
   if(last>=0)memo.rev.set(p,Math.max(memo.rev.get(p)||0,last+1));paintMemo();
 }
-function setMemo(on){
+function setMemo(on){if(on)contHide();
   if(!on&&LS.on)micStop();
   memo.on=on;memo.rev.clear();memo.last=null;if(!on)memo.range=null;
   if(on){stopPlay();closeAyah();hideHint();setCalm(false)}
@@ -4372,7 +4385,7 @@ function recentRender(){let L=[];try{L=JSON.parse(store.get("mushaf.recent")||"[
     const id=pStart(x.p);b.innerHTML=`<b>${SUR[sOf(id)][0]}</b><small>صفحة ${ar(x.p)}</small>`;
     b.onclick=()=>{closeIndex();setTimeout(()=>goTo(x.p),120)};return b}))}
 window.__t={sunDown:d=>sunDown(d),autoPaper:()=>autoPaper(),goTo:p=>goTo(p),openIndex:()=>openIndex()};
-function openIndex(){
+function openIndex(){contHide();
   indexOpen=true;recentRender();khOpen=false;$("scrim").hidden=false;requestAnimationFrame(()=>{$("scrim").classList.add("on");$("drawer").classList.add("on")});
   if(khMode==="g")gkStart();khCard();renderList(true);setTimeout(()=>pillTo(document.querySelector(".tabs")),30);setTimeout(()=>{const c=$("list").querySelector(".cur");c&&c.scrollIntoView({block:"center"})},60);
 }
@@ -5105,6 +5118,13 @@ setTimeout(()=>{if($("cont").hidden)azNudgeShow()},2600);
 if(location.hash==="#adhkar")setTimeout(azOpenUI,0);
 
 document.addEventListener("keydown",e=>{if(!$("guide").hidden&&e.key==="Escape"){e.stopPropagation();guide(false)}},true);
+/* Android back button (MainActivity asks this first): it closes whatever is open, one layer at a time, exactly like Escape;
+   only when nothing is open does the app go to the background (the recitation keeps playing) */
+const backSig=()=>[azOpen,azCat,indexOpen,memo.on,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
+  ...["prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")})].join();
+window.anoraBack=()=>{try{if(!$("repBox").hidden&&!$("repBox").classList.contains("out")){softHide($("repBox"));return true}
+  const a=backSig();document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true,cancelable:true}));if(backSig()!==a)return true;
+  if(memo.on){setMemo(false);return true}}catch(e){}return false};
 root.dir="rtl";root.lang="ar";
 function start(){if(started)return;started=true;
   {const pp=store.get("mushaf.paper");setPaper(["light","sepia","night","black","sky","auto"].includes(pp)?pp:"light")}
