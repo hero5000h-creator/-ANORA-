@@ -64,6 +64,8 @@
   --shadow:rgba(0,0,0,.5);--scrim:rgba(0,0,0,.55);--sel:rgba(143,171,155,.12);--tint:rgba(143,171,155,.05);--cover:#1d2622;--age:rgba(0,0,0,.28);--grain-o:.14;color-scheme:dark}
 
 html,body{height:100%}
+/* the phone's own font size setting must not grow the mushaf page past its frame (the page sizes its letters to the width itself) */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{background:var(--desk);color:var(--bar-ink);font-family:var(--f-ui);overflow:hidden;-webkit-tap-highlight-color:transparent;transition:background-color .3s}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bar)}
 #app{height:100%;display:flex;flex-direction:column}
@@ -174,7 +176,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 /* like a mushaf app page: the text runs edge to edge with slim margins and no frame */
 .pg[data-side="r"] .frame{inset:2.6% 3.2% 1.8% 4%}
 .pg[data-side="l"] .frame{inset:2.6% 4% 1.8% 3.2%}
-.ph{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-display);font-weight:700;font-size:calc(var(--pw) * .044);color:var(--ink);padding:0 .1em .15em}
+.ph{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-display);font-weight:700;font-size:calc(var(--pw) * .044 * var(--tk,1));color:var(--ink);padding:0 .1em .15em}
+.ph>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ph>span.j{flex:none}
 .box{flex:1;min-height:0;position:relative;padding:.6% 0}
 /* mushaf ornament: a gilded band around the text block, drawn per paper colour (see ornaments()) */
 .pg:not(.blank) .box{border-style:solid;border-width:calc(var(--pw) * .042);border-image:var(--o-frame) 30 round;padding:calc(var(--pw) * .012) calc(var(--pw) * .016);margin:calc(var(--pw) * .006) 0}
@@ -182,8 +185,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 html.phoneM .pg .frame{inset:2.2% .8% 1.2% .8%}
 html.phoneM .pg:not(.blank) .box{border-width:calc(var(--pw) * .02);padding:calc(var(--pw) * .014) calc(var(--pw) * .006)}
 html.phoneM .hm:not(.jz):not(.sj){width:calc(var(--pw) * .068);height:calc(var(--pw) * .068)}html.phoneM .hm.q{width:calc(var(--pw) * .06);height:calc(var(--pw) * .06)}
-html.phoneM .ph{font-size:calc(var(--pw) * .047);padding:0 .3em .25em}
-html.phoneM .pf{font-size:calc(var(--pw) * .05);margin-top:.15em}
+html.phoneM .ph{font-size:calc(var(--pw) * .047 * var(--tk,1));padding:0 .3em .25em}
+html.phoneM .pf{font-size:calc(var(--pw) * .05 * var(--tk,1));margin-top:.15em}
 html.phoneM #stage{background:var(--paper);background-image:none}
 /* the leather cover behind the page would peek out as a dark strip in the spare room above and below */
 html.phoneM #bookwrap::after{display:none}
@@ -194,7 +197,7 @@ html.phoneM #bookwrap::after{display:none}
 .lines{height:100%;display:grid;grid-template-rows:repeat(15,1fr);font-family:var(--f-mushaf);color:var(--ink);-webkit-text-stroke:.012em currentColor}
 .ln{display:flex;align-items:center;justify-content:center;min-height:0;line-height:1.8}
 .lb{white-space:nowrap;text-align:right;flex:none;margin:0 -20em}
-.lb.mid{text-align:center;transform:scaleX(var(--cx,1))}
+.lb.mid{text-align:center;transform:scaleX(calc(var(--cx,1) * var(--fx,1)))}
 .lb .sp{display:inline-block}
 .an{color:var(--ink);white-space:nowrap}
 .rub,.sj{color:var(--gold)}
@@ -208,10 +211,10 @@ html.phoneM #bookwrap::after{display:none}
 .sh-n[data-sn]::after{content:"surah";margin-left:.1em}
 .sh-n{font-family:var(--f-display);font-weight:700;color:var(--ink);font-size:min(.78em,calc(var(--lh,2em) * .48));line-height:1;white-space:nowrap;position:relative;top:.1em}
 .sh-i{font-family:var(--f-ui);font-size:.42em;color:var(--muted);white-space:nowrap}
-.pf{text-align:center;padding-top:0;line-height:1;font-family:var(--f-display);font-weight:700;font-size:calc(var(--pw) * .04);color:var(--ink);font-variant-numeric:tabular-nums}
+.pf{text-align:center;padding-top:0;line-height:1;font-family:var(--f-display);font-weight:700;font-size:calc(var(--pw) * .04 * var(--tk,1));color:var(--ink);font-variant-numeric:tabular-nums}
 .pf span{display:inline-grid;place-items:center;min-width:3em;height:3em;padding-top:.1em;box-sizing:border-box;background:var(--o-num) center/contain no-repeat;font-size:.7em}
 .mnote{position:absolute;transform:translateY(-50%);z-index:2;width:calc(var(--pw) * .06);text-align:center;
-  font-family:var(--f-ui);font-size:calc(var(--pw) * .017);line-height:1.25;color:var(--gold)}
+  font-family:var(--f-ui);font-size:calc(var(--pw) * .017 * var(--tk,1));line-height:1.25;color:var(--gold)}
 .mnote i{font-style:normal}
 .pg[data-side="r"] .mnote{right:.4%}
 .pg[data-side="l"] .mnote{left:.4%}
@@ -247,12 +250,12 @@ html.phoneM #bookwrap::after{display:none}
 #bookwrap::after{left:calc(-6px - var(--el,5px));right:calc(-6px - var(--er,5px));transition:left .6s var(--ease),right .6s var(--ease),background-color .4s}
 /* hizb, quarter and sajda medallions in the outer margin, as the Madinah print sets them */
 .hm{position:absolute;z-index:2;display:grid;place-items:center;pointer-events:none;width:calc(var(--pw) * .088);height:calc(var(--pw) * .088);transform:translateY(-50%);
-  background:var(--o-hizb) center/contain no-repeat;font-family:var(--f-display);font-weight:700;color:var(--orn);font-size:calc(var(--pw) * .03);line-height:1;padding-top:.1em;box-sizing:border-box;font-variant-numeric:tabular-nums}
-.hm.q{width:calc(var(--pw) * .076);height:calc(var(--pw) * .076);font-size:calc(var(--pw) * .027)}
+  background:var(--o-hizb) center/contain no-repeat;font-family:var(--f-display);font-weight:700;color:var(--orn);font-size:calc(var(--pw) * .03 * var(--tk,1));line-height:1;padding-top:.1em;box-sizing:border-box;font-variant-numeric:tabular-nums}
+.hm.q{width:calc(var(--pw) * .076);height:calc(var(--pw) * .076);font-size:calc(var(--pw) * .027 * var(--tk,1))}
 .lb>span.sjw{position:relative}.lb>span.sjw::after{content:"";position:absolute;left:0;right:0;top:.78em;border-top:.045em solid currentColor;pointer-events:none}
-.hm.sj{background-image:var(--o-sajda);height:calc(var(--pw) * .104);font-size:calc(var(--pw) * .02);padding-top:.9em}
+.hm.sj{background-image:var(--o-sajda);height:calc(var(--pw) * .104);font-size:calc(var(--pw) * .02 * var(--tk,1));padding-top:.9em}
 html[data-theme="dark"][data-cover="green"]{--cover:#1d2622}html[data-theme="dark"][data-cover="navy"]{--cover:#181e2b}html[data-theme="dark"][data-cover="maroon"]{--cover:#2c1517}html[data-theme="dark"][data-cover="brown"]{--cover:#2b2017}html[data-theme="dark"][data-cover="black"]{--cover:#151514}
-.hm.jz{width:calc(var(--pw) * .1);height:calc(var(--pw) * .16);background-image:var(--o-juz);align-content:center;justify-items:center;gap:.15em;padding-top:0;font-size:calc(var(--pw) * .032)}
+.hm.jz{width:calc(var(--pw) * .1);height:calc(var(--pw) * .16);background-image:var(--o-juz);align-content:center;justify-items:center;gap:.15em;padding-top:0;font-size:calc(var(--pw) * .032 * var(--tk,1))}
 .hm.jz small{font-family:var(--f-ui);font-weight:600;font-size:.56em;color:var(--gold)}
 /* the opening pages: al-Fatiha and the start of al-Baqarah sit in an illuminated arched panel, as in the printed mushaf */
 .pg.opening .box{background:var(--o-open) center/100% 100% no-repeat;padding:0 15%}
@@ -2108,16 +2111,24 @@ function buildPage(p){
 }
 /* One font size per page: the longest printed line just fills the width, the others are justified to it. */
 /* One size per page: the printed line width (LW em) fills the text block, or fifteen lines fill its height. */
+let textK=1;
 function fit(el){
   const box=el.querySelector(".lines"); if(!box) return;
   const opening=el.classList.contains("opening"), outer=el.querySelector(".box");
   /* the print's letters are taller than this font's: set it larger and narrow each line back to the width */
   const rowH=outer.clientHeight/15, bw=box.clientWidth, f=Math.min(bw/LW*1.2, rowH/1.5);
-  box.style.fontSize=f+"px"; box.style.setProperty("--cx",Math.min(1,bw*.995/(LW*f)).toFixed(4));
+  box.style.fontSize=f+"px";
+  /* a web view that scales text on its own (the phone's font size, a browser's text zoom) gives back a bigger size than asked: undo it */
+  {const got=parseFloat(getComputedStyle(box).fontSize)||f;if(Math.abs(got/f-1)>.01){textK=f/got;root.style.setProperty("--tk",textK.toFixed(4));box.style.fontSize=f*textK+"px"}}
+  box.style.setProperty("--cx",Math.min(1,bw*.995/(LW*f)).toFixed(4));
   /* the opening pages on a tall phone: the arch is tall, so the lines spread through it instead of huddling in the middle */
   box.style.setProperty("--lh",rowH*(opening?(root.classList.contains("phoneM")?1.4:1.1):1)+"px");
   /* a device whose shaping runs wider than the print data would push words past the frame: narrow that line */
-  box.querySelectorAll(".lb:not(.mid)").forEach(l=>{l.style.removeProperty("--fx");const sw=l.scrollWidth,cw=l.clientWidth;if(sw>cw+.5)l.style.setProperty("--fx",(cw/sw).toFixed(4))});
+  /* and whatever the cause (a device font size, display size, an odd screen), no line may run wider than the frame's inside */
+  const inW=box.getBoundingClientRect().width;
+  box.querySelectorAll(".lb").forEach(l=>{l.style.removeProperty("--fx");const sw=l.scrollWidth,cw=l.clientWidth;let fx=sw>cw+.5?cw/sw:1;
+    const lw=l.getBoundingClientRect().width*fx;if(inW>0&&lw>inW*.998+.5)fx*=inW*.995/lw;
+    if(fx<.9999)l.style.setProperty("--fx",fx.toFixed(4))});
 }
 /* the outer margin carries a medallion where a hizb or quarter begins (۞) and an arch where a sajda falls (۩) */
 function hizbMarks(el){
@@ -3881,7 +3892,10 @@ async function qCheck(){const m=$("qLockMsg");if(!QLOCK||!window.crypto||!crypto
 setTimeout(()=>qCheck().catch(()=>{}),2500);
 /* ---------- native bridge (Capacitor): plugins are called by name, no bundler needed ---------- */
 const CAP=window.Capacitor,NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()),PLAT=NATIVE&&CAP.getPlatform?CAP.getPlatform():"web";
-if(NATIVE)root.classList.add("native",PLAT);if(PLAT==="android")setTimeout(()=>nat("Playback","insets").then(c=>{if(!c)return;const st=root.style;st.setProperty("--cutT",(c.t|0)+"px");st.setProperty("--cutR",(c.r|0)+"px");st.setProperty("--cutB",(c.b|0)+"px");st.setProperty("--cutL",(c.l|0)+"px");try{resize()}catch(e){}}).catch(()=>{}),0);
+if(NATIVE)root.classList.add("native",PLAT);if(PLAT==="android")setTimeout(()=>nat("Playback","insets").then(c=>{if(!c)return;const st=root.style;st.setProperty("--cutT",(c.t|0)+"px");st.setProperty("--cutR",(c.r|0)+"px");st.setProperty("--cutB",(c.b|0)+"px");st.setProperty("--cutL",(c.l|0)+"px");
+  /* a phone set to a larger font: the first run picks the matching app text size (the mushaf page itself always fits its width) */
+  if(c.fs>1.08&&!store.get("mushaf.uz")){const v=c.fs>=1.25?"1.3":"1.15";store.set("mushaf.uz",v);uzSet(v)}
+  try{resize()}catch(e){}}).catch(()=>{}),0);
 const nat=(pl,m,o)=>NATIVE&&CAP.nativePromise?CAP.nativePromise(pl,m,o||{}):Promise.reject(new Error("web"));
 const natOn=(pl,ev,fn)=>{try{NATIVE&&CAP.addListener&&CAP.addListener(pl,ev,fn)}catch(e){}};
 /* ---------- real recitation (MP3Quran.net, per-surah files + ayah timings) ---------- */

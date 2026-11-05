@@ -29,6 +29,7 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(WidgetPlugin.class);
         super.onCreate(savedInstanceState);
         fromWidget(getIntent());
+        fixedTextZoom();
         immersive();
         fastestRefresh();
         watchCutout();
@@ -82,6 +83,20 @@ public class MainActivity extends BridgeActivity {
         if (i == null || !i.hasExtra(AnoraWidget.EXTRA_GO)) return;
         WidgetPlugin.deliver(i.getStringExtra(AnoraWidget.EXTRA_GO));
         i.removeExtra(AnoraWidget.EXTRA_GO);
+    }
+
+    /** The phone's font size setting (1 = default); read by the page through Playback.insets. */
+    static volatile float fontScale = 1f;
+
+    /**
+     * Android's web view follows the phone's font size setting by scaling every letter on its own, after the page
+     * has measured them, so on a phone set to a larger font (common on Galaxy A and Xiaomi phones) the mushaf lines
+     * ran past the frame and the page header was cut. The page sizes its text itself, so the web view keeps its
+     * text at 100%; the setting is handed to the page instead, which picks a matching app text size on first run.
+     */
+    private void fixedTextZoom() {
+        fontScale = getResources().getConfiguration().fontScale;
+        if (getBridge() != null && getBridge().getWebView() != null) getBridge().getWebView().getSettings().setTextZoom(100);
     }
 
     /** Camera hole / notch size in CSS px (top, right, bottom, left); read by the page through Playback.insets. */
@@ -141,6 +156,7 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onConfigurationChanged(Configuration c) {
         super.onConfigurationChanged(c);
+        fixedTextZoom();
         /* folding or unfolding switches to the other screen, which has its own display modes */
         fastestRefresh();
     }

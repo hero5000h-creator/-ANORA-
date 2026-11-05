@@ -79,6 +79,7 @@ public class PlaybackPlugin extends Plugin {
         o.put("r", n[1]);
         o.put("b", n[2]);
         o.put("l", n[3]);
+        o.put("fs", MainActivity.fontScale);
         call.resolve(o);
     }
 
