@@ -1669,6 +1669,27 @@ html.thumb body #prefs.pOut{animation:dockOut .22s cubic-bezier(.5,0,.75,.4) for
 /* memorising on a phone: the five step buttons share one row (no lone "أخفِ" on a second line); the hint stays one line so the bar never changes height mid-test */
 @media (max-width:560px){#memo .mb.step{flex:1 1 0;min-width:0;padding:0 4px;font-size:12.5px;overflow:hidden;text-overflow:ellipsis}}
 @media (max-width:370px){#memo .mb.step{font-size:12px;padding:0 2px}#memo{gap:4px}}
+/* Fold motion pass (2026-11-05): one motion language on the open Fold.
+   1 no two texts are ever seen through each other: a change of layout dips through the paper instead of a crossfade
+   2 side panels slide in whole from their edge, solid from the first frame, never fading over the Quran text
+   3 one thing moves at a time: the bars come back only after a panel has gone */
+html.vtL::view-transition{background:var(--desk)}
+html.vtL::view-transition-old(root){animation:vtO .16s cubic-bezier(.4,0,1,1) both;mix-blend-mode:normal}
+html.vtL::view-transition-new(root){animation:vtI .32s cubic-bezier(.2,.8,.2,1) .12s both;mix-blend-mode:normal}
+html.vtL #app>.bar{view-transition-name:vbar}html.vtL #app>.foot{view-transition-name:vfoot}
+@keyframes vtO{to{opacity:0}}@keyframes vtI{from{opacity:0;transform:scale(.985)}}
+@keyframes sideIn{from{transform:translateX(-100%)}}@keyframes sideInR{from{transform:translateX(100%)}}
+@keyframes sideOut{to{transform:translateX(-100%)}}@keyframes sideOutR{to{transform:translateX(100%)}}
+html.thumb body #prefs{animation:sideIn .34s cubic-bezier(.2,.8,.2,1)}
+html.thumb body #prefs.pOut{animation:sideOut .24s cubic-bezier(.5,0,.75,.4) forwards!important}
+html.thumb #repBox.side{animation:sideIn .34s cubic-bezier(.2,.8,.2,1)}html.thumb #repBox.side.sR{animation-name:sideInR}
+html.thumb #repBox.side.out{animation:sideOut .24s cubic-bezier(.5,0,.75,.4) forwards}html.thumb #repBox.side.sR.out{animation-name:sideOutR}
+html.thumb #srcBox{opacity:1;transition:none}
+html.thumb #srcBox .si.src{transform:translateX(-100%);transition:transform .24s cubic-bezier(.5,0,.75,.4)}
+html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bezier(.2,.8,.2,1)}
+/* the docked ayah panel already slides in whole: its contents do not rise and fade on top of that */
+#sheet.dock.on .acard,#sheet.dock.on .acts>*,#sheet.dock.on .shtabs,#sheet.dock.on .amed{animation:none}
+@media (prefers-reduced-motion:reduce){html.thumb body #prefs,html.thumb #repBox.side,html.thumb #srcBox .si.src{animation:none;transition:none}}
 </style>
 
 
@@ -2175,6 +2196,10 @@ function resize(){
   wrap.style.left=cx+"px";wrap.style.top=cy+"px";
   $("app").classList.toggle("full",full);
   if(w===W&&h===H&&m===mode&&book.childElementCount) return;
+  /* the same screen giving the book a little more or less room (the player or the bars arriving): the book glides to
+     its new size instead of jumping. A new screen (unfolding, rotating) or another layout just appears */
+  const r0=book.childElementCount&&m===mode&&!reduce&&zoom.s===1&&resize.vw===innerWidth&&resize.vh===innerHeight?book.getBoundingClientRect():null;
+  resize.vw=innerWidth;resize.vh=innerHeight;
   cancelFlip();
   W=w;H=h;mode=m;root.classList.toggle("spreadM",m==="spread");root.classList.toggle("thumb",m==="spread"&&matchMedia("(pointer:coarse)").matches);
   cache.forEach(e=>e.remove());cache.clear();
@@ -2182,6 +2207,9 @@ function resize(){
   book.style.width=(mode==="spread"?2*W:W)+"px";book.style.overflow=mode==="single"?"hidden":"visible";book.style.height=H+"px";
   if(mode==="spread"&&cur%2===0)cur--;
   layoutIdle();
+  if(r0&&r0.width){const r1=book.getBoundingClientRect(),k=Math.abs(r0.width-r1.width)>1?r0.width/r1.width:r0.height/r1.height;/* one scale for both sides: the text is never squashed */
+    if(r1.width&&Math.abs(k-1)>.004&&Math.abs(k-1)<.2){const dx=(r0.left+r0.width/2)-(r1.left+r1.width/2),dy=(r0.top+r0.height/2)-(r1.top+r1.height/2),base="translate(-50%,-50%)";
+      try{wrap.animate([{transform:`${base} translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${k.toFixed(4)})`},{transform:base}],{duration:320,easing:"cubic-bezier(.2,.8,.2,1)"})}catch(e){}}}
 }
 function layoutIdle(){
   /* the pages staying on show are never parked in between: that would re-style their whole text */
@@ -2234,7 +2262,9 @@ function setup3D(kind,target){
   /* front: the leaf's face now, rotating up from where it lies; back: the page it lands as, rotating down onto its place */
   if(fw){f.still=place(get(cur),W,1);f.under=place(get(target+1),0,1);f.front=place(get(cur+1),0,3);f.back=place(get(target),W,3)}
   else{f.still=place(get(cur+1),0,1);f.under=place(get(target),W,1);f.front=place(get(cur),W,3);f.back=place(get(target+1),0,3)}
-  const per=Math.round(W*6);f.per=per;
+  /* a flatter perspective keeps the rising edge inside the book (at W*6 it grew 13% and was cut by the bars);
+     the bars leave as the leaf lifts, not after it lands, so nothing else moves once the page is down */
+  const per=Math.round(W*10);f.per=per;if(!$("app").classList.contains("calm"))setCalm(true);
   f.fo=fw?"100% 50%":"0 50%";f.bo=fw?"0 50%":"100% 50%";
   [[f.front,f.fo],[f.back,f.bo]].forEach(([e,o])=>{e.classList.add("t3");e.style.transformOrigin=o});
   f.back.style.opacity="0";
@@ -2344,6 +2374,8 @@ function bez(x1,y1,x2,y2){
 }
 /* an unhurried lift, a quick glide across, and a long soft landing: the way a hand turns a mushaf page */
 const eTurn=bez(.42,0,.18,1);
+/* the open Fold's spread: the leaf answers the tap at once (a slow start read as lag on the big screen) */
+const eTurn3=bez(.3,0,.2,1);
 /* release curve that starts at the speed the leaf already had under the finger, so letting go never jerks */
 /* slide: leaves briskly and settles softly, like a page pushed along a table */
 const eSlide=bez(.3,.1,.12,1);
@@ -2406,7 +2438,7 @@ async function autoFlip(kind,target){
   if(st==="slide"){const f=setupSlide(kind,target);await tween(f,mode==="spread"?460:400,t=>[f.dir*f.vw*eSlide(t),0]);finish(f,true);busy=false;return}
   const f=setupFlip(kind,target), sx=f.reverse?2*W:0, ex=f.reverse?0:2*W;
   /* the corner rises early and is laid down flat before the leaf arrives, so it lands without a slap */
-  await tween(f,reduce?0:(mode==="spread"?940:820),t=>{const e=eTurn(t);return [sx+(ex-sx)*e,H-Math.pow(Math.sin(Math.PI*Math.min(1,e*1.06)),1.3)*H*(mode==="spread"?.035:.08)]});
+  await tween(f,reduce?0:(mode==="spread"?780:820),t=>{const e=(mode==="spread"?eTurn3:eTurn)(t);return [sx+(ex-sx)*e,H-Math.pow(Math.sin(Math.PI*Math.min(1,e*1.06)),1.3)*H*(mode==="spread"?.035:.08)]});
   finish(f,true);busy=false;
 }
 function goTo(p){
@@ -2666,15 +2698,18 @@ function renderFlow(){
   if(!samePage){f.scrollTop=0;if(dir&&!reduce){b.classList.remove("in","inr");void b.offsetWidth;b.classList.add(dir>0?"in":"inr")}}
 }
 /* a soft cross-fade for changes that repaint the whole screen (paper, cover, layout, large print) */
-function vt(fn){if(reduce||!document.startViewTransition)return fn();try{document.startViewTransition(fn)}catch(e){fn()}}
+function vt(fn,lay){if(reduce||!document.startViewTransition)return fn();
+  /* a change of layout (flow, study, one/two pages) dips through the paper: the old page is gone before the new one comes */
+  if(lay)root.classList.add("vtL");
+  try{const t=document.startViewTransition(fn);if(lay)t.finished.finally(()=>root.classList.remove("vtL"))}catch(e){root.classList.remove("vtL");fn()}}
 function setFlow(on){flowOn=on;store.set("mushaf.flow",on?"1":"0");flowShown=false;renderFlow();if(!on)layoutIdle()}
 function flowPage(step){
   const n=mode==="spread"?2:1,t=cur+step*n;
   if(t<1||t>NP||(mode==="spread"&&t+1>NP+1))return;
   cur=mode==="spread"?(t%2?t:t-1):t;store.set("mushaf.last",cur);flowShown=false;flowDir=step;layoutIdle();paperFx();zoomReset(true);if(typeof atRestart==="function")atRestart();try{azNudgeHide()}catch(e){}
 }
-$("bFlow").onclick=()=>{showPrefs(false);const on=!flowOn;vt(()=>setFlow(on));toast(on?"القراءة بخط كبير · اسحب للجانب لتقلب الصفحة":"عدت إلى صفحة المصحف")};
-$("flBack").onclick=()=>vt(()=>setFlow(false));
+$("bFlow").onclick=()=>{showPrefs(false);const on=!flowOn;vt(()=>setFlow(on),1);toast(on?"القراءة بخط كبير · اسحب للجانب لتقلب الصفحة":"عدت إلى صفحة المصحف")};
+$("flBack").onclick=()=>vt(()=>setFlow(false),1);
 const flSize=d=>{FLZ=Math.round(Math.max(.8,Math.min(1.8,FLZ+d))*10)/10;store.set("mushaf.flz",String(FLZ));$("flBody").style.setProperty("--flz",FLZ)};
 $("flMinus").onclick=()=>flSize(-.1);$("flPlus").onclick=()=>flSize(.1);
 {let fd=null;const fl=$("flow");
@@ -3005,7 +3040,7 @@ function applyStudy(){
   if(on){const t=document.querySelector(".bar").getBoundingClientRect(),f=document.querySelector(".foot").getBoundingClientRect();
     root.style.setProperty("--st-top",Math.max(0,t.bottom)+"px");root.style.setProperty("--st-bot",(f.height?Math.max(0,innerHeight-f.top):0)+"px")}
 }
-$("bStudy").onclick=()=>{showPrefs(false);study=!study;store.set("mushaf.study",study?"1":"0");vt(resize);toast(study?"اضغط على أي آية فيظهر تفسيرها بجانبها":"عادت الصفحتان")};
+$("bStudy").onclick=()=>{showPrefs(false);study=!study;store.set("mushaf.study",study?"1":"0");vt(resize,1);toast(study?"اضغط على أي آية فيظهر تفسيرها بجانبها":"عادت الصفحتان")};
 /* calm reading: the bars fade out after a page turn or a few quiet seconds, and a tap brings them back */
 let calmT;
 function setCalm(on){const a=$("app");clearTimeout(calmT);
@@ -3047,7 +3082,7 @@ prefGroup(["look","read","dev"].includes(store.get("mushaf.pgrp"))?store.get("mu
 $("prefs").addEventListener("click",e=>{e.stopPropagation();const t=e.target.closest(".ptabs button");if(t){prefGroup(t.dataset.pg,true);return}const b=e.target.closest(".sw");if(!b)return;
   if(b.dataset.paper){vt(()=>setPaper(b.dataset.paper,true));if(b.dataset.paper==="auto")toast("نهاري بالنهار، وليلي من المغرب إلى الفجر")}
   if(b.dataset.cover)vt(()=>setCover(b.dataset.cover,true));
-  if(b.dataset.view)vt(()=>{store.set("mushaf.view",b.dataset.view);markView();resize()});
+  if(b.dataset.view)vt(()=>{store.set("mushaf.view",b.dataset.view);markView();resize()},1);
   if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();toast(b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنباً إلى جنب":"تتبدّل الصفحة فوراً بلا حركة")}
 });
 $("bFull").onclick=e=>{e.stopPropagation();toggleFull()};
@@ -3157,7 +3192,9 @@ function openAyah(id){contHide();
   requestAnimationFrame(()=>pillTo(sh.querySelector(".shtabs")));
 }
 function closeAyah(){
-  const sh=$("sheet");if(sh.hidden||inStudy)return;setCalm(false);
+  const sh=$("sheet");if(sh.hidden||inStudy)return;
+  /* the docked panel slides away first; the bars come back once it has gone, so two things never cross */
+  if(sh.classList.contains("dock")&&!reduce)setTimeout(()=>{if(!sh.classList.contains("on"))setCalm(false)},220);else setCalm(false);
   sh.classList.remove("on");$("ascrim").hidden=true;selA=0;paintHL();
   setTimeout(()=>{if(!sh.classList.contains("on"))sh.hidden=true},reduce?0:340);
   if(sheetFocus&&sheetFocus.focus)sheetFocus.focus({preventScroll:true});
