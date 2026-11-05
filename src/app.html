@@ -577,6 +577,8 @@ html.simple .bar .tools .tcap{display:block;font-size:11.5px;line-height:1.2;whi
 #repBox{position:fixed;z-index:27;align-content:start;left:50%;bottom:calc(var(--fh,56px) + 12px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);width:min(360px,calc(100% - 24px));box-sizing:border-box;
   padding:12px 14px 14px;border-radius:18px;background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);box-shadow:0 18px 40px -16px var(--shadow);display:grid;gap:10px;animation:nudgeIn .4s var(--spring)}
 #repBox[hidden]{display:none}
+/* never taller than the room above the player (the box is zoomed by the app text size, so its own px are divided by it) */
+#repBox:not(.side){max-height:calc((100dvh - var(--fh,56px) - 24px - env(safe-area-inset-bottom,0px) - var(--cutT,0px)) / var(--uz,1));overflow-y:auto;overscroll-behavior:contain}
 #repBox.top{bottom:auto;top:calc(var(--bh,56px) + 10px + env(safe-area-inset-top,0px))}
 .rbh{display:flex;align-items:center;justify-content:space-between}.rbh b{font-size:14.5px}
 .rbr{display:grid;grid-template-columns:52px 34px 1fr 34px;align-items:center;gap:6px;font-size:13px}
@@ -1770,7 +1772,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
       <button class="qlink" id="bSrc" style="margin-top:0"><svg viewBox="0 0 24 24"><path d="M5 4.5h9l5 5v10H5z"/><path d="M14 4.5v5h5M8.5 13h7M8.5 16.5h5"/></svg><span>المصادر والتراخيص</span></button>
     </div>
     <i id="jprog" aria-hidden="true"></i>
-    <button class="btn-index" id="bIndex" aria-haspopup="dialog"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>الفهرس</span></button>
+    <button class="btn-index" id="bIndex" aria-haspopup="dialog" aria-label="الفهرس"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>الفهرس</span></button>
     <div class="where" id="where" role="button" tabindex="0" aria-label="عن السورة"><b><span id="wSurah">الفاتحة</span><svg id="bmMark" viewBox="0 0 24 24" aria-label="عليها علامة" hidden><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg></b><small id="wMeta">الجزء ١ · الحزب ١ · صفحة ١</small></div>
     <div class="tools">
       <button class="ib dnb" id="bDN" title="نهار / ليل" aria-label="التبديل بين النهار والليل"><svg class="dn-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><svg class="dn-m" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg><span class="tcap">ليل/نهار</span></button>
@@ -2014,6 +2016,9 @@ const txt=id=>Q[sOf(id)][aOf(id)-1];
 const words=(id,k)=>{const w=txt(id).replace(/[۞۩]/g,"").trim().split(/\s+/);return w.slice(0,k).join(" ")+(w.length>k?" …":"")};
 const pStart=p=>PAGES[p-1], pEnd=p=>p<NP?PAGES[p]-1:NA;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}if(WG_KEYS.has(k))wgPush()}};
+/* saved data read back with the shape the code expects: a value from an old version or an edited backup file
+   (a number where a list belongs, null where an object belongs) falls back to empty instead of breaking the page */
+const jget=(k,d)=>{try{const v=JSON.parse(store.get(k)||"null");if(Array.isArray(d)?Array.isArray(v):v&&typeof v==="object"&&!Array.isArray(v))return v}catch(e){}return Array.isArray(d)?[]:d&&{}};
 /* what the home-screen widgets show changes with these */
 const WG_KEYS=new Set(["mushaf.last","mushaf.az","mushaf.pt","mushaf.azWeak"]);
 const splT=performance.now();
@@ -3163,18 +3168,18 @@ let toastT;function toast(m){const t=$("toast"),a=$("app"),f=document.querySelec
     const inBar=!calmO&&br&&br.height>8;t.classList.toggle("inbar",!!inBar);
     if(inBar){t.style.top=br.top/z+"px";t.style.height=br.height/z+"px"}else{t.style.top="calc(6px + env(safe-area-inset-top,0px))";t.style.height=""}}
   t.classList.add("on");$("app").classList.add("toasting");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("on");$("app").classList.remove("toasting")},1800)}
-const colRd=(key,def)=>{try{const v=JSON.parse(store.get(key)||"null");if(Array.isArray(v)&&v.length&&v.every(x=>x&&x.k&&/^#[0-9a-f]{6}$/i.test(x.c)))return v}catch(e){}return def.map(x=>({...x}))};
+const colRd=(key,def)=>{try{const v=JSON.parse(store.get(key)||"null");if(Array.isArray(v)&&v.length&&v.every(x=>x&&/^[\w-]{1,16}$/.test(x.k)&&typeof x.n==="string"&&/^#[0-9a-f]{6}$/i.test(x.c)))return v}catch(e){}return def.map(x=>({...x}))};
 const HLC0=[{k:"y",c:"#e2b93b",n:"رحمة وبشارة"},{k:"g",c:"#5fae7d",n:"دعاء"},{k:"b",c:"#4f8fd0",n:"قصص"},{k:"v",c:"#9a72c9",n:"تدبّر"},{k:"o",c:"#e0874a",n:"أوامر"},{k:"r",c:"#d0596b",n:"تحذير"}],HLC=colRd("mushaf.hlSet",HLC0);
-const hl={get(){try{return JSON.parse(store.get("mushaf.hl")||"{}")}catch(e){return {}}},of(id){return this.get()[id]||""},
+const hl={get(){return jget("mushaf.hl",{})},of(id){return this.get()[id]||""},
   set(id,k){const d=this.get();if(k)d[id]={k,at:Date.now()};else delete d[id];store.set("mushaf.hl",JSON.stringify(d))},
-  names(){let n={};try{n=JSON.parse(store.get("mushaf.hlNames")||"{}")}catch(e){}return Object.fromEntries(HLC.map(c=>[c.k,n[c.k]||c.n]))},
-  rename(k,v){let n={};try{n=JSON.parse(store.get("mushaf.hlNames")||"{}")}catch(e){}n[k]=v.trim().slice(0,24);if(!n[k])delete n[k];store.set("mushaf.hlNames",JSON.stringify(n))}};
+  names(){let n=jget("mushaf.hlNames",{});return Object.fromEntries(HLC.map(c=>[c.k,n[c.k]||c.n]))},
+  rename(k,v){let n=jget("mushaf.hlNames",{});n[k]=v.trim().slice(0,24);if(!n[k])delete n[k];store.set("mushaf.hlNames",JSON.stringify(n))}};
 const hlK=id=>{const v=hl.of(id);return v&&v.k||""},hlC=k=>(HLC.find(c=>c.k===k)||HLC[0]).c;
 function hlBandsAll(){const ids=new Set();book.querySelectorAll(".pg:not(.pk) [data-a]").forEach(w=>ids.add(+w.dataset.a));const d=hl.get();
   ids.forEach(id=>{const v=d[id];if(!v)return;const before=new Set(book.querySelectorAll(".pg:not(.pk) .hlb"));hlBands(id,"hk");book.querySelectorAll(".pg:not(.pk) .hlb.hk").forEach(b=>{if(!before.has(b))b.style.setProperty("--c",hlC(v.k))})})}
 function hlPalUI(){const el=$("hlPal");if(el.hidden||!selA)return;const k=hlK(selA),nm=hl.names();
-  el.innerHTML=HLC.map((c,i)=>`<button class="hd" data-hk="${c.k}" style="--c:${c.c};--i:${i}" aria-pressed="${k===c.k}" aria-label="${nm[c.k]}"><i></i><span>${escH(nm[c.k])}</span></button>`).join("")+
-    (k?`<button class="hx" data-hk="">إزالة</button><button class="hx" id="hlNext">ظلّل التالية بنفس اللون ←</button>`:"")+`<button class="hx hxe" id="hlEd">✎ أضف لوناً أو خصّص</button>`+`<div class="hn">${k?"«"+nm[k]+"»":"اختر لوناً لتظليل الآية"}</div>`;
+  el.innerHTML=HLC.map((c,i)=>`<button class="hd" data-hk="${c.k}" style="--c:${c.c};--i:${i}" aria-pressed="${k===c.k}" aria-label="${escH(nm[c.k])}"><i></i><span>${escH(nm[c.k])}</span></button>`).join("")+
+    (k?`<button class="hx" data-hk="">إزالة</button><button class="hx" id="hlNext">ظلّل التالية بنفس اللون ←</button>`:"")+`<button class="hx hxe" id="hlEd">✎ أضف لوناً أو خصّص</button>`+`<div class="hn">${k?"«"+escH(nm[k])+"»":"اختر لوناً لتظليل الآية"}</div>`;
   $("aHl").setAttribute("aria-pressed",String(!!k))}
 $("aHl").onclick=e=>{e.stopPropagation();const el=$("hlPal"),open=el.hidden;if(open){el.classList.remove("out");el.hidden=false;hlPalUI()}else softHide(el);$("aHl").setAttribute("aria-expanded",String(open))};
 $("hlPal").addEventListener("click",e=>{if(e.target.closest("#hlEd")){ceOpen("hl");return}if(!selA)return;
@@ -3182,12 +3187,12 @@ $("hlPal").addEventListener("click",e=>{if(e.target.closest("#hlEd")){ceOpen("hl
   const b=e.target.closest("[data-hk]");if(!b)return;const k=b.dataset.hk,old=hlK(selA),id=selA;hl.set(selA,k===old?"":k);if(old&&(k===old||!k))toastU("أُزيل التظليل",()=>{hl.set(id,old);if(selA===id)hlPalUI();paintHL();rasterDirtyLazy()});hlPalUI();paintHL();rasterDirtyLazy();
   try{navigator.vibrate&&navigator.vibrate(6)}catch(x){}if(indexOpen)renderList()});
 const MG0=[{k:"gn",n:"عامة",c:"#b09060"},{k:"hf",n:"للحفظ",c:"#5f9b7a"},{k:"td",n:"للتدبّر",c:"#5a86b8"},{k:"du",n:"دعاء",c:"#b8705a"}],MG=colRd("mushaf.mgSet",MG0);
-const mgrp={get(){try{return JSON.parse(store.get("mushaf.mgrp")||"{}")}catch(e){return {}}},of(id){const g=this.get()[id];return g&&MG.some(x=>x.k===g)?g:MG[0].k},set(id,g){const d=this.get();if(g)d[id]=g;else delete d[id];store.set("mushaf.mgrp",JSON.stringify(d))}};
+const mgrp={get(){return jget("mushaf.mgrp",{})},of(id){const g=this.get()[id];return g&&MG.some(x=>x.k===g)?g:MG[0].k},set(id,g){const d=this.get();if(g)d[id]=g;else delete d[id];store.set("mushaf.mgrp",JSON.stringify(d))}};
 const mgC=k=>(MG.find(g=>g.k===k)||MG[0]).c;
 function aGrpUI(){const el=$("aGrp"),on=selA&&marks.has(selA);el.hidden=!on;if(!on)return;const cur=mgrp.of(selA);
   el.innerHTML=`<span>المجموعة:</span>`+MG.map(g=>`<button data-mg="${g.k}" style="--c:${g.c}" aria-pressed="${g.k===cur}"><i></i>${escH(g.n)}</button>`).join("")+`<button class="mge" id="mgEd" aria-label="أضف لوناً أو خصّص العلامات">✎</button>`}
 let mFilt="";
-const marks={get(){try{return JSON.parse(store.get("mushaf.marks")||"[]")}catch(e){return []}},has(id){return this.get().includes(id)},
+const marks={get(){return jget("mushaf.marks",[])},has(id){return this.get().includes(id)},
   toggle(id){let m=this.get();m=m.includes(id)?m.filter(x=>x!==id):[id,...m];store.set("mushaf.marks",JSON.stringify(m));return m.includes(id)}};
 let TF=null,tfLoad=null;
 function tafsir(){if(!tfLoad)tfLoad=fetch("tafsir.json").then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>TF=d).catch(()=>{tfLoad=null;throw 0});return tfLoad}
@@ -3271,6 +3276,7 @@ $("aReport").onclick=()=>{const id=selA;if(!id)return;const ver="0.1.0",tf=$("sh
 function shareText(){
   const id=$("shareBox").hidden?selA:sbId;let t=`${txt(id)} ﴿${SUR[sOf(id)][0]}: ${ar(aOf(id))}﴾`;
   if(sbTf&&TF&&TF[id-1])t+=`\n\nالتفسير الميسّر: ${TF[id-1]}`;
+  if(natShareOK()){natShare({text:t});return}
   if(navigator.share)navigator.share({text:t}).catch(()=>{});
   else{try{navigator.clipboard.writeText(t).then(()=>toast("نُسخت الآية لتشاركها"),()=>toast("المشاركة غير متاحة هنا"))}catch(e){toast("المشاركة غير متاحة هنا")}}
 }
@@ -3336,7 +3342,18 @@ $("sbClose").onclick=shareClose;$("shareBox").addEventListener("click",e=>{if(e.
 const sbName=()=>`آية-${SUR[sOf(sbId)][0]}-${aOf(sbId)}.png`;
 /* the artifact viewer hands files over only through its downloads capability, with the viewer's confirmation */
 /* backup: every mushaf.* key (marks, highlights, notes, memorisation, khatma, stats, settings) in one JSON file */
-async function saveBlob(name,blob,ok){let dl=null;try{dl=window.claude&&claude.use?await claude.use("downloads"):null}catch(e){}
+/* In the Android / iOS app a web download goes nowhere (the web view has no download handler), so a backup
+   "saved" silently vanished and the ayah picture never left the app. There the file is written to the app's
+   cache and handed to the phone's share sheet (Drive, Files, WhatsApp...). Resolves true when it was handed over
+   or the person closed the sheet, false when native sharing is not available here. */
+const natShareOK=()=>NATIVE&&!!(CAP.isPluginAvailable&&CAP.isPluginAvailable("Share"));
+const blobB64=blob=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(",")[1]||"");r.onerror=()=>rej(r.error);r.readAsDataURL(blob)});
+async function natShare(o,name,blob){if(!natShareOK())return false;
+  try{if(blob){const path="share/"+name;await nat("Filesystem","writeFile",{path,data:await blobB64(blob),directory:"CACHE",recursive:true});
+      const {uri}=await nat("Filesystem","getUri",{path,directory:"CACHE"});o={...o,files:[uri]}}
+    await nat("Share","share",{dialogTitle:"أنورا",...o});return true}
+  catch(e){if(/cancel/i.test(String(e&&(e.message||e))))return true;toast("تعذّرت المشاركة، حاول مرة أخرى");return true}}
+async function saveBlob(name,blob,ok){if(natShareOK()){await natShare({title:name},name,blob);return}let dl=null;try{dl=window.claude&&claude.use?await claude.use("downloads"):null}catch(e){}
   if(dl){try{await dl.save({filename:name,data:blob});toast(ok)}catch(e){if(e&&e.code==="declined")return;toast(e&&e.code==="rate_limited"?"لحظة وحاول مرة أخرى":"الحفظ غير متاح هنا")}return}
   try{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast(ok)}catch(e){toast("الحفظ غير متاح هنا")}}
 function backupData(){const d={};try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("mushaf."))d[k]=localStorage.getItem(k)}}catch(e){}
@@ -3349,7 +3366,7 @@ $("bkFile").onchange=async()=>{const f=$("bkFile").files[0];if(!f)return;
     const ks=Object.keys(j.data).filter(k=>k.startsWith("mushaf.")&&typeof j.data[k]==="string");if(!ks.length)throw 0;
     ks.forEach(k=>store.set(k,j.data[k]));toast(`استُرجعت ${ar(ks.length)} عنصر · يُعاد التحميل`);setTimeout(()=>location.reload(),1200)}
   catch(x){toast("هذا الملف ليس نسخة احتياطية من المصحف")}};
-$("sbSave").onclick=async()=>{if(!sbBlob)return;let dl=null;try{dl=window.claude&&claude.use?await claude.use("downloads"):null}catch(e){}
+$("sbSave").onclick=async()=>{if(!sbBlob)return;if(natShareOK()){await natShare({text:`﴿${SUR[sOf(sbId)][0]}: ${ar(aOf(sbId))}﴾`},sbName(),sbBlob);return}let dl=null;try{dl=window.claude&&claude.use?await claude.use("downloads"):null}catch(e){}
   if(dl){try{await dl.save({filename:sbName(),data:sbBlob});toast("حُفظت الصورة")}catch(e){if(e&&e.code==="declined")return;toast(e&&e.code==="rate_limited"?"لحظة وحاول مرة أخرى":"الحفظ غير متاح هنا")}return}
   try{const a=document.createElement("a");a.href=sbUrl;a.download=sbName();document.body.appendChild(a);a.click();a.remove()}catch(e){toast("الحفظ غير متاح هنا")}};
 $("sbShare").onclick=async()=>{if(!sbBlob)return;try{const fl=new File([sbBlob],sbName(),{type:"image/png"});
@@ -3391,7 +3408,7 @@ function colStrApply(){const h=STR.hk[(+store.get("mushaf.hlStr")||2)-1]||STR.hk
   st.setProperty("--hkW",h[1]+"%");st.setProperty("--hkWd",Math.round(h[1]*.8)+"%");st.setProperty("--mkW",m[1]+"%");st.setProperty("--mkWd",Math.round(m[1]*1.1)+"%");st.setProperty("--mkL",m[2]+"%")}
 const CE={w:"hl",pick:-1};
 function ceList(){return CE.w==="hl"?HLC:MG}
-function ceSave(){const L=ceList();if(CE.w==="hl"){let n={};try{n=JSON.parse(store.get("mushaf.hlNames")||"{}")}catch(x){}L.forEach(c=>{if(n[c.k])c.n=n[c.k]});store.set("mushaf.hlSet",JSON.stringify(L));store.set("mushaf.hlNames","")}else store.set("mushaf.mgSet",JSON.stringify(L));
+function ceSave(){const L=ceList();if(CE.w==="hl"){let n=jget("mushaf.hlNames",{});L.forEach(c=>{if(n[c.k])c.n=n[c.k]});store.set("mushaf.hlSet",JSON.stringify(L));store.set("mushaf.hlNames","")}else store.set("mushaf.mgSet",JSON.stringify(L));
   paintHL();rasterDirtyLazy();hlPalUI();aGrpUI();if(indexOpen)renderList()}
 function ceUsed(k){if(CE.w==="hl"){const d=hl.get();return Object.keys(d).filter(id=>d[id].k===k).length}
   const g=mgrp.get(),m=marks.get();return k===MG[0].k?0:m.filter(id=>g[id]===k).length}
@@ -3427,7 +3444,7 @@ $("colEd").addEventListener("click",e=>{const t=e.target;if(t.id==="colEd"||t.cl
 $("colEd").addEventListener("change",e=>{const t=e.target,L=ceList();
   if(t.dataset.cci!=null){L[+t.dataset.cci].c=t.value;ceSave();ceUI();return}
   if(t.classList.contains("cen")){const i=+t.dataset.ci,v=t.value.trim().slice(0,24);if(v)L[i].n=v;else t.value=L[i].n;
-    if(CE.w==="hl"){let n={};try{n=JSON.parse(store.get("mushaf.hlNames")||"{}")}catch(x){}delete n[L[i].k];store.set("mushaf.hlNames",JSON.stringify(n))}ceSave()}});
+    if(CE.w==="hl"){let n=jget("mushaf.hlNames",{});delete n[L[i].k];store.set("mushaf.hlNames",JSON.stringify(n))}ceSave()}});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("colEd").hidden){e.stopImmediatePropagation();ceClose()}},true);
 colStrApply();
 /* ---------- tadabbur: tafsir, word meanings and similar ayat in the ayah sheet ---------- */
@@ -3527,7 +3544,7 @@ function wxClick(e){
 
 /* tadabbur journal: a short reflection on any ayah, kept on this device */
 let ntTimer;
-const notes={get(){try{return JSON.parse(store.get("mushaf.notes")||"{}")}catch(e){return {}}},
+const notes={get(){return jget("mushaf.notes",{})},
   set(id,t){const n=this.get();t=(t||"").trim();if(t)n[id]={t,at:today()};else delete n[id];const had=!!this.get()[id];store.set("mushaf.notes",JSON.stringify(n));if(selA===id)$("aNote").setAttribute("aria-pressed",String(!!t));if(had!==!!t){paintHL();rasterDirtyLazy()}}};
 const dayLabel=d=>{const x=today()-d;return x<=0?"اليوم":x===1?"أمس":`قبل ${ar(x)} ${x<=10?"أيام":"يوماً"}`};
 
@@ -3848,7 +3865,10 @@ function repPlace(){const b=$("repBox");if(b.hidden)return;b.classList.remove("t
   const st=ls.filter(([,z])=>z.top<edge&&z.bottom>edge);
   if(st.length){if(!st.some(([l])=>inR(l)))ext=Math.max(...st.map(([,z])=>top?z.bottom+3-edge:edge-(z.top-3)))}
   else{const nx=ls.map(([,z])=>top?z.top-edge:edge-z.bottom).filter(d=>d>0);if(nx.length)ext=Math.max(0,Math.min(...nx)-2)}
-  if(ext>0&&ext<80)b.style.minHeight=q.height+ext+"px"}
+  /* the box is zoomed with the app text size: minHeight is in its own (unzoomed) px, so divide the screen px by
+     the zoom, and never grow it past the room left on screen (it once ran off the top at أكبر text) */
+  const z=b.offsetHeight?q.height/b.offsetHeight:1,room=top?innerHeight-q.top-8:q.bottom-8;
+  if(ext>0&&ext<80&&q.height+ext<=room)b.style.minHeight=(q.height+ext)/z+"px"}
 function repTitle(){return rep.on?` · ${rep.each!==1?`الآية ${ar(rep.ei+1)}/${rep.each?ar(rep.each):"∞"} · `:""}المقطع ${ar(rep.ri+1)}/${rep.all?ar(rep.all):"∞"}`:""}
 $("pRep").onclick=e=>{e.stopPropagation();$("repBox").hidden?repOpen():softHide($("repBox"))};
 $("rbX").onclick=()=>softHide($("repBox"));
@@ -4179,7 +4199,7 @@ $("bTable").onclick=e=>{e.stopPropagation();tableSim=!tableSim;store.set("mushaf
 const STEPS=[1,3,7,14,30,60,120];
 const today=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5);
 const memo={on:false,rev:new Map(),range:null,last:null,hint:store.get("mushaf.memoHint")==="1",
-  db(){try{return JSON.parse(store.get("mushaf.memo")||"{}")}catch(e){return {}}},
+  db(){return jget("mushaf.memo",{})},
   save(d){store.set("mushaf.memo",JSON.stringify(d))}};
 const pageWords=p=>{const el=cache.get(p),R=memo.range;return el?[...el.querySelectorAll(".lb [data-a]:not(.sp)")].filter(w=>w.textContent.indexOf("۝")<0&&(!R||(+w.dataset.a>=R.from&&+w.dataset.a<=R.to))):[]};
 const mKey=w=>w.dataset.a+":"+(w.dataset.w||"");
@@ -4286,7 +4306,7 @@ $("mGood").onclick=()=>rate(true);$("mAgain").onclick=()=>rate(false);
 /* ---------- khatma planner ---------- */
 /* Today's wird is always "what is left ÷ days left", so a missed day is spread over the
    remaining days instead of piling up. Reading counts when pages are reached in order. */
-const kh={get(){try{return JSON.parse(store.get("mushaf.khatma")||"null")}catch(e){return null}},save(k){store.set("mushaf.khatma",k?JSON.stringify(k):"")}};
+const kh={get(){return jget("mushaf.khatma",null)},save(k){store.set("mushaf.khatma",k?JSON.stringify(k):"")}};
 let khDays=30,khHere=false,khSure=false,khOpen=false;
 const plural=(n,one,few,many)=>n===1?one:n===2?(one==="يوم"?"يومان":one+"ان"):n>=3&&n<=10?few:many;
 function khToday(k){
@@ -4445,9 +4465,9 @@ async function gkClick(b){
 let tab="s",indexOpen=false;
 const strip=s=>s.replace(/[ً-ٰٟۖ-ۭ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي");
 /* the last five places you jumped away from (index, search, marks), newest first, one tap to go back */
-function recentPush(p){if(p<1)return;let L=[];try{L=JSON.parse(store.get("mushaf.recent")||"[]")}catch(e){}
+function recentPush(p){if(p<1)return;let L=jget("mushaf.recent",[]).filter(x=>x&&typeof x.p==="number");
   L=L.filter(x=>Math.abs(x.p-p)>1);L.unshift({p,t:Date.now()});store.set("mushaf.recent",JSON.stringify(L.slice(0,5)))}
-function recentRender(){let L=[];try{L=JSON.parse(store.get("mushaf.recent")||"[]")}catch(e){}
+function recentRender(){let L=jget("mushaf.recent",[]).filter(x=>x&&typeof x.p==="number");
   L=L.filter(x=>Math.abs(x.p-cur)>1);$("recent").hidden=!L.length;
   $("rcl").replaceChildren(...L.map((x,i)=>{const b=document.createElement("button");b.className="rc";b.style.setProperty("--i",i);
     const id=pStart(x.p);b.innerHTML=`<b>${SUR[sOf(id)][0]}</b><small>صفحة ${ar(x.p)}</small>`;
@@ -4527,7 +4547,7 @@ function renderList(anim){
     h=searchHTML($("q").value.trim());
   }else if(tab==="m"){
     const all=marks.get(),m=all.filter(id=>(!q||strip(SUR[sOf(id)][0]).includes(q))&&(!mFilt||mgrp.of(id)===mFilt));
-    if(all.length&&!q){const cnt=k=>all.filter(id=>mgrp.of(id)===k).length;h+=`<div class="mfilt" id="mFilt"><button data-mf="" aria-pressed="${!mFilt}">الكل <b>${ar(all.length)}</b></button>`+MG.filter(g=>cnt(g.k)).map(g=>`<button data-mf="${g.k}" style="--c:${g.c}" aria-pressed="${mFilt===g.k}"><i></i>${g.n} <b>${ar(cnt(g.k))}</b></button>`).join("")+`</div>`}
+    if(all.length&&!q){const cnt=k=>all.filter(id=>mgrp.of(id)===k).length;h+=`<div class="mfilt" id="mFilt"><button data-mf="" aria-pressed="${!mFilt}">الكل <b>${ar(all.length)}</b></button>`+MG.filter(g=>cnt(g.k)).map(g=>`<button data-mf="${g.k}" style="--c:${g.c}" aria-pressed="${mFilt===g.k}"><i></i>${escH(g.n)} <b>${ar(cnt(g.k))}</b></button>`).join("")+`</div>`}
     if(bm&&!q){const id=pStart(bm);h+=`<button class="row" data-p="${bm}"><span class="star" style="color:var(--gold)">★</span><span class="rn"><b>علامة الصفحة</b><small>سورة ${SUR[sOf(id)][0]} · الجزء ${ar(jOf(id))}</small></span><span class="pg-n"><em>صفحة</em>${ar(bm)}</span></button>`}
     m.forEach(id=>{h+=`<button class="row" data-p="${pOf(id)}" data-a="${id}"><span class="star mk" style="--c:${mgC(mgrp.of(id))}">${ar(aOf(id))}</span><span class="rn"><b>${SUR[sOf(id)][0]}</b><small><q>${words(id,6)}</q></small></span><span class="pg-n"><em>صفحة</em>${ar(pOf(id))}</span></button>`});
     const nt=notes.get(),nk=Object.keys(nt).map(Number).filter(id=>!q||strip(SUR[sOf(id)][0]).includes(q)).sort((a,b)=>nt[b].at-nt[a].at||a-b);
@@ -4570,7 +4590,7 @@ function jmapHTML(){
     det=`<div class="jdet"><div class="jdh"><b>الجزء ${JNAMES[j-1]}</b><span><i class="k rd"></i>مقروءة <i class="k mz"></i>محفوظة</span></div><div class="jps">${ps}</div></div>`}
   return `<div class="jmap"><div class="jmh"><b>خريطة المصحف</b><small>قرأت ${ar(tot)} من ${ar(NP)} صفحة · ${ar(Math.round(tot/NP*100))}٪</small></div><div class="jgrid">${cells}</div>${det}</div>`;
 }
-const stats={get(){try{return JSON.parse(store.get("mushaf.stats")||"{}")}catch(e){return {}}},save(d){store.set("mushaf.stats",JSON.stringify(d))}};
+const stats={get(){return jget("mushaf.stats",{})},save(d){store.set("mushaf.stats",JSON.stringify(d))}};
 let stAct=Date.now(),stPrev=0;
 ["pointerdown","touchstart","keydown","wheel"].forEach(t=>addEventListener(t,()=>stAct=Date.now(),{passive:true,capture:true}));
 setInterval(()=>{
@@ -4907,7 +4927,7 @@ function azFadl(k,x){const key=x.q?"q"+x.q.join(","):x.t;let best=null;for(const
 function azItems(c){return c.list().map((x,ix)=>{const f=x.f||azFadl(c.k,x);
     return {...x,ix,f,w:/إسناده كلام|رفعه خلاف/.test(x.s||"")}}).filter(x=>!(azWeakOff&&x.w))}
 const azDoneN=(x,p)=>((p||{})[x.ix]||0)>=x.n;
-const azSt={get(){let d;try{d=JSON.parse(store.get("mushaf.az")||"{}")}catch(e){d={}}const t=today();if(d.d!==t){const keep={st:d.st||{last:0,n:0},fp:d.fp||0,ft:d.ft||33,tot:d.tot||0};d={d:t,p:{},done:{},fc:0,...keep}}return d},save(d){store.set("mushaf.az",JSON.stringify(d))}};
+const azSt={get(){let d=jget("mushaf.az",{});const t=today();if(d.d!==t){const keep={st:d.st||{last:0,n:0},fp:d.fp||0,ft:d.ft||33,tot:d.tot||0};d={d:t,p:{},done:{},fc:0,...keep}}return d},save(d){store.set("mushaf.az",JSON.stringify(d))}};
 let azOpen=false,azCat=null,azI=0,azList=[],azCount=0,azPh=0,azAnim=null,azRaf=0,azSkyRaf=0;
 function azQText(q){const [s,a,b]=q,si=s-1,from=a||1,to=b||SUR[si][1];let h=a?`<span class="bas">أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ</span><br>`:`<span class="bas">${AZ_BAS}</span><br>`;
   for(let k=from;k<=to;k++){const id=SST[si]+k-1;h+=AW[id].map(w=>escH(qY(w.replace(/[۞۩]/g,"")))).filter(Boolean).join(" ")+` <span class="an">۝${ar(k)}</span> `}return h}
@@ -4940,7 +4960,7 @@ const PT_CITIES=[["العراق",[["بغداد",33.3152,44.3661],["البصرة"
  ["إيران وتركيا",[["طهران",35.6892,51.389],["مشهد",36.2605,59.6168],["قم",34.6416,50.8746],["إسطنبول",41.0082,28.9784],["أنقرة",39.9334,32.8597]]],
  ["أوروبا وأمريكا",[["لندن",51.5074,-0.1278],["برلين",52.52,13.405],["ستوكهولم",59.3293,18.0686],["أمستردام",52.3676,4.9041],["تورنتو",43.6532,-79.3832],["ديترويت",42.3314,-83.0458],["سيدني",-33.8688,151.2093]]]];
 const PT_SUGG={"العراق":["jafari","mwl"],"السعودية":["umm"],"الخليج":["kuwait","qatar","dubai","umm"],"الشام ومصر":["egypt","mwl"],"إيران وتركيا":["tehran","jafari","turkey"],"أوروبا وأمريكا":["mwl","isna","jafari"]};
-function ptGet(){let p;try{p=JSON.parse(store.get("mushaf.pt")||"{}")}catch(e){p={}}return {lat:null,lng:null,city:"",cc:"",m:"",hz:false,adj:{},n:false,np:{fajr:1,dhuhr:1,asr:1,maghrib:1,isha:1},...p}}
+function ptGet(){const p=jget("mushaf.pt",{});return {lat:null,lng:null,city:"",cc:"",m:"",hz:false,adj:{},n:false,np:{fajr:1,dhuhr:1,asr:1,maghrib:1,isha:1},...p}}
 function ptSave(p){store.set("mushaf.pt",JSON.stringify(p))}
 const ptReady=p=>p.lat!=null&&p.m&&typeof adhan!=="undefined";
 /* the six times of a day (Date objects shifted by the person's own minute corrections) */
@@ -5110,7 +5130,7 @@ $("azListO").addEventListener("click",e=>{const b=e.target.closest("[data-go]");
 $("azList").addEventListener("pointerdown",e=>e.stopPropagation());
 /* reminders: a quiet daily notification on the phone; nothing is scheduled until the person turns one on */
 const AZ_REM={m:{id:7101,k:"sab",title:"أذكار الصباح",body:"صباح الخير · حان وقت أذكار الصباح"},e:{id:7102,k:"mas",title:"أذكار المساء",body:"حان وقت أذكار المساء · اختم يومك بذكر الله"}};
-function azRemGet(){let r;try{r=JSON.parse(store.get("mushaf.azRem")||"{}")}catch(e){r={}}return {m:{on:false,t:"06:30",...r.m},e:{on:false,t:"17:30",...r.e}}}
+function azRemGet(){const r=jget("mushaf.azRem",{});return {m:{on:false,t:"06:30",...r.m},e:{on:false,t:"17:30",...r.e}}}
 function azSetUI(){const r=azRemGet();
   for(const w of ["m","e"]){const sw=$(w==="m"?"azRemMs":"azRemEs"),ti=$(w==="m"?"azRemM":"azRemE");sw.setAttribute("aria-checked",String(NATIVE&&r[w].on));sw.disabled=!NATIVE;ti.value=r[w].t;ti.disabled=!NATIVE||!r[w].on}
   $("azRemNote").textContent=NATIVE?"إشعار هادئ كل يوم في الوقت الذي تختاره":"التذكير يعمل في تطبيق الهاتف";

@@ -47,6 +47,8 @@ jobs:
           if [ -n "$KEY_B64" ]; then
             # pasted secrets often pick up spaces or line breaks; drop them
             KEY_PW=$(printf %s "$KEY_PW" | tr -d '[:space:]')
+            # the trimmed password differs from the stored secret, so GitHub would not hide it in the log by itself
+            [ -n "$KEY_PW" ] && echo "::add-mask::$KEY_PW"
             printf %s "$KEY_B64" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/anora-test.jks"
             if keytool -list -keystore "$RUNNER_TEMP/anora-test.jks" -storepass "$KEY_PW" -alias anora-test >/dev/null 2>&1; then
               echo "ANORA_TEST_KEYSTORE=$RUNNER_TEMP/anora-test.jks" >> "$GITHUB_ENV"
