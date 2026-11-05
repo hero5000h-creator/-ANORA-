@@ -2179,7 +2179,8 @@ function resize(){
   posture();applyStudy();$("app").classList.toggle("ovl",!inTable&&!inStudy);root.style.setProperty("--fh",document.querySelector(".foot").offsetHeight+"px");root.style.setProperty("--bh",document.querySelector(".bar").offsetHeight+"px");
   requestAnimationFrame(()=>{pillTo(document.querySelector(".tabs"));pillTo(document.querySelector(".shtabs"))});
   const r=stage.getBoundingClientRect(), full=!inTable&&(r.width<1000||matchMedia("(pointer:coarse)").matches), pad=inTable?24:full?0:18;
-  let SW=r.width, SH=r.height, cx=r.width/2, cy=r.height/2, force=null;
+  /* never plan the page wider or taller than the screen the person actually sees */
+  let SW=Math.min(r.width,innerWidth||r.width), SH=Math.min(r.height,innerHeight||r.height), cx=SW/2, cy=SH/2, force=null;
   /* bars that must stay up (memorising, recitation) get their own room so they never cover a line */
   /* tall phones use the whole screen: the bars, when they show, cover only the page's own header and number */
   const tall=full&&!inTable&&!inStudy&&r.height/r.width>1.75;
@@ -2666,7 +2667,23 @@ stage.addEventListener("wheel",e=>{e.preventDefault();const n=performance.now();
 
 /* ---------- top bar, scrubber, bookmark, theme ---------- */
 function bump(el){if(reduce||!el)return;el.classList.remove("bump");void el.offsetWidth;el.classList.add("bump")}
-function ui(){
+/* A last check on every device, whatever the cause (font size or display size settings, a web view's own text scaling,
+   a font drawn wider than the print data): once a page is on show, nothing on it may run past its frame or off the screen.
+   A line that does is narrowed to fit; a page that does not fit the screen is laid out again for the screen as it is. */
+function fitGuard(again){if(!again)fitGuard.n=0;clearTimeout(fitGuard.t);fitGuard.t=setTimeout(()=>{
+  /* measure only a page at rest: not while it turns, is held, zoomed or still gliding into place */
+  const moving=()=>{try{return document.getAnimations().some(a=>a.playState==="running"&&a.effect&&a.effect.target&&(a.effect.target===wrap||a.effect.target.contains(wrap)||wrap.contains(a.effect.target)))}catch(e){return false}};
+  if(flip||down||busy||zoom.s!==1||moving()){if((fitGuard.n=(fitGuard.n||0)+1)<20)fitGuard(true);return}fitGuard.n=0;
+  const vw=innerWidth,vh=innerHeight;let off=false;
+  book.querySelectorAll(":scope>.pg:not(.pk):not(.blank)").forEach(pg=>{
+    const bx=pg.querySelector(".box");if(!bx)return;const br=bx.getBoundingClientRect(),bl=parseFloat(getComputedStyle(bx).borderLeftWidth)||0,inL=br.left+bl*.5,inR=br.right-bl*.5;
+    if([...pg.querySelectorAll(".lb,.sh-n")].some(l=>{const r=l.getBoundingClientRect();return r.width&&(r.left<inL-1||r.right>inR+1)})){
+      const k=+(pg.dataset.g||0);if(k<2){pg.dataset.g=k+1;pg.classList.add("bld");fit(pg);pg.classList.remove("bld")}}
+    const pr=pg.getBoundingClientRect();if(pr.left<-2||pr.right>vw+2||pr.top<-2||pr.bottom>vh+2)off=true});
+  if(off&&!fitGuard.re){fitGuard.re=1;window.__fitRe=(window.__fitRe||0)+1;W=0;resize();setTimeout(()=>fitGuard.re=0,1500)}
+},450)}
+window.__fitGuard=fitGuard;addEventListener("resize",()=>fitGuard());
+function ui(){fitGuard();
   renderDeck();renderFlow();$("rProg").style.setProperty("--rp",(Math.min(NP,mode==="spread"?cur+1:cur)/NP*100).toFixed(2)+"%");
   const id=pStart(cur), q=qOf(id), s=SUR[sOf(id)];
   {const ws=$("wSurah"),s2=mode==="spread"&&cur<NP?SUR[sOf((cur+2<=NP?pStart(cur+2):NA+1)-1)]:s,nt="سورة "+s[0]+(s2!==s?" · "+s2[0]:"");if(ws.textContent!==nt&&ws.textContent){ws.textContent=nt;bump(ws.parentNode)}else ws.textContent=nt}

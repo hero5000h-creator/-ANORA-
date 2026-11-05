@@ -52,6 +52,13 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         await p.evaluate(()=>{document.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowRight"}))});await p.waitForTimeout(1100)}
       await p.evaluate(()=>localStorage.removeItem("mushaf.turn"))}
     ok(!errs.length,`${name}: no script errors on load ${errs.join(" | ")}`);
+    /* any device: letters drawn 15% bigger after the page measured them (a phone's font size setting) never run past the frame */
+    {const over=()=>p.evaluate(()=>{let n=0;document.querySelectorAll("#book>.pg:not(.pk):not(.blank)").forEach(pg=>{const bx=pg.querySelector(".box"),br=bx.getBoundingClientRect(),bl=parseFloat(getComputedStyle(bx).borderLeftWidth)||0;
+       pg.querySelectorAll(".lb").forEach(l=>{const r=l.getBoundingClientRect();if(r.left<br.left+bl*.5-1||r.right>br.right-bl*.5+1)n++})});return n});
+     const a=await over();await p.evaluate(()=>{const st=document.createElement("style");st.id="smkZ";st.textContent="#book .lines{zoom:1.15}";document.head.appendChild(st)});
+     const b=await over();await p.evaluate(()=>window.__fitGuard());await p.waitForTimeout(1500);const c=await over();
+     await p.evaluate(()=>{document.getElementById("smkZ").remove();window.__fitGuard()});await p.waitForTimeout(800);
+     ok(a===0&&b>0&&c===0,`${name}: lines stay inside the frame when the device scales text (${a} → ${b} → ${c})`)}
     /* Android back: closes the open layer first (index, then settings), and only says "nothing open" when nothing is */
     {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("bIndex").click();await W(500);
         const a=window.anoraBack(),closed=!document.getElementById("drawer").classList.contains("on");await W(500);
