@@ -1743,8 +1743,8 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
         <button class="sw" data-view="2">صفحتان</button>
       </div></div>
       <div><h3>تقليب الصفحة</h3><div class="seg" id="turnSeg">
-        <button class="sw" data-turn="curl">ورقة</button>
         <button class="sw" data-turn="slide">انزلاق</button>
+        <button class="sw" data-turn="curl">ورقة</button>
         <button class="sw" data-turn="none">بدون حركة</button>
       </div></div>
       <div class="posture" id="volRow" hidden><span>أزرار الصوت تقلّب الصفحة<small>زر خفض الصوت للصفحة التالية، والرفع للسابقة. أثناء التلاوة يعودان للتحكم بالصوت</small></span><button class="tg" id="bVol" role="switch" aria-checked="false" aria-label="أزرار الصوت تقلّب الصفحة"></button></div>
@@ -2433,7 +2433,11 @@ function finish(f,done){
 }
 /* how a page turns: "curl" lifts a real sheet, "slide" glides the pages sideways, "none" changes the page at once.
    Reduced motion always changes at once. */
-const turnPick=()=>{const t=store.get("mushaf.turn");return t==="slide"||t==="none"?t:"curl"};
+/* the pages glide by default: it costs the phone almost nothing (the compositor moves two finished pages), while the
+   lifted sheet needs each page drawn into a picture first. The sheet stays a choice in the settings. Once, a saved
+   "curl" from before this default is moved to the glide too */
+if(!store.get("mushaf.turn2")){if(store.get("mushaf.turn")==="curl")store.set("mushaf.turn","slide");store.set("mushaf.turn2","1")}
+const turnPick=()=>{const t=store.get("mushaf.turn");return t==="curl"||t==="none"?t:"slide"};
 const turnSt=()=>reduce?"none":turnPick();
 function setupSlide(kind,target){
   park();
@@ -2903,7 +2907,7 @@ function rasterDirtyLazy(){const k=[bmNow(),/* only classes that change how a pa
   if(k!==rasterKey){rasterKey=k;rasterDirty()}else{clearTimeout(RS.t);RS.t=setTimeout(rasterSoon,350)}}
 function rasterSoon(){
   /* only the phone's curl uses page images; the spread's 3D leaf moves the pages themselves */
-  if(reduce||mode==="spread")return;
+  if(reduce||mode==="spread"||turnPick()!=="curl")return;
   const want=mode==="spread"?[cur+1,cur,cur+2,cur-1,cur+3,cur-2]:[cur,cur+1,cur-1];
   RS.queue=want.filter(p=>p>=1&&p<=NP&&!RS.img.has(rk(p)));
   if(RS.busy)return;
@@ -3150,7 +3154,7 @@ $("prefs").addEventListener("click",e=>{e.stopPropagation();const t=e.target.clo
   if(b.dataset.paper){vt(()=>setPaper(b.dataset.paper,true));if(b.dataset.paper==="auto")toast("نهاري بالنهار، وليلي من المغرب إلى الفجر")}
   if(b.dataset.cover)vt(()=>setCover(b.dataset.cover,true));
   if(b.dataset.view)vt(()=>{store.set("mushaf.view",b.dataset.view);markView();resize()},1);
-  if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();toast(b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنباً إلى جنب":"تتبدّل الصفحة فوراً بلا حركة")}
+  if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();if(b.dataset.turn==="curl")rasterSoon();else RS.img.clear();toast(b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنباً إلى جنب":"تتبدّل الصفحة فوراً بلا حركة")}
 });
 $("bFull").onclick=e=>{e.stopPropagation();toggleFull()};
 document.addEventListener("pointerdown",e=>{if(!$("prefs").hidden&&!e.target.closest("#prefs,#bPrefs,#fPrefs"))showPrefs(false)});
