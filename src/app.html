@@ -312,6 +312,7 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
 .dh #bClose{position:absolute;left:12px;top:50%;margin-top:-16px}
 .tabs{display:grid;grid-template-columns:repeat(5,1fr);margin:0 16px;background:var(--sel);border-radius:12px;padding:4px;gap:4px}
 .tabs button{height:36px;border-radius:9px;font-weight:500;font-size:14px;padding:0 2px;white-space:nowrap;color:var(--muted)}
+@media (pointer:coarse){.tabs button{height:40px}}
 .tabs button[aria-selected="true"]{background:var(--bar);color:var(--orn);font-weight:600;box-shadow:0 1px 3px var(--line)}
 .search{margin:4px 16px 12px;position:relative}
 .tabs{margin-bottom:6px!important}
@@ -3203,7 +3204,7 @@ let toastT;function toast(m){const t=$("toast"),a=$("app"),f=document.querySelec
   t.classList.add("on");$("app").classList.add("toasting");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("on");$("app").classList.remove("toasting")},1800)}
 const colRd=(key,def)=>{try{const v=JSON.parse(store.get(key)||"null");if(Array.isArray(v)&&v.length&&v.every(x=>x&&/^[\w-]{1,16}$/.test(x.k)&&typeof x.n==="string"&&/^#[0-9a-f]{6}$/i.test(x.c)))return v}catch(e){}return def.map(x=>({...x}))};
 const HLC0=[{k:"y",c:"#e2b93b",n:"رحمة وبشارة"},{k:"g",c:"#5fae7d",n:"دعاء"},{k:"b",c:"#4f8fd0",n:"قصص"},{k:"v",c:"#9a72c9",n:"تدبّر"},{k:"o",c:"#e0874a",n:"أوامر"},{k:"r",c:"#d0596b",n:"تحذير"}],HLC=colRd("mushaf.hlSet",HLC0);
-const hl={get(){return jget("mushaf.hl",{})},of(id){return this.get()[id]||""},
+const hl={get(){const d=jget("mushaf.hl",{});for(const k in d)if(!d[k]||typeof d[k].k!=="string")delete d[k];return d},of(id){return this.get()[id]||""},
   set(id,k){const d=this.get();if(k)d[id]={k,at:Date.now()};else delete d[id];store.set("mushaf.hl",JSON.stringify(d))},
   names(){let n=jget("mushaf.hlNames",{});return Object.fromEntries(HLC.map(c=>[c.k,n[c.k]||c.n]))},
   rename(k,v){let n=jget("mushaf.hlNames",{});n[k]=v.trim().slice(0,24);if(!n[k])delete n[k];store.set("mushaf.hlNames",JSON.stringify(n))}};
@@ -3225,7 +3226,7 @@ const mgC=k=>(MG.find(g=>g.k===k)||MG[0]).c;
 function aGrpUI(){const el=$("aGrp"),on=selA&&marks.has(selA);el.hidden=!on;if(!on)return;const cur=mgrp.of(selA);
   el.innerHTML=`<span>المجموعة:</span>`+MG.map(g=>`<button data-mg="${g.k}" style="--c:${g.c}" aria-pressed="${g.k===cur}"><i></i>${escH(g.n)}</button>`).join("")+`<button class="mge" id="mgEd" aria-label="أضف لوناً أو خصّص العلامات">✎</button>`}
 let mFilt="";
-const marks={get(){return jget("mushaf.marks",[])},has(id){return this.get().includes(id)},
+const marks={get(){return jget("mushaf.marks",[]).filter(x=>Number.isInteger(x)&&x>=1&&x<=NA)},has(id){return this.get().includes(id)},
   toggle(id){let m=this.get();m=m.includes(id)?m.filter(x=>x!==id):[id,...m];store.set("mushaf.marks",JSON.stringify(m));return m.includes(id)}};
 let TF=null,tfLoad=null;
 function tafsir(){if(!tfLoad)tfLoad=fetch("tafsir.json").then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>TF=d).catch(()=>{tfLoad=null;throw 0});return tfLoad}
@@ -3577,7 +3578,8 @@ function wxClick(e){
 
 /* tadabbur journal: a short reflection on any ayah, kept on this device */
 let ntTimer;
-const notes={get(){return jget("mushaf.notes",{})},
+/* each note is {t:text, at:day}: anything else (an old or hand-edited backup) is dropped, or the list of notes broke */
+const notes={get(){const n=jget("mushaf.notes",{});for(const k in n){const v=n[k];if(!v||typeof v.t!=="string"||!v.t)delete n[k];else if(typeof v.at!=="number")v.at=0}return n},
   set(id,t){const n=this.get();t=(t||"").trim();if(t)n[id]={t,at:today()};else delete n[id];const had=!!this.get()[id];store.set("mushaf.notes",JSON.stringify(n));if(selA===id)$("aNote").setAttribute("aria-pressed",String(!!t));if(had!==!!t){paintHL();rasterDirtyLazy()}}};
 const dayLabel=d=>{const x=today()-d;return x<=0?"اليوم":x===1?"أمس":`قبل ${ar(x)} ${x<=10?"أيام":"يوماً"}`};
 
@@ -4235,7 +4237,7 @@ $("bTable").onclick=e=>{e.stopPropagation();tableSim=!tableSim;store.set("mushaf
 const STEPS=[1,3,7,14,30,60,120];
 const today=()=>Math.floor((Date.now()-new Date().getTimezoneOffset()*6e4)/864e5);
 const memo={on:false,rev:new Map(),range:null,last:null,hint:store.get("mushaf.memoHint")==="1",
-  db(){return jget("mushaf.memo",{})},
+  db(){const d=jget("mushaf.memo",{});for(const k in d)if(!d[k]||typeof d[k].due!=="number")delete d[k];return d},
   save(d){store.set("mushaf.memo",JSON.stringify(d))}};
 const pageWords=p=>{const el=cache.get(p),R=memo.range;return el?[...el.querySelectorAll(".lb [data-a]:not(.sp)")].filter(w=>w.textContent.indexOf("۝")<0&&(!R||(+w.dataset.a>=R.from&&+w.dataset.a<=R.to))):[]};
 /* words missed while reciting this session, shown in red; kept by key so a re-laid page keeps them */

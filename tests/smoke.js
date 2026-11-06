@@ -172,13 +172,13 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
      break the page or run as code */
   {const ctx=await b.newContext({viewport:{width:412,height:891},hasTouch:true,isMobile:true});const p=await ctx.newPage();const errs=[];p.on("pageerror",e=>errs.push(e.message));
     await p.addInitScript(()=>{const X='"><img src=x onerror="window.__x=1">';const S=(k,v)=>localStorage.setItem(k,v);
-      S("mushaf.last","2");S("mushaf.hintN","9");S("mushaf.easyQ","1");S("mushaf.marks","5");S("mushaf.notes","null");S("mushaf.recent","{}");S("mushaf.khatma","true");S("mushaf.az","null");
-      S("mushaf.hl",JSON.stringify({"10":{k:"y"}}));S("mushaf.hlNames",JSON.stringify({y:X}));S("mushaf.mgSet",JSON.stringify([{k:"a",c:"#e2b93b",n:"عام"},{k:"b",c:"#5fae7d",n:X}]))});
+      S("mushaf.last","2");S("mushaf.hintN","9");S("mushaf.easyQ","1");S("mushaf.marks",'[1,"x",null,{}]');S("mushaf.notes",'{"1":"x","2":{"t":5},"3":null}');S("mushaf.memo",'{"1":null,"2":5}');S("mushaf.recent","{}");S("mushaf.khatma","true");S("mushaf.az","null");
+      S("mushaf.hl",JSON.stringify({"10":{k:"y"},"11":null,"12":5}));S("mushaf.hlNames",JSON.stringify({y:X}));S("mushaf.mgSet",JSON.stringify([{k:"a",c:"#e2b93b",n:"عام"},{k:"b",c:"#5fae7d",n:X}]))});
     await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(3000);
     const w=await p.$('#book .pg [data-a="10"]');const bb=w&&await w.boundingBox();
     if(bb){await p.mouse.move(bb.x+bb.width/2,bb.y+bb.height/2);await p.mouse.down();await p.waitForTimeout(700);await p.mouse.up();await p.waitForTimeout(800);
       await p.evaluate(()=>{const h=document.getElementById("aHl");h&&h.click()});await p.waitForTimeout(600)}
-    await p.evaluate(()=>{document.getElementById("bIndex").click()});await p.waitForTimeout(400);await p.evaluate(()=>document.getElementById("t-m").click());await p.waitForTimeout(500);
+    await p.evaluate(()=>{document.getElementById("bIndex").click()});await p.waitForTimeout(400);for(const t of ["r","c","m"]){await p.evaluate(t=>document.getElementById("t-"+t).click(),t);await p.waitForTimeout(400)}
     const r=await p.evaluate(()=>({lines:document.querySelectorAll("#book .pg .lb").length,x:window.__x||0}));
     ok(r.lines>0&&!errs.length,`bad saved data: the page still opens (${r.lines} lines) ${errs.join(" | ")}`);ok(!r.x,"bad saved data: a colour name with markup stays text");
     await ctx.close()}
