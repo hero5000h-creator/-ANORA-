@@ -52,6 +52,12 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         await p.mouse.move(bb.x+bb.width*.2,y);await p.mouse.down();for(let k=1;k<=10;k++){await p.mouse.move(bb.x+bb.width*(.2+k*.06),y);await p.waitForTimeout(16)}await p.mouse.up();await p.waitForTimeout(1100);
         const c1=await p.evaluate(()=>__smk.turn.cur());ok(c1===c0+r.step,`${name}: swipe turns one ${r.step>1?"spread":"page"} with "${st}" (${c0}→${c1})`);
         await p.evaluate(()=>{document.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowRight"}))});await p.waitForTimeout(1100)}
+      /* a short drag held still before lifting is not a flick: the page settles back */
+      {const c0=await p.evaluate(()=>__smk.turn.cur());await p.mouse.move(bb.x+bb.width*.3,y);await p.mouse.down();for(let k=1;k<=4;k++){await p.mouse.move(bb.x+bb.width*(.3+k*.03),y);await p.waitForTimeout(30)}
+        await p.waitForTimeout(300);await p.mouse.up();await p.waitForTimeout(900);const c1=await p.evaluate(()=>__smk.turn.cur());ok(c1===c0,`${name}: a short drag held still settles back (${c0}→${c1})`)}
+      /* fast presses are not lost: the one that comes while the page moves turns it right after */
+      {const c0=await p.evaluate(()=>__smk.turn.cur());for(let k=0;k<2;k++){await p.evaluate(()=>document.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowLeft"})));await p.waitForTimeout(120)}
+        await p.waitForTimeout(1500);const c1=await p.evaluate(()=>__smk.turn.cur());ok(c1===c0+2*r.step,`${name}: two quick presses turn two ${r.step>1?"spreads":"pages"} (${c0}→${c1})`)}
       await p.evaluate(()=>localStorage.removeItem("mushaf.turn"))}
     ok(!errs.length,`${name}: no script errors on load ${errs.join(" | ")}`);
     /* any device: letters drawn 15% bigger after the page measured them (a phone's font size setting) never run past the frame */
