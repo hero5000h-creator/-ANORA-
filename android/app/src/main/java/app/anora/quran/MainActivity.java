@@ -21,13 +21,19 @@ import com.getcapacitor.WebViewListener;
 
 public class MainActivity extends BridgeActivity {
 
+    static MainActivity inst;
+    /** The page asks for the fast refresh while something moves (a touch, a page turn) and lets it go at rest. */
+    private boolean fastWanted = true;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(PlaybackPlugin.class);
         registerPlugin(SpeechPlugin.class);
         registerPlugin(AudioPlugin.class);
         registerPlugin(WidgetPlugin.class);
+        registerPlugin(DisplayPlugin.class);
         super.onCreate(savedInstanceState);
+        inst = this;
         fromWidget(getIntent());
         fixedTextZoom();
         immersive();
@@ -178,9 +184,35 @@ public class MainActivity extends BridgeActivity {
      * Ask for the screen's highest refresh rate (120 Hz on the Fold and S Ultra) at the current resolution.
      * Without this, many phones keep apps that draw through a web view at 60 Hz, and page turns look less smooth.
      */
+    /**
+     * Called by the page (Display.fast). Holding the top rate all the time, even with a still page being read,
+     * kept the screen and the GPU at 120 Hz for hours: more heat, so the phone slowed itself down and the app
+     * felt heavy after a while. At rest the system picks the rate again (an adaptive screen drops low).
+     */
+    void setFast(boolean on) {
+        fastWanted = on;
+        runOnUiThread(() -> {
+            if (fastWanted) { fastestRefresh(); return; }
+            try {
+                WindowManager.LayoutParams lp = getWindow().getAttributes();
+                if (lp.preferredDisplayModeId != 0 || lp.preferredRefreshRate != 0) {
+                    lp.preferredDisplayModeId = 0;
+                    lp.preferredRefreshRate = 0;
+                    getWindow().setAttributes(lp);
+                }
+            } catch (Exception ignored) { }
+        });
+    }
+
+    @Override
+    public void onDestroy() {
+        if (inst == this) inst = null;
+        super.onDestroy();
+    }
+
     @SuppressWarnings("deprecation")
     private void fastestRefresh() {
-        if (Build.VERSION.SDK_INT < 23) return;
+        if (Build.VERSION.SDK_INT < 23 || !fastWanted) return;
         try {
             Display d = Build.VERSION.SDK_INT >= 30 ? getDisplay() : getWindowManager().getDefaultDisplay();
             if (d == null) return;
