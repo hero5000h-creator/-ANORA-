@@ -82,6 +82,13 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     await p.evaluate(()=>__smk.playFrom(__smk.SST[2]+3));await p.waitForTimeout(3000);
     let s=await p.evaluate(()=>({on:__smk.P().on,paused:__smk.AU.paused,t:__smk.AU.currentTime}));
     ok(s.on&&!s.paused,`${name}: recitation keeps playing 3s after start (on=${s.on} paused=${s.paused})`);
+    /* following the recitation must not work every screen frame (it once did, for as long as it played, and the
+       phone warmed up and slowed down over a long listen), and the faded swipe hint must leave the screen */
+    {const r=await p.evaluate(async()=>{let n=0;const R=window.requestAnimationFrame;window.requestAnimationFrame=f=>{n++;return R(f)};
+       await new Promise(z=>setTimeout(z,1000));window.requestAnimationFrame=R;
+       return {n,bar:document.getElementById("pBar").style.transform,anims:document.getAnimations().filter(a=>a.playState==="running"&&a.effect.getTiming().iterations===Infinity).length}});
+     ok(r.n<15&&/scaleX/.test(r.bar),`${name}: reciting asks for few frames (${r.n} in 1s) and moves the bar by transform`);
+     ok(!r.anims,`${name}: nothing animates forever while reading (${r.anims})`)}
     const t1=s.t;await p.waitForTimeout(1200);s=await p.evaluate(()=>({t:__smk.AU.currentTime}));ok(s.t>t1+.5,`${name}: audio time moves (${t1.toFixed(1)} → ${s.t.toFixed(1)})`);
     await p.evaluate(()=>window.__L.Playbackaction&&window.__L.Playbackaction({a:"pause"}));await p.waitForTimeout(300);
     ok(await p.evaluate(()=>__smk.AU.paused&&!__smk.P().on),`${name}: notification pause pauses`);
