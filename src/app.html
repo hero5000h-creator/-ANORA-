@@ -4218,17 +4218,21 @@ let reciter=RECS[store.get("mushaf.reciter")]?store.get("mushaf.reciter"):"husar
 function natAudio(){
   const L={},on=(t,f,o)=>{(L[t]=L[t]||[]).push({f,once:!!(o&&o.once)})},
     fire=t=>{const ls=L[t]||[];L[t]=ls.filter(x=>!x.once);ls.forEach(x=>{try{x.f()}catch(e){}});if(t==="error"&&A.onerror)A.onerror()};
-  let src="",pos=0,at=0,playing=false,rs=0,ended=false,rate=1;
+  let src="",pos=0,at=0,playing=false,rs=0,ended=false,rate=1;const fileU=u=>String(u).replace(/^https?:\/\/localhost\/_capacitor_file_/,"file://");
   natOn("Audio","time",d=>{if(!d)return;pos=+d.ms||0;at=performance.now();playing=!!d.playing;fire("timeupdate")});
   natOn("Audio","loaded",()=>{if(rs<1){rs=1;fire("loadedmetadata")}});
   natOn("Audio","ended",()=>{ended=true;playing=false;fire("ended")});
+  /* the queued next surah took over inside the player itself */
+  natOn("Audio","advanced",()=>{if(!A._q)return;src=A._q;A._q="";rs=1;ended=false;pos=0;at=performance.now();playing=true;fire("advanced")});
   natOn("Audio","error",()=>{playing=false;fire("error")});
   natOn("Audio","halt",()=>{playing=false;if(player.on)setPlaying(false)});
   const A={preload:"auto",onerror:null,addEventListener:on,
     get src(){return src},
     set src(u){src=u;rs=0;ended=false;pos=0;playing=false;
-      nat("Audio","load",{url:String(u).replace(/^https?:\/\/localhost\/_capacitor_file_/,"file://")}).catch(()=>fire("error"))},
-    get currentTime(){return (pos+(playing?(performance.now()-at)*rate:0))/1000},
+      A._q="";nat("Audio","load",{url:fileU(u)}).catch(()=>fire("error"))},
+    /* the file to play next with no gap; "" clears it */
+    queue(u,id){u=u||"";if(u===A._q&&id===A._qid)return;A._q=u;A._qid=id||0;nat("Audio","queue",{url:u?fileU(u):""}).catch(()=>{A._q=""})},_q:"",_qid:0,
+    get currentTime(){return (pos+(playing?Math.min(1200,performance.now()-at)*rate:0))/1000},
     get playbackRate(){return rate},set playbackRate(v){rate=+v||1;nat("Audio","rate",{rate}).catch(()=>{})},
     set currentTime(v){pos=v*1000;at=performance.now();ended=false;nat("Audio","seek",{ms:Math.max(0,Math.round(pos))}).catch(()=>{})},
     get readyState(){return rs},get ended(){return ended},get paused(){return !playing&&!A._want},_want:false,
@@ -4295,6 +4299,7 @@ function startAyah(resume,flow){
     if(auSrc!==g.src){auSrc=g.src;AU.src=g.src;auSeek(g.start)}
     else{const t=AU.currentTime*1000;if(!((resume||flow)&&t>=g.start-400&&t<g.end))auSeek(g.start)}
     if(player.on)AU.play().catch(e=>{if(e&&e.name!=="AbortError")AU.onerror()});
+    auQueue(id,g);
     const tick=()=>{if(!player.on||player.seg!==g)return;const t=AU.currentTime*1000;
       pBarTo((t-g.start)/(g.end-g.start));
       /* the page fell behind the player (it slept in the background): catch up instead of jumping back */
@@ -4311,6 +4316,13 @@ function startAyah(resume,flow){
     pNext(tick,left)};
   player.tick=null;if(player.on)pNext(tick,0);
 }
+/* On the last ayah of a surah the next surah's file is queued in the native player, which then goes straight on
+   to it: it never stops between surahs, so Android does not put the app to sleep at the end of a surah (the
+   recitation used to stop there with the screen off) */
+function auQueue(id,g){if(!AU.queue)return;let u="",n=0;
+  if(g&&g.last&&!rep.on&&id<NA){n=id+1;const h=seg(n);if(h&&h.src!==g.src&&h.start===0)u=h.src;else n=0}
+  AU.queue(u,n)}
+if(AU.queue)AU.addEventListener("advanced",()=>{const n=AU._qid;if(!player.on||!n)return;auSrc=AU.src;player.id=n;startAyah(true)});
 /* the ayah the player is really in (same surah file); true when the page moved to it */
 function auResync(){const g=player.seg;if(!player.on||!g||!aud||auSrc!==g.src||AU.readyState<1||AU.seeking||performance.now()-(player.sk||0)<2500)return false;const t=AU.currentTime*1000,s=sOf(player.id),rows=aud.surahs[s+1];if(!rows)return false;
   let a=0;for(const r of rows)if(r[0]>0&&(r[0]===1?0:r[1])<=t+50)a=r[0];if(!a)return false;const id=SST[s]+a-1;if(id===player.id)return false;

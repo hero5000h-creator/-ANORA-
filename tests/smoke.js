@@ -248,5 +248,26 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       await p.click("#bPrefs");await p.waitForTimeout(600);const r=await p.evaluate(()=>{const q=document.getElementById("prefs").getBoundingClientRect(),x=document.getElementById("prefsX").getBoundingClientRect();return {top:Math.round(q.top),bottom:Math.round(Math.max(q.bottom,x.bottom)),h:innerHeight-24}});
       ok(r.top>300&&r.bottom<=r.h,`phone half open: settings menu ends on screen (${JSON.stringify(r)})`)}
     await ctx.close()}
+  /* Android: at a surah's end the native player goes straight on to the next surah's file, queued in advance
+     (it used to stop there with the screen off, and the app slept). A fake native player stands in for ExoPlayer. */
+  {const ctx=await b.newContext({viewport:{width:412,height:891},hasTouch:true,isMobile:true});const p=await ctx.newPage();
+    await p.addInitScript(()=>{localStorage.setItem("mushaf.hintN","9");localStorage.setItem("mushaf.easyQ","1");localStorage.setItem("mushaf.last","604");localStorage.setItem("mushaf.playLast","6225");localStorage.setItem("mushaf.reciter","husary");
+  const L={},log=window.__log=[];const emit=(ev,d)=>(L["Audio:"+ev]||[]).forEach(f=>f(d||{}));
+  /* fake ExoPlayer: surah durations from the timing file end + 400 ms */
+  const X={list:[],i:0,pos:0,playing:false,t:0,dur:u=>{const s=+String(u).match(/(\d{3})\.mp3/)[1];const rows=window.__aud&&window.__aud.surahs[s];return rows?rows[rows.length-1][2]+400:60000}};
+  setInterval(()=>{if(!X.playing||!X.list.length)return;X.pos+=200;if(X.pos>=X.dur(X.list[X.i])){if(X.i+1<X.list.length){X.i++;X.pos=0;log.push("AUTO->"+X.list[X.i].slice(-7));emit("advanced");}else{X.playing=false;log.push("ENDED");emit("time",{ms:X.pos,playing:false});emit("ended");return}}emit("time",{ms:X.pos,playing:X.playing})},200);
+  window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>"android",isPluginAvailable:()=>true,convertFileSrc:u=>u,
+    addListener:(pl,ev,fn)=>{(L[pl+":"+ev]=L[pl+":"+ev]||[]).push(fn);return {remove(){}}},
+    nativePromise:(pl,m,o)=>{if(pl==="Audio"){log.push(m+(o&&o.url!=null?" "+String(o.url).slice(-7):"")+(o&&o.ms!=null?" @"+o.ms:""));
+        if(m==="load"){X.list=[o.url];X.i=0;X.pos=o.ms||0;setTimeout(()=>emit("loaded",{dur:1}),50)}
+        if(m==="queue"){X.list=X.list.slice(0,X.i+1);if(o.url)X.list.push(o.url)}
+        if(m==="play")X.playing=true;if(m==="pause")X.playing=false;if(m==="seek")X.pos=o.ms}
+      return Promise.resolve(pl==="Playback"&&m==="insets"?null:{})}};
+  fetch("audio/husary.json").then(r=>r.json()).then(d=>window.__aud=d)});
+await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(3000);
+    await p.evaluate(()=>document.getElementById("fListen").click());await p.waitForTimeout(10500);
+    const r=await p.evaluate(()=>({t:document.getElementById("pTitle").textContent,log:window.__log.join(" | ")}));
+    ok(/الفلق/.test(r.t)&&/queue 113\.mp3/.test(r.log)&&/AUTO->113/.test(r.log)&&!/load 113/.test(r.log),`android: the next surah follows the last ayah with no stop (${JSON.stringify(r)})`);
+    await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});
