@@ -328,10 +328,11 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
 .row.cur .star{color:var(--orn);transform:scale(1.08)}
 .rn{min-width:0}
 .rn b{display:block;font-family:var(--f-display);font-size:19px;font-weight:700;line-height:1.4;color:var(--bar-ink)}
-.rn small{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rn small{display:block;font-size:13px;color:color-mix(in srgb,var(--bar-ink) 70%,var(--muted));white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rn q{quotes:none;font-family:var(--f-quran);font-size:16px;color:var(--bar-ink)}
-.pg-n{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;text-align:left;min-width:44px}
-.pg-n em{display:block;font-style:normal;font-size:11.5px;letter-spacing:.02em}
+/* council: the page number reads at a glance (heavier, full ink), the word "صفحة" above it stays light */
+.pg-n{font-size:15px;font-weight:700;color:var(--bar-ink);font-variant-numeric:tabular-nums;text-align:left;min-width:44px}
+.pg-n em{display:block;font-style:normal;font-size:11.5px;font-weight:400;letter-spacing:.02em;color:var(--muted)}
 .grp{position:sticky;top:0;z-index:1;background:var(--bar);padding:12px 10px 6px;font-size:12.5px;font-weight:600;color:var(--orn);letter-spacing:.02em;display:flex;justify-content:space-between;border-bottom:1px solid var(--line)}
 .sub{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;width:100%;text-align:right;padding:6px 8px;border-radius:10px}
 .sub:hover{background:var(--sel)}

@@ -6,8 +6,9 @@ on:
   pull_request:
   workflow_dispatch:
 
+# read-only by default: only the build job, which publishes the test APK, may write
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   smoke:
@@ -26,6 +27,8 @@ jobs:
   build:
     needs: smoke
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
