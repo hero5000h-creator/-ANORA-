@@ -242,6 +242,9 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       const st=await p.locator("#stage").boundingBox(),drag=async(x0,y0,x1,y1)=>{await p.mouse.move(x0,y0);await p.mouse.down();for(let k=1;k<=10;k++){await p.mouse.move(x0+(x1-x0)*k/10,y0+(y1-y0)*k/10);await p.waitForTimeout(16)}await p.mouse.up();await p.waitForTimeout(800)};
       const a=await pr();await drag(200,st.y+st.height*.8,204,st.y+st.height*.1);const b2=await pr();await drag(80,st.y+st.height*.5,330,st.y+st.height*.52);await p.waitForTimeout(600);const c=await pr();
       ok(a.w>=380&&b2.top<a.top-100&&c.top===a.top&&c.meta!==a.meta,`phone half open: full-width page slides up to show the rest, a swipe turns to the next page's top (${JSON.stringify([a,b2,c])})`)}
+    /* the settings menu drops from the bar half way down and must end on screen (it ran past the bottom) */
+    {await p.click("#bPrefs");await p.waitForTimeout(600);const r=await p.evaluate(()=>{const q=document.getElementById("prefs").getBoundingClientRect();return {top:Math.round(q.top),bottom:Math.round(q.bottom),h:innerHeight}});
+      ok(r.top>300&&r.bottom<=r.h,`phone half open: settings menu ends on screen (${JSON.stringify(r)})`)}
     await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});

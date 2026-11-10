@@ -670,6 +670,9 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #deck{display:none}
 #app.table{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:var(--top) var(--gap) minmax(0,1fr)}
 #app.table>*{min-width:0}
+/* the settings menu drops from the bar, which sits half way down the screen when half open: it must end at the screen bottom, not run past it */
+#app.table #prefs{max-height:calc((100dvh - var(--top,0px) - var(--gap,0px) - var(--bh,60px) - var(--cutB,0px) - 14px) / var(--uz,1))}
+@media (max-width:599px){#app.table #prefs{width:calc((100vw - 24px) / var(--uz,1))}}
 #app.table #stage{grid-row:1;min-height:0}
 #app.table #deck{grid-row:3;display:flex;flex-direction:column;min-height:0;background:var(--bar);color:var(--bar-ink)}
 #app.table.imm .bar,#app.table.imm .foot{display:flex}
