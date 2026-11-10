@@ -67,6 +67,11 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         document.getElementById("bPrefs").click();await W(300);const b=window.anoraBack(),pc=document.getElementById("prefs").hidden;await W(500);
         const c=window.anoraBack();return {a,closed,b,pc,c}});
       ok(r.a&&r.closed&&r.b&&r.pc&&r.c===false,`${name}: back closes the index, then settings, then lets the app go (${JSON.stringify(r)})`)}
+    /* the search button drops a search panel (not the index); a word finds its ayat, and back closes it */
+    {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("app").classList.remove("calm");const b=document.getElementById("bSrch");(b.offsetParent?b:document.getElementById("fSrch")).click();await W(400);
+        const d=document.getElementById("sDrop"),open=!d.hidden,idx=document.getElementById("drawer").classList.contains("on"),q=document.getElementById("sq"),focus=document.activeElement===q;
+        q.value="الصبر";q.dispatchEvent(new Event("input"));await W(700);const n=document.querySelectorAll("#sres [data-a]").length;const back=window.anoraBack();await W(400);return {open,idx,focus,n,back,closed:d.hidden}});
+      ok(r.open&&!r.idx&&r.focus&&r.n>=3&&r.back&&r.closed,`${name}: search drops its own panel with results, back closes it (${JSON.stringify(r)})`)}
     /* home-screen widgets: the page sends what they show, and a tap on one opens the screen it names */
     {const w=await p.evaluate(()=>window.__wg||null);
       ok(w&&w.page>=1&&w.sur&&w.cats&&w.cats.sab&&w.cats.sab.of>0&&w.cats.sab.f0&&w.cats.sab.f0.t&&Array.isArray(w.pt)&&typeof w.ptc==="string"&&w.free.length,`${name}: widget data sent (page ${w&&w.page}, ${w&&w.sur}, ${w&&w.cats&&w.cats.sab&&w.cats.sab.of} morning adhkar)`);
