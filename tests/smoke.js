@@ -230,5 +230,13 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     const r=await p.evaluate(()=>({lines:document.querySelectorAll("#book .pg .lb").length,x:window.__x||0}));
     ok(r.lines>0&&!errs.length,`bad saved data: the page still opens (${r.lines} lines) ${errs.join(" | ")}`);ok(!r.x,"bad saved data: a colour name with markup stays text");
     await ctx.close()}
+  /* the half-open (tabletop) view on a phone: nothing wider than the screen (a grid column once grew to the bar's
+     own width, so the page, tafsir and buttons ran off both sides) */
+  {const ctx=await b.newContext({viewport:{width:412,height:891},hasTouch:true,isMobile:true});const p=await ctx.newPage();
+    await p.addInitScript(()=>{localStorage.setItem("mushaf.last","439");localStorage.setItem("mushaf.hintN","9");localStorage.setItem("mushaf.easyQ","1");localStorage.setItem("mushaf.table","1")});
+    await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(3000);
+    const r=await p.evaluate(()=>({sw:document.documentElement.scrollWidth,w:innerWidth,table:document.getElementById("app").classList.contains("table"),deck:document.querySelectorAll("#deckList .dk").length}));
+    ok(r.table&&r.deck>0&&r.sw<=412&&r.w===412,`phone half open: page and tafsir fit the screen (${JSON.stringify(r)})`);
+    await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});

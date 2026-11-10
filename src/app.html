@@ -288,6 +288,8 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
   box-shadow:0 14px 30px -10px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.25)}
 #app.table #rehal::after{content:"";position:absolute;left:10px;right:10px;bottom:3px;height:14px;background:var(--o-carve) center/auto 100% repeat-x;opacity:.9}
 :root{--wood-l:#9b6b3f;--wood-d:#6e4524}
+/* a phone held half open has little room above the hinge: a slimmer stand leaves the page larger */
+@media (max-width:599px){#app.table #rehal{left:-10px;right:-10px;top:-6px;bottom:-12px}#app.table #rehal::after{height:9px;bottom:2px}}
 :root[data-paper="night"],:root[data-paper="black"]{--wood-l:#4a3220;--wood-d:#2c1c10}
 .seg.c5{grid-template-columns:repeat(5,1fr);gap:6px}
 .seg.c5 .sw{font-size:12px;padding:7px 2px}
@@ -661,7 +663,8 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 
 /* tabletop (Fold half open, hinge across the screen): mushaf above the hinge, a companion deck below it */
 #deck{display:none}
-#app.table{display:grid;grid-template-rows:var(--top) var(--gap) minmax(0,1fr)}
+#app.table{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:var(--top) var(--gap) minmax(0,1fr)}
+#app.table>*{min-width:0}
 #app.table #stage{grid-row:1;min-height:0}
 #app.table #deck{grid-row:3;display:flex;flex-direction:column;min-height:0;background:var(--bar);color:var(--bar-ink)}
 #app.table.imm .bar,#app.table.imm .foot{display:flex}
@@ -2306,7 +2309,7 @@ function segments(){try{const v=window.viewport&&window.viewport.segments;return
 function resize(){
   posture();applyStudy();$("app").classList.toggle("ovl",!inTable&&!inStudy);root.style.setProperty("--fh",document.querySelector(".foot").offsetHeight+"px");root.style.setProperty("--bh",document.querySelector(".bar").offsetHeight+"px");
   requestAnimationFrame(()=>{pillTo(document.querySelector(".tabs"));pillTo(document.querySelector(".shtabs"))});
-  const r=stage.getBoundingClientRect(), full=!inTable&&(r.width<1000||matchMedia("(pointer:coarse)").matches), pad=inTable?24:full?0:18;
+  const r=stage.getBoundingClientRect(), full=!inTable&&(r.width<1000||matchMedia("(pointer:coarse)").matches), pad=inTable?(r.width<600?12:24):full?0:18;
   /* never plan the page wider or taller than the screen the person actually sees */
   let SW=Math.min(r.width,innerWidth||r.width), SH=Math.min(r.height,innerHeight||r.height), cx=SW/2, cy=SH/2, force=null;
   /* bars that must stay up (memorising, recitation) get their own room so they never cover a line */
