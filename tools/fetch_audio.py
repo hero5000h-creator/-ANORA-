@@ -37,7 +37,7 @@ BYID = {
 FIXED = {118: 'husary', 123: 'alafasy'}
 # Mn asked for Muhammad Demidrov (2026-11-10): list every reciter and timing read that could be him
 import re as _re
-_DM = _re.compile('دمي|ديمي|دميد|ديميد|ديميتر|دمتر|ميدر|ميدروف|دروف|Demid|Dmit|Demed', _re.I)
+_DM = _re.compile('ديبيروف|دبيروف|Dibirov|Dibir|ديمي|دميد|ديميد|ديميتر|دمتر|ميدر|ميدروف|دروف|Demid|Dmit|Demed', _re.I)
 for r in (rec or {}).get('reciters', []):
     if _DM.search(r.get('name', '')) or 'النفيس' in r.get('name', ''):
         print('reciter', r.get('id'), r.get('name'), [(m.get('id'), m.get('name'), m.get('server'), m.get('surah_total')) for m in r.get('moshaf', [])])

@@ -4179,7 +4179,7 @@ const natOn=(pl,ev,fn)=>{try{NATIVE&&CAP.addListener&&CAP.addListener(pl,ev,fn)}
 const RECS={husary:"محمود خليل الحصري",alafasy:"مشاري العفاسي",minshawi:"محمد صدّيق المنشاوي",abdulbasit:"عبد الباسط عبد الصمد",shatri:"أبو بكر الشاطري",abkar:"إدريس أبكر",amer:"أحمد محمد عامر",qari:"محمد خليل القارئ",
   sudais:"عبد الرحمن السديس",shuraim:"سعود الشريم",muaiqly:"ماهر المعيقلي",ghamdi:"سعد الغامدي",ydosari:"ياسر الدوسري",qatami:"ناصر القطامي",abbad:"فارس عبّاد",ajmi:"أحمد بن علي العجمي",juhani:"عبد الله عوّاد الجهني",hudhaifi:"علي الحذيفي",budair:"صلاح البدير",jalil:"خالد الجليل",ayyub:"محمد أيوب",jaber:"علي جابر",basfar:"عبد الله بصفر",khayyat:"عبد الله خيّاط",tablawi:"محمد محمود الطبلاوي",
   banna:"محمود علي البنا · مجوّد",mismail:"مصطفى إسماعيل · مجوّد",abdulbasitm:"عبد الباسط عبد الصمد · مجوّد",husarym:"محمود خليل الحصري · مجوّد",
-  bukhatir:"صلاح بو خاطر",hrifai:"هاني الرفاعي",qasim:"عبد المحسن القاسم",thubaiti:"عبد الباري الثبيتي",haneef:"عبد الودود حنيف",naina:"أحمد نعينع",baleela:"بندر بليلة",akhdar:"إبراهيم الأخضر",
+  bukhatir:"صلاح بو خاطر",hrifai:"هاني الرفاعي",qasim:"عبد المحسن القاسم",thubaiti:"عبد الباري الثبيتي",haneef:"عبد الودود حنيف",naina:"أحمد نعينع",baleela:"بندر بليلة",akhdar:"إبراهيم الأخضر",nufais:"أحمد النفيس",
   kurdi:"رعد محمد الكردي",shirzad:"شيرزاد عبد الرحمن طاهر",peshawa:"بيشه وا قادر الكردي"};
 {const e=$("srcRecs");if(e)e.textContent=Object.values(RECS).map(n=>n.replace(" · مجوّد"," (مجوّد)")).filter((n,i,a)=>a.indexOf(n)===i).join("، ")}
 let reciter=RECS[store.get("mushaf.reciter")]?store.get("mushaf.reciter"):"husary",aud=null,auSrc="";
