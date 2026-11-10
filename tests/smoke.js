@@ -4,7 +4,7 @@ const {chromium}=require("playwright");const fs=require("fs"),path=require("path
 const WWW=path.join(__dirname,"..","www"),TONE=fs.readFileSync(path.join(__dirname,"tone.mp3"));
 const src=fs.readFileSync(path.join(WWW,"index.html"),"utf8"),hook='recUI();audData(reciter).then(d=>{if(!aud)aud=d});';
 if(!src.includes(hook))throw new Error("test hook point not found in www/index.html");
-fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={playFrom,P:()=>player,aud:()=>aud,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,rcss:rasterCSS,turn:{pick:turnPick,rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
+fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={audData,playFrom,P:()=>player,aud:()=>aud,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,rcss:rasterCSS,turn:{pick:turnPick,rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
 const types={".html":"text/html",".js":"text/javascript",".json":"application/json",".woff2":"font/woff2",".ttf":"font/ttf",".css":"text/css"};
 const srv=http.createServer((q,r)=>{const f=path.join(WWW,decodeURIComponent(q.url.split("?")[0]));
   fs.readFile(f,(e,b)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{"content-type":types[path.extname(f)]||"application/octet-stream"});r.end(b)})}).listen(0);
@@ -85,6 +85,18 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         document.getElementById("qzOpen").click();await W(700);const open=document.getElementById("quiz").classList.contains("on");const back=window.anoraBack();await W(600);
         const idx=document.getElementById("drawer").classList.contains("on");window.anoraBack();await W(500);return {open,back,closed:document.getElementById("quiz").hidden,idx,idxClosed:!document.getElementById("drawer").classList.contains("on")}});
       ok(r.open&&r.back&&r.closed&&r.idx&&r.idxClosed,`${name}: back closes the quiz and returns to the index it came from (${JSON.stringify(r)})`)}
+    /* the reciter picker lists every reciter and its search box narrows the list (hamza and spacing don't matter) */
+    {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("recSel").click();await W(400);
+        const vis=()=>[...document.querySelectorAll("#rpL .rp-o")].filter(o=>!o.hidden).length,all=vis(),q=document.getElementById("rpQ");
+        q.value="السديس";q.dispatchEvent(new Event("input"));const one=vis();q.value="مجود";q.dispatchEvent(new Event("input"));const muj=vis();
+        q.value="اسماعيل";q.dispatchEvent(new Event("input"));const hz=vis();q.value="زززز";q.dispatchEvent(new Event("input"));const none=vis(),msg=!document.getElementById("rpN").hidden;
+        const back=window.anoraBack();await W(400);return {all,one,muj,hz,none,msg,back,closed:document.getElementById("recPick").hidden}});
+      ok(r.all>=30&&r.one===1&&r.muj>=4&&r.hz===1&&r.none===0&&r.msg&&r.back&&r.closed,`${name}: reciter picker search narrows the list (${JSON.stringify(r)})`)}
+    /* timing sets with missing ayat (al-Hudhaifi lacks most last ayat, al-Qasim three in a row) are filled, in order */
+    {const r=await p.evaluate(async()=>{const out={};for(const k of ["hudhaifi","qasim","husary"]){const d=await __smk.audData(k);let miss=0,ord=0;
+        for(let s=1;s<=114;s++){const rows=d.surahs[s].filter(x=>x[0]>0);const n=__smk.SST[s]!==undefined?__smk.SST[s]-__smk.SST[s-1]:6236-__smk.SST[s-1]+1;
+          if(rows.length!==n)miss++;for(let i=1;i<rows.length;i++)if(rows[i][1]<rows[i-1][1]||rows[i][0]!==rows[i-1][0]+1)ord++}out[k]={miss,ord}}return out});
+      ok(Object.values(r).every(v=>!v.miss&&!v.ord),`${name}: ayah timings with gaps are filled in order (${JSON.stringify(r)})`)}
     /* home-screen widgets: the page sends what they show, and a tap on one opens the screen it names */
     {const w=await p.evaluate(()=>window.__wg||null);
       ok(w&&w.page>=1&&w.sur&&w.cats&&w.cats.sab&&w.cats.sab.of>0&&w.cats.sab.f0&&w.cats.sab.f0.t&&Array.isArray(w.pt)&&typeof w.ptc==="string"&&w.free.length,`${name}: widget data sent (page ${w&&w.page}, ${w&&w.sur}, ${w&&w.cats&&w.cats.sab&&w.cats.sab.of} morning adhkar)`);
