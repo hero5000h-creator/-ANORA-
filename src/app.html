@@ -2340,12 +2340,16 @@ function resize(){
   /* an open Fold's inner screen is almost square: any near-square screen wide enough shows two pages */
   const pv=store.get("mushaf.view")||"auto",
     auto=(SW>=600&&wd>=280&&hd>=hs*.62)||(SW>=480&&SW/SH>=.74&&wd>=200);
-  const m=inStudy?"single":force||(pv==="2"?"spread":pv==="1"?"single":auto?"spread":"single");
+  let m=inStudy?"single":force||(pv==="2"?"spread":pv==="1"?"single":auto?"spread":"single");
+  /* half open, two pages side by side above the hinge came out too small to read: one page, close up */
+  if(inTable&&!force&&pv!=="2"&&m==="spread"&&SW<720&&wd<340)m="single";
   let w=Math.floor(m==="spread"?wd:ws), h=Math.floor(m==="spread"?hd:hs);
   /* half open on a phone: the room above the hinge is short, and a whole page there was too small to read. The page
      takes the full width at the print's proportion and slides up and down under the finger (tPan) */
   tPan.max=0;
-  if(inTable&&m==="single"&&SW<600){w=Math.floor(SW-2*pad);h=Math.floor(w/.64);tPan.max=Math.max(0,h+2*pad-SH);cy=pad+h/2;tPan.off=Math.max(-tPan.max,Math.min(0,tPan.off))}
+  /* the same on any screen where the whole page would leave much of the width empty (the Fold's wide cover screen) */
+  const tW=Math.min(SW-2*pad,600);
+  if(inTable&&m==="single"&&(SW<600||ws<tW*.85)){w=Math.floor(tW);h=Math.floor(w/.64);tPan.max=Math.max(0,h+2*pad-SH);cy=pad+h/2;tPan.off=Math.max(-tPan.max,Math.min(0,tPan.off))}
   else tPan.off=0;
   tPanApply(false);
   /* tall phones: the page fills a 20:9 screen; only a taller one (21:9 and up) stops at 1:2.2 so lines do not drift apart,
