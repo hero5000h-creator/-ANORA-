@@ -21,7 +21,8 @@ import com.getcapacitor.annotation.CapacitorPlugin
  * timings. This plugin only plays, and reports where it is:
  *  - "time"   {ms, playing}  every 200 ms while playing, and on every change
  *  - "loaded" {dur}           once the file is ready
- *  - "ended"                  at the end of the file
+ *  - "ended"                  at the end of the file (and nothing queued after it)
+ *  - "advanced"               the queued next surah file took over, with no gap
  *  - "halt"   {reason}        the system paused it (headphones unplugged, another app took the audio)
  *  - "error"  {msg}
  *
@@ -90,6 +91,16 @@ class AudioPlugin : Plugin() {
                 }
             }
 
+            /* the next surah, queued by the page, starts by itself: the player never stops between files, so
+               Android keeps the app alive (and the page asleep in the background can catch up when it wakes) */
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_AUTO) {
+                    readySent = true
+                    notifyListeners("advanced", JSObject())
+                    emitTime()
+                }
+            }
+
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
                 if (!playWhenReady && reason != Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST) {
                     notifyListeners("halt", JSObject().put("reason", reason))
@@ -141,6 +152,16 @@ class AudioPlugin : Plugin() {
             readySent = false
             p.setMediaItem(MediaItem.fromUri(url), at)
             p.prepare()
+        }
+    }
+
+    /** The file to play straight after this one ("" clears it). Loading a new file drops it as well. */
+    @PluginMethod
+    fun queue(call: PluginCall) {
+        val url = call.getString("url", "") ?: ""
+        onMain(call) { p ->
+            while (p.mediaItemCount > p.currentMediaItemIndex + 1) p.removeMediaItem(p.mediaItemCount - 1)
+            if (url.isNotEmpty() && p.mediaItemCount > 0) p.addMediaItem(MediaItem.fromUri(url))
         }
     }
 
