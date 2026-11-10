@@ -15,8 +15,8 @@
   --bar:#f6f4ee;
   --bar-ink:#2f2c27;
   --muted:#57534b;
-  --paper:#faf7f0;
-  --paper-edge:#e4ded0;
+  --paper:#fef9f3;
+  --paper-edge:#e9e1d1;
   --ink:#2b2824;           /* soft black, never #000 */
   --orn:#55705f;           /* muted mushaf green */
   --gold:#a08c62;
@@ -47,7 +47,7 @@
   --shadow:rgba(0,0,0,.5);--scrim:rgba(0,0,0,.55);--sel:rgba(143,171,155,.12);--tint:rgba(143,171,155,.05);--cover:#1d2622;--age:rgba(0,0,0,.28);--grain-o:.14;color-scheme:dark}
 /* reader's own paper choice wins over the system theme */
 :root[data-paper="light"]{
-  --desk:#e8e5dc;--bar:#f6f4ee;--bar-ink:#2f2c27;--muted:#57534b;--paper:#faf7f0;--paper-edge:#e4ded0;--ink:#2b2824;
+  --desk:#e8e5dc;--bar:#f6f4ee;--bar-ink:#2f2c27;--muted:#57534b;--paper:#fef9f3;--paper-edge:#e9e1d1;--ink:#2b2824;
   --orn:#55705f;--gold:#a08c62;--rule:rgba(90,78,52,.22);--line:rgba(47,44,39,.10);--gut:rgba(60,50,30,.07);--hl:rgba(255,255,255,.22);
   --shadow:rgba(40,34,24,.18);--scrim:rgba(30,28,24,.35);--sel:rgba(85,112,95,.10);--tint:rgba(85,112,95,.055);--cover:#3e5a4b;--age:rgba(150,118,64,.10);--grain-o:.26;color-scheme:light}
 :root[data-paper="sepia"]{
@@ -180,13 +180,19 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 .ph>span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ph>span.j{flex:none}
 .box{flex:1;min-height:0;position:relative;padding:.6% 0}
 /* mushaf ornament: a gilded band around the text block, drawn per paper colour (see ornaments()) */
-.pg:not(.blank) .box{border-style:solid;border-width:calc(var(--pw) * .042);border-image:var(--o-frame) 30 round;padding:calc(var(--pw) * .012) calc(var(--pw) * .016);margin:calc(var(--pw) * .006) 0}
-/* phones: a slimmer frame and margins give the text about 9% more width, so the letters grow */
-html.phoneM .pg .frame{inset:2.2% .8% 1.2% .8%}
-html.phoneM .pg:not(.blank) .box{border-width:calc(var(--pw) * .02);padding:calc(var(--pw) * .014) calc(var(--pw) * .006)}
+/* plain page by default (like a printed mushaf app: cream paper, no frame, quiet margins); the frame is a setting (data-frame) */
+.pg:not(.blank) .box{padding:calc(var(--pw) * .012) calc(var(--pw) * .05);margin:calc(var(--pw) * .006) 0}
+:root[data-frame="1"] .pg:not(.blank) .box{border-style:solid;border-width:calc(var(--pw) * .042);border-image:var(--o-frame) 30 round;padding:calc(var(--pw) * .012) calc(var(--pw) * .016)}
+/* phones: slim side margins; with the frame a slimmer band gives the text about 9% more width, so the letters grow */
+html.phoneM .pg .frame{inset:2.2% 3.6% 1.2% 3.6%}
+html.phoneM .pg:not(.blank) .box{padding:calc(var(--pw) * .014) 0}
+/* a plain phone page lies flat like the reference app: no gutter shading at the spine */
+html.phoneM:not([data-frame="1"]) .pg .gut,html.phoneM:not([data-frame="1"]) #bookwrap::before,html.phoneM:not([data-frame="1"]) .edge{display:none}
+html.phoneM[data-frame="1"] .pg .frame{inset:2.2% .8% 1.2% .8%}
+html.phoneM[data-frame="1"] .pg:not(.blank) .box{border-width:calc(var(--pw) * .02);padding:calc(var(--pw) * .014) calc(var(--pw) * .006)}
 html.phoneM .hm:not(.jz):not(.sj){width:calc(var(--pw) * .068);height:calc(var(--pw) * .068)}html.phoneM .hm.q{width:calc(var(--pw) * .06);height:calc(var(--pw) * .06)}
 html.phoneM .ph{font-size:calc(var(--pw) * .047 * var(--tk,1));padding:0 .3em .25em}
-html.phoneM .pf{font-size:calc(var(--pw) * .05 * var(--tk,1));margin-top:.15em}
+html.phoneM .pf{font-size:calc(var(--pw) * .042 * var(--tk,1));margin-top:.15em}
 html.phoneM #stage{background:var(--paper);background-image:none}
 /* the leather cover behind the page would peek out as a dark strip in the spare room above and below */
 html.phoneM #bookwrap::after{display:none}
@@ -194,7 +200,8 @@ html.phoneM #bookwrap::after{display:none}
 /* fifteen lines per page, each line holds exactly the words of the printed Madinah mushaf */
 /* The 1405H Madinah print, line for line: each line has its printed width, its words keep the letter
    stretches the print uses (font features) and each space its exact width, all in em. */
-.lines{height:100%;display:grid;grid-template-rows:repeat(15,1fr);font-family:var(--f-mushaf);color:var(--ink);-webkit-text-stroke:.012em currentColor}
+.lines{height:100%;display:grid;grid-template-rows:repeat(15,1fr);font-family:var(--f-mushaf);color:var(--ink);-webkit-text-stroke:var(--stk,0) currentColor}
+:root[data-wt="1"]{--stk:.006em}:root[data-wt="2"]{--stk:.012em}
 .ln{display:flex;align-items:center;justify-content:center;min-height:0;line-height:1.8}
 .lb{white-space:nowrap;text-align:right;flex:none;margin:0 -20em}
 .lb.mid{text-align:center;transform:scaleX(calc(var(--cx,1) * var(--fx,1)))}
@@ -237,6 +244,8 @@ html.phoneM #bookwrap::after{display:none}
   background:var(--grain),var(--fiber)}
 .pg::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(120% 95% at 50% 48%,transparent 62%,var(--age) 100%)}
 .pg .frame{z-index:1}
+/* plain page: flat paper in one clean colour like the reference app, no grain, fibres or aged edges */
+:root:not([data-frame="1"]) .pg::before,:root:not([data-frame="1"]) .pg::after{display:none}
 .pg .gut{width:13%}
 .pg[data-side="r"] .gut{background:linear-gradient(90deg,color-mix(in srgb,var(--gut) 260%,transparent) 0,var(--gut) 22%,transparent 70%)}
 .pg[data-side="l"] .gut{background:linear-gradient(270deg,color-mix(in srgb,var(--gut) 260%,transparent) 0,var(--gut) 22%,transparent 70%)}
@@ -1545,7 +1554,7 @@ html.phoneM #app>.bar::after{content:"";position:absolute;left:10px;right:10px;b
 html.phoneM .where{align-items:center;text-align:center}
 html.phoneM .where b{font-size:19px;color:var(--bar-ink);letter-spacing:0}
 html.phoneM .where b::before,html.phoneM .where b::after{content:"";display:inline-block;width:6px;height:6px;margin-inline:9px;vertical-align:4px;transform:rotate(45deg);background:var(--gold);opacity:.8}
-html.phoneM .where small{font-size:13.5px;color:color-mix(in srgb,var(--bar-ink) 80%,var(--bar))}
+html.phoneM .where small{font-size:13px;color:color-mix(in srgb,var(--bar-ink) 80%,var(--bar))}
 html.phoneM #jprog{bottom:-3px;background:var(--gold);opacity:.8}
 
 /* square framed buttons, 44px, gold hairline, ink in the cover green */
@@ -1553,7 +1562,10 @@ html.phoneM .bar .ib,html.phoneM #bPrefs,html.phoneM .btn-index{width:44px;heigh
   background:var(--bar);border:1px solid var(--b-soft);box-shadow:inset 0 0 0 2px var(--bar),inset 0 0 0 3px color-mix(in srgb,var(--gold) 16%,transparent);color:var(--orn)}
 html.phoneM .bar .ib.azb{color:var(--gold)}
 html.phoneM .bar .ib:active,html.phoneM .btn-index:active,html.phoneM #bPrefs[aria-expanded="true"]{background:var(--orn);color:var(--bar);border-color:var(--orn)}
-html.phoneM .tools{gap:6px}
+html.phoneM .tools{gap:3px}
+/* the search button joined the top row: keep room for "الجزء · صفحة" under the surah name */
+html.phoneM .bar .where{min-width:0;padding-inline:2px}
+html.phoneM .bar .btn-index{flex:none}
 
 /* 2 · bottom bar: the same band upside down, page number in a medallion, diamond thumb */
 html.phoneM #app>.foot{background:linear-gradient(var(--b-bg),var(--bar));border-top:3px double var(--b-rim);box-shadow:0 -6px 14px -12px var(--shadow);padding-block:6px}
@@ -1668,6 +1680,8 @@ html.phoneM #player .ib{min-height:48px}
 .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(60,40,10,.20),inset 1px 0 0 rgba(0,0,0,.10)}
 html[data-theme="dark"] .pg.gL{box-shadow:inset calc(var(--pw) * -.05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(0,0,0,.45)}
 html[data-theme="dark"] .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(0,0,0,.45)}
+/* plain phone page: flat like the reference app, no spine shade (it comes back with the framed page) */
+html.phoneM:not([data-frame="1"]) .pg.gL,html.phoneM:not([data-frame="1"]) .pg.gR{box-shadow:none}
 /* pages stay in the book once laid out: a page not on show is parked, its Arabic shaping and line fitting kept,
    so a turn never lays a page of text out again (moving a page between parents threw that work away every turn) */
 #book>.pg.pk{content-visibility:hidden;opacity:0;pointer-events:none;will-change:auto}
@@ -1749,12 +1763,14 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
       <div><h3>حجم خط الواجهة</h3><div class="seg" id="uzSeg"><button class="sw" data-uz="1">عادي</button><button class="sw" data-uz="1.15" style="font-size:15px">كبير</button><button class="sw" data-uz="1.3" style="font-size:17px">أكبر</button></div></div>
       <div class="posture"><span>الوضع البسيط<small>يُبقي الأساسيات فقط: القراءة والاستماع والعلامة والأذكار</small></span><button class="tg" id="bSimple" role="switch" aria-checked="false" aria-label="الوضع البسيط"></button></div>
       <div><h3>لون الورق</h3><div class="seg c5 c6" id="paperSeg">
-        <button class="sw" data-paper="light"><i style="background:#faf7f0;color:#2b2824">بسم</i>فاتح</button>
+        <button class="sw" data-paper="light"><i style="background:#fef9f3;color:#2b2824">بسم</i>فاتح</button>
         <button class="sw" data-paper="sepia"><i style="background:#f3e9d4;color:#3a3026">بسم</i>دافئ</button>
         <button class="sw" data-paper="night"><i style="background:#1c1d1f;color:#cfc9bc">بسم</i>ليلي</button>
         <button class="sw" data-paper="black"><i style="background:#000;color:#bdb7aa;border-color:#333">بسم</i>أسود</button>
-        <button class="sw" data-paper="sky"><i class="sk">بسم</i>سماء</button><button class="sw" data-paper="auto"><i class="au"><b style="background:#faf7f0;color:#2b2824">ب</b><b style="background:#1c1d1f;color:#cfc9bc">س</b></i>تلقائي</button>
+        <button class="sw" data-paper="sky"><i class="sk">بسم</i>سماء</button><button class="sw" data-paper="auto"><i class="au"><b style="background:#fef9f3;color:#2b2824">ب</b><b style="background:#1c1d1f;color:#cfc9bc">س</b></i>تلقائي</button>
       </div></div>
+      <div><h3>شكل الصفحة</h3><div class="seg" id="frmSeg"><button class="sw" data-frm="0">بسيطة</button><button class="sw" data-frm="1">بإطار مزخرف</button></div></div>
+      <div><h3>سماكة خط المصحف</h3><div class="seg" id="wtSeg"><button class="sw" data-wt="0">رفيع</button><button class="sw" data-wt="1">متوسط</button><button class="sw" data-wt="2">عريض</button></div></div>
       <div class="adv"><h3>لون الجلد</h3><div class="seg c5">
         <button class="sw" data-cover="green"><i class="cv" style="background:#3e5a4b"></i>أخضر</button>
         <button class="sw" data-cover="navy"><i class="cv" style="background:#2c3a55"></i>كحلي</button>
@@ -1807,6 +1823,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
     <div class="where" id="where" role="button" tabindex="0" aria-label="عن السورة"><b><span id="wSurah">الفاتحة</span><svg id="bmMark" viewBox="0 0 24 24" aria-label="عليها علامة" hidden><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg></b><small id="wMeta">الجزء ١ · الحزب ١ · صفحة ١</small></div>
     <div class="tools">
       <button class="ib dnb" id="bDN" title="نهار / ليل" aria-label="التبديل بين النهار والليل"><svg class="dn-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><svg class="dn-m" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg><span class="tcap">ليل/نهار</span></button>
+      <button class="ib" id="bSrch" title="البحث" aria-label="البحث في القرآن"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><span class="tcap">بحث</span></button>
       <button class="ib azb" id="bAz" title="الأذكار" aria-label="الأذكار"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg><span class="tcap">الأذكار</span></button>
       <button class="ib" id="bPrefs" title="المزيد" aria-label="المزيد: الأدوات والإعدادات" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg><span class="tcap">المزيد</span></button>
     </div>
@@ -1836,6 +1853,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
     <button class="ib lsn" id="fListen" aria-label="استمع للتلاوة من هذه الصفحة"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>استمع</span></button>
     <span class="pnum" id="pnum">١ / ٦٠٤</span>
     <button class="ib fthumb dnb" id="fDN" aria-label="التبديل بين النهار والليل"><svg class="dn-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><svg class="dn-m" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg></button>
+    <button class="ib fthumb" id="fSrch" aria-label="البحث في القرآن"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></button>
     <button class="ib fthumb azb" id="fAz" aria-label="الأذكار"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg></button>
     <button class="ib fthumb" id="fPrefs" aria-label="المزيد: الأدوات والإعدادات"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg></button>
     <div id="memo" hidden>
@@ -2057,7 +2075,9 @@ const WG_KEYS=new Set(["mushaf.last","mushaf.az","mushaf.pt","mushaf.azWeak"]);
 const splT=performance.now();
 /* the opening screen already wears the reader's paper colour */
 {let pp=store.get("mushaf.paper");if(pp==="auto"){const n=store.get("mushaf.nightP");pp=matchMedia("(prefers-color-scheme: dark)").matches||sunDown()?(["night","black","sky"].includes(n)?n:"night"):(store.get("mushaf.dayP")==="sepia"?"sepia":"light")}if(["light","sepia","night","black","sky"].includes(pp)){const d=document.documentElement;d.dataset.paper=pp;d.dataset.theme=pp==="night"||pp==="black"||pp==="sky"?"dark":"light"}
-  const cc=store.get("mushaf.cover");if(["green","navy","maroon","brown","black"].includes(cc))document.documentElement.dataset.cover=cc}
+  const cc=store.get("mushaf.cover");if(["green","navy","maroon","brown","black"].includes(cc))document.documentElement.dataset.cover=cc;
+  /* page look: plain page and light letters unless the reader chose the frame or a thicker stroke */
+  const fr=store.get("mushaf.frame"),wt=store.get("mushaf.wt");if(fr==="1")document.documentElement.dataset.frame="1";if(wt==="1"||wt==="2")document.documentElement.dataset.wt=wt}
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const $=id=>document.getElementById(id);
@@ -2194,6 +2214,8 @@ function hizbMarks(el){
       if(!part&&hz%2){const j=(hz+1)>>1;m.className="hm jz";m.innerHTML=`<small>الجزء</small>${ar(j)}`;m.setAttribute("aria-label",`بداية الجزء ${JNAMES[j-1]}`)}}
     else{m.className="hm sj";m.textContent="سجدة";m.setAttribute("aria-label","سجدة")}
     m.style.top=(lr.top+lr.height/2-pr.top)+"px";
+    /* plain page (no frame band): centre the medallion in the outer margin, never past the paper's edge */
+    if(!bw){el.querySelector(".frame").after(m);const mw=m.offsetWidth,gap=(outerR?pr.right-br.right:br.left-pr.left)+(parseFloat(getComputedStyle(box).paddingLeft)||0);m.style[outerR?"right":"left"]=Math.max(1,(gap-mw)/2).toFixed(1)+"px";return}
     const c=outerR?pr.right-br.right+bw/2:br.left-pr.left+bw/2;
     m.style[outerR?"right":"left"]=`calc(${c}px - var(--pw) * ${m.classList.contains("q")?.038:m.classList.contains("jz")?.05:.044})`;
     el.querySelector(".frame").after(m)});
@@ -2749,11 +2771,13 @@ window.__fitGuard=fitGuard;addEventListener("resize",()=>fitGuard());
 function ui(){fitGuard();
   renderDeck();renderFlow();$("rProg").style.setProperty("--rp",(Math.min(NP,mode==="spread"?cur+1:cur)/NP*100).toFixed(2)+"%");
   const id=pStart(cur), q=qOf(id), s=SUR[sOf(id)];
-  {const ws=$("wSurah"),s2=mode==="spread"&&cur<NP?SUR[sOf((cur+2<=NP?pStart(cur+2):NA+1)-1)]:s,nt="سورة "+s[0]+(s2!==s?" · "+s2[0]:"");if(ws.textContent!==nt&&ws.textContent){ws.textContent=nt;bump(ws.parentNode)}else ws.textContent=nt}
+  {const ws=$("wSurah"),s2=mode==="spread"&&cur<NP?SUR[sOf((cur+2<=NP?pStart(cur+2):NA+1)-1)]:s,nt="سورة "+s[0]+(s2!==s?" · "+s2[0]:"");if(ws.textContent!==nt&&ws.textContent){ws.textContent=nt;bump(ws.parentNode)}else ws.textContent=nt
+    /* a narrow phone with the search button in the row: drop the word "سورة" before a long name rather than cut the name */
+    const wb=ws.parentNode;if(wb.scrollWidth>wb.clientWidth+1&&s2===s)ws.textContent=s[0]}
   const pages=mode==="spread"?`الصفحتان ${ar(cur)}–${ar(Math.min(cur+1,NP))}`:`صفحة ${ar(cur)}`;
   const wm=$("wMeta");wm.textContent=`الجزء ${ar(jOf(id))} · الحزب ${ar((q>>2)+1)} · ${pages}`;
   /* on a narrow screen the page number already shows in the footer */
-  if(wm.scrollWidth>wm.clientWidth+1){wm.textContent=`الجزء ${ar(jOf(id))} · ${pages}`;if(wm.scrollWidth>wm.clientWidth+1)wm.textContent=pages}
+  if(wm.scrollWidth>wm.clientWidth+1){wm.textContent=`الجزء ${ar(jOf(id))} · ${pages}`;if(wm.scrollWidth>wm.clientWidth+1)wm.textContent=mode==="spread"?pages:`الجزء ${ar(jOf(id))}`}
   {const j=jOf(id),a=pOf(JUZ[j-1]),b=j<30?pOf(JUZ[j])-1:NP,last=mode==="spread"?Math.min(cur+1,NP):cur;$("jprog").style.width=(Math.max(.04,Math.min(1,(last-a+1)/(b-a+1)))*100).toFixed(1)+"%"}
   $("range").value=cur;trkFill(cur);bump($("pnum"));$("pnum").innerHTML=`<b>${mode==="spread"&&cur<NP?ar(cur)+"–"+ar(cur+1):ar(cur)}</b><small>من ${ar(NP)}</small>`;
   khTrack();
@@ -2883,6 +2907,12 @@ addEventListener("resize",()=>{if(root.dataset.paper==="sky")skyBg()});
 try{darkMQ.addEventListener("change",()=>{if(store.get("mushaf.paper")==="auto")vt(()=>setPaper("auto",false))})}catch(e){}
 /* on "auto" the paper turns to night at sunset and back at sunrise, checked each minute */
 setInterval(()=>{if(store.get("mushaf.paper")==="auto"&&autoPaper()!==root.dataset.paper)vt(()=>setPaper("auto",false))},60000);
+/* page look settings kept on <html> as data-frame / data-wt (the turning-page image copies them); the letters' width changes, so lay the pages out again */
+function setLook(k,v,save){if(v&&v!=="0")root.dataset[k]=v;else delete root.dataset[k];if(save){store.set("mushaf."+k,v);rebuild();rasterDirty()}
+  markLook()}
+function markLook(){const f=root.dataset.frame||"0",w=root.dataset.wt||"0";document.querySelectorAll("[data-frm].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.frm===f)));
+  document.querySelectorAll("[data-wt].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.wt===w)))}
+markLook();
 function setCover(c,save){if(c)root.dataset.cover=c;else delete root.dataset.cover;if(save)store.set("mushaf.cover",c);
   document.querySelectorAll("[data-cover].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.cover===c)))}
 function markView(){const v=store.get("mushaf.view")||"auto";document.querySelectorAll("[data-view].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.view===v)));
@@ -3187,6 +3217,8 @@ prefGroup(["look","read","dev"].includes(store.get("mushaf.pgrp"))?store.get("mu
 $("prefs").addEventListener("click",e=>{e.stopPropagation();const t=e.target.closest(".ptabs button");if(t){prefGroup(t.dataset.pg,true);return}const b=e.target.closest(".sw");if(!b)return;
   if(b.dataset.paper){vt(()=>setPaper(b.dataset.paper,true));if(b.dataset.paper==="auto")toast("نهاري بالنهار، وليلي من المغرب إلى الفجر")}
   if(b.dataset.cover)vt(()=>setCover(b.dataset.cover,true));
+  if(b.dataset.frm){setLook("frame",b.dataset.frm,true);toast(b.dataset.frm==="1"?"الصفحة بإطار مزخرف":"صفحة بسيطة بلا إطار")}
+  if(b.dataset.wt){setLook("wt",b.dataset.wt,true)}
   if(b.dataset.view)vt(()=>{store.set("mushaf.view",b.dataset.view);markView();resize()},1);
   if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();if(b.dataset.turn==="curl")rasterSoon();else RS.img.clear();toast(b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنباً إلى جنب":"تتبدّل الصفحة فوراً بلا حركة")}
 });
@@ -4662,7 +4694,10 @@ function openIndex(){contHide();
   if(khMode==="g")gkStart();khCard();renderList(true);setTimeout(()=>pillTo(document.querySelector(".tabs")),30);setTimeout(()=>{const c=$("list").querySelector(".cur");c&&c.scrollIntoView({block:"center"})},60);
 }
 function closeIndex(){indexOpen=false;$("scrim").classList.remove("on");$("drawer").classList.remove("on");setTimeout(()=>{if(!indexOpen)$("scrim").hidden=true},300);$("bIndex").focus()}
-$("bIndex").onclick=openIndex;$("fIndex").onclick=openIndex;$("fPrefs").onclick=e=>{e.stopPropagation();showPrefs($("prefs").hidden)};$("bClose").onclick=closeIndex;$("scrim").onclick=closeIndex;
+$("bIndex").onclick=openIndex;
+/* the search button opens the index with the cursor in its search box (surah, juz, page or any word of the Quran) */
+function openSearch(){showPrefs(false);openIndex();setTimeout(()=>{const q=$("q");q.focus();q.select()},320)}
+$("bSrch").onclick=e=>{e.stopPropagation();openSearch()};$("fSrch").onclick=e=>{e.stopPropagation();openSearch()};$("fIndex").onclick=openIndex;$("fPrefs").onclick=e=>{e.stopPropagation();showPrefs($("prefs").hidden)};$("bClose").onclick=closeIndex;$("scrim").onclick=closeIndex;
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   tab=b.dataset.t;document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",String(x===b)));
   $("q").value="";pillTo(document.querySelector(".tabs"));
