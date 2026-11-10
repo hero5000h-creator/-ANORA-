@@ -15,8 +15,8 @@
   --bar:#f6f4ee;
   --bar-ink:#2f2c27;
   --muted:#57534b;
-  --paper:#f5f0e4;
-  --paper-edge:#e2d9c6;
+  --paper:#fef9f3;
+  --paper-edge:#e9e1d1;
   --ink:#2b2824;           /* soft black, never #000 */
   --orn:#55705f;           /* muted mushaf green */
   --gold:#a08c62;
@@ -47,7 +47,7 @@
   --shadow:rgba(0,0,0,.5);--scrim:rgba(0,0,0,.55);--sel:rgba(143,171,155,.12);--tint:rgba(143,171,155,.05);--cover:#1d2622;--age:rgba(0,0,0,.28);--grain-o:.14;color-scheme:dark}
 /* reader's own paper choice wins over the system theme */
 :root[data-paper="light"]{
-  --desk:#e8e5dc;--bar:#f6f4ee;--bar-ink:#2f2c27;--muted:#57534b;--paper:#f5f0e4;--paper-edge:#e2d9c6;--ink:#2b2824;
+  --desk:#e8e5dc;--bar:#f6f4ee;--bar-ink:#2f2c27;--muted:#57534b;--paper:#fef9f3;--paper-edge:#e9e1d1;--ink:#2b2824;
   --orn:#55705f;--gold:#a08c62;--rule:rgba(90,78,52,.22);--line:rgba(47,44,39,.10);--gut:rgba(60,50,30,.07);--hl:rgba(255,255,255,.22);
   --shadow:rgba(40,34,24,.18);--scrim:rgba(30,28,24,.35);--sel:rgba(85,112,95,.10);--tint:rgba(85,112,95,.055);--cover:#3e5a4b;--age:rgba(150,118,64,.10);--grain-o:.26;color-scheme:light}
 :root[data-paper="sepia"]{
@@ -187,7 +187,7 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 html.phoneM .pg .frame{inset:2.2% 3.6% 1.2% 3.6%}
 html.phoneM .pg:not(.blank) .box{padding:calc(var(--pw) * .014) 0}
 /* a plain phone page lies flat like the reference app: no gutter shading at the spine */
-html.phoneM:not([data-frame="1"]) .pg .gut{display:none}
+html.phoneM:not([data-frame="1"]) .pg .gut,html.phoneM:not([data-frame="1"]) #bookwrap::before,html.phoneM:not([data-frame="1"]) .edge{display:none}
 html.phoneM[data-frame="1"] .pg .frame{inset:2.2% .8% 1.2% .8%}
 html.phoneM[data-frame="1"] .pg:not(.blank) .box{border-width:calc(var(--pw) * .02);padding:calc(var(--pw) * .014) calc(var(--pw) * .006)}
 html.phoneM .hm:not(.jz):not(.sj){width:calc(var(--pw) * .068);height:calc(var(--pw) * .068)}html.phoneM .hm.q{width:calc(var(--pw) * .06);height:calc(var(--pw) * .06)}
@@ -244,6 +244,8 @@ html.phoneM #bookwrap::after{display:none}
   background:var(--grain),var(--fiber)}
 .pg::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(120% 95% at 50% 48%,transparent 62%,var(--age) 100%)}
 .pg .frame{z-index:1}
+/* plain page: flat paper in one clean colour like the reference app, no grain, fibres or aged edges */
+:root:not([data-frame="1"]) .pg::before,:root:not([data-frame="1"]) .pg::after{display:none}
 .pg .gut{width:13%}
 .pg[data-side="r"] .gut{background:linear-gradient(90deg,color-mix(in srgb,var(--gut) 260%,transparent) 0,var(--gut) 22%,transparent 70%)}
 .pg[data-side="l"] .gut{background:linear-gradient(270deg,color-mix(in srgb,var(--gut) 260%,transparent) 0,var(--gut) 22%,transparent 70%)}
@@ -1678,6 +1680,8 @@ html.phoneM #player .ib{min-height:48px}
 .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(60,40,10,.20),inset 1px 0 0 rgba(0,0,0,.10)}
 html[data-theme="dark"] .pg.gL{box-shadow:inset calc(var(--pw) * -.05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(0,0,0,.45)}
 html[data-theme="dark"] .pg.gR{box-shadow:inset calc(var(--pw) * .05) 0 calc(var(--pw) * .05) calc(var(--pw) * -.035) rgba(0,0,0,.45)}
+/* plain phone page: flat like the reference app, no spine shade (it comes back with the framed page) */
+html.phoneM:not([data-frame="1"]) .pg.gL,html.phoneM:not([data-frame="1"]) .pg.gR{box-shadow:none}
 /* pages stay in the book once laid out: a page not on show is parked, its Arabic shaping and line fitting kept,
    so a turn never lays a page of text out again (moving a page between parents threw that work away every turn) */
 #book>.pg.pk{content-visibility:hidden;opacity:0;pointer-events:none;will-change:auto}
@@ -1759,11 +1763,11 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
       <div><h3>حجم خط الواجهة</h3><div class="seg" id="uzSeg"><button class="sw" data-uz="1">عادي</button><button class="sw" data-uz="1.15" style="font-size:15px">كبير</button><button class="sw" data-uz="1.3" style="font-size:17px">أكبر</button></div></div>
       <div class="posture"><span>الوضع البسيط<small>يُبقي الأساسيات فقط: القراءة والاستماع والعلامة والأذكار</small></span><button class="tg" id="bSimple" role="switch" aria-checked="false" aria-label="الوضع البسيط"></button></div>
       <div><h3>لون الورق</h3><div class="seg c5 c6" id="paperSeg">
-        <button class="sw" data-paper="light"><i style="background:#f5f0e4;color:#2b2824">بسم</i>فاتح</button>
+        <button class="sw" data-paper="light"><i style="background:#fef9f3;color:#2b2824">بسم</i>فاتح</button>
         <button class="sw" data-paper="sepia"><i style="background:#f3e9d4;color:#3a3026">بسم</i>دافئ</button>
         <button class="sw" data-paper="night"><i style="background:#1c1d1f;color:#cfc9bc">بسم</i>ليلي</button>
         <button class="sw" data-paper="black"><i style="background:#000;color:#bdb7aa;border-color:#333">بسم</i>أسود</button>
-        <button class="sw" data-paper="sky"><i class="sk">بسم</i>سماء</button><button class="sw" data-paper="auto"><i class="au"><b style="background:#f5f0e4;color:#2b2824">ب</b><b style="background:#1c1d1f;color:#cfc9bc">س</b></i>تلقائي</button>
+        <button class="sw" data-paper="sky"><i class="sk">بسم</i>سماء</button><button class="sw" data-paper="auto"><i class="au"><b style="background:#fef9f3;color:#2b2824">ب</b><b style="background:#1c1d1f;color:#cfc9bc">س</b></i>تلقائي</button>
       </div></div>
       <div><h3>شكل الصفحة</h3><div class="seg" id="frmSeg"><button class="sw" data-frm="0">بسيطة</button><button class="sw" data-frm="1">بإطار مزخرف</button></div></div>
       <div><h3>سماكة خط المصحف</h3><div class="seg" id="wtSeg"><button class="sw" data-wt="0">رفيع</button><button class="sw" data-wt="1">متوسط</button><button class="sw" data-wt="2">عريض</button></div></div>
