@@ -121,6 +121,15 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     ok(await p.evaluate(()=>!document.getElementById("sheet").hidden&&/الآية ٤/.test(document.getElementById("shMeta").textContent)),`${name}: ayah sheet opens on the right ayah`);
     ok(await p.evaluate(()=>/الآيتين ٣–٤/.test((document.querySelector(".tfg")||{}).textContent||"")),`${name}: grouped tafsir is labelled`);
     await p.keyboard.press("Escape");await p.waitForTimeout(600);
+    /* long-press on an ayah: the options bar floats on screen beside it; المزيد opens the full sheet */
+    {const pt=await p.evaluate(()=>{const id=__smk.SST[2]+3;for(const e of document.querySelectorAll(`#book .pg:not(.pk) [data-a="${id}"]`)){const f=e.getBoundingClientRect(),x=f.left+f.width/2,y=f.top+f.height/2,h=document.elementFromPoint(x,y);if(f.width&&h&&h.closest&&h.closest("[data-a]")===e)return [x,y]}return null});
+      ok(!!pt,`${name}: found the ayah to long-press`);
+      if(pt){await p.mouse.move(pt[0],pt[1]);await p.mouse.down();await p.waitForTimeout(650);await p.mouse.up();await p.waitForTimeout(500);
+        const r=await p.evaluate(()=>{const b=document.getElementById("lpBar"),q=b.getBoundingClientRect();return {open:!b.hidden&&b.classList.contains("on"),sheet:!document.getElementById("sheet").hidden,in:q.left>=0&&q.top>=0&&q.right<=innerWidth&&q.bottom<=innerHeight,ref:document.getElementById("lpRef").textContent}});
+        ok(r.open&&!r.sheet&&r.in&&/٤/.test(r.ref),`${name}: long-press shows the options bar on screen (${r.ref})`);
+        await p.evaluate(()=>document.querySelector('#lpBar [data-k="more"]').click());await p.waitForTimeout(800);
+        ok(await p.evaluate(()=>document.getElementById("lpBar").hidden&&!document.getElementById("sheet").hidden),`${name}: المزيد opens the ayah sheet`);
+        await p.keyboard.press("Escape");await p.waitForTimeout(600)}}
     /* opening an ayah that is not on screen turns to its page */
     {const r=await p.evaluate(async()=>{__smk.openAyah(__smk.SST[2]+40);await new Promise(z=>setTimeout(z,1200));return document.getElementById("wMeta").textContent});
       ok(/٥٥/.test(r),`${name}: ayah off screen turns to its page (${r})`);await p.keyboard.press("Escape");await p.waitForTimeout(500);

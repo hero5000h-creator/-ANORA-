@@ -380,6 +380,33 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
 
 /* ayah sheet */
 #ascrim{position:fixed;inset:0;z-index:24}
+/* long-press on an ayah: a small bar of its options floats beside it; the full ayah sheet is one tap away (المزيد) */
+#lpScr{position:fixed;inset:0;z-index:26}
+#lpBar{position:fixed;z-index:27;left:0;top:0;width:max-content;max-width:calc(100vw - 20px);box-sizing:border-box;padding:6px;
+  background:var(--bar);color:var(--bar-ink);border:1px solid var(--rule);border-radius:22px;font-family:var(--f-ui);
+  box-shadow:0 10px 30px var(--shadow),0 2px 6px var(--shadow);opacity:0;transform:translateY(var(--dy,6px)) scale(.94);
+  transform-origin:var(--ox,50%) var(--oy,100%);transition:opacity .14s,transform .22s var(--ease)}
+#lpBar.on{opacity:1;transform:none}
+#lpBar .lpRow{display:flex;flex-wrap:wrap;justify-content:center;gap:2px}
+#lpBar .lpRow button{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:50px;min-height:54px;padding:6px 2px 5px;border-radius:16px;font-size:11.5px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#lpBar .lpRow button:active,#lpBar .lpRow button:focus-visible{background:var(--sel)}
+#lpBar .lpRow button:focus-visible{outline:2px solid var(--orn);outline-offset:-2px}
+#lpBar svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#lpBar svg circle{fill:currentColor;stroke:none}
+#lpBar .lpRow .pri{background:color-mix(in srgb,var(--orn) 14%,transparent);color:var(--orn)}
+#lpBar .lpRow [aria-pressed="true"]{color:var(--gold)}#lpBar .lpRow [aria-pressed="true"] svg{fill:color-mix(in srgb,var(--gold) 45%,transparent)}
+#lpBar .lpSep{width:1px;background:var(--rule);margin:8px 2px}
+#lpBar .lpDots{display:flex;justify-content:center;gap:2px;padding:4px 4px 0;border-top:1px solid var(--rule);margin-top:4px}
+#lpBar .lpDots button{all:unset;width:36px;height:36px;display:grid;place-items:center;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#lpBar .lpDots button::before{content:"";width:20px;height:20px;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.3)}
+#lpBar .lpDots button[aria-pressed="true"]::before{box-shadow:0 0 0 2px var(--bar),0 0 0 4px var(--c)}
+#lpBar .lpDots button:focus-visible{outline:2px solid var(--orn)}
+#lpBar .lpRef{position:absolute;top:-26px;inset-inline-start:14px;font-size:11.5px;font-weight:600;white-space:nowrap;background:var(--orn);color:var(--paper);border-radius:10px;padding:3px 10px;box-shadow:0 2px 8px var(--shadow)}
+#lpBar.below .lpRef{top:auto;bottom:-26px}
+#lpBar .lpTail{position:absolute;left:var(--tx,50%);bottom:-8px;width:14px;height:14px;margin-left:-7px;background:var(--bar);border:1px solid var(--rule);border-top:0;border-left:0;transform:rotate(45deg)}
+#lpBar.below .lpTail{bottom:auto;top:-8px;transform:rotate(225deg)}
+#lpBar.mid .lpTail{display:none}
+@media (prefers-reduced-motion:reduce){#lpBar{transition:none}}
 #sheet,#quiz{position:fixed;z-index:25;left:50%;bottom:0;width:min(600px,100%);max-height:min(74%,640px);display:flex;flex-direction:column;
   background:var(--bar);color:var(--bar-ink);border-radius:18px 18px 0 0;border:1px solid var(--line);border-bottom:0;
   box-shadow:0 -14px 40px -12px var(--shadow);transform:translate(-50%,104%);transition:transform .34s cubic-bezier(.2,.8,.2,1);
@@ -1850,6 +1877,8 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
   <div class="dnote">رواية حفص عن عاصم · ترقيم صفحات مصحف المدينة (٦٠٤ صفحة)</div>
 </aside>
 <div id="ascrim" hidden></div>
+<div id="lpScr" hidden></div>
+<div id="lpBar" role="menu" aria-label="خيارات الآية" dir="rtl" hidden><span class="lpRef" id="lpRef"></span><div class="lpRow"><button role="menuitem" data-k="play" class="pri"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>استماع</button><button role="menuitem" data-k="tf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5c3-1 6-1 9 1 3-2 6-2 9-1v13c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6.5v13"/></svg>تفسير</button><button role="menuitem" data-k="copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/></svg>نسخ</button><button role="menuitem" data-k="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 8.5L12 4l4.5 4.5M5 13.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5"/></svg>مشاركة</button><button role="menuitem" data-k="mark" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg>علامة</button><span class="lpSep" aria-hidden="true"></span><button role="menuitem" data-k="more"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg>المزيد</button></div><div class="lpDots" id="lpDots" role="group" aria-label="تظليل"></div><span class="lpTail" aria-hidden="true"></span></div>
 <div id="guide" role="dialog" aria-modal="true" aria-label="طريقة الاستخدام" hidden>
   <div class="gcard">
     <div class="gart" id="gArt"></div>
@@ -2506,7 +2535,7 @@ stage.addEventListener("pointerdown",e=>{
   const b=bookPt(e);down={x:b[0],y:b[1],t:performance.now(),hist:[],peek:flip&&flip.peek?flip:null};
   const cx=e.clientX,cy=e.clientY,me=down;
   me.prT=setTimeout(()=>{if(down!==me||me.drag||memo.on)return;const a=ayahAt(cx,cy);if(a&&a!==selA)pressBands(a)},140);
-  me.lpT=setTimeout(()=>{if(down!==me||me.drag)return;const a=ayahAt(cx,cy);if(!a)return;me.lp=true;me.drag="none";lpAt=performance.now();try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(8)}catch(e){}openAyah(a)},480);
+  me.lpT=setTimeout(()=>{if(down!==me||me.drag)return;const a=ayahAt(cx,cy);if(!a)return;me.lp=true;me.drag="none";lpAt=performance.now();try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(8)}catch(e){}ayahPop(a,cx,cy)},480);
   stage.setPointerCapture(e.pointerId);
 });
 stage.addEventListener("pointermove",e=>{
@@ -2593,8 +2622,8 @@ function release(e){
     .then(()=>{finish(f,done);busy=false});
 }
 stage.addEventListener("pointerup",release);
-/* right-click on desktop opens the same ayah sheet; on touch the long-press timer does it */
-stage.addEventListener("contextmenu",e=>{e.preventDefault();if(lastPT!=="mouse")return;const a=ayahAt(e.clientX,e.clientY);if(a)openAyah(a)});
+/* right-click on desktop opens the same ayah options bar; on touch the long-press timer does it */
+stage.addEventListener("contextmenu",e=>{e.preventDefault();if(lastPT!=="mouse")return;const a=ayahAt(e.clientX,e.clientY);if(a)ayahPop(a,e.clientX,e.clientY)});
 stage.addEventListener("pointercancel",release);
 stage.addEventListener("pointerleave",e=>{if(!down&&flip&&flip.peek)endPeek()});
 /* ---------- pinch to zoom: two fingers enlarge the page around the pinch; while zoomed one finger pans,
@@ -2630,7 +2659,7 @@ stage.addEventListener("pointerdown",e=>{
   if(zoom.s>1&&zp.size===1){ /* zoomed: one finger pans */
     const n=performance.now();if(n-zTap<300){zTap=0;zoomReset();e.stopImmediatePropagation();return}
     const cx=e.clientX,cy=e.clientY,me={pan:true,x:cx,y:cy,ox:zoom.x,oy:zoom.y,moved:false,h:[[n,cx,cy]]};zg=me;
-    me.lpT=setTimeout(()=>{if(zg!==me||me.moved)return;const a=ayahAt(cx,cy);if(a){me.lp=true;openAyah(a)}},480);
+    me.lpT=setTimeout(()=>{if(zg!==me||me.moved)return;const a=ayahAt(cx,cy);if(a){me.lp=true;ayahPop(a,cx,cy)}},480);
     try{stage.setPointerCapture(e.pointerId)}catch(_){}
     e.stopImmediatePropagation()}
 },{capture:true});
@@ -2778,7 +2807,7 @@ $("flMinus").onclick=()=>flSize(-.1);$("flPlus").onclick=()=>flSize(.1);
   fl.addEventListener("pointerdown",e=>{if(e.target.closest(".flbar"))return;const a=e.target.closest(".fa");
     fd={x:e.clientX,y:e.clientY,t:performance.now(),a:a?+a.dataset.a:0,el:a};
     if(a){fd.pt=setTimeout(()=>{if(fd&&fd.el)fd.el.classList.add("press")},140);
-      fd.lt=setTimeout(()=>{if(!fd||!fd.a)return;fd.lp=true;fd.el.classList.remove("press");lpAt=performance.now();try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(8)}catch(e){}openAyah(fd.a)},480)}});
+      fd.lt=setTimeout(()=>{if(!fd||!fd.a)return;fd.lp=true;fd.el.classList.remove("press");lpAt=performance.now();try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(8)}catch(e){}ayahPop(fd.a,fd.x,fd.y)},480)}});
   fl.addEventListener("pointermove",e=>{if(!fd)return;if(Math.hypot(e.clientX-fd.x,e.clientY-fd.y)>8){clearTimeout(fd.lt);clearTimeout(fd.pt);if(fd.el)fd.el.classList.remove("press");fd.a=0}});
   const end=e=>{if(!fd)return;const d=fd;fd=null;clearTimeout(d.lt);clearTimeout(d.pt);if(d.el)d.el.classList.remove("press");if(d.lp||e.type==="pointercancel")return;
     const dx=e.clientX-d.x,dy=e.clientY-d.y,dt=performance.now()-d.t;
@@ -3302,6 +3331,49 @@ let swAt=0;
   sh.addEventListener("click",e=>{if(performance.now()-swAt<350){e.stopPropagation();e.preventDefault()}},true);
 })();
 $("ascrim").onclick=()=>{if(performance.now()-sheetAt>600){closeAyah();quizClose()}};$("shClose").onclick=closeAyah;
+/* ---- long-press bar: the ayah's quick options float beside it ---- */
+let lpId=0,lpShownAt=0;
+function ayahPop(id,cx,cy){
+  if(memo.on||inTable||inStudy||!$("sheet").hidden){openAyah(id);return}
+  contHide();hideHint();lpAt=performance.now();lpShownAt=lpAt;lpId=id;selA=id;paintHL();
+  const bar=$("lpBar"),scr=$("lpScr");
+  $("lpRef").textContent=`${SUR[sOf(id)][0]} ${ar(aOf(id))}`;
+  bar.querySelector('[data-k="mark"]').setAttribute("aria-pressed",String(marks.has(id)));
+  const k=hlK(id);$("lpDots").innerHTML=HLC.map(c=>`<button data-hk="${c.k}" style="--c:${c.c}" aria-label="تظليل: ${escH(c.n)}" aria-pressed="${c.k===k}"></button>`).join("");
+  /* where the ayah sits: its lines on the page under the finger (or its paragraph in large print) */
+  let rs=[];const at=document.elementFromPoint(cx,cy),pg=at&&at.closest&&at.closest(".pg,.fa");
+  if(pg&&pg.classList.contains("fa"))rs=[pg.getBoundingClientRect()];
+  else if(pg)rs=[...pg.querySelectorAll(`[data-a="${id}"]`)].map(e=>e.getBoundingClientRect()).filter(r=>r.width&&r.height);
+  const top=rs.length?Math.min(...rs.map(r=>r.top)):cy-20,bot=rs.length?Math.max(...rs.map(r=>r.bottom)):cy+20;
+  scr.hidden=false;bar.classList.remove("on","below","mid");bar.hidden=false;
+  const W=innerWidth,H=innerHeight,w=bar.offsetWidth,h=bar.offsetHeight,cs=getComputedStyle(root),
+    sT=10+(parseFloat(cs.getPropertyValue("--cutT"))||0)+30,sB=H-10-(parseFloat(cs.getPropertyValue("--cutB"))||0);
+  let y,side;
+  if(top-h-14>=sT){y=top-h-14;side="above"}else if(bot+14+h<=sB-26){y=bot+14;side="below"}
+  else{y=cy-h-56;side="above";if(y<sT){y=Math.min(sB-h,cy+56);side="below"}if(y<sT||y+h>sB){y=Math.max(sT,Math.min(sB-h,cy-h/2));side="mid"}}
+  const x=Math.max(10,Math.min(W-w-10,cx-w/2)),tx=Math.max(22,Math.min(w-22,cx-x));
+  if(side!=="above")bar.classList.add(side);
+  bar.style.left=x+"px";bar.style.top=y+"px";bar.style.setProperty("--tx",tx+"px");bar.style.setProperty("--ox",tx+"px");
+  bar.style.setProperty("--oy",side==="below"?"0%":side==="mid"?"50%":"100%");bar.style.setProperty("--dy",side==="below"?"-6px":"6px");
+  requestAnimationFrame(()=>requestAnimationFrame(()=>bar.classList.add("on")));
+}
+function popClose(keep){const bar=$("lpBar");if(bar.hidden)return;$("lpScr").hidden=true;bar.classList.remove("on");lpId=0;
+  if(!keep){selA=0;paintHL()}setTimeout(()=>{if(!bar.classList.contains("on"))bar.hidden=true},reduce?0:160)}
+$("lpScr").addEventListener("click",e=>{if(performance.now()-lpShownAt<450)return;popClose()});
+$("lpScr").addEventListener("wheel",()=>popClose(),{passive:true});
+$("lpBar").addEventListener("click",e=>{if(performance.now()-lpShownAt<450)return;const id=lpId;if(!id)return;
+  const d=e.target.closest("[data-hk]");
+  if(d){const k=d.dataset.hk,old=hlK(id);hl.set(id,k===old?"":k);popClose();rasterDirtyLazy();
+    if(old&&k===old)toastU("أُزيل التظليل",()=>{hl.set(id,old);paintHL();rasterDirtyLazy()});else toast("ظُلّلت الآية");return}
+  const b=e.target.closest("[data-k]");if(!b)return;
+  ({play:()=>{popClose();playFrom(id)},
+    tf:()=>{popClose(true);shK="tf";openAyah(id)},
+    more:()=>{popClose(true);openAyah(id)},
+    copy:()=>{$("aCopy").onclick();popClose()},
+    share:()=>{popClose();shareOpen(id)},
+    mark:()=>{$("aMark").onclick();popClose()}})[b.dataset.k]()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("lpBar").hidden){e.stopImmediatePropagation();popClose()}},true);
+addEventListener("resize",()=>popClose(),{passive:true});
 function stepAyah(n,dir){if(n<1||n>NA)return;openAyah(n);showAyahPage(n);const b=$("sheet").querySelector(".shbody");b.classList.remove("sw");
   b.animate([{transform:`translateX(${dir>0?-48:48}px)`,opacity:0},{transform:"none",opacity:1}],{duration:reduce?0:280,easing:"cubic-bezier(.2,.8,.2,1)"})}
 $("shPrev").onclick=()=>stepAyah(selA-1,-1);
@@ -5324,7 +5396,7 @@ document.addEventListener("keydown",e=>{if(!$("guide").hidden&&e.key==="Escape")
 /* Android back button (MainActivity asks this first): it closes whatever is open, one layer at a time, exactly like Escape;
    only when nothing is open does the app go to the background (the recitation keeps playing) */
 const backSig=()=>[azOpen,azCat,indexOpen,memo.on,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
-  ...["prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")})].join();
+  $("lpBar").classList.contains("on"),...["prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")})].join();
 window.anoraBack=()=>{try{if(!$("repBox").hidden&&!$("repBox").classList.contains("out")){softHide($("repBox"));return true}
   const a=backSig();document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true,cancelable:true}));if(backSig()!==a)return true;
   if(memo.on){setMemo(false);return true}}catch(e){}return false};
