@@ -21,11 +21,18 @@ WANT = {
     'shatri': ['الشاطري'], 'abkar': ['أبكر', 'ابكر'], 'amer': ['أحمد عامر', 'احمد عامر', 'محمد عامر'],
     'qari': ['محمد خليل القارئ'],
 }
-# the Iraqi reciter al-Hafiz Khalil Ismail: list every MP3Quran entry that names him, with or without ayah timings
-for r in (rec or {}).get('reciters', []):
-    if 'خليل' in r.get('name', '') and 'الحصري' not in r.get('name', ''):
-        print('reciter', r.get('id'), r.get('name'), [(m.get('id'), m.get('name'), m.get('server')) for m in r.get('moshaf', [])])
-print('timing reads with خليل:', [(r.get('id'), r.get('name')) for r in (reads or []) if 'خليل' in rname(r)])
+# reciters added by MP3Quran read id (2026-11-10, Mn's pick from the timing reads list): key -> (read id, name fragment the read must carry)
+BYID = {
+    'sudais': (54, 'السديس'), 'shuraim': (31, 'الشريم'), 'muaiqly': (133, 'المعيقلي'), 'ghamdi': (30, 'الغامدي'),
+    'ydosari': (92, 'ياسر الدوسري'), 'qatami': (86, 'القطامي'), 'abbad': (81, 'فارس عباد'), 'ajmi': (5, 'العجمي'),
+    'juhani': (62, 'الجهني'), 'hudhaifi': (74, 'الحذيفي'), 'budair': (43, 'البدير'), 'jalil': (20, 'الجليل'),
+    'ayyub': (109, 'محمد أيوب'), 'jaber': (76, 'علي جابر'), 'basfar': (60, 'بصفر'), 'khayyat': (61, 'خياط'),
+    'tablawi': (106, 'الطبلاوي'), 'banna': (122, 'البنا'), 'mismail': (288, 'مصطفى إسماعيل'),
+    'abdulbasitm': (51, 'عبدالباسط'), 'husarym': (119, 'الحصري'), 'bukhatir': (46, 'بو خاطر'),
+    'hrifai': (89, 'هاني الرفاعي'), 'qasim': (67, 'القاسم'), 'thubaiti': (49, 'الثبيتي'), 'haneef': (71, 'حنيف'),
+    'naina': (9, 'نعينع'), 'baleela': (217, 'بليله'), 'akhdar': (1, 'الأخضر'),
+    'kurdi': (221, 'رعد'), 'shirzad': (38, 'شيرزاد'), 'peshawa': (268, 'بيشه'),
+}
 FIXED = {118: 'husary', 123: 'alafasy'}   # the reads the app already shipped with
 def score(r):
     n = rname(r)
@@ -38,11 +45,18 @@ for key, frags in WANT.items():
     cands.sort(key=score, reverse=True)
     print('candidates', key, [(r.get('id'), r.get('name')) for r in cands])
     if cands: PICK[cands[0].get('id') or cands[0].get('read_id')] = key
+READ = {(r.get('id') or r.get('read_id')): r for r in (reads or [])}
+for key, (rid, frag) in BYID.items():
+    if rid in READ and frag in rname(READ[rid]): PICK[rid] = key
+    else: print('MISSING read', key, rid, frag, rname(READ.get(rid, {}))[:200])
+# reciters that already have a timing file are not fetched again unless REFETCH=1
+if os.environ.get('REFETCH') != '1':
+    PICK = {rid: k for rid, k in PICK.items() if not os.path.exists(f'data/audio/{k}.json')}
 print('PICK', PICK)
+from concurrent.futures import ThreadPoolExecutor
+POOL = ThreadPoolExecutor(8)
 for rid in PICK:
-    T = {}
-    for s in range(1, 115):
-        T[s] = get(API + f'ayat_timing?surah={s}&read={rid}')
+    T = dict(zip(range(1, 115), POOL.map(lambda s: get(API + f'ayat_timing?surah={s}&read={rid}'), range(1, 115))))
     r = next((x for x in reads if (x.get('id') or x.get('read_id')) == rid), {})
     json.dump({'read': r, 'timing': T}, open(f'{out}/timing-{rid}.json', 'w'), ensure_ascii=False)
     print('saved', rid, sum(len(v or []) for v in T.values()))
@@ -82,6 +96,6 @@ for key in PICK.values():
     p = f'data/audio/{key}.json'
     if not os.path.exists(p): continue
     d = json.load(open(p))
-    d['sizes'] = {str(s): size(f"{d['folder']}{s:03d}.mp3") for s in range(1, 115)}
+    d['sizes'] = dict(zip((str(s) for s in range(1, 115)), POOL.map(lambda s: size(f"{d['folder']}{s:03d}.mp3"), range(1, 115))))
     json.dump(d, open(p, 'w'), ensure_ascii=False, separators=(',', ':'))
     print('sizes', key, round(sum(d['sizes'].values()) / 1048576), 'MB')
