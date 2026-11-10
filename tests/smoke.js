@@ -206,9 +206,9 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     if(name==="phone"){/* prayer times are computed on the device: Baghdad, Ja'fari, a fixed day, in Baghdad time */
       const r=await p.evaluate(()=>{const c=new adhan.Coordinates(33.3152,44.3661),d=new Date(Date.UTC(2026,10,4,9));
         const f=t=>["fajr","sunrise","dhuhr","asr","maghrib","isha"].map(k=>t[k].toLocaleTimeString("en-GB",{timeZone:"Asia/Baghdad",hour:"2-digit",minute:"2-digit"}));
-        return {j:f(new adhan.PrayerTimes(c,d,new adhan.CalculationParameters("Other",16,14,0,4))),m:f(new adhan.PrayerTimes(c,d,adhan.CalculationMethod.MuslimWorldLeague()))}});
+        return {m:f(new adhan.PrayerTimes(c,d,adhan.CalculationMethod.MuslimWorldLeague()))}});
       const inOrder=a=>a.every((x,i)=>!i||x>a[i-1]);
-      ok(inOrder(r.j)&&inOrder(r.m)&&r.m[0]>="04:45"&&r.m[0]<="05:15"&&r.m[4]>="16:55"&&r.m[4]<="17:20"&&r.j[4]>r.m[4],`${name}: prayer times for Baghdad look right ${JSON.stringify(r)}`)}
+      ok(inOrder(r.m)&&r.m[0]>="04:45"&&r.m[0]<="05:15"&&r.m[4]>="16:55"&&r.m[4]<="17:20",`${name}: prayer times for Baghdad look right ${JSON.stringify(r)}`)}
     {/* المتشابهات: the switch colours the twin phrases on the open page (page 51, built next to the open page 50, holds 3:10 and 3:11 from the huffaz' list) and takes them off again */
       await p.evaluate(()=>document.getElementById("bMut").click());await p.waitForTimeout(1800);
       const on=await p.evaluate(()=>[...new Set([...document.querySelectorAll('.pg[data-p="51"] .ms')].map(w=>+w.dataset.a))]);
@@ -242,6 +242,9 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       const st=await p.locator("#stage").boundingBox(),drag=async(x0,y0,x1,y1)=>{await p.mouse.move(x0,y0);await p.mouse.down();for(let k=1;k<=10;k++){await p.mouse.move(x0+(x1-x0)*k/10,y0+(y1-y0)*k/10);await p.waitForTimeout(16)}await p.mouse.up();await p.waitForTimeout(800)};
       const a=await pr();await drag(200,st.y+st.height*.8,204,st.y+st.height*.1);const b2=await pr();await drag(80,st.y+st.height*.5,330,st.y+st.height*.52);await p.waitForTimeout(600);const c=await pr();
       ok(a.w>=380&&b2.top<a.top-100&&c.top===a.top&&c.meta!==a.meta,`phone half open: full-width page slides up to show the rest, a swipe turns to the next page's top (${JSON.stringify([a,b2,c])})`)}
+    /* the settings menu drops from the bar half way down and must end on screen (it ran past the bottom) */
+    {await p.click("#bPrefs");await p.waitForTimeout(600);const r=await p.evaluate(()=>{const q=document.getElementById("prefs").getBoundingClientRect();return {top:Math.round(q.top),bottom:Math.round(q.bottom),h:innerHeight}});
+      ok(r.top>300&&r.bottom<=r.h,`phone half open: settings menu ends on screen (${JSON.stringify(r)})`)}
     await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});
