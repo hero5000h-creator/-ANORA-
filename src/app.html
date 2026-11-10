@@ -1739,17 +1739,25 @@ html.thumb body #prefs.pOut{animation:dockOut .22s cubic-bezier(.5,0,.75,.4) for
 .sdIn input:focus{outline:none;border-color:color-mix(in srgb,var(--orn) 55%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--orn) 16%,transparent)}
 .sdIn input::-webkit-search-cancel-button{display:none}
 .sdIn .ib{flex:none;width:44px;height:44px}.sdIn .ib svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.sdScope{position:relative;display:grid;grid-template-columns:1fr 1fr;margin:0 10px 8px;padding:3px;border-radius:12px;background:var(--sel)}
+.sdScope button{position:relative;z-index:1;height:36px;border-radius:9px;font:inherit;font-size:13.5px;font-weight:500;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px;transition:color .2s}
+.sdScope button[aria-checked="true"]{color:var(--orn);font-weight:600}
+/* the lit half slides under the chosen side */
+.sdScope>i{position:absolute;top:3px;bottom:3px;right:3px;width:calc(50% - 3px);border-radius:9px;background:var(--bar);box-shadow:0 1px 3px var(--line);transition:transform .28s var(--ease)}
+.sdScope.sur>i{transform:translateX(-100%)}
 .sres{flex:1 1 auto;min-height:0;padding:2px 8px 10px;border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 .sres:empty{display:none}
 .sres .grp{background:var(--bar)}
 .sres.anim>*{animation:sdRow .3s var(--ease) both;animation-delay:calc(min(var(--i,0),10) * 26ms)}
 .sres.anim>:nth-child(n+16){animation:none}
-.sdTips{display:grid;gap:10px;padding:12px 6px 6px}
-.sdTips small{color:var(--muted);font-size:12.5px}
+.sdTips{display:grid;gap:8px;padding:12px 6px 8px}
+.sdTips small+.sdChips{margin-bottom:6px}
+.sdTips small{color:var(--muted);font-size:12.5px;font-weight:600}
 .sdChips{display:flex;flex-wrap:wrap;gap:8px}
-.sdChips button{height:36px;padding:0 14px;border-radius:18px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;transition:transform .16s var(--ease),background-color .2s}
+.sdChips button{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;height:38px;padding:0 14px;border-radius:18px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;transition:transform .16s var(--ease),background-color .2s}
 .sdChips button:active{transform:scale(.95)}
-.sdChips button.rc::before{content:"↺";margin-inline-end:6px;color:var(--muted)}
+/* a small clock before each recent search, on the same line as the word */
+.sdChips button.rc::before{content:"";flex:none;width:14px;height:14px;background:var(--muted);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.5V12l3 2'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.5V12l3 2'/%3E%3C/svg%3E") center/contain no-repeat}
 #sDrop.out{animation:sdFadeO .2s cubic-bezier(.4,0,1,1) forwards;pointer-events:none}
 #sDrop.out .sdP{animation:sdOut .2s cubic-bezier(.4,0,1,1) forwards}
 @keyframes sdFade{from{opacity:0}}@keyframes sdFadeO{to{opacity:0}}
@@ -1915,6 +1923,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
 </div>
 <div id="sDrop" hidden role="dialog" aria-modal="true" aria-label="البحث في المصحف" dir="rtl"><div class="sdP">
   <div class="sdIn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="sq" type="search" enterkeyhint="search" placeholder="سورة، جزء، صفحة، أو كلمة من القرآن" autocomplete="off" aria-label="ابحث"><button id="sdX" class="ib" aria-label="إغلاق البحث"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="sdScope" role="radiogroup" aria-label="أين تبحث"><button data-scope="all" role="radio" aria-checked="true">كل القرآن</button><button data-scope="sur" role="radio" aria-checked="false" id="sdSur">هذه السورة</button><i></i></div>
   <div id="sres" class="list sres"></div></div></div>
 <div id="scrim" hidden></div><div id="warm" aria-hidden="true"></div>
 <aside id="drawer" role="dialog" aria-modal="true" aria-label="فهرس المصحف" dir="rtl">
@@ -3861,26 +3870,29 @@ function wordFind(q,by,n){
       let ok=true;for(let j=1;j<Q.length&&ok;j++)ok=Q[j].some(y=>t[k+j].f.includes(y));if(!ok)continue;
       let r=by.get(i);if(!r)by.set(i,r={id:i+1,ex:false,on:new Set(),k:new Set()});
       if(r.k.has(k))continue;r.k.add(k); // one word may be reached by more than one spelling
-      if(pre)n.pre++;else{n.ex++;r.ex=true}
+      if(pre){n.pre++;r.np=(r.np||0)+1}else{n.ex++;r.ex=true;r.nx=(r.nx||0)+1}
       for(let j=0;j<Q.length;j++)r.on.add(t[k+j].o)}})}
 const SR_MAX=300;
 function wRow(r){const T=toks(r.id),on=T.map((w,i)=>r.on.has(i)),f=on.indexOf(true),l=on.lastIndexOf(true);
   return `<button class="row" data-p="${pOf(r.id)}" data-a="${r.id}"><span class="star">${ar(aOf(r.id))}</span><span class="rn"><b>${SUR[sOf(r.id)][0]}</b><q class="snip">${markWords(r.id,i=>on[i],f-5,l+6)}</q></span><span class="pg-n"><em>صفحة</em>${ar(pOf(r.id))}</span></button>`}
 const nTimes=n=>n===1?"مرة واحدة":n===2?"مرتين":`${ar(n)} ${n<11?"مرات":"مرة"}`,nAyat=n=>n===1?"آية واحدة":n===2?"آيتين":`${ar(n)} ${n<11?"آيات":"آية"}`;
 let srApx=false,srApxQ="";
-function searchHTML(q){
+function searchHTML(q,only){
   if(norm(q,false).n.replace(/ /g,"").length<2)return '<div class="empty">اكتب كلمة أو جزءاً من آية بالإملاء المعتاد، دون تشكيل. مثال: «الصلاة» أو «ربنا آتنا».</div>';
-  if(srApxQ!==q){srApx=false;srApxQ=q}
-  const W=wordSearch(q);let h="";
+  if(srApxQ!==q+"|"+only){srApx=false;srApxQ=q+"|"+only}
+  let W=wordSearch(q);let h="";
+  /* searching one surah only: keep its ayat and count the matches inside it */
+  if(only!=null&&W){const inS=r=>sOf(r.id)===only,ex=W.ex.filter(inS),pre=W.pre.filter(inS);
+    W={ex,pre,nEx:ex.reduce((n,r)=>n+(r.nx||0),0),nPre:pre.reduce((n,r)=>n+(r.np||0),0)}}
   const list=(a)=>a.slice(0,SR_MAX).map(wRow).join("")+(a.length>SR_MAX?`<div class="empty">تُعرض أول ${ar(SR_MAX)} آية. زد كلمة لتضييق البحث.</div>`:"");
   if(W&&W.ex.length)h+=`<div class="grp"><span>الكلمة نفسها</span><span>${nTimes(W.nEx)} في ${nAyat(W.ex.length)}</span></div>`+list(W.ex);
   if(W&&W.pre.length)h+=`<div class="grp"><span>متصلة بحرف (و، ف، ب، ك، ل)</span><span>${nAyat(W.pre.length)}</span></div>`+list(W.pre);
   if(!srApx){
-    if(!h)h='<div class="empty">لم ترد هذه الكلمة بعينها في القرآن.</div>';
+    if(!h)h=only!=null?`<div class="empty">لم ترد هذه الكلمة بعينها في سورة ${SUR[only][0]}.</div>`:'<div class="empty">لم ترد هذه الكلمة بعينها في القرآن.</div>';
     return h+'<button class="row srapx" id="srApx"><span class="rn"><b>عرض الكلمات القريبة منها</b><small>مثل الكلمات التي تحتويها أو تُكتب قريباً منها</small></span></button>'}
-  const seen=new Set([...(W?W.ex:[]),...(W?W.pre:[])].map(r=>r.id)),R=searchText(q).filter(r=>!seen.has(r.id));
+  const seen=new Set([...(W?W.ex:[]),...(W?W.pre:[])].map(r=>r.id)),R=searchText(q).filter(r=>!seen.has(r.id)&&(only==null||sOf(r.id)===only));
   if(R.length)h+=`<div class="grp"><span>كلمات قريبة</span><span>${R.length>=400?"أكثر من ":""}${nAyat(R.length)}</span></div>`+R.map(hitRow).join("");
-  return h||'<div class="empty">لم توجد هذه العبارة في القرآن. جرّب كلمة أقصر.</div>';
+  return h||(only!=null?`<div class="empty">لم توجد هذه العبارة في سورة ${SUR[only][0]}. جرّب كلمة أقصر.</div>`:'<div class="empty">لم توجد هذه العبارة في القرآن. جرّب كلمة أقصر.</div>');
 }
 /* similar ayat: ayat that share rare two-word phrases, weighted by how rare each phrase is */
 let SX=null;
@@ -4750,15 +4762,20 @@ let sdOpen=false,sdT;const sdRec={get(){try{const v=JSON.parse(store.get("mushaf
   add(q){q=q.trim();if(q.length<2)return;store.set("mushaf.srecent",JSON.stringify([q,...this.get().filter(x=>x!==q)].slice(0,5)))}};
 function sdTips(){const r=sdRec.get(),c=a=>a.map(x=>`<button data-sq="${escH(x)}"${r.includes(x)?' class="rc"':""}>${escH(x)}</button>`).join("");
   return `<div class="sdTips">${r.length?`<small>آخر ما بحثت عنه</small><div class="sdChips">${c(r)}</div>`:""}<small>جرّب</small><div class="sdChips">${c(["الكهف","الجزء ٣٠","صفحة ٢٥٥","الصبر","ربنا آتنا"].filter(x=>!r.includes(x)))}</div></div>`}
+/* where to search: the whole Quran, or only the surah open on the page (kept for next time) */
+let sdScope=store.get("mushaf.sdScope")==="sur"?"sur":"all",sdS=0;
+function sdScopeUI(){const sc=document.querySelector(".sdScope");sc.classList.toggle("sur",sdScope==="sur");
+  sc.querySelectorAll("button").forEach(b=>b.setAttribute("aria-checked",String(b.dataset.scope===sdScope)));
+  $("sdSur").textContent=`سورة ${SUR[sdS][0]}`;$("sq").placeholder=sdScope==="sur"?`ابحث عن كلمة في سورة ${SUR[sdS][0]}`:"سورة، جزء، صفحة، أو كلمة من القرآن"}
 function sdRender(){const raw=$("sq").value.trim(),L=$("sres");
-  L.innerHTML=raw?findHTML(raw):sdTips();
+  L.innerHTML=sdScope==="sur"?(raw?searchHTML(raw,sdS):`<div class="empty">اكتب كلمة أو جزءاً من آية لتجدها في سورة ${SUR[sdS][0]}.</div>`):raw?findHTML(raw):sdTips();
   [...L.children].forEach((e,i)=>e.style.setProperty("--i",i));
   if(!reduce){L.classList.remove("anim");void L.offsetWidth;L.classList.add("anim")}L.scrollTop=0}
 function openSearch(){showPrefs(false);if(indexOpen)closeIndex();try{contHide();azNudgeHide()}catch(e){}
   const d=$("sDrop"),bar=document.querySelector("#app>.bar"),br=bar&&bar.getBoundingClientRect(),z=root.classList.contains("uzL")?+getComputedStyle(root).getPropertyValue("--uz")||1:1;
   const top=br&&br.bottom>8&&getComputedStyle(bar).opacity>.5?br.bottom+8:Math.max(12,(parseFloat(getComputedStyle(root).getPropertyValue("--cutT"))||0)+12);
   d.style.setProperty("--sdT",Math.round(top)+"px");d.style.setProperty("--sdZ",z);
-  clearTimeout(sdT);d.classList.remove("out");d.hidden=false;sdOpen=true;sdRender();setTimeout(wIndex,60);
+  sdS=sOf(pStart(cur));sdScopeUI();clearTimeout(sdT);d.classList.remove("out");d.hidden=false;sdOpen=true;sdRender();setTimeout(wIndex,60);
   const q=$("sq");q.focus({preventScroll:true});q.select()}
 function closeSearch(){if(!sdOpen)return;sdOpen=false;const d=$("sDrop"),q=$("sq");sdRec.add(q.value);q.blur();
   if(reduce){d.hidden=true;return}d.classList.add("out");clearTimeout(sdT);sdT=setTimeout(()=>{if(!sdOpen){d.hidden=true;d.classList.remove("out")}},220)}
@@ -4766,8 +4783,9 @@ function closeSearch(){if(!sdOpen)return;sdOpen=false;const d=$("sDrop"),q=$("sq
 $("sq").addEventListener("keydown",e=>{if(e.key==="Enter"){const r=$("sres").querySelector("[data-p]");r&&r.click()}});
 $("sdX").onclick=closeSearch;
 $("sDrop").addEventListener("click",e=>{if(e.target.id==="sDrop"){closeSearch();return}
+  const sc=e.target.closest("[data-scope]");if(sc){sdScope=sc.dataset.scope;store.set("mushaf.sdScope",sdScope);sdScopeUI();sdRender();$("sq").focus({preventScroll:true});return}
   const c=e.target.closest("[data-sq]");if(c){$("sq").value=c.dataset.sq;sdRender();$("sq").focus({preventScroll:true});return}
-  if(e.target.closest("#srApx")){srApx=true;const L=$("sres"),sc=L.scrollTop;L.innerHTML=findHTML($("sq").value.trim());L.scrollTop=sc;return}
+  if(e.target.closest("#srApx")){srApx=true;const L=$("sres"),st=L.scrollTop,q=$("sq").value.trim();L.innerHTML=sdScope==="sur"?searchHTML(q,sdS):findHTML(q);L.scrollTop=st;return}
   const b=e.target.closest("[data-p]");if(!b)return;const a=+b.dataset.a||0,p=+b.dataset.p;closeSearch();
   setTimeout(()=>{goTo(p);if(a){selA=a;paintHL();setTimeout(()=>{if(selA===a&&$("sheet").hidden){selA=0;paintHL()}},2600)}},reduce?0:200)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sdOpen){e.stopImmediatePropagation();closeSearch()}},true);
