@@ -230,6 +230,13 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     const r=await p.evaluate(()=>({lines:document.querySelectorAll("#book .pg .lb").length,x:window.__x||0}));
     ok(r.lines>0&&!errs.length,`bad saved data: the page still opens (${r.lines} lines) ${errs.join(" | ")}`);ok(!r.x,"bad saved data: a colour name with markup stays text");
     await ctx.close()}
+  /* page look on launch: gold ayah numbers must not stop a big-text reader getting the medium stroke */
+  {const ctx=await b.newContext({viewport:{width:412,height:891},hasTouch:true,isMobile:true});const p=await ctx.newPage();
+    await p.addInitScript(()=>{const S=(k,v)=>localStorage.setItem(k,v);S("mushaf.last","2");S("mushaf.hintN","9");S("mushaf.easyQ","1");S("mushaf.uz","1.3");S("mushaf.an","1")});
+    await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(2500);
+    const r=await p.evaluate(()=>({wt:document.documentElement.dataset.wt||"",an:document.documentElement.dataset.an||""}));
+    ok(r.wt==="1"&&r.an==="1",`page look: big text keeps the medium stroke with gold ayah numbers on (${JSON.stringify(r)})`);
+    await ctx.close()}
   /* the half-open (tabletop) view on a phone: nothing wider than the screen (a grid column once grew to the bar's
      own width, so the page, tafsir and buttons ran off both sides) */
   {const ctx=await b.newContext({viewport:{width:412,height:891},hasTouch:true,isMobile:true});const p=await ctx.newPage();
