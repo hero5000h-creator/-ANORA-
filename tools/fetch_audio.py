@@ -14,13 +14,19 @@ rec = get(API + 'reciters?language=ar'); json.dump(rec, open(out + '/reciters.js
 reads = get(API + 'ayat_timing/reads'); json.dump(reads, open(out + '/reads.json', 'w'), ensure_ascii=False)
 print('reads:', json.dumps(reads, ensure_ascii=False)[:3000])
 # reciters the app offers: key -> name fragments (any spelling); a murattal read is preferred over mujawwad/teaching
+def rname(r): return json.dumps(r, ensure_ascii=False)
 WANT = {
     'husary': ['الحصري'], 'alafasy': ['العفاسي'],
     'minshawi': ['المنشاوي'], 'abdulbasit': ['عبدالباسط', 'عبد الباسط'],
     'shatri': ['الشاطري'], 'abkar': ['أبكر', 'ابكر'], 'amer': ['أحمد عامر', 'احمد عامر', 'محمد عامر'],
+    'khalil': ['خليل إسماعيل', 'خليل اسماعيل', 'خليل إسماعيل'],
 }
+# the Iraqi reciter al-Hafiz Khalil Ismail: list every MP3Quran entry that names him, with or without ayah timings
+for r in (rec or {}).get('reciters', []):
+    if 'خليل' in r.get('name', '') and 'الحصري' not in r.get('name', ''):
+        print('reciter', r.get('id'), r.get('name'), [(m.get('id'), m.get('name'), m.get('server')) for m in r.get('moshaf', [])])
+print('timing reads with خليل:', [(r.get('id'), r.get('name')) for r in (reads or []) if 'خليل' in rname(r)])
 FIXED = {118: 'husary', 123: 'alafasy'}   # the reads the app already shipped with
-def rname(r): return json.dumps(r, ensure_ascii=False)
 def score(r):
     n = rname(r)
     return (('مرتل' in n) * 2 - ('مجود' in n) - ('معلم' in n) * 2 - ('ورش' in n or 'قالون' in n or 'الدوري' in n) * 3)
