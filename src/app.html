@@ -2150,6 +2150,7 @@ function fit(el,fresh){
   const M=L.map(l=>{const sw=l.scrollWidth,cw=l.clientWidth;let fx=sw>cw+.5?cw/sw:1;
     const lw=l.getBoundingClientRect().width*fx;if(inW>0&&lw>inW*.998+.5)fx*=inW*.995/lw;return fx});
   L.forEach((l,i)=>{if(M[i]<.9999)l.style.setProperty("--fx",M[i].toFixed(4))});
+  el._sig=M.map(x=>x.toFixed(3)).join();
 }
 /* the outer margin carries a medallion where a hizb or quarter begins (۞) and an arch where a sajda falls (۩) */
 function hizbMarks(el){
@@ -3547,9 +3548,13 @@ const qY=t=>t.replace(/ي(?=[\u064B-\u0655\u0670\u06D6-\u06ED]*(?:\s|$))/g,"ى")
 const AW=[null,[]];for(const pg of K)for(const ln of pg){if(ln[0]!=="t")continue;for(const t of ln[6]){const x=typeof t==="string"?t:t[0];if(x.indexOf("\u06DD")>=0)AW.push([]);else AW[AW.length-1].push(x)}}
 let WD=null,wdLoad=null,wSel=0,wxLemma=-1,wxN=0;const WX_PAGE=30;
 function wdData(){if(!wdLoad)wdLoad=Promise.all([fetch("words.json").then(r=>{if(!r.ok)throw 0;return r.json()}),gharib().catch(()=>null)]).then(([d])=>{
-  const W=d.a.map(a=>a.split(" ").map(w=>{const [r,l,m,sg]=w.split(",");return {r:parseInt(r,36)-1,l:parseInt(l,36)-1,m:parseInt(m,36),s:sg.split(".").map(x=>parseInt(x,36))}}));
-  const byR={},byL={};W.forEach((a,i)=>a.forEach((w,j)=>{const loc=(i+1)*256+j;if(w.r>=0)(byR[w.r]=byR[w.r]||[]).push(loc);if(w.l>=0)(byL[w.l]=byL[w.l]||[]).push(loc)}));
-  WD={...d,W,byR,byL};}).catch(()=>{wdLoad=null;throw 0});return wdLoad}
+  /* 77 000 words decoded in slices of a few ms (it was one block of a third of a second at the first press on
+     "الكلمة", the screen frozen meanwhile) */
+  const W=[],byR={},byL={};let i=0;
+  return new Promise(done=>{const slice=()=>{const t0=performance.now();
+    for(;i<d.a.length&&performance.now()-t0<8;i++){const a=d.a[i].split(" ").map(w=>{const [r,l,m,sg]=w.split(",");return {r:parseInt(r,36)-1,l:parseInt(l,36)-1,m:parseInt(m,36),s:sg.split(".").map(x=>parseInt(x,36))}});
+      W.push(a);a.forEach((w,j)=>{const loc=(i+1)*256+j;if(w.r>=0)(byR[w.r]=byR[w.r]||[]).push(loc);if(w.l>=0)(byL[w.l]=byL[w.l]||[]).push(loc)})}
+    if(i<d.a.length)setTimeout(slice,0);else{WD={...d,W,byR,byL};done()}};slice()})}).catch(()=>{wdLoad=null;throw 0});return wdLoad}
 const bareA=t=>t.replace(/[ٱأإآ]/g,"ا").replace(/ى/g,"ي").replace(/[^ء-غف-ي]/g,"");
 function paintWSel(){const t=$("shText");t.classList.toggle("wsel",shK==="wd");t.querySelectorAll(".w").forEach(w=>w.classList.toggle("on",+w.dataset.w===wSel))}
 const surN=loc=>{const id=loc>>8;return `${SUR[sOf(id)][0]} ${ar(aOf(id))}`};
@@ -3601,7 +3606,12 @@ const TFTAB={"mukhtasar":[1],"saadi":[1,14,50],"jalalayn":[1,63],"baghawi":[1,4,
 let tfK=store.get("mushaf.tafsir")||"muyassar";
 const tfPart=(k,id)=>{const t=TFTAB[k],s=sOf(id)+1;let i=0;while(i+1<t.length&&t[i+1]<=s)i++;return i};
 const tfHave=(k,id)=>{const c=TFC[k]&&TFC[k][tfPart(k,id)];return c&&!c.then};
+/* each part is 1-3 MB of text (several MB once parsed): reading on through Ibn Kathir and Al-Baghawi used to keep
+   every part ever opened, and the app grew heavier the longer it stayed open. The 4 last used parts stay */
+const TFU=[];
 function tfChunk(k,id){const i=tfPart(k,id);TFC[k]=TFC[k]||{};
+  {const key=k+"/"+i,u=TFU.indexOf(key);if(u>=0)TFU.splice(u,1);TFU.push(key);
+   for(let n=0;TFU.length>4&&n<TFU.length-1;){const [kk,ii]=TFU[n].split("/");const c=TFC[kk]&&TFC[kk][ii];if(c&&!c.then){delete TFC[kk][ii];TFU.splice(n,1)}else n++}}
   if(!TFC[k][i])TFC[k][i]=fetch(`tf/${k}/${i}.json`).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>TFC[k][i]={o:SST[TFTAB[k][i]-1],d}).catch(()=>{delete TFC[k][i];throw 0});
   return Promise.resolve(TFC[k][i])}
 /* a tafsir that explains several ayat together keeps the text on the first of them */
@@ -3674,7 +3684,10 @@ function wxStep(lim){const b=WXB||(WXB={T:[],inv:new Map(),C:new Map(),i:0}),t0=
       f.forEach(x=>{let l=inv.get(x);if(!l)inv.set(x,l=[]);l.push(i,t.length)});t.push({f,o})});T.push(t)}
   if(b.i>=NA){WX={T,inv};WXB=null}return WX}
 function wIndex(){return WX||wxStep(null)}
-if(window.requestIdleCallback)setTimeout(()=>{const go=d=>{if(WX)return;wxStep(Math.max(1,Math.min(8,d.timeRemaining()-1)));if(!WX)requestIdleCallback(go)};requestIdleCallback(go)},5000);
+/* built in small idle slices, and never while a page turns or a finger is on the screen (a slice landing between
+   the frames of a turn cost it smoothness on a mid phone) */
+if(window.requestIdleCallback)setTimeout(()=>{const go=d=>{if(WX)return;if(busy||flip||down||Date.now()-stAct<1500){setTimeout(()=>requestIdleCallback(go),700);return}
+  wxStep(Math.max(1,Math.min(8,d.timeRemaining()-1)));if(!WX)requestIdleCallback(go)};requestIdleCallback(go)},8000);
 /* letters joined to the front of a word: و ف ب ك ل and their pairs, the future س, and لل for ل + ال */
 const WPRE=["و","ف","ب","ك","ل","س","وب","فب","ول","فل","وك","فك","وس","فس"];
 /* the Uthmani script joins the vocative يا and the ها of attention to the next word: يَٰقَوۡمِ، يَٰٓأَيُّهَا، هَٰٓأَنتُمۡ */
@@ -5325,7 +5338,13 @@ function start(){if(started)return;started=true;
   setTfz(tfz)}
 Promise.race([Promise.all([document.fonts.load('40px "QMH Old Madina"',"بِسْمِ"),document.fonts.load('40px "Scheherazade New"',"بِسۡمِ"),document.fonts.load('700 20px "Amiri"',"سورة")]),new Promise(r=>setTimeout(r,3500))]).then(()=>document.fonts.ready).then(start,start);
 /* Google Fonts ships Arabic in several subsets; when a late subset (Quranic marks) arrives, re-fit the pages */
-let ft;document.fonts.addEventListener("loadingdone",()=>{clearTimeout(ft);ft=setTimeout(()=>{if(started&&!busy&&!flip)rebuild()},250)});
+/* a font arriving late used to throw away every laid-out page and build them all again: a stall of a quarter to
+   half a second at random moments (the index's Amiri, the menu's IBM Plex weights, the Scheherazade of the juz
+   list), and the next turns had to lay their pages out again too. Now only a face the page lines are set in
+   counts, and the pages are rebuilt only when the page on screen really measures differently with it */
+const FIT_FONTS=/QMH Old Madina|Scheherazade New|SuraNames/;
+let ft;document.fonts.addEventListener("loadingdone",e=>{if(!(e.fontfaces||[]).some(f=>FIT_FONTS.test(f.family)))return;clearTimeout(ft);ft=setTimeout(()=>{if(!started||busy||flip)return;
+  let moved=false;book.querySelectorAll(":scope>.pg:not(.pk):not(.blank)").forEach(el=>{const o=el._sig;fit(el);if(o!==el._sig)moved=true});if(moved)rebuild()},250)});
 let rt;const onResize=()=>{clearTimeout(rt);rt=setTimeout(resize,120)};addEventListener("resize",onResize);
 try{window.viewport&&window.viewport.addEventListener&&window.viewport.addEventListener("segmentchange",onResize)}catch(e){}
 if(window.visualViewport)visualViewport.addEventListener("resize",onResize);
