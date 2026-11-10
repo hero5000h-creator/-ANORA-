@@ -230,5 +230,18 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     const r=await p.evaluate(()=>({lines:document.querySelectorAll("#book .pg .lb").length,x:window.__x||0}));
     ok(r.lines>0&&!errs.length,`bad saved data: the page still opens (${r.lines} lines) ${errs.join(" | ")}`);ok(!r.x,"bad saved data: a colour name with markup stays text");
     await ctx.close()}
+  /* the half-open (tabletop) view on a phone: nothing wider than the screen (a grid column once grew to the bar's
+     own width, so the page, tafsir and buttons ran off both sides) */
+  {const ctx=await b.newContext({viewport:{width:412,height:891},hasTouch:true,isMobile:true});const p=await ctx.newPage();
+    await p.addInitScript(()=>{localStorage.setItem("mushaf.last","439");localStorage.setItem("mushaf.hintN","9");localStorage.setItem("mushaf.easyQ","1");localStorage.setItem("mushaf.table","1")});
+    await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(3000);
+    const r=await p.evaluate(()=>({sw:document.documentElement.scrollWidth,w:innerWidth,table:document.getElementById("app").classList.contains("table"),deck:document.querySelectorAll("#deckList .dk").length}));
+    ok(r.table&&r.deck>0&&r.sw<=412&&r.w===412,`phone half open: page and tafsir fit the screen (${JSON.stringify(r)})`);
+    /* the page takes the full width there, and a finger drawn up shows its lower half; a swipe turns and starts at the top */
+    {const pr=()=>p.evaluate(()=>{const q=document.getElementById("book").getBoundingClientRect();return {w:Math.round(q.width),top:Math.round(q.top),meta:document.getElementById("wMeta").textContent}});
+      const st=await p.locator("#stage").boundingBox(),drag=async(x0,y0,x1,y1)=>{await p.mouse.move(x0,y0);await p.mouse.down();for(let k=1;k<=10;k++){await p.mouse.move(x0+(x1-x0)*k/10,y0+(y1-y0)*k/10);await p.waitForTimeout(16)}await p.mouse.up();await p.waitForTimeout(800)};
+      const a=await pr();await drag(200,st.y+st.height*.8,204,st.y+st.height*.1);const b2=await pr();await drag(80,st.y+st.height*.5,330,st.y+st.height*.52);await p.waitForTimeout(600);const c=await pr();
+      ok(a.w>=380&&b2.top<a.top-100&&c.top===a.top&&c.meta!==a.meta,`phone half open: full-width page slides up to show the rest, a swipe turns to the next page's top (${JSON.stringify([a,b2,c])})`)}
+    await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});

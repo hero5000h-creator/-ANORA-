@@ -167,7 +167,12 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 
 /* desk + book */
 #stage{flex:1;position:relative;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none;background:var(--desk);background-image:radial-gradient(120% 90% at 50% 42%,color-mix(in srgb,var(--desk) 55%,var(--paper)),var(--desk));transition:background-color .3s}
-#bookwrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) translate(var(--zx,0px),var(--zy,0px)) scale(var(--zs,1))}
+#bookwrap{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) translate(var(--zx,0px),calc(var(--zy,0px) + var(--ty,0px))) scale(var(--zs,1))}
+#bookwrap.tglide{transition:transform .32s var(--ease)}
+/* half open on a phone: a soft shade at the edge says more of the page lies that way */
+#stage::before,#stage::after{content:"";position:absolute;left:0;right:0;height:26px;z-index:4;pointer-events:none;opacity:0;transition:opacity .25s}
+#stage::before{top:0;background:linear-gradient(var(--paper),transparent)}#stage::after{bottom:0;background:linear-gradient(transparent,var(--paper))}
+#stage.tless::before,#stage.tmore::after{opacity:.9}
 #bookwrap.zsnap{transition:transform .46s var(--spring)}
 #bookwrap::before{content:"";position:absolute;inset:4px 0 -4px;border-radius:4px;box-shadow:0 8px 24px -10px var(--shadow);pointer-events:none}
 #book{position:relative;direction:ltr}
@@ -288,6 +293,8 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
   box-shadow:0 14px 30px -10px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.25)}
 #app.table #rehal::after{content:"";position:absolute;left:10px;right:10px;bottom:3px;height:14px;background:var(--o-carve) center/auto 100% repeat-x;opacity:.9}
 :root{--wood-l:#9b6b3f;--wood-d:#6e4524}
+/* a phone held half open has little room above the hinge: a slimmer stand leaves the page larger */
+@media (max-width:599px){#app.table #rehal{left:-10px;right:-10px;top:-6px;bottom:-12px}#app.table #rehal::after{height:9px;bottom:2px}}
 :root[data-paper="night"],:root[data-paper="black"]{--wood-l:#4a3220;--wood-d:#2c1c10}
 .seg.c5{grid-template-columns:repeat(5,1fr);gap:6px}
 .seg.c5 .sw{font-size:12px;padding:7px 2px}
@@ -661,7 +668,8 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 
 /* tabletop (Fold half open, hinge across the screen): mushaf above the hinge, a companion deck below it */
 #deck{display:none}
-#app.table{display:grid;grid-template-rows:var(--top) var(--gap) minmax(0,1fr)}
+#app.table{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:var(--top) var(--gap) minmax(0,1fr)}
+#app.table>*{min-width:0}
 #app.table #stage{grid-row:1;min-height:0}
 #app.table #deck{grid-row:3;display:flex;flex-direction:column;min-height:0;background:var(--bar);color:var(--bar-ink)}
 #app.table.imm .bar,#app.table.imm .foot{display:flex}
@@ -2302,11 +2310,14 @@ function park(keep){for(const e of [...book.children]){if(e.classList.contains("
 /* Foldables: on a dual-screen device (viewport segments side by side) the spine sits on the hinge;
    in tabletop posture (segments stacked) the book stays on the upper half. A single tall screen
    like an open Galaxy Z Fold gets the two-page spread whenever both pages stay readable. */
+const tPan={off:0,max:0};
+function tPanApply(glide){const w=$("bookwrap");if(!w)return;stage.classList.toggle("tmore",tPan.max>0&&tPan.off>-tPan.max+4);stage.classList.toggle("tless",tPan.max>0&&tPan.off<-4);w.classList.toggle("tglide",!!glide&&!reduce);w.style.setProperty("--ty",tPan.off+"px");
+  if(glide)setTimeout(()=>w.classList.remove("tglide"),360)}
 function segments(){try{const v=window.viewport&&window.viewport.segments;return v&&v.length===2?v:null}catch(e){return null}}
 function resize(){
   posture();applyStudy();$("app").classList.toggle("ovl",!inTable&&!inStudy);root.style.setProperty("--fh",document.querySelector(".foot").offsetHeight+"px");root.style.setProperty("--bh",document.querySelector(".bar").offsetHeight+"px");
   requestAnimationFrame(()=>{pillTo(document.querySelector(".tabs"));pillTo(document.querySelector(".shtabs"))});
-  const r=stage.getBoundingClientRect(), full=!inTable&&(r.width<1000||matchMedia("(pointer:coarse)").matches), pad=inTable?24:full?0:18;
+  const r=stage.getBoundingClientRect(), full=!inTable&&(r.width<1000||matchMedia("(pointer:coarse)").matches), pad=inTable?(r.width<600?12:24):full?0:18;
   /* never plan the page wider or taller than the screen the person actually sees */
   let SW=Math.min(r.width,innerWidth||r.width), SH=Math.min(r.height,innerHeight||r.height), cx=SW/2, cy=SH/2, force=null;
   /* bars that must stay up (memorising, recitation) get their own room so they never cover a line */
@@ -2328,6 +2339,12 @@ function resize(){
     auto=(SW>=600&&wd>=280&&hd>=hs*.62)||(SW>=480&&SW/SH>=.74&&wd>=200);
   const m=inStudy?"single":force||(pv==="2"?"spread":pv==="1"?"single":auto?"spread":"single");
   let w=Math.floor(m==="spread"?wd:ws), h=Math.floor(m==="spread"?hd:hs);
+  /* half open on a phone: the room above the hinge is short, and a whole page there was too small to read. The page
+     takes the full width at the print's proportion and slides up and down under the finger (tPan) */
+  tPan.max=0;
+  if(inTable&&m==="single"&&SW<600){w=Math.floor(SW-2*pad);h=Math.floor(w/.64);tPan.max=Math.max(0,h+2*pad-SH);cy=pad+h/2;tPan.off=Math.max(-tPan.max,Math.min(0,tPan.off))}
+  else tPan.off=0;
+  tPanApply(false);
   /* tall phones: the page fills a 20:9 screen; only a taller one (21:9 and up) stops at 1:2.2 so lines do not drift apart,
      the little left over split evenly on paper-coloured ground so it reads as one sheet */
   const phone=tall&&m==="single";root.classList.toggle("phoneM",phone);
@@ -2624,7 +2641,7 @@ stage.addEventListener("pointermove",e=>{
     clearTimeout(down.lpT);clearTimeout(down.prT);pressOff();
     let kind=null;
     if(down.peek){kind=down.peek.kind}
-    else if(Math.abs(dy)>Math.abs(dx)*1.2){down.drag="none";return}
+    else if(Math.abs(dy)>Math.abs(dx)*1.2){if(tPan.max&&zoom.s===1){down.drag="tpan";down.o0=tPan.off;down.y0=e.clientY;$("bookwrap").classList.remove("tglide");return}else{down.drag="none";return}}
     else kind=dx>0?"fwd":"back";
     if(!kind||(!down.peek&&!canGo(kind))){down.drag="none";return}
     let f=down.peek;const st=turnSt();
@@ -2636,6 +2653,7 @@ stage.addEventListener("pointermove",e=>{
     else if(f.slide&&down.drag!==f){f.P=[0,0];down.drag=f;down.x=b[0];down.y=b[1];hideHint()}
   }
   if(down.drag==="none") return;
+  if(down.drag==="tpan"){let o=down.o0+(e.clientY-down.y0);o=o>0?o*.3:o<-tPan.max?-tPan.max+(o+tPan.max)*.3:o;tPan.off=o;tPanApply(false);return}
   if(down.drag.slide||down.drag.jump){const f=down.drag,lim=f.dir*f.vw;let x=b[0]-down.x;
     /* 1:1 with the finger; pulling the wrong way gives a little, like rubber */
     x=f.dir>0?(x<0?x*.25:Math.min(lim,x)):(x>0?x*.25:Math.max(lim,x));
@@ -2666,6 +2684,7 @@ function follow(f){
 }
 function release(e){
   if(!down) return;const d=down;down=null;clearTimeout(d.lpT);clearTimeout(d.prT);if(!d.lp)pressOff();
+  if(d.drag==="tpan"){tPan.off=Math.max(-tPan.max,Math.min(0,tPan.off));tPanApply(true);return}
   if(d.lp) return; // a long press opened the ayah sheet
   if(!d.drag){ // tap
     if(d.peek){endPeek();return}
@@ -2699,6 +2718,7 @@ function release(e){
     .then(()=>{finish(f,done);busy=false});
 }
 stage.addEventListener("pointerup",release);
+stage.addEventListener("wheel",e=>{if(!tPan.max||zoom.s!==1||e.ctrlKey)return;e.preventDefault();tPan.off=Math.max(-tPan.max,Math.min(0,tPan.off-e.deltaY));tPanApply(false)},{passive:false});
 /* right-click on desktop opens the same ayah options bar; on touch the long-press timer does it */
 stage.addEventListener("contextmenu",e=>{e.preventDefault();if(lastPT!=="mouse")return;const a=ayahAt(e.clientX,e.clientY);if(a)ayahPop(a,e.clientX,e.clientY)});
 stage.addEventListener("pointercancel",release);
@@ -4437,6 +4457,7 @@ function deckPages(){return mode==="spread"?[cur,Math.min(cur+1,NP)]:[cur]}
 function renderDeck(){
   if(!inTable)return;
   const ps=deckPages();if(deckPage===ps.join())return;deckPage=ps.join();
+  if(tPan.off){tPan.off=0;tPanApply(true)}
   const a0=pStart(ps[0]),a1=pEnd(ps[ps.length-1]);
   $("dkTitle").textContent=ps.length>1?`تفسير الصفحتين ${ar(ps[0])}–${ar(ps[1])}`:`تفسير الصفحة ${ar(ps[0])}`;
   const acts=$("sheet").querySelector(".acts").outerHTML.replace(/ id="a(\w+)"/g,' data-act="$1"');
