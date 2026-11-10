@@ -132,16 +132,17 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 #recPick .rp{box-sizing:border-box;width:min(440px,100%);max-height:min(78vh,560px);display:flex;flex-direction:column;background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);border-bottom:0;border-radius:20px 20px 0 0;padding:6px 10px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -18px 50px -18px var(--shadow);transform:translateY(24px);transition:transform .3s var(--spring,var(--ease))}
 #recPick.on .rp{transform:none}
 @media (min-width:700px){#recPick{place-items:center}#recPick .rp{border-radius:20px;border-bottom:1px solid var(--line);padding-bottom:12px;transform:translateY(12px) scale(.98)}}
-.rp-h{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 6px}
+.rp-h{flex:none;display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 6px}
 .rp-h b{font-family:var(--f-display);font-size:19px}
 .rp-l{overflow:auto;display:grid;gap:6px;padding:2px 2px 4px}
 #recPick .rp{height:min(78vh,560px)}
-.rp-q{display:flex;align-items:center;gap:8px;margin:0 2px 8px;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}
+.rp-q{flex:none;display:flex;align-items:center;gap:8px;margin:0 2px 8px;height:44px;padding:0 12px;border-radius:12px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}
 .rp-q:focus-within{border-color:var(--orn)}
 .rp-q svg{flex:none;width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .rp-q input{flex:1;min-width:0;height:100%;border:0;background:none;color:var(--ink);font:inherit;font-size:16px;outline:0}
 .rp-q input::-webkit-search-cancel-button{-webkit-appearance:none}
 .rp-o[hidden]{display:none}
+.rp-g{display:flex;align-items:center;justify-content:space-between;margin:10px 6px 2px;font-size:13.5px;font-weight:600;color:var(--muted)}.rp-g:first-child{margin-top:2px}.rp-g span{font-weight:500;font-size:12.5px}.rp-g[hidden]{display:none}
 .rp-t{display:inline-block;margin-inline-start:8px;padding:1px 8px;border-radius:999px;font-style:normal;font-size:12.5px;font-weight:500;color:var(--orn);background:color-mix(in srgb,var(--orn) 12%,transparent);vertical-align:2px}
 .rp-n{margin:14px 0;text-align:center;color:var(--muted);font-size:14.5px}
 .rp-o{display:flex;align-items:center;gap:12px;min-height:54px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:16px;text-align:start;cursor:pointer;transition:transform .16s var(--ease),background-color .2s,border-color .2s}
@@ -4302,9 +4303,12 @@ function setReciter(r){if(!RECS[r]||r===reciter)return;const was=player.on;
   reciter=r;store.set("mushaf.reciter",reciter);recUI();AU.pause();auSrc="";
   audData(reciter).then(d=>{aud=d;if(!d){toast("تعذّر تحميل توقيت هذا القارئ. تحقق من الاتصال");return}if(was&&player.on)startAyah(false)});toast(`القارئ: ${RECS[reciter]}`)}
 /* the reciter list: a sheet from the bottom on a phone, a card in the middle on a wide screen */
-function rpFill(){$("rpL").innerHTML=Object.entries(RECS).map(([k,n])=>`<button type="button" class="rp-o" role="radio" data-rec="${k}" aria-checked="${k===reciter}"><span class="rd" aria-hidden="true"></span><b>${n.split(" · ")[0]}${n.includes(" · ")?`<em class="rp-t">${n.split(" · ")[1]}</em>`:""}</b>${DL[k]&&DL[k].size?`<small>${ar(DL[k].size)} سورة محمّلة</small>`:""}</button>`).join("");if($("rpQ").value)rpFilter()}
+/* the picker groups the reciters: murattal, mujawwad, and those from Iraq and Kurdistan */
+const RECG=[["مرتّل",k=>!RECS[k].includes(" · ")&&!RIRAQ.has(k)],["مجوّد",k=>RECS[k].includes(" · ")],["من العراق",k=>RIRAQ.has(k)]],RIRAQ=new Set(["kurdi","shirzad","peshawa"]);
+function rpFill(){const row=([k,n])=>`<button type="button" class="rp-o" role="radio" data-rec="${k}" aria-checked="${k===reciter}"><span class="rd" aria-hidden="true"></span><b>${n.split(" · ")[0]}${n.includes(" · ")?`<em class="rp-t">${n.split(" · ")[1]}</em>`:""}</b>${DL[k]&&DL[k].size?`<small>${ar(DL[k].size)} سورة محمّلة</small>`:""}</button>`;
+  $("rpL").innerHTML=RECG.map(([g,f],gi)=>{const ks=Object.keys(RECS).filter(f);return ks.length?`<div class="rp-g" role="presentation" data-g="${gi}">${g}<span>${ar(ks.length)}</span></div>`+ks.map(k=>row([k,RECS[k]]).replace('class="rp-o"',`class="rp-o" data-g="${gi}"`)).join(""):""}).join("");if($("rpQ").value)rpFilter()}
 const rpNorm=t=>t.replace(/[ًٌٍَُِّْـ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه").replace(/[ڤپ]/g,"ب").replace(/\s+/g,"");
-function rpFilter(){const q=rpNorm($("rpQ").value.trim());let n=0;$("rpL").querySelectorAll(".rp-o").forEach(o=>{const hit=!q||rpNorm(o.querySelector("b").textContent).includes(q);o.hidden=!hit;n+=hit});$("rpN").hidden=n>0}
+function rpFilter(){const q=rpNorm($("rpQ").value.trim());let n=0;$("rpL").querySelectorAll(".rp-o").forEach(o=>{const hit=!q||rpNorm(o.querySelector("b").textContent).includes(q);o.hidden=!hit;n+=hit});$("rpL").querySelectorAll(".rp-g").forEach(g=>g.hidden=!$("rpL").querySelector(`.rp-o[data-g="${g.dataset.g}"]:not([hidden])`));$("rpN").hidden=n>0}
 $("rpQ").addEventListener("input",rpFilter);
 function rpOpen(e){if(e)e.stopPropagation();const x=$("recPick");$("rpQ").value="";rpFill();rpFilter();x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));
   setTimeout(()=>{const c=x.querySelector('[aria-checked="true"]')||x.querySelector(".rp-o");if(c){c.scrollIntoView({block:"nearest"});c.focus({preventScroll:true,focusVisible:false})}},60)}
