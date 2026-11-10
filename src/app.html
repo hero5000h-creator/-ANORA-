@@ -3335,7 +3335,7 @@ $("ascrim").onclick=()=>{if(performance.now()-sheetAt>600){closeAyah();quizClose
 let lpId=0,lpShownAt=0;
 function ayahPop(id,cx,cy){
   if(memo.on||inTable||inStudy||!$("sheet").hidden){openAyah(id);return}
-  contHide();hideHint();lpAt=performance.now();lpShownAt=lpAt;lpId=id;selA=id;paintHL();
+  contHide();hideHint();lpAt=performance.now();lpShownAt=lpAt;lpDown=false;lpId=id;selA=id;paintHL();
   const bar=$("lpBar"),scr=$("lpScr");
   $("lpRef").textContent=`${SUR[sOf(id)][0]} ${ar(aOf(id))}`;
   bar.querySelector('[data-k="mark"]').setAttribute("aria-pressed",String(marks.has(id)));
@@ -3359,9 +3359,11 @@ function ayahPop(id,cx,cy){
 }
 function popClose(keep){const bar=$("lpBar");if(bar.hidden)return;$("lpScr").hidden=true;bar.classList.remove("on");lpId=0;
   if(!keep){selA=0;paintHL()}setTimeout(()=>{if(!bar.classList.contains("on"))bar.hidden=true},reduce?0:160)}
-$("lpScr").addEventListener("click",e=>{if(performance.now()-lpShownAt<450)return;popClose()});
+/* the finger that long-pressed may lift seconds later, over the scrim: only a press that starts after the bar is up closes it */
+let lpDown=false;$("lpScr").addEventListener("pointerdown",()=>{lpDown=true});
+$("lpScr").addEventListener("click",e=>{if(!lpDown)return;lpDown=false;popClose()});
 $("lpScr").addEventListener("wheel",()=>popClose(),{passive:true});
-$("lpBar").addEventListener("click",e=>{if(performance.now()-lpShownAt<450)return;const id=lpId;if(!id)return;
+$("lpBar").addEventListener("click",e=>{if(performance.now()-lpShownAt<300)return;const id=lpId;if(!id)return;
   const d=e.target.closest("[data-hk]");
   if(d){const k=d.dataset.hk,old=hlK(id);hl.set(id,k===old?"":k);popClose();rasterDirtyLazy();
     if(old&&k===old)toastU("أُزيل التظليل",()=>{hl.set(id,old);paintHL();rasterDirtyLazy()});else toast("ظُلّلت الآية");return}
@@ -3380,7 +3382,10 @@ $("shPrev").onclick=()=>stepAyah(selA-1,-1);
 $("shNext").onclick=()=>stepAyah(selA+1,1);
 $("aCopy").onclick=()=>{
   const t=`${txt(selA)} ﴿${SUR[sOf(selA)][0]}: ${ar(aOf(selA))}﴾`;
-  const ok=()=>toast("نُسخت الآية"),fail=()=>{const r=document.createRange();r.selectNodeContents($("shText"));const s=getSelection();s.removeAllRanges();s.addRange(r);toast("حدِّد النص وانسخه يدوياً")};
+  const ok=()=>toast("نُسخت الآية"),fail=()=>{
+    /* older web views without the async clipboard: copy through a hidden text box */
+    try{const ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;top:0;left:0;opacity:0;pointer-events:none";document.body.appendChild(ta);ta.select();const done=document.execCommand("copy");ta.remove();if(done){ok();return}}catch(e){}
+    if($("sheet").hidden){toast("تعذّر النسخ");return}const r=document.createRange();r.selectNodeContents($("shText"));const s=getSelection();s.removeAllRanges();s.addRange(r);toast("حدِّد النص وانسخه يدوياً")};
   try{navigator.clipboard.writeText(t).then(ok,fail)}catch(e){fail()}
 };
 $("aShare").onclick=()=>shareOpen(selA);
