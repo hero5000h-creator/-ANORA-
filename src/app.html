@@ -1393,7 +1393,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-cat .chk svg{width:14px;height:14px;stroke-width:2.4}
 .az-streak{text-align:center;color:rgba(234,230,220,.72);font-size:13.5px;margin:18px 0 0}
 /* one dhikr */
-.az-run{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center}
+.az-run{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;animation:fadeUp .4s var(--ease)}
 .az-run[hidden]{display:none}
 .az-dots{display:flex;gap:4px;width:100%;margin:4px 0 6px}
 .az-dots i{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.12);transition:background-color .4s}
@@ -3567,7 +3567,7 @@ async function sbRender(){
   sbBlob=b;if(sbUrl)URL.revokeObjectURL(sbUrl);sbUrl=URL.createObjectURL(b);im.onload=()=>im.classList.remove("busy");im.src=sbUrl;im.parentNode.classList.toggle("st",sbFmt==="st");
 }
 let sbTf=store.get("mushaf.sbtf")!=="0";
-function shareOpen(id){if(!id)return;sbId=id;const x=$("shareBox");x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));$("sbTf").setAttribute("aria-pressed",String(sbTf));
+function shareOpen(id){if(!id)return;sbId=id;const x=$("shareBox");x.hidden=false;void x.offsetWidth;x.classList.add("on");$("sbTf").setAttribute("aria-pressed",String(sbTf));
   if(sbTf&&!TF)tafsir().then(()=>{if(sbId===id)sbRender()},()=>{});sbRender()}
 $("sbTf").onclick=e=>{e.stopPropagation();sbTf=!sbTf;store.set("mushaf.sbtf",sbTf?"1":"0");$("sbTf").setAttribute("aria-pressed",String(sbTf));if(sbTf&&!TF)tafsir().then(sbRender,()=>{});sbRender()};
 function shareClose(){const x=$("shareBox");x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
@@ -3656,7 +3656,7 @@ function ceUI(){const L=ceList(),nm=CE.w==="hl"?hl.names():null,sk=CE.w==="hl"?"
   $("ceStr").innerHTML=(CE.w==="hl"?STR.hk:STR.mk).map((x,i)=>`<button class="sw" data-cs="${i+1}" aria-pressed="${s===i+1}">${x[0]}</button>`).join("");
   $("ceStrL").textContent=CE.w==="hl"?"قوة التظليل على الصفحة":"قوة العلامة على الصفحة";
   const c0=L[0].c;$("cePv").innerHTML=`<span class="${CE.w==="hl"?"pvh":"pvm"}" style="--c:${c0}">بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ</span>`}
-function ceOpen(w){CE.w=w||CE.w;CE.pick=-1;const x=$("colEd");x.hidden=false;ceUI();requestAnimationFrame(()=>x.classList.add("on"))}
+function ceOpen(w){CE.w=w||CE.w;CE.pick=-1;const x=$("colEd");x.hidden=false;ceUI();void x.offsetWidth;x.classList.add("on")}
 function ceClose(){const x=$("colEd");if(x.hidden)return;x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
 $("colEd").addEventListener("click",e=>{const t=e.target;if(t.id==="colEd"||t.closest("#ceX")){ceClose();return}
   const L=ceList(),b=t.closest("button");if(!b)return;
@@ -4164,7 +4164,7 @@ let simpleOn=store.get("mushaf.simple")==="1";root.classList.toggle("simple",sim
 $("bSimple").onclick=e=>{e.stopPropagation();simpleOn=!simpleOn;store.set("mushaf.simple",simpleOn?"1":"0");root.classList.toggle("simple",simpleOn);$("bSimple").setAttribute("aria-checked",String(simpleOn));toast(simpleOn?"الوضع البسيط مفعّل":"عادت كل الأدوات")};
 /* first run: one big question for people who need larger writing, instead of hunting through settings */
 function easyAsk(){if(store.get("mushaf.easyQ"))return;const x=$("easyBox");if(!x||!$("srcBox").hidden)return;
-  x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));setTimeout(()=>$("easyY").focus({preventScroll:true}),80)}
+  x.hidden=false;void x.offsetWidth;x.classList.add("on");setTimeout(()=>$("easyY").focus({preventScroll:true}),80)}
 function easyClose(){const x=$("easyBox");store.set("mushaf.easyQ","1");x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
 $("easyY").onclick=()=>{store.set("mushaf.uz","1.3");uzSet("1.3");if(!simpleOn)$("bSimple").click();easyClose();
   /* the Quran too: large-print reading */
@@ -4330,7 +4330,7 @@ function rpFill(){const row=([k,n])=>`<button type="button" class="rp-o" role="r
 const rpNorm=t=>t.replace(/[ًٌٍَُِّْـ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ى/g,"ي").replace(/ة/g,"ه").replace(/[ڤپ]/g,"ب").replace(/\s+/g,"");
 function rpFilter(){const q=rpNorm($("rpQ").value.trim());let n=0;$("rpL").querySelectorAll(".rp-o").forEach(o=>{const hit=!q||rpNorm(o.querySelector("b").textContent).includes(q);o.hidden=!hit;n+=hit});$("rpL").querySelectorAll(".rp-g").forEach(g=>g.hidden=!$("rpL").querySelector(`.rp-o[data-g="${g.dataset.g}"]:not([hidden])`));$("rpN").hidden=n>0}
 $("rpQ").addEventListener("input",rpFilter);
-function rpOpen(e){if(e)e.stopPropagation();const x=$("recPick");$("rpQ").value="";rpFill();rpFilter();x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"));
+function rpOpen(e){if(e)e.stopPropagation();const x=$("recPick");$("rpQ").value="";rpFill();rpFilter();x.hidden=false;void x.offsetWidth;x.classList.add("on");
   setTimeout(()=>{const c=x.querySelector('[aria-checked="true"]')||x.querySelector(".rp-o");if(c){c.scrollIntoView({block:"nearest"});c.focus({preventScroll:true,focusVisible:false})}},60)}
 function rpClose(){const x=$("recPick");if(x.hidden)return;x.classList.remove("on");setTimeout(()=>{if(!x.classList.contains("on"))x.hidden=true},reduce?0:240)}
 ["recSel","pRecSel"].forEach(id=>$(id).addEventListener("click",rpOpen));
@@ -4803,7 +4803,7 @@ function recentRender(){let L=jget("mushaf.recent",[]).filter(x=>x&&typeof x.p==
     b.onclick=()=>{closeIndex();setTimeout(()=>goTo(x.p),120)};return b}))}
 window.__t={sunDown:d=>sunDown(d),autoPaper:()=>autoPaper(),goTo:p=>goTo(p),openIndex:()=>openIndex()};
 function openIndex(){contHide();
-  indexOpen=true;recentRender();khOpen=false;$("scrim").hidden=false;requestAnimationFrame(()=>{$("scrim").classList.add("on");$("drawer").classList.add("on")});
+  indexOpen=true;recentRender();khOpen=false;$("scrim").hidden=false;void $("scrim").offsetWidth;requestAnimationFrame(()=>{$("scrim").classList.add("on");$("drawer").classList.add("on")});
   if(khMode==="g")gkStart();khCard();renderList(true);setTimeout(()=>pillTo(document.querySelector(".tabs")),30);setTimeout(()=>{const c=$("list").querySelector(".cur");c&&c.scrollIntoView({block:"center"})},60);
 }
 function closeIndex(){indexOpen=false;$("scrim").classList.remove("on");$("drawer").classList.remove("on");setTimeout(()=>{if(!indexOpen)$("scrim").hidden=true},300);$("bIndex").focus()}
@@ -5117,12 +5117,12 @@ function sInfoOpen(si){const S=SUR[si],a0=S[3],a1=si+1<SUR.length?SUR[si+1][3]-1
   $("siGrid").innerHTML=cell("نزولها",S[2]?"مكية":"مدنية")+cell("آياتها",ar(S[1]))+cell("ترتيبها",ar(si+1))+cell("صفحاتها",p0===p1?ar(p0):`${ar(p0)}–${ar(p1)}`)+cell(j0===j1?"الجزء":"الأجزاء",j0===j1?ar(j0):`${ar(j0)}–${ar(j1)}`)+cell("عدد صفحاتها",ar(p1-p0+1));
   $("siWhy").textContent=I[0];$("siTheme").textContent=I[1];
   $("siGo").onclick=()=>{sInfoClose();goTo(p0)};
-  const x=$("sInfo");x.hidden=false;requestAnimationFrame(()=>x.classList.add("on"))}
+  const x=$("sInfo");x.hidden=false;void x.offsetWidth;x.classList.add("on")}
 function sInfoClose(){const x=$("sInfo");if(x.hidden)return;x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
 $("where").addEventListener("click",()=>{showPrefs(false);sInfoOpen(sOf(pStart(cur)))});
 $("where").addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();$("where").click()}});
 $("siX").onclick=sInfoClose;
-function srcOpen(){showPrefs(false);const x=$("srcBox");x.hidden=false;x.querySelector(".si").scrollTop=0;requestAnimationFrame(()=>x.classList.add("on"));setTimeout(()=>$("srcX").focus({preventScroll:true,focusVisible:false}),60)}
+function srcOpen(){showPrefs(false);const x=$("srcBox");x.hidden=false;x.querySelector(".si").scrollTop=0;void x.offsetWidth;x.classList.add("on");setTimeout(()=>$("srcX").focus({preventScroll:true,focusVisible:false}),60)}
 function srcClose(){const x=$("srcBox");if(x.hidden)return;x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
 $("bSrc").onclick=srcOpen;$("prefsX").onclick=e=>{e.stopPropagation();showPrefs(false)};$("srcX").onclick=srcClose;$("srcBox").addEventListener("click",e=>{if(e.target.id==="srcBox")srcClose()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("srcBox").hidden){e.stopImmediatePropagation();srcClose()}},true);$("sInfo").addEventListener("click",e=>{if(e.target.id==="sInfo")sInfoClose()});
