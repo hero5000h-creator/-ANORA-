@@ -5511,9 +5511,36 @@ document.addEventListener("keydown",e=>{if(!$("guide").hidden&&e.key==="Escape")
    only when nothing is open does the app go to the background (the recitation keeps playing) */
 const backSig=()=>[azOpen,azCat,indexOpen,memo.on,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
   $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")&&(i!=="quiz"||e.classList.contains("on"))})].join();
-window.anoraBack=()=>{try{if(!$("repBox").hidden&&!$("repBox").classList.contains("out")){softHide($("repBox"));return true}
-  const a=backSig();document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true,cancelable:true}));if(backSig()!==a)return true;
-  if(memo.on){setMemo(false);return true}}catch(e){}return false};
+/* Android back, one step at a time:
+   1 a panel opened from another one (sources or the guide from settings, the quiz or a reflection from the index)
+     closes and the one it came from comes back
+   2 any other open layer closes (the app never leaves while something is open, even while that layer is still
+     animating closed)
+   3 on the bare page, the first press only says so; a second press within two seconds leaves the app */
+const backFrom={};let backQuitAt=0,backLast="";
+const backOpen=s=>s.split(",").some(x=>x==="true");
+const vis=id=>{const e=$(id);return !!e&&!e.hidden&&!e.classList.contains("out")&&!e.classList.contains("off")};
+/* remember where a sub-panel was opened from (capture phase: before the button's own handler closes the parent) */
+document.addEventListener("click",e=>{const t=e.target.closest&&e.target.closest("#bSrc,#bGuide,#qzOpen,#list [data-note]");if(!t)return;
+  if(t.id==="bSrc"&&vis("prefs"))backFrom.srcBox=()=>showPrefs(true);
+  else if(t.id==="bGuide"&&vis("prefs"))backFrom.guide=()=>showPrefs(true);
+  else if(t.id==="qzOpen"&&indexOpen)backFrom.quiz=()=>openIndex();
+  else if(t.dataset.note&&indexOpen)backFrom.sheet=()=>openIndex()},true);
+window.anoraBack=()=>{try{
+  for(const id in backFrom){const open=id==="quiz"||id==="sheet"?$(id).classList.contains("on"):vis(id);
+    if(!open){delete backFrom[id];continue}
+    const go=backFrom[id];delete backFrom[id];document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true,cancelable:true}));
+    setTimeout(()=>{try{go()}catch(e){}},reduce?0:260);backLast="";return true}
+  if(vis("repBox")){softHide($("repBox"));backLast="";return true}
+  const a=backSig();
+  if(backOpen(a)||memo.on){document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true,cancelable:true}));
+    if(backSig()!==a){backLast="";return true}
+    if(memo.on){setMemo(false);backLast="";return true}
+    /* a layer that Escape does not close: return once, and let a second press with nothing changed fall through */
+    if(backLast!==a){backLast=a;return true}}
+  backLast="";
+  if(Date.now()-backQuitAt<2000){backQuitAt=0;return false}
+  backQuitAt=Date.now();toast("اضغط رجوع مرة ثانية للخروج");return true}catch(e){}return false};
 root.dir="rtl";root.lang="ar";
 function start(){if(started)return;started=true;
   {const pp=store.get("mushaf.paper");setPaper(["light","sepia","night","black","sky","auto"].includes(pp)?pp:"light")}

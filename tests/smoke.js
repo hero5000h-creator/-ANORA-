@@ -65,8 +65,12 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("bIndex").click();await W(500);
         const a=window.anoraBack(),closed=!document.getElementById("drawer").classList.contains("on");await W(500);
         document.getElementById("bPrefs").click();await W(300);const b=window.anoraBack(),pc=document.getElementById("prefs").hidden;await W(500);
-        const c=window.anoraBack();return {a,closed,b,pc,c}});
-      ok(r.a&&r.closed&&r.b&&r.pc&&r.c===false,`${name}: back closes the index, then settings, then lets the app go (${JSON.stringify(r)})`)}
+        const c=window.anoraBack(),warn=document.getElementById("toast").textContent;const d=window.anoraBack();await W(2200);const e=window.anoraBack();
+        document.getElementById("app").classList.remove("calm");document.getElementById("bPrefs").click();await W(400);document.getElementById("bSrc").click();await W(600);
+        const f=window.anoraBack();await W(700);const src=!document.getElementById("srcBox").hidden,pr=!document.getElementById("prefs").hidden;window.anoraBack();await W(500);
+        return {a,closed,b,pc,c,warn,d,e,f,src,pr}});
+      ok(r.a&&r.closed&&r.b&&r.pc&&r.c===true&&/مرة ثانية/.test(r.warn)&&r.d===false&&r.e===true,`${name}: back closes the index, then settings; on the page it warns once and a second press leaves (${JSON.stringify(r)})`);
+      ok(r.f&&!r.src&&r.pr,`${name}: back from the sources returns to settings (${JSON.stringify(r)})`)}
     /* the search button drops a search panel (not the index); a word finds its ayat, and back closes it */
     {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("app").classList.remove("calm");const b=document.getElementById("bSrch");(b.offsetParent?b:document.getElementById("fSrch")).click();await W(400);
         const d=document.getElementById("sDrop"),open=!d.hidden,idx=document.getElementById("drawer").classList.contains("on"),q=document.getElementById("sq"),focus=document.activeElement===q;
@@ -74,8 +78,9 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       ok(r.open&&!r.idx&&r.focus&&r.n>=3&&r.back&&r.closed,`${name}: search drops its own panel with results, back closes it (${JSON.stringify(r)})`)}
     /* back closes the quiz instead of sending the app away */
     {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("bIndex").click();await W(500);document.getElementById("t-r").click();await W(300);
-        document.getElementById("qzOpen").click();await W(700);const open=document.getElementById("quiz").classList.contains("on");const back=window.anoraBack();await W(500);return {open,back,closed:document.getElementById("quiz").hidden}});
-      ok(r.open&&r.back&&r.closed,`${name}: back closes the quiz (${JSON.stringify(r)})`)}
+        document.getElementById("qzOpen").click();await W(700);const open=document.getElementById("quiz").classList.contains("on");const back=window.anoraBack();await W(600);
+        const idx=document.getElementById("drawer").classList.contains("on");window.anoraBack();await W(500);return {open,back,closed:document.getElementById("quiz").hidden,idx,idxClosed:!document.getElementById("drawer").classList.contains("on")}});
+      ok(r.open&&r.back&&r.closed&&r.idx&&r.idxClosed,`${name}: back closes the quiz and returns to the index it came from (${JSON.stringify(r)})`)}
     /* home-screen widgets: the page sends what they show, and a tap on one opens the screen it names */
     {const w=await p.evaluate(()=>window.__wg||null);
       ok(w&&w.page>=1&&w.sur&&w.cats&&w.cats.sab&&w.cats.sab.of>0&&w.cats.sab.f0&&w.cats.sab.f0.t&&Array.isArray(w.pt)&&typeof w.ptc==="string"&&w.free.length,`${name}: widget data sent (page ${w&&w.page}, ${w&&w.sur}, ${w&&w.cats&&w.cats.sab&&w.cats.sab.of} morning adhkar)`);
