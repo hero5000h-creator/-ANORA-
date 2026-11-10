@@ -253,11 +253,11 @@ html.phoneM #bookwrap::after{display:none}
 .edge{background:repeating-linear-gradient(90deg,var(--paper) 0 1px,var(--paper-edge) 1px 1.6px,var(--paper) 1.6px 2.4px)}
 /* the block of leaves on each side shows how much of the mushaf lies before and after: shaded toward the outside,
    a touch shorter than the page, and it grows or shrinks softly as you read */
-.edge{top:3px;bottom:3px;transition:width .6s var(--ease)}
+.edge{top:3px;bottom:3px}
 .edge.l{border-radius:3px 0 0 3px;background:linear-gradient(90deg,rgba(0,0,0,.16),rgba(0,0,0,.03) 45%,rgba(0,0,0,0) 80%,rgba(0,0,0,.08)),repeating-linear-gradient(90deg,var(--paper) 0 1px,var(--paper-edge) 1px 1.6px,var(--paper) 1.6px 2.4px)}
 .edge.r{border-radius:0 3px 3px 0;background:linear-gradient(270deg,rgba(0,0,0,.16),rgba(0,0,0,.03) 45%,rgba(0,0,0,0) 80%,rgba(0,0,0,.08)),repeating-linear-gradient(90deg,var(--paper) 0 1px,var(--paper-edge) 1px 1.6px,var(--paper) 1.6px 2.4px)}
 .edge::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.25),inset 0 -1px 0 rgba(0,0,0,.08)}
-#bookwrap::after{left:calc(-6px - var(--el,5px));right:calc(-6px - var(--er,5px));transition:left .6s var(--ease),right .6s var(--ease),background-color .4s}
+#bookwrap::after{left:calc(-6px - var(--el,5px));right:calc(-6px - var(--er,5px));transition:background-color .4s}
 /* hizb, quarter and sajda medallions in the outer margin, as the Madinah print sets them */
 .hm{position:absolute;z-index:2;display:grid;place-items:center;pointer-events:none;width:calc(var(--pw) * .088);height:calc(var(--pw) * .088);transform:translateY(-50%);
   background:var(--o-hizb) center/contain no-repeat;font-family:var(--f-display);font-weight:700;color:var(--orn);font-size:calc(var(--pw) * .03 * var(--tk,1));line-height:1;padding-top:.1em;box-sizing:border-box;font-variant-numeric:tabular-nums}
@@ -296,7 +296,9 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
 #range:active::-webkit-slider-thumb{transform:scale(1.3)}#range:active::-moz-range-thumb{transform:scale(1.3)}
 #range:focus-visible{outline:none}#range:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px color-mix(in srgb,var(--orn) 35%,transparent)}
 .trk{position:absolute;left:10px;right:10px;top:50%;height:4px;margin-top:-2px;border-radius:2px;background:var(--line);z-index:1;pointer-events:none}
-.trk>i{position:absolute;right:0;top:0;bottom:0;width:0;border-radius:2px;background:color-mix(in srgb,var(--orn) 50%,transparent);transition:width .45s var(--ease)}
+.trk>i{position:absolute;right:0;top:0;bottom:0;width:100%;border-radius:2px;background:color-mix(in srgb,var(--orn) 50%,transparent);transform:scaleX(0);transform-origin:right;transition:transform .45s var(--ease)}
+/* while the finger drags the slider the fill stays under the thumb instead of trailing behind it */
+.trk.drag>i{transition:none}
 .trk>b{position:absolute;top:-3px;width:1.5px;height:10px;margin-left:-.75px;border-radius:1px;background:var(--rule)}
 .trk>b.cj{background:var(--orn);height:12px;top:-4px}
 #bubble{position:absolute;bottom:40px;transform:translateX(-50%);background:var(--bar-ink);color:var(--bar);padding:7px 14px 8px;border-radius:12px;white-space:nowrap;pointer-events:none;text-align:center;box-shadow:0 8px 22px -8px var(--shadow);animation:bubIn .18s var(--ease);z-index:3}
@@ -350,7 +352,7 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
 .qtag{justify-self:center;font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
 .sub .rn q{font-size:17px}
 .empty{padding:30px 16px;text-align:center;color:var(--muted)}
-.row.srapx{justify-content:center;text-align:center}.row.srapx b{color:var(--orn)}
+.row.srapx{grid-template-columns:1fr;justify-items:center;text-align:center}.row.srapx b{color:var(--orn)}
 .dnote{padding:8px 18px 12px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line)}
 
 #loading{position:fixed;inset:0;z-index:80;display:grid;place-items:center;background:var(--desk);background-image:radial-gradient(90% 70% at 50% 45%,color-mix(in srgb,var(--desk) 40%,var(--paper)),var(--desk));transition:opacity .55s var(--ease),transform .55s var(--ease)}
@@ -848,7 +850,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #app.full .edge,#app.full #bookwrap::before{display:none}
 /* where you are in the mushaf: a hairline along the bottom edge, filling from the right like the pages */
 #rProg{position:absolute;z-index:6;left:0;right:0;bottom:0;height:2px;pointer-events:none;background:color-mix(in srgb,var(--line) 60%,transparent);opacity:.9;transition:opacity .4s}
-#rProg i{position:absolute;right:0;top:0;bottom:0;width:var(--rp,0%);background:color-mix(in srgb,var(--gold) 75%,transparent);border-radius:2px 0 0 2px;transition:width .6s var(--ease)}
+#rProg i{position:absolute;right:0;top:0;bottom:0;width:100%;background:color-mix(in srgb,var(--gold) 75%,transparent);transform:scaleX(var(--rp,0));transform-origin:right;transition:transform .6s var(--ease)}
 #app:not(.full) #rProg,#app.memo #rProg,html.study #rProg{display:none}
 /* floating bars slide fully off the page and back, with a soft shadow so they read as above it */
 #app.ovl>.bar{box-shadow:0 8px 20px -14px var(--shadow)}
@@ -873,7 +875,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #app.ovl.calm #autoBar #atPlay{width:34px;height:34px}
 #app.toasting #azNudge,#app:has(.foot.playing) #azNudge{opacity:0;pointer-events:none}
 /* where you are in the juz: a hairline under the top bar */
-#jprog{position:absolute;right:0;bottom:-1px;height:2px;width:0;background:var(--orn);opacity:.55;border-radius:2px 0 0 2px;transition:width .6s var(--ease)}
+#jprog{position:absolute;right:0;bottom:-1px;height:2px;width:100%;background:var(--orn);opacity:.55;transform:scaleX(0);transform-origin:right;transition:transform .6s var(--ease)}
 /* the pressed ayah fills in under the finger before its panel opens */
 .hlb.press{background:var(--mark);transform-origin:right center;animation:hlPress .34s linear both}
 /* press feedback on every control */
@@ -889,7 +891,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #shTafsir.in,#gArt.in,#gT.in,#gP.in{animation:fadeUp .3s var(--ease) both}
 #gT.in{animation-delay:.04s}#gP.in{animation-delay:.08s}
 .list.anim>*{animation:rise .34s var(--ease) both}
-.list.anim>:nth-child(1){animation-delay:0ms}.list.anim>:nth-child(2){animation-delay:22ms}.list.anim>:nth-child(3){animation-delay:44ms}.list.anim>:nth-child(4){animation-delay:66ms}.list.anim>:nth-child(5){animation-delay:88ms}.list.anim>:nth-child(6){animation-delay:110ms}.list.anim>:nth-child(7){animation-delay:132ms}.list.anim>:nth-child(8){animation-delay:154ms}.list.anim>:nth-child(9){animation-delay:176ms}.list.anim>:nth-child(10){animation-delay:198ms}.list.anim>:nth-child(11){animation-delay:220ms}.list.anim>:nth-child(12){animation-delay:242ms}.list.anim>:nth-child(13){animation-delay:264ms}.list.anim>:nth-child(14){animation-delay:286ms}
+.list.anim>:nth-child(1){animation-delay:0ms}.list.anim>:nth-child(2){animation-delay:22ms}.list.anim>:nth-child(3){animation-delay:44ms}.list.anim>:nth-child(4){animation-delay:66ms}.list.anim>:nth-child(5){animation-delay:88ms}.list.anim>:nth-child(6){animation-delay:110ms}.list.anim>:nth-child(7){animation-delay:132ms}.list.anim>:nth-child(8){animation-delay:154ms}.list.anim>:nth-child(9){animation-delay:176ms}.list.anim>:nth-child(10){animation-delay:198ms}.list.anim>:nth-child(11){animation-delay:220ms}.list.anim>:nth-child(12){animation-delay:242ms}.list.anim>:nth-child(13){animation-delay:264ms}.list.anim>:nth-child(14){animation-delay:286ms}.list.anim>:nth-child(n+15){animation-delay:308ms}.list.anim>:nth-child(n+25){animation:none}
 /* tab groups: a pill slides under the chosen tab */
 .tabs{position:relative}.shtabs{position:sticky}
 .shtabs button,.tabs button{position:relative;z-index:1}
@@ -1011,7 +1013,7 @@ html.thumb #fPrefs[aria-expanded="true"]{background:var(--orn);color:var(--bar)}
 #kh.bump>:nth-child(2){animation-delay:.04s}#kh.bump>:nth-child(3){animation-delay:.08s}#kh.bump>:nth-child(4){animation-delay:.12s}#kh.bump>:nth-child(5){animation-delay:.16s}
 .kh-bar i{transition:width .7s var(--ease)}
 /* memorisation: a revealed word fades in like ink, not a blink */
-#app.memo #book .lb [data-a]{transition:color .35s ease,background-size .3s ease}
+#app.memo #book .lb [data-a]:not(.hid){transition:color .35s ease,background-size .3s ease}
 /* quiz: each question rises in, a right answer glows, a wrong one shakes once */
 .qz-p,.qz-q{animation:fadeUp .35s var(--ease) both}
 .qz-o button{animation:rise .36s var(--ease) both}
@@ -1712,6 +1714,7 @@ html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var
 .note textarea[readonly]{cursor:text}
 /* round 19 (phones 6.2–6.9" and Fold 6–8): settings leave as softly as they came, on the cover screen and on the open Fold */
 #prefs.pOut{animation:menuOut .18s cubic-bezier(.5,0,.75,.4) forwards!important;pointer-events:none}
+#prefs.pOut *{animation:none!important;transition:none!important}
 html.thumb body #prefs.pOut{animation:dockOut .22s cubic-bezier(.5,0,.75,.4) forwards!important}
 @keyframes menuOut{to{opacity:0;transform:translateY(-6px) scale(.97)}}
 @keyframes dockOut{to{opacity:0;transform:translateX(-30px)}}
@@ -1724,6 +1727,35 @@ html.thumb body #prefs.pOut{animation:dockOut .22s cubic-bezier(.5,0,.75,.4) for
    1 no two texts are ever seen through each other: a change of layout dips through the paper instead of a crossfade
    2 side panels slide in whole from their edge, solid from the first frame, never fading over the Quran text
    3 one thing moves at a time: the bars come back only after a panel has gone */
+/* search: a panel that drops from under the top bar, its results rising in one after another */
+#sDrop{position:fixed;inset:0;z-index:57;display:flex;flex-direction:column;align-items:center;padding:var(--sdT,64px) 10px 10px;box-sizing:border-box;background:var(--scrim);animation:sdFade .22s var(--ease)}
+#sDrop[hidden]{display:none}
+.sdP{width:min(560px,calc((100vw - 20px) / var(--sdZ,1)));max-height:calc((100dvh - var(--sdT,64px) - 12px) / var(--sdZ,1));zoom:var(--sdZ,1);display:flex;flex-direction:column;background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 50px -18px var(--shadow);overflow:hidden;transform-origin:50% 0;animation:sdIn .3s var(--ease)}
+.sdIn{position:relative;display:flex;align-items:center;gap:4px;padding:10px 10px 8px}
+.sdIn>svg{position:absolute;right:22px;top:21px;width:20px;height:20px;fill:none;stroke:var(--muted);stroke-width:1.8;stroke-linecap:round;pointer-events:none}
+.sdIn input{flex:1;min-width:0;height:44px;box-sizing:border-box;border-radius:14px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:0 40px 0 12px;font:inherit;font-size:16px;transition:border-color .2s,box-shadow .2s}
+.sdIn input:focus{outline:none;border-color:color-mix(in srgb,var(--orn) 55%,var(--line));box-shadow:0 0 0 3px color-mix(in srgb,var(--orn) 16%,transparent)}
+.sdIn input::-webkit-search-cancel-button{display:none}
+.sdIn .ib{flex:none;width:44px;height:44px}.sdIn .ib svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.sres{flex:1 1 auto;min-height:0;padding:2px 8px 10px;border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
+.sres:empty{display:none}
+.sres .grp{background:var(--bar)}
+.sres.anim>*{animation:sdRow .3s var(--ease) both;animation-delay:calc(min(var(--i,0),10) * 26ms)}
+.sres.anim>:nth-child(n+16){animation:none}
+.sdTips{display:grid;gap:10px;padding:12px 6px 6px}
+.sdTips small{color:var(--muted);font-size:12.5px}
+.sdChips{display:flex;flex-wrap:wrap;gap:8px}
+.sdChips button{height:36px;padding:0 14px;border-radius:18px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;transition:transform .16s var(--ease),background-color .2s}
+.sdChips button:active{transform:scale(.95)}
+.sdChips button.rc::before{content:"↺";margin-inline-end:6px;color:var(--muted)}
+#sDrop.out{animation:sdFadeO .2s cubic-bezier(.4,0,1,1) forwards;pointer-events:none}
+#sDrop.out .sdP{animation:sdOut .2s cubic-bezier(.4,0,1,1) forwards}
+@keyframes sdFade{from{opacity:0}}@keyframes sdFadeO{to{opacity:0}}
+@keyframes sdIn{from{opacity:0;transform:translateY(-14px) scale(.97)}}
+@keyframes sdOut{to{opacity:0;transform:translateY(-10px) scale(.98)}}
+@keyframes sdRow{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){#sDrop,#sDrop .sdP,.sres.anim>*{animation:none!important}}
+html.vtN *:not(.dnb svg),html.vtN *::before,html.vtN *::after{transition:none!important}
 html.vtL::view-transition{background:var(--desk)}
 html.vtL::view-transition-old(root){animation:vtO .16s cubic-bezier(.4,0,1,1) both;mix-blend-mode:normal}
 html.vtL::view-transition-new(root){animation:vtI .32s cubic-bezier(.2,.8,.2,1) .12s both;mix-blend-mode:normal}
@@ -1879,6 +1911,9 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
     </div>
   </footer>
 </div>
+<div id="sDrop" hidden role="dialog" aria-modal="true" aria-label="البحث في المصحف" dir="rtl"><div class="sdP">
+  <div class="sdIn"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="sq" type="search" enterkeyhint="search" placeholder="سورة، جزء، صفحة، أو كلمة من القرآن" autocomplete="off" aria-label="ابحث"><button id="sdX" class="ib" aria-label="إغلاق البحث"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div id="sres" class="list sres"></div></div></div>
 <div id="scrim" hidden></div><div id="warm" aria-hidden="true"></div>
 <aside id="drawer" role="dialog" aria-modal="true" aria-label="فهرس المصحف" dir="rtl">
   <div class="dh"><h2>الفهرس</h2><button class="ib" id="bClose" aria-label="إغلاق الفهرس"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
@@ -2772,7 +2807,7 @@ function fitGuard(again){if(!again)fitGuard.n=0;clearTimeout(fitGuard.t);fitGuar
 },450)}
 window.__fitGuard=fitGuard;addEventListener("resize",()=>fitGuard());
 function ui(){fitGuard();
-  renderDeck();renderFlow();$("rProg").style.setProperty("--rp",(Math.min(NP,mode==="spread"?cur+1:cur)/NP*100).toFixed(2)+"%");
+  renderDeck();renderFlow();$("rProg").style.setProperty("--rp",(Math.min(NP,mode==="spread"?cur+1:cur)/NP).toFixed(4));
   const id=pStart(cur), q=qOf(id), s=SUR[sOf(id)];
   {const ws=$("wSurah"),s2=mode==="spread"&&cur<NP?SUR[sOf((cur+2<=NP?pStart(cur+2):NA+1)-1)]:s,nt="سورة "+s[0]+(s2!==s?" · "+s2[0]:"");if(ws.textContent!==nt&&ws.textContent){ws.textContent=nt;bump(ws.parentNode)}else ws.textContent=nt
     /* a narrow phone with the search button in the row: drop the word "سورة" before a long name rather than cut the name */
@@ -2781,7 +2816,7 @@ function ui(){fitGuard();
   const wm=$("wMeta");wm.textContent=`الجزء ${ar(jOf(id))} · الحزب ${ar((q>>2)+1)} · ${pages}`;
   /* on a narrow screen the page number already shows in the footer */
   if(wm.scrollWidth>wm.clientWidth+1){wm.textContent=`الجزء ${ar(jOf(id))} · ${pages}`;if(wm.scrollWidth>wm.clientWidth+1)wm.textContent=mode==="spread"?pages:`الجزء ${ar(jOf(id))}`}
-  {const j=jOf(id),a=pOf(JUZ[j-1]),b=j<30?pOf(JUZ[j])-1:NP,last=mode==="spread"?Math.min(cur+1,NP):cur;$("jprog").style.width=(Math.max(.04,Math.min(1,(last-a+1)/(b-a+1)))*100).toFixed(1)+"%"}
+  {const j=jOf(id),a=pOf(JUZ[j-1]),b=j<30?pOf(JUZ[j])-1:NP,last=mode==="spread"?Math.min(cur+1,NP):cur;$("jprog").style.transform="scaleX("+Math.max(.04,Math.min(1,(last-a+1)/(b-a+1))).toFixed(3)+")"}
   $("range").value=cur;trkFill(cur);bump($("pnum"));$("pnum").innerHTML=`<b>${mode==="spread"&&cur<NP?ar(cur)+"–"+ar(cur+1):ar(cur)}</b><small>من ${ar(NP)}</small>`;
   khTrack();
   const bm=+store.get("mushaf.bookmark");
@@ -2819,7 +2854,10 @@ function renderFlow(){
 function vt(fn,lay){if(reduce||!document.startViewTransition)return fn();
   /* a change of layout (flow, study, one/two pages) dips through the paper: the old page is gone before the new one comes */
   if(lay)root.classList.add("vtL");
-  try{const t=document.startViewTransition(fn);if(lay)t.finished.finally(()=>root.classList.remove("vtL"))}catch(e){root.classList.remove("vtL");fn()}}
+  /* the cross-fade already carries the change: the buttons' own colour transitions (about 180 of them at a paper or
+     night switch) would keep changing inside the new picture after the fade, so the screen settled in two steps */
+  root.classList.add("vtN");const done=()=>root.classList.remove("vtL","vtN");
+  try{const t=document.startViewTransition(fn);t.finished.finally(done)}catch(e){done();fn()}}
 function setFlow(on){flowOn=on;store.set("mushaf.flow",on?"1":"0");flowShown=false;renderFlow();if(!on)layoutIdle()}
 function flowPage(step){
   const n=mode==="spread"?2:1,t=cur+step*n;
@@ -2851,13 +2889,13 @@ range.addEventListener("input",()=>{
   const p=+range.value,id=pStart(p);bubble.hidden=false;
   bubble.innerHTML=`<b>سورة ${SUR[sOf(id)][0]}</b><small>الجزء ${ar(jOf(id))} · صفحة ${ar(p)}</small>`;
   const r=range.getBoundingClientRect(),x=10+(r.width-20)*(1-(p-1)/(NP-1)),bw=bubble.offsetWidth/2+4;
-  bubble.style.left=Math.max(bw,Math.min(r.width-bw,x))+"px";trkFill(p);
+  bubble.style.left=Math.max(bw,Math.min(r.width-bw,x))+"px";$("trk").classList.add("drag");trkFill(p);
 });
-range.addEventListener("change",()=>{bubble.hidden=true;goTo(+range.value)});
-range.addEventListener("pointerup",()=>setTimeout(()=>{bubble.hidden=true},150));
+range.addEventListener("change",()=>{bubble.hidden=true;$("trk").classList.remove("drag");goTo(+range.value)});
+range.addEventListener("pointerup",()=>setTimeout(()=>{bubble.hidden=true;$("trk").classList.remove("drag")},150));
 /* the track: a fill up to the current page and a small mark where each juz begins */
 {const t=$("trk");for(let j=2;j<=30;j++){const b=document.createElement("b");b.dataset.j=j;b.style.left=((1-(pOf(JUZ[j-1])-1)/(NP-1))*100).toFixed(2)+"%";t.append(b)}}
-function trkFill(p){$("trkF").style.width=((p-1)/(NP-1)*100).toFixed(2)+"%";const j=jOf(pStart(p));$("trk").querySelectorAll("b").forEach(b=>b.classList.toggle("cj",+b.dataset.j===j||+b.dataset.j===j+1))}
+function trkFill(p){$("trkF").style.transform="scaleX("+((p-1)/(NP-1)).toFixed(4)+")";const j=jOf(pStart(p));$("trk").querySelectorAll("b").forEach(b=>b.classList.toggle("cj",+b.dataset.j===j||+b.dataset.j===j+1))}
 $("bBook").onclick=()=>{showPrefs(false);const bm=bmNow(),on=shown(bm);store.set("mushaf.bookmark",on?"":String(cur));toast(on?"رُفعت العلامة":`وُضعت العلامة على صفحة ${ar(cur)}`);ui();if(indexOpen)renderList()};
 /* reading settings: paper colour, Quran font, full screen */
 const root=document.documentElement;
@@ -4700,7 +4738,33 @@ function openIndex(){contHide();
 function closeIndex(){indexOpen=false;$("scrim").classList.remove("on");$("drawer").classList.remove("on");setTimeout(()=>{if(!indexOpen)$("scrim").hidden=true},300);$("bIndex").focus()}
 $("bIndex").onclick=openIndex;
 /* the search button opens the index with the cursor in its search box (surah, juz, page or any word of the Quran) */
-function openSearch(){showPrefs(false);openIndex();setTimeout(()=>{const q=$("q");q.focus();q.select()},320)}
+/* the search button drops a search panel from under the top bar (surah, juz, page or any word of the Quran);
+   the index keeps its own search box */
+let sdOpen=false,sdT;const sdRec={get(){try{const v=JSON.parse(store.get("mushaf.srecent")||"[]");return Array.isArray(v)?v.filter(x=>typeof x==="string").slice(0,5):[]}catch(e){return []}},
+  add(q){q=q.trim();if(q.length<2)return;store.set("mushaf.srecent",JSON.stringify([q,...this.get().filter(x=>x!==q)].slice(0,5)))}};
+function sdTips(){const r=sdRec.get(),c=a=>a.map(x=>`<button data-sq="${escH(x)}"${r.includes(x)?' class="rc"':""}>${escH(x)}</button>`).join("");
+  return `<div class="sdTips">${r.length?`<small>آخر ما بحثت عنه</small><div class="sdChips">${c(r)}</div>`:""}<small>جرّب</small><div class="sdChips">${c(["الكهف","الجزء ٣٠","صفحة ٢٥٥","الصبر","ربنا آتنا"].filter(x=>!r.includes(x)))}</div></div>`}
+function sdRender(){const raw=$("sq").value.trim(),L=$("sres");
+  L.innerHTML=raw?findHTML(raw):sdTips();
+  [...L.children].forEach((e,i)=>e.style.setProperty("--i",i));
+  if(!reduce){L.classList.remove("anim");void L.offsetWidth;L.classList.add("anim")}L.scrollTop=0}
+function openSearch(){showPrefs(false);if(indexOpen)closeIndex();try{contHide();azNudgeHide()}catch(e){}
+  const d=$("sDrop"),bar=document.querySelector("#app>.bar"),br=bar&&bar.getBoundingClientRect(),z=root.classList.contains("uzL")?+getComputedStyle(root).getPropertyValue("--uz")||1:1;
+  const top=br&&br.bottom>8&&getComputedStyle(bar).opacity>.5?br.bottom+8:Math.max(12,(parseFloat(getComputedStyle(root).getPropertyValue("--cutT"))||0)+12);
+  d.style.setProperty("--sdT",Math.round(top)+"px");d.style.setProperty("--sdZ",z);
+  clearTimeout(sdT);d.classList.remove("out");d.hidden=false;sdOpen=true;sdRender();setTimeout(wIndex,60);
+  const q=$("sq");q.focus({preventScroll:true});q.select()}
+function closeSearch(){if(!sdOpen)return;sdOpen=false;const d=$("sDrop"),q=$("sq");sdRec.add(q.value);q.blur();
+  if(reduce){d.hidden=true;return}d.classList.add("out");clearTimeout(sdT);sdT=setTimeout(()=>{if(!sdOpen){d.hidden=true;d.classList.remove("out")}},220)}
+{let t;$("sq").addEventListener("input",()=>{clearTimeout(t);t=setTimeout(sdRender,160)})}
+$("sq").addEventListener("keydown",e=>{if(e.key==="Enter"){const r=$("sres").querySelector("[data-p]");r&&r.click()}});
+$("sdX").onclick=closeSearch;
+$("sDrop").addEventListener("click",e=>{if(e.target.id==="sDrop"){closeSearch();return}
+  const c=e.target.closest("[data-sq]");if(c){$("sq").value=c.dataset.sq;sdRender();$("sq").focus({preventScroll:true});return}
+  if(e.target.closest("#srApx")){srApx=true;const L=$("sres"),sc=L.scrollTop;L.innerHTML=findHTML($("sq").value.trim());L.scrollTop=sc;return}
+  const b=e.target.closest("[data-p]");if(!b)return;const a=+b.dataset.a||0,p=+b.dataset.p;closeSearch();
+  setTimeout(()=>{goTo(p);if(a){selA=a;paintHL();setTimeout(()=>{if(selA===a&&$("sheet").hidden){selA=0;paintHL()}},2600)}},reduce?0:200)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sdOpen){e.stopImmediatePropagation();closeSearch()}},true);
 $("bSrch").onclick=e=>{e.stopPropagation();openSearch()};$("fSrch").onclick=e=>{e.stopPropagation();openSearch()};$("fIndex").onclick=openIndex;$("fPrefs").onclick=e=>{e.stopPropagation();showPrefs($("prefs").hidden)};$("bClose").onclick=closeIndex;$("scrim").onclick=closeIndex;
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
   tab=b.dataset.t;document.querySelectorAll(".tabs button").forEach(x=>x.setAttribute("aria-selected",String(x===b)));
@@ -5440,7 +5504,7 @@ document.addEventListener("keydown",e=>{if(!$("guide").hidden&&e.key==="Escape")
 /* Android back button (MainActivity asks this first): it closes whatever is open, one layer at a time, exactly like Escape;
    only when nothing is open does the app go to the background (the recitation keeps playing) */
 const backSig=()=>[azOpen,azCat,indexOpen,memo.on,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
-  $("lpBar").classList.contains("on"),...["prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")})].join();
+  $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")})].join();
 window.anoraBack=()=>{try{if(!$("repBox").hidden&&!$("repBox").classList.contains("out")){softHide($("repBox"));return true}
   const a=backSig();document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true,cancelable:true}));if(backSig()!==a)return true;
   if(memo.on){setMemo(false);return true}}catch(e){}return false};
