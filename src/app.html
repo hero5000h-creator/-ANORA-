@@ -1744,12 +1744,14 @@ html.thumb body #prefs.pOut{animation:dockOut .22s cubic-bezier(.5,0,.75,.4) for
 .sres .grp{background:var(--bar)}
 .sres.anim>*{animation:sdRow .3s var(--ease) both;animation-delay:calc(min(var(--i,0),10) * 26ms)}
 .sres.anim>:nth-child(n+16){animation:none}
-.sdTips{display:grid;gap:10px;padding:12px 6px 6px}
-.sdTips small{color:var(--muted);font-size:12.5px}
+.sdTips{display:grid;gap:8px;padding:12px 6px 8px}
+.sdTips small+.sdChips{margin-bottom:6px}
+.sdTips small{color:var(--muted);font-size:12.5px;font-weight:600}
 .sdChips{display:flex;flex-wrap:wrap;gap:8px}
-.sdChips button{height:36px;padding:0 14px;border-radius:18px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;transition:transform .16s var(--ease),background-color .2s}
+.sdChips button{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;height:38px;padding:0 14px;border-radius:18px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;font-size:14px;transition:transform .16s var(--ease),background-color .2s}
 .sdChips button:active{transform:scale(.95)}
-.sdChips button.rc::before{content:"↺";margin-inline-end:6px;color:var(--muted)}
+/* a small clock before each recent search, on the same line as the word */
+.sdChips button.rc::before{content:"";flex:none;width:14px;height:14px;background:var(--muted);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.5V12l3 2'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='8.5'/%3E%3Cpath d='M12 7.5V12l3 2'/%3E%3C/svg%3E") center/contain no-repeat}
 #sDrop.out{animation:sdFadeO .2s cubic-bezier(.4,0,1,1) forwards;pointer-events:none}
 #sDrop.out .sdP{animation:sdOut .2s cubic-bezier(.4,0,1,1) forwards}
 @keyframes sdFade{from{opacity:0}}@keyframes sdFadeO{to{opacity:0}}
