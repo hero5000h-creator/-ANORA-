@@ -2077,7 +2077,9 @@ const splT=performance.now();
 {let pp=store.get("mushaf.paper");if(pp==="auto"){const n=store.get("mushaf.nightP");pp=matchMedia("(prefers-color-scheme: dark)").matches||sunDown()?(["night","black","sky"].includes(n)?n:"night"):(store.get("mushaf.dayP")==="sepia"?"sepia":"light")}if(["light","sepia","night","black","sky"].includes(pp)){const d=document.documentElement;d.dataset.paper=pp;d.dataset.theme=pp==="night"||pp==="black"||pp==="sky"?"dark":"light"}
   const cc=store.get("mushaf.cover");if(["green","navy","maroon","brown","black"].includes(cc))document.documentElement.dataset.cover=cc;
   /* page look: plain page and light letters unless the reader chose the frame or a thicker stroke */
-  const fr=store.get("mushaf.frame"),wt=store.get("mushaf.wt");if(fr==="1")document.documentElement.dataset.frame="1";if(wt==="1"||wt==="2")document.documentElement.dataset.wt=wt}
+  const fr=store.get("mushaf.frame"),wt=store.get("mushaf.wt");if(fr==="1")document.documentElement.dataset.frame="1";if(wt==="1"||wt==="2")document.documentElement.dataset.wt=wt;
+  /* big-text readers (interface text large) start with the medium stroke: thin letters are harder on tired eyes */
+  else if(wt===null&&+store.get("mushaf.uz")>=1.15)document.documentElement.dataset.wt="1"}
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const $=id=>document.getElementById(id);
@@ -2773,7 +2775,7 @@ function ui(){fitGuard();
   const id=pStart(cur), q=qOf(id), s=SUR[sOf(id)];
   {const ws=$("wSurah"),s2=mode==="spread"&&cur<NP?SUR[sOf((cur+2<=NP?pStart(cur+2):NA+1)-1)]:s,nt="سورة "+s[0]+(s2!==s?" · "+s2[0]:"");if(ws.textContent!==nt&&ws.textContent){ws.textContent=nt;bump(ws.parentNode)}else ws.textContent=nt
     /* a narrow phone with the search button in the row: drop the word "سورة" before a long name rather than cut the name */
-    const wb=ws.parentNode;if(wb.scrollWidth>wb.clientWidth+1&&s2===s)ws.textContent=s[0]}
+    const wb=ws.parentNode;if(wb.scrollWidth>wb.clientWidth&&s2===s)ws.textContent=s[0]}
   const pages=mode==="spread"?`الصفحتان ${ar(cur)}–${ar(Math.min(cur+1,NP))}`:`صفحة ${ar(cur)}`;
   const wm=$("wMeta");wm.textContent=`الجزء ${ar(jOf(id))} · الحزب ${ar((q>>2)+1)} · ${pages}`;
   /* on a narrow screen the page number already shows in the footer */
@@ -4068,6 +4070,7 @@ function nextPlay(){const id=player.id;
 const ayahDur=id=>Math.max(2600,txt(id).length*85);
 /* ---------- text size and simple mode ---------- */
 function uzSet(v){v=["1","1.15","1.3"].includes(v)?v:"1";root.style.setProperty("--uz",v);root.classList.toggle("uzL",v!=="1");
+  if(store.get("mushaf.wt")===null&&(root.dataset.wt||"0")!==(v==="1"?"0":"1")){setLook("wt",v==="1"?"0":"1",false);if(typeof rasterDirty==="function")rasterDirty()}
   document.querySelectorAll("#uzSeg [data-uz]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.uz===v)))}
 uzSet(store.get("mushaf.uz")||"1");
 $("uzSeg").addEventListener("click",e=>{const b=e.target.closest("[data-uz]");if(!b)return;e.stopPropagation();store.set("mushaf.uz",b.dataset.uz);uzSet(b.dataset.uz);setTimeout(resize,50)});
