@@ -262,6 +262,10 @@ html.phoneM #bookwrap::after{display:none}
 .pg .frame{z-index:1}
 /* plain page: flat paper in one clean colour like the reference app, no grain, fibres or aged edges */
 :root:not([data-frame="1"]) .pg::before,:root:not([data-frame="1"]) .pg::after{display:none}
+/* gilded ayah numbers (setting أرقام الآيات): the ring of the end-of-ayah sign is filled with soft gold, as in many printed mushafs */
+:root{--anf:color-mix(in srgb,#e2c486 48%,var(--paper));--anc:#7a5a2c}
+:root[data-theme="dark"],:root[data-paper="sky"]{--anf:color-mix(in srgb,#c9a565 26%,var(--paper));--anc:#d8bd85}
+:root[data-an="1"] .pg .lb>span[data-a]:not([data-w]):not(.sp){color:var(--anc);background:radial-gradient(circle closest-side at 50% 54%,var(--anf) 0 80%,transparent 84%)}
 .pg .gut{width:13%}
 .pg[data-side="r"] .gut{background:linear-gradient(90deg,color-mix(in srgb,var(--gut) 260%,transparent) 0,var(--gut) 22%,transparent 70%)}
 .pg[data-side="l"] .gut{background:linear-gradient(270deg,color-mix(in srgb,var(--gut) 260%,transparent) 0,var(--gut) 22%,transparent 70%)}
@@ -1834,6 +1838,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
         <button class="sw" data-paper="sky"><i class="sk">بسم</i>سماء</button><button class="sw" data-paper="auto"><i class="au"><b style="background:#fef9f3;color:#2b2824">ب</b><b style="background:#1c1d1f;color:#cfc9bc">س</b></i>تلقائي</button>
       </div></div>
       <div><h3>شكل الصفحة</h3><div class="seg" id="frmSeg"><button class="sw" data-frm="0">بسيطة</button><button class="sw" data-frm="1">بإطار مزخرف</button></div></div>
+      <div><h3>أرقام الآيات</h3><div class="seg" id="anSeg"><button class="sw" data-an="0">دائرة</button><button class="sw" data-an="1">مذهّبة</button></div></div>
       <div><h3>سماكة خط المصحف</h3><div class="seg" id="wtSeg"><button class="sw" data-wt="0">رفيع</button><button class="sw" data-wt="1">متوسط</button><button class="sw" data-wt="2">عريض</button></div></div>
       <div class="adv"><h3>لون الجلد</h3><div class="seg c5">
         <button class="sw" data-cover="green"><i class="cv" style="background:#3e5a4b"></i>أخضر</button>
@@ -2145,7 +2150,7 @@ const splT=performance.now();
 {let pp=store.get("mushaf.paper");if(pp==="auto"){const n=store.get("mushaf.nightP");pp=matchMedia("(prefers-color-scheme: dark)").matches||sunDown()?(["night","black","sky"].includes(n)?n:"night"):(store.get("mushaf.dayP")==="sepia"?"sepia":"light")}if(["light","sepia","night","black","sky"].includes(pp)){const d=document.documentElement;d.dataset.paper=pp;d.dataset.theme=pp==="night"||pp==="black"||pp==="sky"?"dark":"light"}
   const cc=store.get("mushaf.cover");if(["green","navy","maroon","brown","black"].includes(cc))document.documentElement.dataset.cover=cc;
   /* page look: plain page and light letters unless the reader chose the frame or a thicker stroke */
-  const fr=store.get("mushaf.frame"),wt=store.get("mushaf.wt");if(fr==="1")document.documentElement.dataset.frame="1";if(wt==="1"||wt==="2")document.documentElement.dataset.wt=wt;
+  const fr=store.get("mushaf.frame"),wt=store.get("mushaf.wt");if(fr==="1")document.documentElement.dataset.frame="1";if(wt==="1"||wt==="2")document.documentElement.dataset.wt=wt;if(store.get("mushaf.an")==="1")document.documentElement.dataset.an="1";
   /* big-text readers (interface text large) start with the medium stroke: thin letters are harder on tired eyes */
   else if(wt===null&&+store.get("mushaf.uz")>=1.15)document.documentElement.dataset.wt="1"}
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -2342,7 +2347,7 @@ function resize(){
     auto=(SW>=600&&wd>=280&&hd>=hs*.62)||(SW>=480&&SW/SH>=.74&&wd>=200);
   let m=inStudy?"single":force||(pv==="2"?"spread":pv==="1"?"single":auto?"spread":"single");
   /* half open, two pages side by side above the hinge came out too small to read: one page, close up */
-  if(inTable&&!force&&pv!=="2"&&m==="spread"&&SW<720&&wd<340)m="single";
+  if(inTable&&!force&&pv!=="2"&&m==="spread"&&wd<340)m="single";/* any screen: the open inner Fold half folded too */
   let w=Math.floor(m==="spread"?wd:ws), h=Math.floor(m==="spread"?hd:hs);
   /* half open on a phone: the room above the hinge is short, and a whole page there was too small to read. The page
      takes the full width at the print's proportion and slides up and down under the finger (tPan) */
@@ -2996,7 +3001,8 @@ setInterval(()=>{if(store.get("mushaf.paper")==="auto"&&autoPaper()!==root.datas
 function setLook(k,v,save){if(v&&v!=="0")root.dataset[k]=v;else delete root.dataset[k];if(save){store.set("mushaf."+k,v);rebuild();rasterDirty()}
   markLook()}
 function markLook(){const f=root.dataset.frame||"0",w=root.dataset.wt||"0";document.querySelectorAll("[data-frm].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.frm===f)));
-  document.querySelectorAll("[data-wt].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.wt===w)))}
+  document.querySelectorAll("[data-wt].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.wt===w)));
+  const an=root.dataset.an||"0";document.querySelectorAll("[data-an].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.an===an)))}
 markLook();
 function setCover(c,save){if(c)root.dataset.cover=c;else delete root.dataset.cover;if(save)store.set("mushaf.cover",c);
   document.querySelectorAll("[data-cover].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.cover===c)))}
@@ -3309,6 +3315,7 @@ $("prefs").addEventListener("click",e=>{e.stopPropagation();const t=e.target.clo
   if(b.dataset.cover)vt(()=>setCover(b.dataset.cover,true));
   if(b.dataset.frm){setLook("frame",b.dataset.frm,true);toast(b.dataset.frm==="1"?"الصفحة بإطار مزخرف":"صفحة بسيطة بلا إطار")}
   if(b.dataset.wt){setLook("wt",b.dataset.wt,true)}
+  if(b.dataset.an){setLook("an",b.dataset.an,true);toast(b.dataset.an==="1"?"أرقام الآيات مذهّبة":"أرقام الآيات بدائرة")}
   if(b.dataset.view)vt(()=>{store.set("mushaf.view",b.dataset.view);markView();resize()},1);
   if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();if(b.dataset.turn==="curl")rasterSoon();else RS.img.clear();toast(b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنباً إلى جنب":"تتبدّل الصفحة فوراً بلا حركة")}
 });
