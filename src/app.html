@@ -5316,7 +5316,6 @@ function azNowCat(){const t=ptToday();if(t){const n=Date.now(),M=60000;
 const PT_NAMES={fajr:"الفجر",sunrise:"الشروق",dhuhr:"الظهر",asr:"العصر",maghrib:"المغرب",isha:"العشاء"},PT_KEYS=Object.keys(PT_NAMES),PT_SAL=["fajr","dhuhr","asr","maghrib","isha"];
 /* methods: the Ja'fari one (Leva Institute, Qum: Fajr 16°, Isha 14°, Maghrib when the sun is 4° below, after the redness) is built from angles */
 const PT_M=[
- {k:"jafari",n:"الجعفري",d:"معهد ليفا، قم · الفجر ١٦° والعشاء ١٤° والمغرب بعد ذهاب الحمرة",p:()=>new adhan.CalculationParameters("Other",16,14,0,4)},
  {k:"mwl",n:"رابطة العالم الإسلامي",d:"الفجر ١٨° والعشاء ١٧°",p:()=>adhan.CalculationMethod.MuslimWorldLeague()},
  {k:"umm",n:"أم القرى",d:"مكة المكرمة · العشاء بعد المغرب بتسعين دقيقة",p:()=>adhan.CalculationMethod.UmmAlQura()},
  {k:"egypt",n:"الهيئة المصرية العامة للمساحة",d:"الفجر ١٩٫٥° والعشاء ١٧٫٥°",p:()=>adhan.CalculationMethod.Egyptian()},
@@ -5334,8 +5333,8 @@ const PT_CITIES=[["العراق",[["بغداد",33.3152,44.3661],["البصرة"
  ["الشام ومصر",[["عمّان",31.9454,35.9284],["دمشق",33.5138,36.2765],["بيروت",33.8938,35.5018],["القدس",31.7683,35.2137],["القاهرة",30.0444,31.2357],["الإسكندرية",31.2001,29.9187]]],
  ["إيران وتركيا",[["طهران",35.6892,51.389],["مشهد",36.2605,59.6168],["قم",34.6416,50.8746],["إسطنبول",41.0082,28.9784],["أنقرة",39.9334,32.8597]]],
  ["أوروبا وأمريكا",[["لندن",51.5074,-0.1278],["برلين",52.52,13.405],["ستوكهولم",59.3293,18.0686],["أمستردام",52.3676,4.9041],["تورنتو",43.6532,-79.3832],["ديترويت",42.3314,-83.0458],["سيدني",-33.8688,151.2093]]]];
-const PT_SUGG={"العراق":["jafari","mwl"],"السعودية":["umm"],"الخليج":["kuwait","qatar","dubai","umm"],"الشام ومصر":["egypt","mwl"],"إيران وتركيا":["tehran","jafari","turkey"],"أوروبا وأمريكا":["mwl","isna","jafari"]};
-function ptGet(){const p=jget("mushaf.pt",{});return {lat:null,lng:null,city:"",cc:"",m:"",hz:false,adj:{},n:false,np:{fajr:1,dhuhr:1,asr:1,maghrib:1,isha:1},...p}}
+const PT_SUGG={"العراق":["mwl","egypt"],"السعودية":["umm"],"الخليج":["kuwait","qatar","dubai","umm"],"الشام ومصر":["egypt","mwl"],"إيران وتركيا":["tehran","turkey"],"أوروبا وأمريكا":["mwl","isna"]};
+function ptGet(){const p=jget("mushaf.pt",{});return {lat:null,lng:null,city:"",cc:"",m:"",hz:false,adj:{},n:false,np:{fajr:1,dhuhr:1,asr:1,maghrib:1,isha:1},...p,/* a method no longer offered (the Jafari one was removed) asks the person to pick again */m:PT_M.some(x=>x.k===p.m)?p.m:""}}
 function ptSave(p){store.set("mushaf.pt",JSON.stringify(p))}
 const ptReady=p=>p.lat!=null&&p.m&&typeof adhan!=="undefined";
 /* the six times of a day (Date objects shifted by the person's own minute corrections) */
