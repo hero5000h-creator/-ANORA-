@@ -19,7 +19,7 @@ WANT = {
     'husary': ['الحصري'], 'alafasy': ['العفاسي'],
     'minshawi': ['المنشاوي'], 'abdulbasit': ['عبدالباسط', 'عبد الباسط'],
     'shatri': ['الشاطري'], 'abkar': ['أبكر', 'ابكر'], 'amer': ['أحمد عامر', 'احمد عامر', 'محمد عامر'],
-    'khalil': ['خليل إسماعيل', 'خليل اسماعيل', 'خليل إسماعيل'],
+    'qari': ['محمد خليل القارئ'],
 }
 # the Iraqi reciter al-Hafiz Khalil Ismail: list every MP3Quran entry that names him, with or without ayah timings
 for r in (rec or {}).get('reciters', []):
