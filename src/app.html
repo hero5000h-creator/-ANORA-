@@ -1491,6 +1491,8 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-row small{display:block;font-size:12.5px;color:rgba(234,230,220,.68)}
 .az-row input[type=time]{height:38px;padding:0 8px;border-radius:10px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:inherit;font:inherit;font-size:14px;color-scheme:dark}
 .az-row input[type=time]:disabled{opacity:.4}
+/* the switch stays 30px tall to look, but the finger gets a 46px target */
+.az-sw::before{content:"";position:absolute;inset:-8px -4px}
 .az-sw{flex:none;width:50px;height:30px;border-radius:15px;background:rgba(255,255,255,.14);position:relative;transition:background-color .2s}
 .az-sw::after{content:"";position:absolute;top:3px;right:3px;width:24px;height:24px;border-radius:50%;background:#e9e3d6;transition:transform .2s var(--ease)}
 .az-sw[aria-checked="true"]{background:#d9b46c}
@@ -3420,7 +3422,9 @@ function ayahPop(id,cx,cy){
   const top=rs.length?Math.min(...rs.map(r=>r.top)):cy-20,bot=rs.length?Math.max(...rs.map(r=>r.bottom)):cy+20;
   scr.hidden=false;bar.classList.remove("on","below","mid");bar.hidden=false;
   const W=innerWidth,H=innerHeight,w=bar.offsetWidth,h=bar.offsetHeight,cs=getComputedStyle(root),
-    sT=10+(parseFloat(cs.getPropertyValue("--cutT"))||0)+30,sB=H-10-(parseFloat(cs.getPropertyValue("--cutB"))||0);
+    tb=$("app").classList.contains("calm")?null:document.querySelector("#app>.bar"),tbB=tb?tb.getBoundingClientRect().bottom:0,
+    sT=Math.max(10+(parseFloat(cs.getPropertyValue("--cutT"))||0)+30,tbB+8),sB=H-10-(parseFloat(cs.getPropertyValue("--cutB"))||0);
+  /* with the top bar showing, the options never sit on top of it: an ayah near the top of the page gets them below */
   let y,side;
   if(top-h-14>=sT){y=top-h-14;side="above"}else if(bot+14+h<=sB-26){y=bot+14;side="below"}
   else{y=cy-h-56;side="above";if(y<sT){y=Math.min(sB-h,cy+56);side="below"}if(y<sT||y+h>sB){y=Math.max(sT,Math.min(sB-h,cy-h/2));side="mid"}}
@@ -4007,6 +4011,8 @@ function quizOpen(){
   const sh=$("quiz");QZ.qs=[];qzRender();
   if(sh.hidden){sh.hidden=false;$("ascrim").hidden=false;sheetAt=performance.now();requestAnimationFrame(()=>requestAnimationFrame(()=>sh.classList.add("on")))}
 }
+/* Escape and the Android back button close the quiz (back used to send the app away with the quiz still open) */
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("quiz").hidden&&$("quiz").classList.contains("on")){e.stopImmediatePropagation();quizClose()}},true);
 function quizClose(){const sh=$("quiz");if(sh.hidden)return;sh.classList.remove("on");if($("sheet").hidden)$("ascrim").hidden=true;setTimeout(()=>{if(!sh.classList.contains("on"))sh.hidden=true},reduce?0:340)}
 function qzRender(){
   const b=$("qzBody"),m=$("qzMeta"),has=Object.keys(memo.db()).length>0;
@@ -5504,7 +5510,7 @@ document.addEventListener("keydown",e=>{if(!$("guide").hidden&&e.key==="Escape")
 /* Android back button (MainActivity asks this first): it closes whatever is open, one layer at a time, exactly like Escape;
    only when nothing is open does the app go to the background (the recitation keeps playing) */
 const backSig=()=>[azOpen,azCat,indexOpen,memo.on,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
-  $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")})].join();
+  $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")&&(i!=="quiz"||e.classList.contains("on"))})].join();
 window.anoraBack=()=>{try{if(!$("repBox").hidden&&!$("repBox").classList.contains("out")){softHide($("repBox"));return true}
   const a=backSig();document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true,cancelable:true}));if(backSig()!==a)return true;
   if(memo.on){setMemo(false);return true}}catch(e){}return false};

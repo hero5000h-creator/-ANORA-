@@ -72,6 +72,10 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         const d=document.getElementById("sDrop"),open=!d.hidden,idx=document.getElementById("drawer").classList.contains("on"),q=document.getElementById("sq"),focus=document.activeElement===q;
         q.value="الصبر";q.dispatchEvent(new Event("input"));await W(700);const n=document.querySelectorAll("#sres [data-a]").length;const back=window.anoraBack();await W(400);return {open,idx,focus,n,back,closed:d.hidden}});
       ok(r.open&&!r.idx&&r.focus&&r.n>=3&&r.back&&r.closed,`${name}: search drops its own panel with results, back closes it (${JSON.stringify(r)})`)}
+    /* back closes the quiz instead of sending the app away */
+    {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("bIndex").click();await W(500);document.getElementById("t-r").click();await W(300);
+        document.getElementById("qzOpen").click();await W(700);const open=document.getElementById("quiz").classList.contains("on");const back=window.anoraBack();await W(500);return {open,back,closed:document.getElementById("quiz").hidden}});
+      ok(r.open&&r.back&&r.closed,`${name}: back closes the quiz (${JSON.stringify(r)})`)}
     /* home-screen widgets: the page sends what they show, and a tap on one opens the screen it names */
     {const w=await p.evaluate(()=>window.__wg||null);
       ok(w&&w.page>=1&&w.sur&&w.cats&&w.cats.sab&&w.cats.sab.of>0&&w.cats.sab.f0&&w.cats.sab.f0.t&&Array.isArray(w.pt)&&typeof w.ptc==="string"&&w.free.length,`${name}: widget data sent (page ${w&&w.page}, ${w&&w.sur}, ${w&&w.cats&&w.cats.sab&&w.cats.sab.of} morning adhkar)`);
