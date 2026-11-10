@@ -184,7 +184,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 .pg:not(.blank) .box{padding:calc(var(--pw) * .012) calc(var(--pw) * .05);margin:calc(var(--pw) * .006) 0}
 :root[data-frame="1"] .pg:not(.blank) .box{border-style:solid;border-width:calc(var(--pw) * .042);border-image:var(--o-frame) 30 round;padding:calc(var(--pw) * .012) calc(var(--pw) * .016)}
 /* phones: slim side margins; with the frame a slimmer band gives the text about 9% more width, so the letters grow */
-html.phoneM .pg .frame{inset:2.2% 3.6% 1.2% 3.6%}
+/* the same white space above the juz line as below the page number, so the page sits in the middle of the screen */
+html.phoneM .pg .frame{inset:1.1% 3.6% 2.3% 3.6%}
 html.phoneM .pg:not(.blank) .box{padding:calc(var(--pw) * .014) 0}
 /* a plain phone page lies flat like the reference app: no gutter shading at the spine */
 html.phoneM:not([data-frame="1"]) .pg .gut,html.phoneM:not([data-frame="1"]) #bookwrap::before,html.phoneM:not([data-frame="1"]) .edge{display:none}
