@@ -898,7 +898,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #app.ovl.calm #autoBar{bottom:6px;left:auto;right:8px;translate:none;padding:2px;gap:0}
 #app.ovl.calm #autoBar>:not(#atPlay){display:none}
 #app.ovl.calm #autoBar #atPlay{width:34px;height:34px}
-#app.toasting #azNudge,#app:has(.foot.playing) #azNudge{opacity:0;pointer-events:none}
+#app.toasting #azNudge,#app:has(.foot.playing) #azNudge,#app.table #azNudge,#app.memo #azNudge{opacity:0;pointer-events:none}
 /* where you are in the juz: a hairline under the top bar */
 #jprog{position:absolute;right:0;bottom:-1px;height:2px;width:100%;background:var(--orn);opacity:.55;transform:scaleX(0);transform-origin:right;transition:transform .6s var(--ease)}
 /* the pressed ayah fills in under the finger before its panel opens */
@@ -2150,9 +2150,10 @@ const splT=performance.now();
 {let pp=store.get("mushaf.paper");if(pp==="auto"){const n=store.get("mushaf.nightP");pp=matchMedia("(prefers-color-scheme: dark)").matches||sunDown()?(["night","black","sky"].includes(n)?n:"night"):(store.get("mushaf.dayP")==="sepia"?"sepia":"light")}if(["light","sepia","night","black","sky"].includes(pp)){const d=document.documentElement;d.dataset.paper=pp;d.dataset.theme=pp==="night"||pp==="black"||pp==="sky"?"dark":"light"}
   const cc=store.get("mushaf.cover");if(["green","navy","maroon","brown","black"].includes(cc))document.documentElement.dataset.cover=cc;
   /* page look: plain page and light letters unless the reader chose the frame or a thicker stroke */
-  const fr=store.get("mushaf.frame"),wt=store.get("mushaf.wt");if(fr==="1")document.documentElement.dataset.frame="1";if(wt==="1"||wt==="2")document.documentElement.dataset.wt=wt;if(store.get("mushaf.an")==="1")document.documentElement.dataset.an="1";
+  const fr=store.get("mushaf.frame"),wt=store.get("mushaf.wt");if(fr==="1")document.documentElement.dataset.frame="1";if(wt==="1"||wt==="2")document.documentElement.dataset.wt=wt;
   /* big-text readers (interface text large) start with the medium stroke: thin letters are harder on tired eyes */
-  else if(wt===null&&+store.get("mushaf.uz")>=1.15)document.documentElement.dataset.wt="1"}
+  else if(wt===null&&+store.get("mushaf.uz")>=1.15)document.documentElement.dataset.wt="1";
+  if(store.get("mushaf.an")==="1")document.documentElement.dataset.an="1"}
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const $=id=>document.getElementById(id);
@@ -2319,6 +2320,11 @@ function park(keep){for(const e of [...book.children]){if(e.classList.contains("
    in tabletop posture (segments stacked) the book stays on the upper half. A single tall screen
    like an open Galaxy Z Fold gets the two-page spread whenever both pages stay readable. */
 const tPan={off:0,max:0};
+/* half open with the close-up page: slide the page so the ayah being recited sits in view above the hinge */
+function tPanShow(id){if(!tPan.max||!inTable||zoom.s!==1)return;const sr=stage.getBoundingClientRect(),
+    qs=[...book.querySelectorAll(`.pg [data-a="${id}"]`)].map(e=>e.getBoundingClientRect()).filter(q=>q.width&&q.bottom>sr.top-4000);if(!qs.length)return;
+  const top=Math.min(...qs.map(q=>q.top)),bot=Math.max(...qs.map(q=>q.bottom));if(top>=sr.top+8&&bot<=sr.bottom-8)return;
+  tPan.off=Math.max(-tPan.max,Math.min(0,tPan.off+(sr.top+sr.height*.22-top)));tPanApply(true)}
 function tPanApply(glide){const w=$("bookwrap");if(!w)return;stage.classList.toggle("tmore",tPan.max>0&&tPan.off>-tPan.max+4);stage.classList.toggle("tless",tPan.max>0&&tPan.off<-4);w.classList.toggle("tglide",!!glide&&!reduce);w.style.setProperty("--ty",tPan.off+"px");
   if(glide)setTimeout(()=>w.classList.remove("tglide"),360)}
 function segments(){try{const v=window.viewport&&window.viewport.segments;return v&&v.length===2?v:null}catch(e){return null}}
@@ -2862,7 +2868,9 @@ function ui(){fitGuard();
     /* a narrow phone with the search button in the row: drop the word "سورة" before a long name rather than cut the name */
     const wb=ws.parentNode;if(wb.scrollWidth>wb.clientWidth&&s2===s)ws.textContent=s[0]}
   const pages=mode==="spread"?`الصفحتان ${ar(cur)}–${ar(Math.min(cur+1,NP))}`:`صفحة ${ar(cur)}`;
-  const wm=$("wMeta");wm.textContent=`الجزء ${ar(jOf(id))} · الحزب ${ar((q>>2)+1)} · ${pages}`;
+  /* a new hizb that starts on the pages in view shows as a range, as the ayah sheet does */
+  const h1=(q>>2)+1,h2=(qOf(pEnd(mode==="spread"?Math.min(cur+1,NP):cur))>>2)+1;
+  const wm=$("wMeta");wm.textContent=`الجزء ${ar(jOf(id))} · الحزب ${h2>h1?ar(h1)+"–"+ar(h2):ar(h1)} · ${pages}`;
   /* on a narrow screen the page number already shows in the footer */
   if(wm.scrollWidth>wm.clientWidth+1){wm.textContent=`الجزء ${ar(jOf(id))} · ${pages}`;if(wm.scrollWidth>wm.clientWidth+1)wm.textContent=mode==="spread"?pages:`الجزء ${ar(jOf(id))}`}
   {const j=jOf(id),a=pOf(JUZ[j-1]),b=j<30?pOf(JUZ[j])-1:NP,last=mode==="spread"?Math.min(cur+1,NP):cur;$("jprog").style.transform="scaleX("+Math.max(.04,Math.min(1,(last-a+1)/(b-a+1))).toFixed(3)+")"}
@@ -4128,6 +4136,8 @@ function repOpen(){const id=player.id||selA||pStart(cur);
   if(!rep.on||rep.from>id||rep.to<id){rep.from=id;const pe=pStart(cur+(mode==="spread"?2:1))-1;rep.to=Math.min(NA,Math.max(id,Math.min(id+4,pe>id?pe:id+4)))}
   repUI();const b=$("repBox");b.classList.remove("out","top");b.hidden=false;paintHL();repPlace()}
 function repPlace(){const b=$("repBox");if(b.hidden)return;b.classList.remove("top","side","sR");b.style.left="";b.style.minHeight="";
+  /* half open: the panel stays in the lower half, under the thumbs, and the page above stays clear */
+  if(inTable)return;
   if(mode==="spread"&&!inTable&&document.documentElement.classList.contains("thumb")){const br=book.getBoundingClientRect(),mid=br.left+br.width/2;let L=0,Rr=0;
     book.querySelectorAll(".pg:not(.pk) [data-a]").forEach(w=>{const a=+w.dataset.a;if(a<rep.from||a>rep.to)return;const q=w.getBoundingClientRect();if(q.width)(q.left+q.width/2<mid)?L++:Rr++});
     b.classList.add("side");if(L>Rr)b.classList.add("sR");return}
@@ -4302,6 +4312,7 @@ function playFrom(id){
 }
 function startAyah(resume,flow){
   const id=player.id;playA=id;paintHL();showAyahPage(id);
+  if(inTable)setTimeout(()=>tPanShow(id),reduce?0:800);
   if(inTable)setTimeout(()=>{renderDeck();const el=$("deckList").querySelector(`.dk[data-id="${id}"]`);el&&el.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"})},reduce?0:950);
   $("pTitle").textContent=`${SUR[sOf(id)][0]} — آية ${ar(aOf(id))}`+repTitle();store.set("mushaf.playLast",String(id));try{dlUI()}catch(e){}setTimeout(repPlace,reduce?0:700);
   pStop();if(player.on)bgSync();
@@ -4503,7 +4514,7 @@ function renderDeck(){
 }
 function deckMarks(){$("deckList").querySelectorAll(".dk").forEach(d=>{const b=d.querySelector('[data-act="Mark"]');b&&b.setAttribute("aria-pressed",String(marks.has(+d.dataset.id)))})}
 function deckSelect(id,scroll){
-  selA=id;paintHL();
+  selA=id;paintHL();tPanShow(id);
   $("deckList").querySelectorAll(".dk").forEach(d=>d.classList.toggle("on",+d.dataset.id===id));
   const el=$("deckList").querySelector(`.dk[data-id="${id}"]`);if(el&&scroll)el.scrollIntoView({block:"start",behavior:reduce?"auto":"smooth"});
 }
