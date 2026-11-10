@@ -32,8 +32,16 @@ BYID = {
     'hrifai': (89, 'هاني الرفاعي'), 'qasim': (67, 'القاسم'), 'thubaiti': (49, 'الثبيتي'), 'haneef': (71, 'حنيف'),
     'naina': (9, 'نعينع'), 'baleela': (217, 'بليله'), 'akhdar': (1, 'الأخضر'),
     'kurdi': (221, 'رعد'), 'shirzad': (38, 'شيرزاد'), 'peshawa': (268, 'بيشه'),
+    'nufais': (259, 'النفيس'),
 }
-FIXED = {118: 'husary', 123: 'alafasy'}   # the reads the app already shipped with
+FIXED = {118: 'husary', 123: 'alafasy'}
+# Mn asked for Muhammad Demidrov (2026-11-10): list every reciter and timing read that could be him
+import re as _re
+_DM = _re.compile('دمي|ديمي|دميد|ديميد|ديميتر|دمتر|ميدر|ميدروف|دروف|Demid|Dmit|Demed', _re.I)
+for r in (rec or {}).get('reciters', []):
+    if _DM.search(r.get('name', '')) or 'النفيس' in r.get('name', ''):
+        print('reciter', r.get('id'), r.get('name'), [(m.get('id'), m.get('name'), m.get('server'), m.get('surah_total')) for m in r.get('moshaf', [])])
+print('timing reads like Demidrov:', [(r.get('id'), r.get('name')) for r in (reads or []) if _DM.search(rname(r))])   # the reads the app already shipped with
 def score(r):
     n = rname(r)
     return (('مرتل' in n) * 2 - ('مجود' in n) - ('معلم' in n) * 2 - ('ورش' in n or 'قالون' in n or 'الدوري' in n) * 3)
