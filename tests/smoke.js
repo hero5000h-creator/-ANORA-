@@ -61,6 +61,12 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
      const b=await over();await p.evaluate(()=>window.__fitGuard());await p.waitForTimeout(1500);const c=await over();
      await p.evaluate(()=>{document.getElementById("smkZ").remove();window.__fitGuard()});await p.waitForTimeout(800);
      ok(a===0&&b>0&&c===0,`${name}: lines stay inside the frame when the device scales text (${a} → ${b} → ${c})`)}
+    /* speed: no :has() selector on the page (one on #app re-styled every word of every kept page after each turn);
+       the plain classes standing in for it follow the settings menu opening and closing */
+    {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));let has=0;for(const ss of document.styleSheets){try{for(const x of ss.cssRules)if(x.cssText.includes(":has("))has++}catch(e){}}
+        const A=document.getElementById("app");A.classList.remove("calm");document.getElementById("bPrefs").click();await W(400);const on=A.classList.contains("hPrefs");
+        window.anoraBack();await W(500);const off=!A.classList.contains("hPrefs")&&document.getElementById("prefs").hidden;return {has,on,off}});
+      ok(!r.has&&r.on&&r.off,`${name}: no :has() rules; settings-open state kept as a class (${JSON.stringify(r)})`)}
     /* Android back: closes the open layer first (index, then settings), and only says "nothing open" when nothing is */
     {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("bIndex").click();await W(500);
         const a=window.anoraBack(),closed=!document.getElementById("drawer").classList.contains("on");await W(500);
