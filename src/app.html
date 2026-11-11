@@ -4897,7 +4897,10 @@ function openSearch(){showPrefs(false);if(indexOpen)closeIndex();try{contHide();
   const q=$("sq");q.focus({preventScroll:true});q.select()}
 function closeSearch(){if(!sdOpen)return;sdOpen=false;const d=$("sDrop"),q=$("sq");sdRec.add(q.value);q.blur();
   if(reduce){d.hidden=true;return}d.classList.add("out");clearTimeout(sdT);sdT=setTimeout(()=>{if(!sdOpen){d.hidden=true;d.classList.remove("out")}},220)}
-{let t;$("sq").addEventListener("input",()=>{clearTimeout(t);t=setTimeout(sdRender,160)})}
+/* a word typed before the word index is finished: the rest is built in 10 ms slices between frames (it used to be
+   built at once, a third of a second frozen on a mid phone), then the results show */
+{let t;const go=()=>{if(!sdOpen)return;if(WX||!$("sq").value.trim()){sdRender();return}wxStep(10);t=setTimeout(go,0)};
+  $("sq").addEventListener("input",()=>{clearTimeout(t);t=setTimeout(go,160)})}
 $("sq").addEventListener("keydown",e=>{if(e.key==="Enter"){const r=$("sres").querySelector("[data-p]");r&&r.click()}});
 $("sdX").onclick=closeSearch;
 $("sDrop").addEventListener("click",e=>{if(e.target.id==="sDrop"){closeSearch();return}
