@@ -1326,6 +1326,7 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .sbp{display:grid;place-items:center;background:var(--sel);border-radius:14px;padding:12px;min-height:200px}
 .sbp img{display:block;width:100%;max-width:300px;aspect-ratio:1080/1350;border-radius:6px;box-shadow:0 10px 26px -12px var(--shadow);transition:opacity .2s,transform .3s var(--ease)}
 .sbp.st img{max-width:200px;aspect-ratio:1080/1920}
+.sbp.wd img{max-width:420px;aspect-ratio:1600/1000}
 .sbp img.busy{opacity:.4;transform:scale(.98)}
 .sbb{display:flex;gap:8px;flex-wrap:wrap}
 .sbb .ctb{flex:1;white-space:nowrap}
@@ -2060,7 +2061,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
 <div id="shareBox" hidden><div class="sbx" role="dialog" aria-modal="true" aria-label="مشاركة الآية صورة">
   <div class="sbh"><b>مشاركة الآية</b><button class="ib" id="sbClose" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="sbp"><img id="sbImg" alt="معاينة صورة الآية"></div>
-  <div class="seg two" id="sbFmt"><button class="sw" data-fmt="sq">مربّع</button><button class="sw" data-fmt="st">قصة (طولي)</button></div>
+  <div class="seg" id="sbFmt"><button class="sw" data-fmt="wd">عريض</button><button class="sw" data-fmt="sq">مربّع</button><button class="sw" data-fmt="st">قصة (طولي)</button></div>
   <div class="seg" id="sbSty"><button class="sw" data-sty="light"><i style="background:#faf7f0;color:#2b2824">بسم</i>فاتح</button><button class="sw" data-sty="sepia"><i style="background:#f3e9d4;color:#3a3026">بسم</i>دافئ</button><button class="sw" data-sty="night"><i style="background:#1c1d1f;color:#cfc9bc">بسم</i>ليلي</button></div>
   <button class="sbtf" id="sbTf" aria-pressed="true"><i></i>مع التفسير الميسّر</button>
   <div class="sbb"><button class="ctb solid" id="sbShare">مشاركة الصورة</button><button class="ctb" id="sbSave">حفظ</button><button class="ctb" id="sbText">نص فقط</button></div>
@@ -3542,56 +3543,78 @@ function shareText(){
   else{try{navigator.clipboard.writeText(t).then(()=>toast("نُسخت الآية لتشاركها"),()=>toast("المشاركة غير متاحة هنا"))}catch(e){toast("المشاركة غير متاحة هنا")}}
 }
 /* ---------- share an ayah as a picture: a framed mushaf card drawn on a canvas ---------- */
-const SB_STY={light:{bg:"#faf7f0",ink:"#2b2824",gold:"#a08c62",orn:"#55705f",tint:"#f0e9da",cov:"#3e5a4b",mut:"#7a756c"},
-  sepia:{bg:"#f3e9d4",ink:"#3a3026",gold:"#97794a",orn:"#6b6243",tint:"#e7dabf",cov:"#6b4c2e",mut:"#7f705c"},
-  night:{bg:"#1c1d1f",ink:"#d9d3c6",gold:"#ad9a72",orn:"#8fab9b",tint:"#25262a",cov:"#111213",mut:"#8d887f"}};
-let sbId=0,sbFmt=store.get("mushaf.sbfmt")==="st"?"st":"sq",sbSty=SB_STY[store.get("mushaf.sbsty")]?store.get("mushaf.sbsty"):(root.dataset.paper==="sepia"?"sepia":root.dataset.theme==="dark"?"night":"light"),sbBlob=null,sbUrl="";
-function sbStar(c,x,y,r){c.beginPath();for(let i=0;i<16;i++){const a=Math.PI*i/8,rr=i%2?r*.55:r;c.lineTo(x+rr*Math.sin(a),y-rr*Math.cos(a))}c.closePath()}
+const SB_STY={light:{bg:"#faf0e4",ink:"#1f1b16",gold:"#a8834f",orn:"#55705f",tint:"#f6e8d4",cov:"#3e5a4b",mut:"#8a7a62",anf:"#ecd6a6",anc:"#6e4f24"},
+  sepia:{bg:"#f3e9d4",ink:"#3a3026",gold:"#97794a",orn:"#6b6243",tint:"#e7dabf",cov:"#6b4c2e",mut:"#7f705c",anf:"#e2c995",anc:"#5e4320"},
+  night:{bg:"#1c1d1f",ink:"#d9d3c6",gold:"#ad9a72",orn:"#8fab9b",tint:"#25262a",cov:"#111213",mut:"#8d887f",anf:"#4a4029",anc:"#e3c88e"}};
+let sbId=0,sbFmt=["st","sq"].includes(store.get("mushaf.sbfmt"))?store.get("mushaf.sbfmt"):"wd",sbSty=SB_STY[store.get("mushaf.sbsty")]?store.get("mushaf.sbsty"):(root.dataset.paper==="sepia"?"sepia":root.dataset.theme==="dark"?"night":"light"),sbBlob=null,sbUrl="";
+/* the shared picture is laid out like a mushaf app's ayah card (Mn 2026-11-11, from a reference he sent): plain paper,
+   a wide gilded surah band with rosettes, a faint basmala, the ayah in the mushaf's own font with its numbered ornament,
+   lines set full width like the printed page; the tafsir (optional) and the reference sit quietly below */
+function sbRosette(c,x,y,r,S){c.save();c.strokeStyle=S.gold;c.lineWidth=r*.07;
+  c.beginPath();c.arc(x,y,r,0,7);c.stroke();c.beginPath();c.arc(x,y,r*.84,0,7);c.stroke();
+  for(let k=0;k<8;k++){const a=k*Math.PI/4;c.beginPath();c.ellipse(x+Math.cos(a)*r*.42,y+Math.sin(a)*r*.42,r*.26,r*.12,a,0,7);c.stroke()}
+  c.beginPath();c.arc(x,y,r*.16,0,7);c.fillStyle=S.gold;c.fill();c.restore()}
+function sbBand(c,x0,y0,w,h,id,S){const r=h*.12;c.save();c.strokeStyle=S.gold;
+  c.fillStyle=S.tint;c.beginPath();c.roundRect(x0,y0,w,h,r);c.fill();c.lineWidth=h*.022;c.stroke();
+  const d=h*.09;c.lineWidth=h*.01;c.beginPath();c.roundRect(x0+d,y0+d,w-2*d,h-2*d,r*.7);c.stroke();
+  /* centre cartouche with pointed ends, the surah's name inside */
+  const cw=w*.5,cx=x0+w/2,cy=y0+h/2,ch=h*.64,tip=ch*.42;c.fillStyle=S.bg;c.lineWidth=h*.016;
+  c.beginPath();c.moveTo(cx-cw/2-tip,cy);c.lineTo(cx-cw/2,cy-ch/2);c.lineTo(cx+cw/2,cy-ch/2);c.lineTo(cx+cw/2+tip,cy);c.lineTo(cx+cw/2,cy+ch/2);c.lineTo(cx-cw/2,cy+ch/2);c.closePath();c.fill();c.stroke();
+  /* both wings: a rosette and an arch, mirrored */
+  [-1,1].forEach(sd=>{const span=(w-cw)/2-tip,mx=cx+sd*(cw/2+tip+span/2);
+    sbRosette(c,mx-sd*span*.12,cy,h*.24,S);
+    c.lineWidth=h*.012;c.beginPath();const ax=cx+sd*(cw/2+tip+span*.86);c.ellipse(ax,cy,span*.12,h*.3,0,sd>0?Math.PI/2:-Math.PI/2,sd>0?Math.PI*1.5:Math.PI/2);c.stroke();
+    c.beginPath();c.arc(ax-sd*span*.04,cy,h*.06,0,7);c.stroke()});
+  /* the name in the mushaf's own surah-title font (as on the page); a plain title when that font is missing */
+  const sn=String(sOf(id)+1).padStart(3,"0");c.fillStyle=S.ink;c.textBaseline="middle";c.direction="ltr";
+  if(document.fonts.check(`10px "SuraNames"`)){const fz=ch*.95;c.font=`${fz}px "SuraNames"`;const a=c.measureText(sn).width,b=c.measureText("surah").width,g=fz*.1,tw=a+g+b;
+    c.textAlign="left";c.fillText(sn,cx-tw/2,cy+fz*.06);c.fillText("surah",cx-tw/2+a+g,cy+fz*.06)}
+  else{c.direction="rtl";c.textAlign="center";c.font=`700 ${ch*.5}px "Amiri",serif`;c.fillText("سورة "+SUR[sOf(id)][0],cx,cy)}
+  c.restore()}
 async function sbDraw(){
-  const id=sbId,S=SB_STY[sbSty],W=1080,H=sbFmt==="st"?1920:1350,cv=document.createElement("canvas");cv.width=W;cv.height=H;const c=cv.getContext("2d");
-  try{await Promise.all(['64px "Scheherazade New"','700 40px "Amiri"'].map(f=>document.fonts.load(f,"بسم")))}catch(e){}
-  /* cloth cover, then the page with a soft shadow */
-  c.fillStyle=S.cov;c.fillRect(0,0,W,H);
-  const m=46;c.save();c.shadowColor="rgba(0,0,0,.35)";c.shadowBlur=30;c.shadowOffsetY=10;c.fillStyle=S.bg;c.beginPath();c.roundRect(m,m,W-2*m,H-2*m,16);c.fill();c.restore();
-  const g=c.createRadialGradient(W/2,H/2,H*.2,W/2,H/2,H*.75);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,sbSty==="night"?"rgba(0,0,0,.25)":"rgba(150,118,64,.12)");c.fillStyle=g;c.fillRect(m,m,W-2*m,H-2*m);
-  /* gilded band with corner stars, like the page frame */
-  const f=88,bw=30;c.fillStyle=S.tint;c.fillRect(f,f,W-2*f,H-2*f);c.fillStyle=S.bg;c.fillRect(f+bw,f+bw,W-2*(f+bw),H-2*(f+bw));
-  c.strokeStyle=S.gold;c.lineWidth=3;c.strokeRect(f,f,W-2*f,H-2*f);c.lineWidth=1.2;c.strokeRect(f+6,f+6,W-2*(f+6),H-2*(f+6));c.lineWidth=2.4;c.strokeRect(f+bw,f+bw,W-2*(f+bw),H-2*(f+bw));
-  c.fillStyle=S.gold;for(let x=f+bw+40;x<W-f-bw-20;x+=46){[f+bw/2,H-f-bw/2].forEach(y=>{c.beginPath();c.moveTo(x,y-6);c.lineTo(x+7,y);c.lineTo(x,y+6);c.lineTo(x-7,y);c.closePath();c.fill()})}
-  for(let y=f+bw+40;y<H-f-bw-20;y+=46){[f+bw/2,W-f-bw/2].forEach(x=>{c.beginPath();c.moveTo(x-6,y);c.lineTo(x,y-7);c.lineTo(x+6,y);c.lineTo(x,y+7);c.closePath();c.fill()})}
-  [[f+bw/2,f+bw/2],[W-f-bw/2,f+bw/2],[f+bw/2,H-f-bw/2],[W-f-bw/2,H-f-bw/2]].forEach(([x,y])=>{sbStar(c,x,y,24);c.fillStyle=S.bg;c.fill();c.strokeStyle=S.gold;c.lineWidth=2;c.stroke();c.beginPath();c.arc(x,y,6,0,7);c.fillStyle=S.orn;c.fill()});
-  /* surah cartouche */
-  const cy=f+bw+92,cw=620,ch=78;c.fillStyle=S.tint;c.strokeStyle=S.gold;c.lineWidth=2.4;c.fillRect(W/2-cw/2,cy-ch/2,cw,ch);c.strokeRect(W/2-cw/2,cy-ch/2,cw,ch);
-  c.beginPath();c.moveTo(W/2-210,cy);c.quadraticCurveTo(W/2-185,cy-30,W/2-140,cy-30);c.lineTo(W/2+140,cy-30);c.quadraticCurveTo(W/2+185,cy-30,W/2+210,cy);c.quadraticCurveTo(W/2+185,cy+30,W/2+140,cy+30);c.lineTo(W/2-140,cy+30);c.quadraticCurveTo(W/2-185,cy+30,W/2-210,cy);c.closePath();c.fillStyle=S.bg;c.fill();c.stroke();
-  [-1,1].forEach(sd=>{c.beginPath();const x=W/2+sd*265;c.moveTo(x-16,cy);c.lineTo(x,cy-13);c.lineTo(x+16,cy);c.lineTo(x,cy+13);c.closePath();c.fillStyle=S.orn;c.globalAlpha=.35;c.fill();c.globalAlpha=1;c.strokeStyle=S.orn;c.lineWidth=1.4;c.stroke()});
-  c.direction="rtl";c.textAlign="center";c.textBaseline="middle";c.fillStyle=S.orn;c.font='700 40px "Amiri",serif';c.fillText("سورة "+SUR[sOf(id)][0],W/2,cy+3);
-  /* the ayah, as large as fits; with the tafsir, the ayah keeps the upper part and the tafsir sits below a rule */
-  const words=[...AW[id].map(w=>w.replace(/[۞۩]/g,"").trim()).filter(Boolean),"۝"+ar(aOf(id))],L=f+bw+70,R=W-f-bw-70,top=cy+ch/2+50,bot=H-f-bw-130,aw=R-L;let ah=bot-top;
+  const id=sbId,S=SB_STY[sbSty],W=sbFmt==="wd"?1600:1080,H=sbFmt==="st"?1920:sbFmt==="wd"?1000:1350,cv=document.createElement("canvas");cv.width=W;cv.height=H;const c=cv.getContext("2d");
+  const QF='"QMH Old Madina","Scheherazade New",serif';
+  try{await Promise.all(['60px "QMH Old Madina"','60px "SuraNames"','700 40px "Amiri"','40px "Scheherazade New"'].map(f=>document.fonts.load(f,f.includes("Sura")?"surah":"بسم")))}catch(e){}
+  c.fillStyle=S.bg;c.fillRect(0,0,W,H);
+  const mx=Math.round(W*.05),bandH=Math.round(Math.min(W*.13,150)),by=Math.round(H*.045);
+  sbBand(c,mx,by,W-2*mx,bandH,id,S);
+  c.direction="rtl";c.textAlign="center";c.textBaseline="middle";
+  /* the basmala, faint, as in the reference; not before at-Tawbah, and al-Fatiha's first ayah is the basmala itself */
+  const s1=sOf(id)+1,bas=s1!==9&&!(s1===1&&aOf(id)===1);let top=by+bandH+H*.035;
+  if(bas){const bz=Math.round(W*.034);c.font=`${bz}px ${QF}`;c.fillStyle=S.gold;c.globalAlpha=.7;c.fillText("بِسۡمِ ٱللَّهِ ٱلرَّحۡمَٰنِ ٱلرَّحِيمِ",W/2,top+bz*.9);c.globalAlpha=1;top+=bz*2.3}
+  const L=mx+W*.02,R=W-mx-W*.02,aw=R-L,foot=H*.085,bot=H-foot-H*.03;let ah=bot-top;
+  /* tafsir below a gold rule, when chosen */
   let tfL=[],ts=32;const tft=sbTf&&TF?String(TF[id-1]||"").replace(/\s+/g," ").trim():"";
   if(tft){const wr=sz=>{c.font=`${sz}px "Amiri",serif`;const out=[];let ln="";for(const w of tft.split(" ")){const t=ln?ln+" "+w:w;if(c.measureText(t).width>aw&&ln){out.push(ln);ln=w}else ln=t}if(ln)out.push(ln);return out};
-    const room=ah*.52-120;for(ts=H>1500?40:34;ts>=24;ts-=2){tfL=wr(ts);if(tfL.length*ts*1.7<=room)break}
+    const room=ah*.42-90;for(ts=H>1500?40:34;ts>=24;ts-=2){tfL=wr(ts);if(tfL.length*ts*1.7<=room)break}
     const maxL=Math.max(1,Math.floor(room/(ts*1.7)));if(tfL.length>maxL){tfL=tfL.slice(0,maxL);tfL[maxL-1]=tfL[maxL-1].replace(/\s*\S+$/,"")+" …"}
-    ah-=tfL.length*ts*1.7+120}
-  let size=84,lines=[];
-  for(;size>=26;size-=2){c.font=`${size}px "Scheherazade New",serif`;lines=[];let ln="";
-    for(const w of words){const t=ln?ln+" "+w:w;if(c.measureText(t).width>aw&&ln){lines.push(ln);ln=w}else ln=t}if(ln)lines.push(ln);
-    if(lines.length*size*1.95<=ah)break}
-  c.fillStyle=S.ink;const lh=size*1.95,y0=top+(ah-lines.length*lh)/2+lh/2;
-  lines.forEach((l,i)=>c.fillText(l,W/2,y0+i*lh));
+    ah-=tfL.length*ts*1.7+90}
+  /* the ayah: as large as fits, each full line set edge to edge like the page, the last line from the right */
+  const words=[...AW[id].map(w=>qY(w.replace(/[۞۩]/g,"").trim())).filter(Boolean),"۝"+ar(aOf(id))];
+  let size=Math.round(W*.075),lines=[],sp=0;
+  for(;size>=26;size-=2){c.font=`${size}px ${QF}`;sp=c.measureText(" ").width;lines=[];let ln=[],lw=0;
+    for(const w of words){const ww=c.measureText(w).width;if(ln.length&&lw+sp+ww>aw){lines.push(ln);ln=[w];lw=ww}else{lw+=(ln.length?sp:0)+ww;ln.push(w)}}if(ln.length)lines.push(ln);
+    if(lines.length*size*1.85<=ah)break}
+  c.fillStyle=S.ink;c.textAlign="right";const lh=size*1.85,y0=top+Math.max(0,(ah-lines.length*lh)/2)+lh/2;
+  lines.forEach((ln,i)=>{const ws=ln.map(w=>c.measureText(w).width),tot=ws.reduce((a,b)=>a+b,0),last=i===lines.length-1,
+      gap=!last&&ln.length>1&&(aw-tot)/(ln.length-1)<=size*1.1?(aw-tot)/(ln.length-1):sp;let x=R;
+    ln.forEach((w,k)=>{const y=y0+i*lh;
+      /* the gilded ayah number, when the reader chose it for the page */
+      if(root.dataset.an==="1"&&w.charCodeAt(0)===0x6DD){c.save();c.beginPath();c.arc(x-ws[k]/2,y+size*.04,ws[k]*.33,0,7);c.fillStyle=S.anf||S.tint;c.fill();c.restore();c.fillStyle=S.anc||S.ink;c.fillText(w,x,y);c.fillStyle=S.ink}
+      else c.fillText(w,x,y);x-=ws[k]+gap})});
+  c.textAlign="center";
   if(tfL.length){const ty=top+ah+24;c.strokeStyle=S.gold;c.globalAlpha=.6;c.lineWidth=1.5;c.beginPath();c.moveTo(W/2-160,ty);c.lineTo(W/2+160,ty);c.stroke();c.globalAlpha=1;
     c.fillStyle=S.gold;c.font='700 26px "Amiri",serif';c.fillText("التفسير الميسّر",W/2,ty+30);
-    c.fillStyle=S.ink;c.globalAlpha=.86;c.font=`${ts}px "Amiri",serif`;tfL.forEach((l,i)=>c.fillText(l,W/2,ty+70+i*ts*1.7+ts*.4));c.globalAlpha=1}
-  /* reference and a small mark */
-  c.fillStyle=S.mut;c.font='700 34px "Amiri",serif';c.fillText(`سورة ${SUR[sOf(id)][0]} · الآية ${ar(aOf(id))}`,W/2,bot+44);
-  c.font='26px "IBM Plex Sans Arabic","Amiri",sans-serif';c.globalAlpha=.8;c.fillText("المصحف الشريف · مصحف المدينة",W/2,bot+92);c.globalAlpha=1;
-  sbStar(c,W/2,bot+5,12);c.fillStyle=S.gold;c.fill();
+    c.fillStyle=S.ink;c.globalAlpha=.86;c.font=`${ts}px "Amiri",serif`;tfL.forEach((l,i)=>c.fillText(l,W/2,ty+66+i*ts*1.7+ts*.4));c.globalAlpha=1}
+  /* reference, quiet */
+  c.fillStyle=S.mut;c.font=`700 ${Math.round(W*.024)}px "Amiri",serif`;c.fillText(`سورة ${SUR[sOf(id)][0]} · الآية ${ar(aOf(id))}`,W/2,H-foot);
   return new Promise(res=>cv.toBlob(b=>res(b),"image/png"));
 }
 async function sbRender(){
   document.querySelectorAll("#sbFmt .sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.fmt===sbFmt)));
   document.querySelectorAll("#sbSty .sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.sty===sbSty)));
   const im=$("sbImg");im.classList.add("busy");const b=await sbDraw();if(!b){toast("تعذّر إنشاء الصورة");return}
-  sbBlob=b;if(sbUrl)URL.revokeObjectURL(sbUrl);sbUrl=URL.createObjectURL(b);im.onload=()=>im.classList.remove("busy");im.src=sbUrl;im.parentNode.classList.toggle("st",sbFmt==="st");
+  sbBlob=b;if(sbUrl)URL.revokeObjectURL(sbUrl);sbUrl=URL.createObjectURL(b);im.onload=()=>im.classList.remove("busy");im.src=sbUrl;im.parentNode.classList.toggle("st",sbFmt==="st");im.parentNode.classList.toggle("wd",sbFmt==="wd");
 }
 let sbTf=store.get("mushaf.sbtf")!=="0";
 function shareOpen(id){if(!id)return;sbId=id;const x=$("shareBox");x.hidden=false;void x.offsetWidth;x.classList.add("on");$("sbTf").setAttribute("aria-pressed",String(sbTf));
