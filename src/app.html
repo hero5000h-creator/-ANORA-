@@ -743,7 +743,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 .tg[aria-checked="true"]::after{transform:translateX(-18px)}
 .tg::before{content:"معطّل";position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);font-size:13px;font-weight:500;color:var(--ink);white-space:nowrap;pointer-events:none}
 .tg[aria-checked="true"]::before{content:"مفعّل";color:var(--orn)}
-.posture:has(>.tg)>span:first-child{padding-inline-end:42px}
+.posture.ptg>span:first-child{padding-inline-end:42px}
 
 /* memorisation: hidden words keep their place on the line as a faint dash */
 #app.memo #book .lb [data-a].hid{color:transparent;-webkit-text-stroke:0;background:linear-gradient(var(--rule),var(--rule)) left 78%/100% 1.5px no-repeat}
@@ -898,7 +898,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #app.ovl.calm #autoBar{bottom:6px;left:auto;right:8px;translate:none;padding:2px;gap:0}
 #app.ovl.calm #autoBar>:not(#atPlay){display:none}
 #app.ovl.calm #autoBar #atPlay{width:34px;height:34px}
-#app.toasting #azNudge,#app:has(.foot.playing) #azNudge,#app.table #azNudge,#app.memo #azNudge{opacity:0;pointer-events:none}
+#app.toasting #azNudge,#app.hPlay #azNudge,#app.table #azNudge,#app.memo #azNudge{opacity:0;pointer-events:none}
 /* where you are in the juz: a hairline under the top bar */
 #jprog{position:absolute;right:0;bottom:-1px;height:2px;width:100%;background:var(--orn);opacity:.55;transform:scaleX(0);transform-origin:right;transition:transform .6s var(--ease)}
 /* the pressed ayah fills in under the finger before its panel opens */
@@ -1001,12 +1001,12 @@ html.spreadM:not(.study) #cont{box-shadow:0 -56px 44px -6px var(--paper),0 10px 
 html.uzL .flbar .ib{zoom:var(--uz,1);color:var(--ink)}html.uzL .ib.fz{min-width:52px;justify-content:center;font-weight:700;border:1px solid var(--line);border-radius:12px;margin-inline:2px}
 /* open Fold, large print: when a side panel opens, the text moves to the free half instead of hiding under it */
 
-#app:has(#prefs:not([hidden])) .bar{z-index:10}/* above the auto-turn bar, so it never covers «إغلاق» */
+#app.hPrefs .bar{z-index:10}/* above the auto-turn bar, so it never covers «إغلاق» */
 #app>.bar .where{transition:opacity .2s}#app.toasting>.bar .where{opacity:0}
 /* large print size buttons say what they do, big enough for any finger */#flow .ib.fz{align-items:center;line-height:1;min-width:72px;height:44px;border:1px solid var(--line);border-radius:12px}#flow .ib.fz .aa,#flow .ib.fz sub{display:none}#flow .ib.fz .fzw{display:inline;font-size:15px;font-weight:600}
-html.thumb #app:has(#prefs:not([hidden])) #flow,html.thumb:has(#srcBox:not([hidden])) #flow{padding-left:50vw}
-html.thumb:has(#sheet.dock:not(.dR):not([hidden])) #flow{padding-left:50vw}
-html.thumb:has(#sheet.dock.dR:not([hidden])) #flow{padding-right:50vw}
+html.thumb #app.hPrefs #flow,html.thumb.hSrc #flow{padding-left:50vw}
+html.thumb.hDockL #flow{padding-left:50vw}
+html.thumb.hDockR #flow{padding-right:50vw}
 .ib.fz sub{font-size:13px;font-weight:700;vertical-align:baseline}
 /* thumb reach on the open Fold: the index and the menu move down to the corners of the footer */
 .fthumb{display:none}
@@ -1773,6 +1773,8 @@ html.thumb body #prefs.pOut{animation:dockOut .22s cubic-bezier(.5,0,.75,.4) for
 .sdScope.sur>i{transform:translateX(-100%)}
 .sres{flex:1 1 auto;min-height:0;padding:2px 8px 10px;border-top:1px solid color-mix(in srgb,var(--line) 60%,transparent)}
 .sres:empty{display:none}
+/* a common word lists hundreds of ayat: only the rows on screen are laid out, the rest wait until scrolled to */
+.sres>.row{content-visibility:auto;contain-intrinsic-size:auto 64px}
 .sres .grp{background:var(--bar)}
 .sres.anim>*{animation:sdRow .3s var(--ease) both;animation-delay:calc(min(var(--i,0),10) * 26ms)}
 .sres.anim>:nth-child(n+16){animation:none}
@@ -2312,9 +2314,12 @@ function place(el,x,z){
   if(el.parentNode!==book)book.appendChild(el);return el;
 }
 /* clears the book for a new arrangement: pages are parked (kept laid out), anything else (curl canvas, shades) goes */
-function ready(){const nb=mode==="spread"?[cur+2,cur+3,cur-2,cur-1]:[cur+1,cur-1];
+const nbList=()=>mode==="spread"?[cur+2,cur+3,cur-2,cur-1]:[cur+1,cur-1];
+function ready(){const nb=nbList();
   cache.forEach((e,p)=>{if(e.classList.contains("pk"))e.classList.toggle("nb",nb.includes(p))})}
-function park(keep){for(const e of [...book.children]){if(e.classList.contains("pg")&&cache.get(+e.dataset.p)===e){if(keep&&keep.includes(e))continue;e.classList.add("pk");e.classList.remove("t3","sld","nb");e.style.transform="";e.style.opacity="";e.style.transformOrigin=""}else e.remove()}}
+/* a page the turn just left is the next one back: it stays painted (nb) instead of being hidden and shown again a
+   moment later, which re-styled and re-laid its whole text at the landing of every turn */
+function park(keep){const nb=nbList();for(const e of [...book.children]){if(e.classList.contains("pg")&&cache.get(+e.dataset.p)===e){if(keep&&keep.includes(e))continue;e.classList.add("pk");e.classList.remove("t3","sld");e.classList.toggle("nb",nb.includes(+e.dataset.p));e.style.transform="";e.style.opacity="";e.style.transformOrigin=""}else e.remove()}}
 
 /* ---------- layout ---------- */
 /* Foldables: on a dual-screen device (viewport segments side by side) the spine sits on the hinge;
@@ -3263,6 +3268,14 @@ function ornaments(){
   root.style.setProperty("--o-frame",svg(frame));root.style.setProperty("--o-head",svg(head));root.style.setProperty("--o-num",svg(num));
 }
 function rebuild(){cancelFlip();cache.forEach(e=>e.remove());cache.clear();pgStash.clear();layoutIdle()}
+/* :has() on #app or html made the browser re-style every word of every page kept in the book whenever anything
+   inside changed (the page number written after each turn): ~200 ms of style work per turn on a mid phone, growing
+   as more pages were kept. The same four states are plain classes now, kept by observers on just these elements */
+(()=>{const R=document.documentElement,A=$("app"),F=document.querySelector(".foot"),Pf=$("prefs"),Sb=$("srcBox"),Sh=$("sheet");
+  const sync=()=>{A.classList.toggle("hPlay",F.classList.contains("playing"));A.classList.toggle("hPrefs",!Pf.hidden);R.classList.toggle("hSrc",!Sb.hidden);
+    const dk=!Sh.hidden&&Sh.classList.contains("dock"),dr=Sh.classList.contains("dR");R.classList.toggle("hDockL",dk&&!dr);R.classList.toggle("hDockR",dk&&dr)};
+  const mo=new MutationObserver(sync);for(const e of [F,Pf,Sb,Sh])mo.observe(e,{attributes:true,attributeFilter:["class","hidden"]});sync();
+  document.querySelectorAll(".posture").forEach(e=>{if(e.querySelector(":scope>.tg"))e.classList.add("ptg")})})();
 function prefsOut(){const p=$("prefs");if(reduce||p.hidden)return;const g=p.cloneNode(true);g.classList.add("pOut");g.setAttribute("aria-hidden","true");g.inert=true;
   g.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));p.after(g);g.scrollTop=p.scrollTop;const rm=()=>g.remove();g.addEventListener("animationend",rm);setTimeout(rm,450)}
 function showPrefs(on){if(on)contHide();if(on)try{dlUI()}catch(e){}$("fPrefs").setAttribute("aria-expanded",String(on));if(on){clearTimeout(calmT);$("app").classList.remove("calm");try{azNudgeHide()}catch(e){}requestAnimationFrame(()=>pillTo(document.querySelector(".ptabs")))}if(!on)prefsOut();$("prefs").hidden=!on;$("bPrefs").setAttribute("aria-expanded",String(on));if(on)prefsFit()}
@@ -4231,8 +4244,11 @@ if(window.ResizeObserver){let rq=0;const bb=document.querySelector("#app>.bar")|
 /* ---------- Quran text lock: the text shown must match the reviewed release (checked at build time and here) ---------- */
 const QLOCK=/*QLOCK*/null;
 async function qCheck(){const m=$("qLockMsg");if(!QLOCK||!window.crypto||!crypto.subtle){m.textContent="التحقق غير متاح بهذا المتصفح.";return}
-  const h=async t=>[...new Uint8Array(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)))].map(b=>b.toString(16).padStart(2,"0")).join("");
-  const a=await h(Q.map(s=>s.join("\n")).join("\n\n")),b=await h(K.map(p=>p.map(l=>l[l.length-1].map(w=>typeof w==="string"?w:w[0]).join(" ")).join("\n")).join("\f"));
+  /* the whole text is read and hashed in four short steps, each when the reader is not touching the screen or turning
+     a page: done in one go it was a 110 ms stall a few seconds after opening, right when the first swipe comes */
+  const calm=()=>new Promise(r=>{const go=()=>{if(busy||flip||down||Date.now()-stAct<1500){setTimeout(go,600);return}r()};(window.requestIdleCallback||setTimeout)(go)});
+  const h=async f=>{await calm();const t=f();await calm();const e=new TextEncoder().encode(t);return [...new Uint8Array(await crypto.subtle.digest("SHA-256",e))].map(b=>b.toString(16).padStart(2,"0")).join("")};
+  const a=await h(()=>Q.map(s=>s.join("\n")).join("\n\n")),b=await h(()=>K.map(p=>p.map(l=>l[l.length-1].map(w=>typeof w==="string"?w:w[0]).join(" ")).join("\n")).join("\f"));
   if(a===QLOCK.text&&b===QLOCK.pages){m.textContent=`نص المصحف بهذه النسخة مطابق حرفاً حرفاً لنص مصحف المدينة النبوية (١٤٠٥هـ) الذي قوبل آيةً آية بنص موسوعة القرآن الكريم QuranEnc، وترتيب الأسطر والصفحات كما في الطبعة. بصمة النص: \u2066${a.slice(0,8)}\u2069`;return}
   m.textContent="تنبيه: نص المصحف بهذه النسخة ما يطابق النص المراجَع. لا تعتمد عليه، وبلّغنا رجاءً.";m.style.color="#c0392b";
   const w=document.createElement("div");w.id="qWarn";w.setAttribute("role","alert");w.textContent="تنبيه: نص المصحف بهذه النسخة تغيّر عن النص المراجَع، لا تعتمد عليه";
@@ -4888,7 +4904,9 @@ function sdScopeUI(){const sc=document.querySelector(".sdScope");sc.classList.to
 function sdRender(){const raw=$("sq").value.trim(),L=$("sres");
   L.innerHTML=sdScope==="sur"?(raw?searchHTML(raw,sdS):`<div class="empty">اكتب كلمة أو جزءاً من آية لتجدها في سورة ${SUR[sdS][0]}.</div>`):raw?findHTML(raw):sdTips();
   [...L.children].forEach((e,i)=>e.style.setProperty("--i",i));
-  if(!reduce){L.classList.remove("anim");void L.offsetWidth;L.classList.add("anim")}L.scrollTop=0}
+  /* new rows play their rise on their own as they arrive; taking the class off and on again forced a layout of the
+     whole result list in the same task (100 ms on a mid phone for a common word) */
+  if(!reduce)L.classList.add("anim");L.scrollTop=0}
 function openSearch(){showPrefs(false);if(indexOpen)closeIndex();try{contHide();azNudgeHide()}catch(e){}
   const d=$("sDrop"),bar=document.querySelector("#app>.bar"),br=bar&&bar.getBoundingClientRect(),z=root.classList.contains("uzL")?+getComputedStyle(root).getPropertyValue("--uz")||1:1;
   const top=br&&br.bottom>8&&getComputedStyle(bar).opacity>.5?br.bottom+8:Math.max(12,(parseFloat(getComputedStyle(root).getPropertyValue("--cutT"))||0)+12);
