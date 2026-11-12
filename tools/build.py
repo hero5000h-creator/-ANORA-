@@ -13,7 +13,7 @@ import base64, json as _json, re as _re
 FONTS = {}
 def unfont(css, name):
     def rep(m):
-        i = len([k for k in FONTS if k.startswith(name)])
+        i = len([k for k in FONTS if k.startswith('fonts/' + name)])
         fn = f'fonts/{name}{i}.{ {"woff2":"woff2","woff":"woff","ttf":"ttf","truetype":"ttf","otf":"otf","opentype":"otf"}.get(m.group(1), m.group(1)) }'
         FONTS[fn] = base64.b64decode(m.group(2))
         return f'url({fn})'
@@ -30,8 +30,9 @@ def asjson(src):
         except ValueError:
             out.append(f'const {m.group(1)}={m.group(2).rstrip().rstrip(";")};')
     return '\n'.join(out) + '\n'
-fontcss = unfont(open(S('font.css'), encoding='utf-8').read(), 'mushaf') + unfont(open(S('amiri.css'), encoding='utf-8').read(), 'amiri') + unfont(open(S('suranames.css'), encoding='utf-8').read(), 'suranames')
+fontcss = unfont(open(S('font.css'), encoding='utf-8').read(), 'mushaf') + unfont(open(S('amiri.css'), encoding='utf-8').read(), 'amiri') + unfont(open(S('suranames.css'), encoding='utf-8').read(), 'suranames') + unfont(open(S('alexandria.css'), encoding='utf-8').read(), 'alexandria')
 SCRIPTS = {'adhan.js': open(S('adhan.js'), encoding='utf-8').read(), 'data.js': asjson(open(S('data.js'), encoding='utf-8').read()), 'k.js': asjson(open(S('k.js'), encoding='utf-8').read())}
+app = app.replace('/*SKIN*/', open(S('skin-clean.css'), encoding='utf-8').read())
 app = app.replace('/*FONT*/', fontcss).replace('/*QP*/', '')
 assert '<script>/*ADHAN*/</script>' in app and '<script>\n/*DATA*/\n/*K*/\n</script>' in app
 app = (app.replace('<script>/*ADHAN*/</script>', '<script src="adhan.js"></script>')

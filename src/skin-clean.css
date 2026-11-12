@@ -1,0 +1,142 @@
+/* ANORA "clean" skin: the app's chrome in a calm monochrome language (near-black ink on soft white, one bright
+   lime accent, white cards with a hairline edge, pill buttons, round icon buttons, heavy sans headings).
+   Only the chrome: the mushaf page (paper, Quran text, surah header, ayah markers, page fonts) keeps the root tokens,
+   because every rule here sets tokens on chrome containers only, never on :root or #book.
+   No new animation, no :has(), nothing per frame: colours, radii, borders and static shadows only. */
+
+html[data-skin="clean"]{
+  --k-bg:#fafafa;--k-sf:#fff;--k-ink:#0d0d0d;--k-mut:#5e5e5e;--k-chip:#f4f4f0;--k-hair:rgba(13,13,13,.09);--k-hair2:rgba(13,13,13,.14);
+  --k-lime:#d7fc00;--k-on:#0d0d0d;--k-ontx:#fff;--k-sh:0 30px 80px -30px rgba(13,13,13,.28);--k-sh2:0 16px 32px -24px rgba(13,13,13,.45);
+  --f-ui:"Alexandria","IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
+html[data-skin="clean"][data-paper="night"],html[data-skin="clean"][data-paper="black"],html[data-skin="clean"][data-paper="sky"]{
+  --k-bg:#121211;--k-sf:#1c1c1a;--k-ink:#faf9f6;--k-mut:#a3a39d;--k-chip:#2a2a27;--k-hair:rgba(255,255,255,.09);--k-hair2:rgba(255,255,255,.16);
+  --k-on:#d9f207;--k-ontx:#0d0d0d;--k-sh:0 30px 80px -30px rgba(0,0,0,.7);--k-sh2:0 16px 32px -20px rgba(0,0,0,.8)}
+
+/* chrome containers get the new tokens; the page inside #book never sees them */
+html[data-skin="clean"] :is(.bar,.foot,#prefs,#drawer,#sheet,#cont,.si,#recPick,#lpBar,#sDrop,#repBox,#quiz,#guide,#easyBox,#colEd,#sInfo,#keysBox,#noteBox,#dlBox,#shareBox,#scrubBig,#autoBar,#deck,.flbar,#toast){
+  --bar:var(--k-sf);--bar-ink:var(--k-ink);--muted:var(--k-mut);--orn:var(--k-on);--sel:var(--k-chip);--line:var(--k-hair);
+  --gold:var(--k-ink);--rule:var(--k-hair);--shadow:rgba(13,13,13,.22);font-family:var(--f-ui)}
+
+/* bars: white, a single hairline, heavy sans title */
+html[data-skin="clean"] body{background:var(--k-bg)}
+html[data-skin="clean"] body::before{background:var(--k-sf)}
+html[data-skin="clean"] .where b{font-family:var(--f-ui);font-weight:800;font-size:18px;letter-spacing:-.01em}
+html[data-skin="clean"] .where small{font-size:12px;font-weight:500;color:var(--k-mut);letter-spacing:-.01em}
+html[data-skin="clean"] .where b svg{fill:var(--k-ink)}
+
+/* round icon buttons with a hairline ring (like the site's 44px circle buttons) */
+html[data-skin="clean"] :is(.bar,.foot,.flbar) .ib{border-radius:999px;border:1px solid var(--k-hair2);background:var(--k-sf);color:var(--k-ink)}
+html[data-skin="clean"] .tools{gap:6px}
+html[data-skin="clean"] .ib svg{stroke-width:1.8}
+html[data-skin="clean"] #bPrefs[aria-expanded="true"],html[data-skin="clean"] .ib[aria-pressed="true"]{background:var(--k-on);color:var(--k-ontx);border-color:var(--k-on)}
+html[data-skin="clean"] .btn-index{border-radius:999px;background:var(--k-chip);color:var(--k-ink);font-weight:700}
+
+/* the main call to action: a black pill (lime in the dark) */
+html[data-skin="clean"] #fListen{background:var(--k-on);color:var(--k-ontx);font-weight:700;box-shadow:var(--k-sh2)}
+html[data-skin="clean"] .pg-n{font-weight:800}
+html[data-skin="clean"] .pg-n em{font-weight:500}
+
+/* menu: a white card, big radius, long soft shadow */
+html[data-skin="clean"] #prefs{border-radius:24px;border:1px solid var(--k-hair);box-shadow:var(--k-sh);padding:16px}
+html[data-skin="clean"] .qt{background:var(--k-sf);border:1px solid var(--k-hair);border-radius:18px;font-weight:600;color:var(--k-ink)}
+html[data-skin="clean"] .qa.q4 .qt{border-radius:18px}
+html[data-skin="clean"] .qt svg{stroke:var(--k-ink);stroke-width:1.8}
+html[data-skin="clean"] .qt[aria-pressed="true"]{background:var(--k-on);border-color:var(--k-on);color:var(--k-ontx)}
+html[data-skin="clean"] .qt[aria-pressed="true"] svg{stroke:var(--k-ontx)}
+html[data-skin="clean"] #prefs h3{font-weight:700;color:var(--k-mut)}
+html[data-skin="clean"] #prefs h3.ph{font-size:15px;font-weight:800;color:var(--k-ink)}
+/* the gold diamond before section titles becomes a small lime dot with an ink ring */
+html[data-skin="clean"] #prefs h3.ph::before,html[data-skin="clean"] .grp span:first-child::before{width:8px;height:8px;border-radius:50%;transform:translateY(-1px);background:#d7fc00;box-shadow:0 0 0 1.5px var(--k-ink);opacity:1}
+html[data-skin="clean"] .qlink{font-weight:600;color:var(--k-mut)}
+
+/* segmented choices and tabs: pills; the chosen one is solid */
+html[data-skin="clean"] .seg button,html[data-skin="clean"] .sw{border-radius:16px;border:1px solid var(--k-hair);background:var(--k-sf);font-weight:600}
+html[data-skin="clean"] .seg button[aria-pressed="true"],html[data-skin="clean"] .seg button[aria-checked="true"],html[data-skin="clean"] .seg button.on,html[data-skin="clean"] .sw[aria-pressed="true"],html[data-skin="clean"] .sw[aria-checked="true"],html[data-skin="clean"] .sw.on{background:var(--k-on);color:var(--k-ontx);border-color:var(--k-on)}
+html[data-skin="clean"] .tabs{background:var(--k-chip);border-radius:999px}
+html[data-skin="clean"] .tabs button{border-radius:999px;font-weight:600}
+html[data-skin="clean"] .tabs button[aria-selected="true"]{background:none;color:var(--k-ontx);box-shadow:none;font-weight:700}
+html[data-skin="clean"] .tg[aria-checked="true"]{background:var(--k-on)!important}
+html[data-skin="clean"][data-paper="night"] .tg[aria-checked="true"]::after,html[data-skin="clean"][data-paper="black"] .tg[aria-checked="true"]::after,html[data-skin="clean"][data-paper="sky"] .tg[aria-checked="true"]::after{background:#0d0d0d!important}
+html[data-skin="clean"] .rsel{border-radius:16px;background:var(--k-sf);border-color:var(--k-hair2);color:var(--k-ink);font-weight:600}
+html[data-skin="clean"] .rsel svg{stroke:var(--k-ink)}
+
+/* buttons on cards: outline pills, and the solid one is the black pill */
+html[data-skin="clean"] .ctb{border-radius:999px;font-weight:600;border-color:var(--k-hair2)}
+html[data-skin="clean"] .ctb.solid{background:var(--k-on);border-color:var(--k-on);color:var(--k-ontx);font-weight:700}
+html[data-skin="clean"] #cont .cb #cPl{background:var(--k-sf);border:1px solid var(--k-hair2);color:var(--k-ink)}
+
+/* the index */
+html[data-skin="clean"] #drawer{box-shadow:var(--k-sh)}
+html[data-skin="clean"] #drawer input{border-radius:999px!important;background:var(--k-chip)!important;border-color:transparent!important;font-family:var(--f-ui)}
+
+/* cards and dialogs */
+html[data-skin="clean"] #cont{border-radius:24px;border:1px solid var(--k-hair);box-shadow:var(--k-sh)}
+html[data-skin="clean"] #cont .ch i{border-radius:999px;background:var(--k-on);color:var(--k-ontx)}
+html[data-skin="clean"] #cont b{font-family:var(--f-ui);font-weight:800;font-size:16px}
+html[data-skin="clean"] #cont .cw span i{background:var(--k-on)}
+html[data-skin="clean"] .si{border-radius:28px;border:1px solid var(--k-hair);box-shadow:var(--k-sh)}
+html[data-skin="clean"] #sheet{border-radius:28px 28px 0 0}
+html[data-skin="clean"] #recPick .rp{border-radius:28px 28px 0 0}
+
+/* the ayah pop-up: a white card, the main action a black pill */
+html[data-skin="clean"] #lpBar{border-radius:22px;border:1px solid var(--k-hair);box-shadow:var(--k-sh)}
+html[data-skin="clean"] #lpBar .lpRow button{font-weight:600}
+html[data-skin="clean"] #lpBar .lpRow .pri{background:var(--k-on);color:var(--k-ontx)}
+html[data-skin="clean"] #lpBar .lpRef{background:var(--k-on);color:var(--k-ontx);border-radius:999px;font-weight:700}
+
+/* adhkar: keep the night sky and the moon, flatten the cards, lime instead of gold for actions */
+html[data-skin="clean"] #az{font-family:var(--f-ui)}
+html[data-skin="clean"] .az-ib{border-radius:999px;background:#1c1c1a;border-color:rgba(255,255,255,.12)}
+html[data-skin="clean"] .az-cat{background:#161615!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:24px}
+html[data-skin="clean"] .az-cat b,html[data-skin="clean"] .az-sec{font-family:var(--f-ui);font-weight:800;color:#faf9f6}
+html[data-skin="clean"] .az-pt{background:#161615;border:1px solid rgba(255,255,255,.09);border-radius:24px}
+html[data-skin="clean"] .az-pt button:not(.az-ib),html[data-skin="clean"] .az-btn.solid,html[data-skin="clean"] .az-btn.pri{background:#d9f207!important;color:#0d0d0d!important;border-color:#d9f207!important;border-radius:999px!important;font-weight:700}
+html[data-skin="clean"] .az-chip,html[data-skin="clean"] .az-btn{border-radius:999px}
+html[data-skin="clean"] .az-set{border-radius:24px;background:#161615}
+html[data-skin="clean"] .az-sw[aria-checked="true"]{background:#d9f207}
+
+/* the phone layout (html.phoneM) dressed its bars as a gilded mushaf frame; in this skin they become plain white bars */
+html[data-skin="clean"].phoneM{--b-bg:var(--k-sf);--b-rim:var(--k-hair2);--b-soft:var(--k-hair)}
+html[data-skin="clean"].phoneM #app>.bar{background:var(--k-sf);border-bottom:1px solid var(--k-hair);box-shadow:none}
+html[data-skin="clean"].phoneM #app>.foot{background:var(--k-sf);border-top:1px solid var(--k-hair);box-shadow:none}
+html[data-skin="clean"].phoneM #app>.bar::after,html[data-skin="clean"].phoneM #app>.foot::after,
+html[data-skin="clean"].phoneM .where b::before,html[data-skin="clean"].phoneM .where b::after{display:none}
+html[data-skin="clean"].phoneM .where b{font-size:18px}
+html[data-skin="clean"].phoneM #jprog{background:var(--k-on);opacity:1}
+html[data-skin="clean"].phoneM .bar .ib,html[data-skin="clean"].phoneM #bPrefs,html[data-skin="clean"].phoneM .btn-index{border-radius:999px;background:var(--k-sf);border:1px solid var(--k-hair2);box-shadow:none;color:var(--k-ink)}
+html[data-skin="clean"].phoneM .bar .ib.azb{color:var(--k-ink)}
+html[data-skin="clean"].phoneM .bar .ib:active,html[data-skin="clean"].phoneM .btn-index:active,html[data-skin="clean"].phoneM #bPrefs[aria-expanded="true"]{background:var(--k-on);color:var(--k-ontx);border-color:var(--k-on)}
+html[data-skin="clean"].phoneM .tools{gap:3px}
+html[data-skin="clean"].phoneM .pnum{border-radius:999px;background:var(--k-chip);border:0;box-shadow:none}
+html[data-skin="clean"].phoneM .pnum b{font-weight:800}
+html[data-skin="clean"].phoneM .trk{background:var(--k-hair2)}
+html[data-skin="clean"].phoneM .trk>i{background:var(--k-on)}
+html[data-skin="clean"].phoneM .trk>b{background:var(--k-hair2)}
+html[data-skin="clean"].phoneM #range::-webkit-slider-thumb{width:22px;height:22px;border-radius:50%;transform:none;background:var(--k-on);border:3px solid var(--k-sf);box-shadow:0 0 0 1px var(--k-hair2),0 4px 10px -2px rgba(13,13,13,.35)}
+html[data-skin="clean"].phoneM #range:active::-webkit-slider-thumb{transform:scale(1.2)}
+html[data-skin="clean"].phoneM #range::-moz-range-thumb{border-radius:50%;transform:none}
+html[data-skin="clean"].phoneM #player .pp{background:var(--k-on);color:var(--k-ontx);box-shadow:0 12px 24px -12px rgba(13,13,13,.6)}
+html[data-skin="clean"].phoneM #player .pbar{background:var(--k-hair2)}
+html[data-skin="clean"].phoneM #player .pbar i{background:var(--k-on)}
+html[data-skin="clean"].phoneM #player .ib{color:var(--k-ink);border-radius:999px}
+html[data-skin="clean"].phoneM #player .ib+.ib{border-inline-start:0;border-radius:999px}
+html[data-skin="clean"].phoneM #player .ib:active{background:var(--k-chip)}
+html[data-skin="clean"].phoneM #player .cap{font-weight:600}
+html[data-skin="clean"].phoneM #prefs{border-radius:24px;border:1px solid var(--k-hair);box-shadow:var(--k-sh)}
+html[data-skin="clean"].phoneM .qa.q4 .qt,html[data-skin="clean"].phoneM .qt{border-radius:18px;background:var(--k-sf);border:1px solid var(--k-hair)}
+html[data-skin="clean"].phoneM .qt[aria-pressed="true"],html[data-skin="clean"].phoneM .qa.q4 .qt[aria-pressed="true"]{background:var(--k-on);border-color:var(--k-on);color:var(--k-ontx)}
+html[data-skin="clean"].phoneM #prefs h3{color:var(--k-mut)}
+html[data-skin="clean"].phoneM #prefs h3.ph,html[data-skin="clean"].phoneM #prefs .qh{color:var(--k-ink);font-weight:800}
+html[data-skin="clean"].phoneM #prefs .qh::before{width:8px;height:8px;border-radius:50%;transform:translateY(-1px);background:#d7fc00;box-shadow:0 0 0 1.5px var(--k-ink)}
+html[data-skin="clean"] .ptabs,html[data-skin="clean"].phoneM .ptabs{border-radius:999px;background:var(--k-chip);border:0;padding:4px}
+html[data-skin="clean"] .ptabs button,html[data-skin="clean"].phoneM .ptabs button{border-radius:999px;font-weight:600}
+html[data-skin="clean"] .ptabs button[aria-selected="true"],html[data-skin="clean"].phoneM .ptabs button[aria-selected="true"]{background:none;color:var(--k-ontx);box-shadow:none;font-weight:700}
+html[data-skin="clean"] :is(.ptabs,.tabs) .tpill{border-radius:999px;background:var(--k-on);box-shadow:none}
+html[data-skin="clean"].phoneM .sw{border-radius:16px;border-color:var(--k-hair)}
+html[data-skin="clean"].phoneM #sheet{border-color:var(--k-hair);border-radius:28px 28px 0 0}
+html[data-skin="clean"].phoneM #sheet .shh{background:var(--k-sf);border-bottom:1px solid var(--k-hair)}
+html[data-skin="clean"].phoneM #sheet .grab{background:var(--k-hair2)}
+html[data-skin="clean"] #toast .tundo{border-color:var(--k-lime);color:var(--k-lime)}
+/* simple mode puts a caption under each top button: a circle can't hold it, so those become soft rounded tiles */
+html[data-skin="clean"].simple .bar .tools .ib,html[data-skin="clean"].phoneM.simple .bar .tools .ib,html[data-skin="clean"].phoneM.simple .bar #bPrefs{border-radius:16px}
+html[data-skin="clean"].simple .bar .tools .tcap{font-size:11px;font-weight:600;letter-spacing:-.01em}
