@@ -206,7 +206,7 @@ html.phoneM .pg:not(.blank) .box{padding:calc(var(--pw) * .014) 0}
 html.phoneM:not([data-frame="1"]) .pg .gut,html.phoneM:not([data-frame="1"]) #bookwrap::before,html.phoneM:not([data-frame="1"]) .edge{display:none}
 html.phoneM[data-frame="1"] .pg .frame{inset:2.2% .8% 1.2% .8%}
 html.phoneM[data-frame="1"] .pg:not(.blank) .box{border-width:calc(var(--pw) * .02);padding:calc(var(--pw) * .014) calc(var(--pw) * .006)}
-html.phoneM .hm:not(.jz):not(.sj){width:calc(var(--pw) * .068);height:calc(var(--pw) * .068)}html.phoneM .hm.q{width:calc(var(--pw) * .06);height:calc(var(--pw) * .06)}
+html.phoneM .hm:not(.sj){width:calc(var(--pw) * .068);height:calc(var(--pw) * .068)}html.phoneM .hm.q{width:calc(var(--pw) * .06);height:calc(var(--pw) * .06)}
 html.phoneM .ph{font-size:calc(var(--pw) * .047 * var(--tk,1));padding:0 .3em .25em}
 html.phoneM .pf{font-size:calc(var(--pw) * .042 * var(--tk,1));margin-top:.15em}
 html.phoneM #stage{background:var(--paper);background-image:none}
@@ -284,8 +284,6 @@ html.phoneM #bookwrap::after{display:none}
 
 .hm.sj{background-image:var(--o-sajda);height:calc(var(--pw) * .104);font-size:calc(var(--pw) * .02 * var(--tk,1));padding-top:.9em}
 html[data-theme="dark"][data-cover="green"]{--cover:#1d2622}html[data-theme="dark"][data-cover="navy"]{--cover:#181e2b}html[data-theme="dark"][data-cover="maroon"]{--cover:#2c1517}html[data-theme="dark"][data-cover="brown"]{--cover:#2b2017}html[data-theme="dark"][data-cover="black"]{--cover:#151514}
-.hm.jz{width:calc(var(--pw) * .1);height:calc(var(--pw) * .16);background-image:var(--o-juz);align-content:center;justify-items:center;gap:.15em;padding-top:0;font-size:calc(var(--pw) * .032 * var(--tk,1))}
-.hm.jz small{font-family:var(--f-ui);font-weight:600;font-size:.56em;color:var(--gold)}
 /* the opening pages: al-Fatiha and the start of al-Baqarah sit in an illuminated arched panel, as in the printed mushaf */
 .pg.opening .box{background:var(--o-open) center/100% 100% no-repeat;padding:0 15%}
 /* tall phones: the arch opens wider so the longest line of al-Fatiha stays inside its walls */
@@ -2285,14 +2283,14 @@ function hizbMarks(el){
     const lr=ln.getBoundingClientRect(),m=document.createElement("i");
     if(s.classList.contains("rub")){const q=QSET.has(a)?QSET.get(a):qOf(a),part=q%4,hz=(q>>2)+1;
       m.className="hm"+(part?" q":"");m.textContent=part?["","¼","½","¾"][part]:ar(hz);m.setAttribute("aria-label",part?`${QLAB[part]} ${ar(hz)}`:`الحزب ${ar(hz)}`);
-      /* a new juz gets a taller illuminated cartouche that names it */
-      if(!part&&hz%2){const j=(hz+1)>>1;m.className="hm jz";m.innerHTML=`<small>الجزء</small>${ar(j)}`;m.setAttribute("aria-label",`بداية الجزء ${JNAMES[j-1]}`)}}
+      /* a new juz gets no margin badge: the header already names the juz, and the badge sat over the end of the first line */
+      if(!part&&hz%2)return}
     else{m.className="hm sj";m.textContent="سجدة";m.setAttribute("aria-label","سجدة")}
     m.style.top=(lr.top+lr.height/2-pr.top)+"px";
     /* plain page (no frame band): centre the medallion in the outer margin, never past the paper's edge */
     if(!bw){el.querySelector(".frame").after(m);const mw=m.offsetWidth,gap=(outerR?pr.right-br.right:br.left-pr.left)+(parseFloat(getComputedStyle(box).paddingLeft)||0);m.style[outerR?"right":"left"]=Math.max(1,(gap-mw)/2).toFixed(1)+"px";return}
     const c=outerR?pr.right-br.right+bw/2:br.left-pr.left+bw/2;
-    m.style[outerR?"right":"left"]=`calc(${c}px - var(--pw) * ${m.classList.contains("q")?.038:m.classList.contains("jz")?.05:.044})`;
+    m.style[outerR?"right":"left"]=`calc(${c}px - var(--pw) * ${m.classList.contains("q")?.038:.044})`;
     el.querySelector(".frame").after(m)});
 }
 function get(p){
@@ -3252,7 +3250,6 @@ function ornaments(){
   let pt="";for(let i=0;i<16;i++){pt+=`<circle cx="20" cy="3.6" r="1.5" transform="rotate(${i*22.5} 20 20)"/>`}
   const hizb=`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><g fill="${gl}">${pt}</g><path d="${star(20,20,15.5)}" fill="${t}" stroke="${g}" stroke-width="1"/><circle cx="20" cy="20" r="9.8" fill="${p}" stroke="${g}" stroke-width="1"/><circle cx="20" cy="20" r="8.2" fill="none" stroke="${gl}" stroke-width=".5"/></svg>`;
   const sajda=`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="48" viewBox="0 0 40 48"><path d="M4 46V22Q4 10 20 2Q36 10 36 22V46Z" fill="${t}" stroke="${g}" stroke-width="1.2"/><path d="M8.5 43V23Q8.5 13.5 20 7.5Q31.5 13.5 31.5 23V43Z" fill="${p}" stroke="${gl}" stroke-width=".7"/><circle cx="20" cy="2.6" r="1.6" fill="${g}"/></svg>`;
-  const juz=`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="64" viewBox="0 0 40 64"><path d="M20 1L28 10Q39 18 39 32Q39 46 28 54L20 63L12 54Q1 46 1 32Q1 18 12 10Z" fill="${t}" stroke="${g}" stroke-width="1.1"/><path d="M20 7L26 13.5Q34.5 20 34.5 32Q34.5 44 26 50.5L20 57L14 50.5Q5.5 44 5.5 32Q5.5 20 14 13.5Z" fill="${p}" stroke="${gl}" stroke-width=".7"/><circle cx="20" cy="2.2" r="1.4" fill="${o}"/><circle cx="20" cy="61.8" r="1.4" fill="${o}"/></svg>`;
   /* illuminated arched panel for the two opening pages */
   const open=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420" viewBox="0 0 300 420" preserveAspectRatio="none">
     <rect x="0" y="0" width="300" height="420" fill="${t}"/>
@@ -3263,7 +3260,7 @@ function ornaments(){
     <g fill="${o}"><circle cx="150" cy="16" r="4"/><circle cx="150" cy="404" r="4"/></g></svg>`;
   /* carved arches along the front of the rehal */
   const carve=`<svg xmlns="http://www.w3.org/2000/svg" width="28" height="14" viewBox="0 0 28 14"><path d="M3 14V8Q3 2 14 1Q25 2 25 8V14" fill="rgba(0,0,0,.28)" stroke="rgba(255,220,160,.35)" stroke-width=".8"/><circle cx="14" cy="9" r="1.6" fill="rgba(255,220,160,.35)"/></svg>`;
-  root.style.setProperty("--o-juz",svg(juz));root.style.setProperty("--o-open",svg(open));root.style.setProperty("--o-carve",svg(carve));
+  root.style.setProperty("--o-open",svg(open));root.style.setProperty("--o-carve",svg(carve));
   root.style.setProperty("--o-hizb",svg(hizb));root.style.setProperty("--o-sajda",svg(sajda));
   root.style.setProperty("--o-frame",svg(frame));root.style.setProperty("--o-head",svg(head));root.style.setProperty("--o-num",svg(num));
 }
