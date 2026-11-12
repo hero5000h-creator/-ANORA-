@@ -1,0 +1,53 @@
+{
+  "name": "anora-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "أنورا · ANORA — The Holy Quran Experience, for Windows",
+  "license": "GPL-3.0-or-later",
+  "author": "ANORA",
+  "homepage": "https://github.com/hero5000h-creator/-ANORA-",
+  "main": "main.js",
+  "scripts": {
+    "www": "python3 ../tools/build.py && node copy-www.js",
+    "start": "npm run www && electron .",
+    "dist": "npm run www && electron-builder --win --publish never"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "app.anora.quran",
+    "productName": "ANORA",
+    "copyright": "ANORA · GPL-3.0-or-later",
+    "directories": { "output": "dist", "buildResources": "build" },
+    "files": ["main.js", "preload.js", "package.json", "www/**/*"],
+    "extraFiles": [
+      { "from": "../LICENSE", "to": "LICENSE.txt" },
+      { "from": "../NOTICE.md", "to": "NOTICE.md" },
+      { "from": "../licenses", "to": "licenses" }
+    ],
+    "compression": "normal",
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "runAfterFinish": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "أنورا",
+      "uninstallDisplayName": "أنورا · ANORA",
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "anora-windows-setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "anora-windows-portable.${ext}"
+    }
+  }
+}

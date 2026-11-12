@@ -832,6 +832,19 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 .foot.playing #wird,.foot.memo-on #wird{display:none}
 #guide{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;background:color-mix(in srgb,var(--desk) 70%,transparent);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 #guide[hidden]{display:none}
+/* Windows (Electron): keyboard shortcuts card, and the mouse look of a desktop app */
+#keysBox{position:fixed;inset:0;z-index:61;display:grid;place-items:center;padding:20px;background:color-mix(in srgb,var(--desk) 70%,transparent);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+#keysBox[hidden]{display:none}
+#keysBox .gcard{width:min(440px,100%);text-align:start}
+#keysBox h2{text-align:center}
+.kl{display:grid;grid-template-columns:1fr auto;gap:2px 16px;margin:6px 0 16px;font-size:14.5px}
+.kl span{padding:7px 0;border-bottom:1px solid var(--line)}
+.kl kbd{justify-self:end;align-self:center;direction:ltr;font:600 12.5px/1 var(--f-ui);padding:5px 8px;border-radius:6px;border:1px solid var(--line);border-bottom-width:2px;background:var(--paper);color:var(--bar-ink);white-space:nowrap}
+#keysX{display:block;margin:0 auto;height:40px;padding:0 26px;border-radius:20px;background:var(--orn);color:var(--bar);font-weight:600}
+html.electron .stage.nocur{cursor:none}
+html.electron ::-webkit-scrollbar{width:10px;height:10px}html.electron ::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--bar-ink) 22%,transparent);border-radius:5px;border:2px solid transparent;background-clip:padding-box}
+html.electron ::-webkit-scrollbar-thumb:hover{background-color:color-mix(in srgb,var(--bar-ink) 38%,transparent)}html.electron ::-webkit-scrollbar-track{background:transparent}
+html.electron :focus-visible{outline:2px solid var(--orn);outline-offset:2px}
 .gcard{width:min(360px,100%);background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);border-radius:22px;padding:22px 22px 16px;text-align:center;box-shadow:0 24px 60px -20px var(--shadow)}
 .gart{height:150px;display:grid;place-items:center;margin:-4px -4px 10px;border-radius:16px;background:var(--paper)}
 .gart svg{width:150px;height:130px}
@@ -1885,6 +1898,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
         <div class="bkb"><button class="ctb" id="bkOut">حفظ نسخة</button><button class="ctb" id="bkIn">استرجاع</button><input type="file" id="bkFile" accept=".json,application/json" hidden></div></div>
       </section>
       <button class="qlink" id="bGuide"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.5a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.4M12 16.8v.2"/></svg><span>طريقة الاستخدام</span></button>
+      <button class="qlink" id="bKeys" hidden style="margin-top:0"><svg viewBox="0 0 24 24"><rect x="3" y="6.5" width="18" height="11" rx="2"/><path d="M7 10h.01M10.3 10h.01M13.7 10h.01M17 10h.01M8 14h8"/></svg><span>اختصارات لوحة المفاتيح</span></button>
       <button class="pclose" id="prefsX" aria-label="إغلاق الإعدادات"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg><span>إغلاق</span></button>
       <button class="qlink" id="bSrc" style="margin-top:0"><svg viewBox="0 0 24 24"><path d="M5 4.5h9l5 5v10H5z"/><path d="M14 4.5v5h5M8.5 13h7M8.5 16.5h5"/></svg><span>المصادر والتراخيص</span></button>
     </div>
@@ -1971,6 +1985,27 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
 <div id="ascrim" hidden></div>
 <div id="lpScr" hidden></div>
 <div id="lpBar" role="menu" aria-label="خيارات الآية" dir="rtl" hidden><span class="lpRef" id="lpRef"></span><div class="lpRow"><button role="menuitem" data-k="play" class="pri"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>استماع</button><button role="menuitem" data-k="tf"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5c3-1 6-1 9 1 3-2 6-2 9-1v13c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6.5v13"/></svg>تفسير</button><button role="menuitem" data-k="copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/></svg>نسخ</button><button role="menuitem" data-k="share"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7.5 8.5L12 4l4.5 4.5M5 13.5V19a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5.5"/></svg>مشاركة</button><button role="menuitem" data-k="mark" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg>علامة</button><span class="lpSep" aria-hidden="true"></span><button role="menuitem" data-k="more"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg>المزيد</button></div><div class="lpDots" id="lpDots" role="group" aria-label="تظليل"></div><span class="lpTail" aria-hidden="true"></span></div>
+<div id="keysBox" role="dialog" aria-modal="true" aria-label="اختصارات لوحة المفاتيح" hidden>
+  <div class="gcard">
+    <h2>اختصارات لوحة المفاتيح</h2>
+    <div class="kl">
+      <span>الصفحة التالية</span><kbd>← · Space · PgDn</kbd>
+      <span>الصفحة السابقة</span><kbd>→ · PgUp</kbd>
+      <span>أول المصحف · آخره</span><kbd>Home · End</kbd>
+      <span>استمع · إيقاف مؤقت</span><kbd>P</kbd>
+      <span>البحث في القرآن</span><kbd>Ctrl + F</kbd>
+      <span>الفهرس</span><kbd>Ctrl + I</kbd>
+      <span>علامة الصفحة</span><kbd>Ctrl + B</kbd>
+      <span>نهار · ليل</span><kbd>Ctrl + D</kbd>
+      <span>الأدوات والإعدادات</span><kbd>Ctrl + ,</kbd>
+      <span>ملء الشاشة</span><kbd>F11</kbd>
+      <span>تكبير الواجهة · تصغيرها · الأصل</span><kbd>Ctrl + = · − · 0</kbd>
+      <span>إغلاق النافذة المفتوحة</span><kbd>Esc</kbd>
+      <span>هذه القائمة</span><kbd>F1</kbd>
+    </div>
+    <button id="keysX">تمام</button>
+  </div>
+</div>
 <div id="guide" role="dialog" aria-modal="true" aria-label="طريقة الاستخدام" hidden>
   <div class="gcard">
     <div class="gart" id="gArt"></div>
@@ -4252,6 +4287,12 @@ async function qCheck(){const m=$("qLockMsg");if(!QLOCK||!window.crypto||!crypto
   w.style.cssText="position:fixed;z-index:90;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top,0px));padding:10px 14px;border-radius:12px;background:#c0392b;color:#fff;font-size:14px;text-align:center";document.body.appendChild(w)}
 setTimeout(()=>qCheck().catch(()=>{}),2500);
 /* ---------- native bridge (Capacitor): plugins are called by name, no bundler needed ---------- */
+/* Windows (desktop/main.js, Electron): the window's small bridge becomes the same Capacitor interface, so every
+   call below works unchanged; plugins it does not have answer "not available" like on the web */
+if(window.__anora&&!window.Capacitor){const B=window.__anora,HAVE=["Filesystem","FileTransfer","LocalNotifications","Window"];
+  window.Capacitor={isNativePlatform:()=>true,getPlatform:()=>"electron",isPluginAvailable:n=>HAVE.includes(n),convertFileSrc:u=>u,
+    nativePromise:(pl,m,o)=>HAVE.includes(pl)?B.invoke(pl,m,JSON.stringify(o||{})):Promise.reject(new Error(pl+" is not available on Windows")),
+    addListener:(pl,ev,fn)=>B.on(pl,ev,fn)}}
 const CAP=window.Capacitor,NATIVE=!!(CAP&&CAP.isNativePlatform&&CAP.isNativePlatform()),PLAT=NATIVE&&CAP.getPlatform?CAP.getPlatform():"web";
 if(NATIVE)root.classList.add("native",PLAT);if(PLAT==="android")setTimeout(()=>nat("Playback","insets").then(c=>{if(!c)return;const st=root.style;st.setProperty("--cutT",(c.t|0)+"px");st.setProperty("--cutR",(c.r|0)+"px");st.setProperty("--cutB",(c.b|0)+"px");st.setProperty("--cutL",(c.l|0)+"px");
   /* a phone set to a larger font: the first run picks the matching app text size (the mushaf page itself always fits its width) */
@@ -4691,11 +4732,11 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
   if(d.final)nat("Speech","bias",{words:biasWords()}).catch(()=>{})});
 natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
 function micStart(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  const SR=PLAT==="electron"?null:window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
   if(PLAT==="android"&&NATIVE){LS.on=true;LS.nat=true;LS.done=0;LS.miss=0;$("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent="أسمعك… اقرأ من حفظك";
     nat("Speech","start",{words:biasWords()}).catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
-  if(!SR){no("التسميع بالصوت غير متاح في هذا المتصفح. جرّبه في Chrome، وسيكون مدمجاً في التطبيق.");return}
+  if(!SR){no(PLAT==="electron"?"التسميع بالصوت متاح بتطبيق الهاتف، وما زال غير متاح بنسخة الويندوز. تقدر تسمّع بإظهار الكلمات واحدة واحدة.":"التسميع بالصوت غير متاح في هذا المتصفح. جرّبه في Chrome، وسيكون مدمجاً في التطبيق.");return}
   const r=new SR();r.lang="ar-SA";r.continuous=true;r.interimResults=false;r.maxAlternatives=5;
   LS.rec=r;LS.on=true;LS.used=0;LS.miss=0;
   r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){if(!e.results[i].isFinal)continue;heardWords(bestAlt([...e.results[i]].map(x=>x.transcript)).trim().split(/\s+/),true)}};
@@ -5441,7 +5482,7 @@ function ptPanel(){const p=ptGet(),sug=PT_SUGG[p.cc]||[];
    <h4>صلاة العصر</h4><button class="opt" role="radio" aria-checked="${!p.hz}" data-hz="0"><span>الجمهور<small>حين يصير ظل الشيء مثله</small></span></button><button class="opt" role="radio" aria-checked="${!!p.hz}" data-hz="1"><span>الحنفي<small>حين يصير ظل الشيء مثليه</small></span></button>
    <h4>تعديل الدقائق</h4><div class="az-set">${PT_KEYS.map(k=>{const v=(p.adj||{})[k]||0;return `<div class="adj"><span>${PT_NAMES[k]}</span><button data-adj="${k}" data-d="-1" aria-label="${PT_NAMES[k]} دقيقة أقل">−</button><b>${v?(v>0?"+":"−")+ar(Math.abs(v)):"٠"} د</b><button data-adj="${k}" data-d="1" aria-label="${PT_NAMES[k]} دقيقة أكثر">+</button></div>`}).join("")}</div>
    <p class="note">المرجع هو أذان مسجد بلدك. إذا اختلف وقت هنا عن مسجدك فعدّله بالدقائق.</p>
-   <h4>تنبيه عند دخول الوقت</h4><div class="az-set"><div class="az-row"><span>إشعار لكل صلاة<small>${NATIVE?"إشعار قصير بصوت الهاتف · افتح التطبيق مرة كل أسبوع ليبقى التنبيه مضبوطاً":"التنبيه يعمل في تطبيق الهاتف"}</small></span><button class="az-sw" data-ps="n" role="switch" aria-checked="${NATIVE&&!!p.n}" ${NATIVE?"":"disabled"} aria-label="إشعار لكل صلاة"></button></div></div>
+   <h4>تنبيه عند دخول الوقت</h4><div class="az-set"><div class="az-row"><span>إشعار لكل صلاة<small>${PLAT==="electron"?"إشعار من ويندوز ما دام أنورا مفتوحاً أو مصغّراً":NATIVE?"إشعار قصير بصوت الهاتف · افتح التطبيق مرة كل أسبوع ليبقى التنبيه مضبوطاً":"التنبيه يعمل في تطبيق الهاتف"}</small></span><button class="az-sw" data-ps="n" role="switch" aria-checked="${NATIVE&&!!p.n}" ${NATIVE?"":"disabled"} aria-label="إشعار لكل صلاة"></button></div></div>
    ${p.n&&NATIVE?`<div class="chips">${PT_SAL.map(k=>`<button class="az-chip" data-np="${k}" aria-pressed="${!!p.np[k]}">${PT_NAMES[k]}</button>`).join("")}</div>`:""}`;
   $("azPS").hidden=false}
 function ptChanged(p){ptSave(p);ptCache.d="";ptCard();try{azMarkDue()}catch(e){}ptPanel();ptNotify()}
@@ -5455,7 +5496,7 @@ $("azPSO").addEventListener("click",async e=>{const b=e.target.closest("button")
   if(b.dataset.adj){const k=b.dataset.adj;p.adj=p.adj||{};p.adj[k]=Math.max(-30,Math.min(30,(p.adj[k]||0)+ +b.dataset.d));ptChanged(p);return}
   if(b.dataset.np){p.np[b.dataset.np]=p.np[b.dataset.np]?0:1;ptChanged(p);return}
   if(b.dataset.ps==="n"){if(!p.n){let ok=false;try{let q=await nat("LocalNotifications","checkPermissions");if(q.display!=="granted")q=await nat("LocalNotifications","requestPermissions");ok=q.display==="granted"}catch(x){}
-      if(!ok){toast("اسمح لأنورا بالإشعارات من إعدادات الهاتف حتى يصلك التنبيه");return}}
+      if(!ok){toast((PLAT==="electron"?"اسمح لأنورا بالإشعارات من إعدادات ويندوز":"اسمح لأنورا بالإشعارات من إعدادات الهاتف")+" حتى يصلك التنبيه");return}}
     p.n=!p.n;ptChanged(p);if(p.n)toast("سيصلك إشعار عند دخول وقت كل صلاة");return}
   if(b.dataset.ps==="geo"){if(!navigator.geolocation){toast("الموقع غير متاح، اختر مدينتك من القائمة");return}b.textContent="أحدّد موقعك…";
     navigator.geolocation.getCurrentPosition(pos=>{const q=ptGet();q.lat=+pos.coords.latitude.toFixed(4);q.lng=+pos.coords.longitude.toFixed(4);q.city="موقعي الحالي";q.cc=ptNear(q.lat,q.lng);ptChanged(q);if(!q.m)toast("اختر طريقة الحساب التي يتّبعها مسجدك")},
@@ -5584,7 +5625,7 @@ const AZ_REM={m:{id:7101,k:"sab",title:"أذكار الصباح",body:"صباح 
 function azRemGet(){const r=jget("mushaf.azRem",{});return {m:{on:false,t:"06:30",...r.m},e:{on:false,t:"17:30",...r.e}}}
 function azSetUI(){const r=azRemGet();
   for(const w of ["m","e"]){const sw=$(w==="m"?"azRemMs":"azRemEs"),ti=$(w==="m"?"azRemM":"azRemE");sw.setAttribute("aria-checked",String(NATIVE&&r[w].on));sw.disabled=!NATIVE;ti.value=r[w].t;ti.disabled=!NATIVE||!r[w].on}
-  $("azRemNote").textContent=NATIVE?"إشعار هادئ كل يوم في الوقت الذي تختاره":"التذكير يعمل في تطبيق الهاتف";
+  $("azRemNote").textContent=PLAT==="electron"?"إشعار من ويندوز كل يوم بالوقت الذي تختاره، ما دام أنورا مفتوحاً أو مصغّراً":NATIVE?"إشعار هادئ كل يوم في الوقت الذي تختاره":"التذكير يعمل في تطبيق الهاتف";
   $("azWeak").setAttribute("aria-checked",String(azWeakOff))}
 let azChan=false;
 async function azRemApply(){if(!NATIVE)return;const r=azRemGet();
@@ -5596,7 +5637,7 @@ async function azRemApply(){if(!NATIVE)return;const r=azRemGet();
   try{await nat("LocalNotifications","schedule",{notifications:list})}catch(e){toast("تعذّر ضبط التذكير")}}
 async function azRemToggle(w){const r=azRemGet();r[w].on=!r[w].on;
   if(r[w].on){let ok=false;try{let p=await nat("LocalNotifications","checkPermissions");if(p.display!=="granted")p=await nat("LocalNotifications","requestPermissions");ok=p.display==="granted"}catch(e){}
-    if(!ok){toast("اسمح لأنورا بالإشعارات من إعدادات الهاتف حتى يصلك التذكير");r[w].on=false}}
+    if(!ok){toast((PLAT==="electron"?"اسمح لأنورا بالإشعارات من إعدادات ويندوز":"اسمح لأنورا بالإشعارات من إعدادات الهاتف")+" حتى يصلك التذكير");r[w].on=false}}
   store.set("mushaf.azRem",JSON.stringify(r));azSetUI();await azRemApply();if(r[w].on)toast(`سيصلك تذكير ${AZ_REM[w].title} كل يوم الساعة ${ar(r[w].t)}`)}
 $("azRemMs").onclick=()=>azRemToggle("m");$("azRemEs").onclick=()=>azRemToggle("e");
 for(const [id,w] of [["azRemM","m"],["azRemE","e"]])$(id).addEventListener("change",e=>{const r=azRemGet();if(!/^\d\d:\d\d$/.test(e.target.value))return;r[w].t=e.target.value;store.set("mushaf.azRem",JSON.stringify(r));azRemApply()});
@@ -5711,5 +5752,48 @@ let ft;document.fonts.addEventListener("loadingdone",e=>{if(!(e.fontfaces||[]).s
 let rt;const onResize=()=>{clearTimeout(rt);rt=setTimeout(resize,120)};addEventListener("resize",onResize);
 try{window.viewport&&window.viewport.addEventListener&&window.viewport.addEventListener("segmentchange",onResize)}catch(e){}
 if(window.visualViewport)visualViewport.addEventListener("resize",onResize);
+/* ---------- Windows (Electron, desktop/main.js): window frame, title, keyboard and mouse ---------- */
+if(PLAT==="electron"){
+  if(window.__anora&&__anora.os==="win32")root.classList.add("win");
+  /* phone-only rows: vibration on page turn */
+  {const z=$("bBuzz");const r=z&&z.closest(".posture");if(r)r.hidden=true}
+  /* the frame's light/dark and the window title follow the app (cheap reads, a few times at most per change) */
+  let thT=0,thLast=null,tiT=0,tiLast="";
+  const thSync=()=>{clearTimeout(thT);thT=setTimeout(()=>{const c=getComputedStyle(root).getPropertyValue("--bar").trim(),m=/#([0-9a-f]{6})/i.exec(c);
+    let dark=false;if(m){const n=parseInt(m[1],16);dark=(.299*(n>>16)+.587*(n>>8&255)+.114*(n&255))/255<.45}
+    if(dark!==thLast){thLast=dark;nat("Window","theme",{dark}).catch(()=>{})}},150)};
+  new MutationObserver(thSync).observe(root,{attributes:true,attributeFilter:["data-paper","class","style"]});thSync();
+  const tiSync=()=>{clearTimeout(tiT);tiT=setTimeout(()=>{const w=($("wSurah").textContent||"").trim(),pn=$("pnum").querySelector("b"),t=`أنورا — ${w?"سورة "+w.replace(/^سورة /,""):""}${pn?" · صفحة "+pn.textContent:""}`;
+    if(t!==tiLast){tiLast=t;document.title=t;nat("Window","title",{text:t}).catch(()=>{})}},250)};
+  [$("wSurah"),$("pnum")].forEach(e=>e&&new MutationObserver(tiSync).observe(e,{childList:true,characterData:true,subtree:true}));tiSync();
+  /* shortcuts card */
+  const kb=$("keysBox");let kbFocus=null;
+  const keysShow=on=>{if(on){showPrefs(false);kbFocus=document.activeElement;kb.hidden=false;$("keysX").focus()}else if(!kb.hidden){kb.hidden=true;try{kbFocus&&kbFocus.focus()}catch(e){}}};
+  $("bKeys").hidden=false;$("bKeys").onclick=e=>{e.stopPropagation();keysShow(true)};$("keysX").onclick=()=>keysShow(false);
+  kb.addEventListener("click",e=>{if(e.target===kb)keysShow(false)});kb.addEventListener("pointerdown",e=>e.stopPropagation());
+  let full=false;natOn("Window","full",d=>{full=!!(d&&d.on);root.classList.toggle("wfs",full)});
+  window.addEventListener("keydown",e=>{
+    if(!kb.hidden){if(e.key==="Escape"||e.key==="Enter"||e.key==="F1"){e.preventDefault();e.stopImmediatePropagation();keysShow(false)}return}
+    if(e.key==="F1"||((e.ctrlKey||e.metaKey)&&e.code==="Slash")){e.preventDefault();e.stopImmediatePropagation();keysShow(true);return}
+    /* Esc with nothing open leaves full screen, like any Windows app */
+    if(e.key==="Escape"&&full&&!$("drawer").classList.contains("on")&&$("sheet").hidden&&$("prefs").hidden&&!document.querySelector('[role="dialog"]:not([hidden])')&&!$("app").classList.contains("imm")){nat("Window","full",{on:false}).catch(()=>{});return}
+    const t=e.target,typing=t&&(t.tagName==="INPUT"||t.tagName==="TEXTAREA"||t.isContentEditable),c=e.ctrlKey||e.metaKey;
+    if(c&&!e.altKey){const k=e.code;let go=null;
+      if(k==="KeyF")go=()=>openSearch();else if(k==="KeyI")go=()=>{if(indexOpen)closeIndex();else openIndex()};
+      else if(k==="Comma")go=()=>showPrefs($("prefs").hidden);
+      else if(!typing&&k==="KeyB")go=()=>$("bBook").click();else if(!typing&&k==="KeyD")go=()=>$("bDN").click();
+      if(go){e.preventDefault();e.stopImmediatePropagation();go()}return}
+    if(typing||e.altKey)return;
+    if(e.code==="KeyP"&&!e.repeat){e.preventDefault();if(!$("player").hidden)$("pPlay").click();else $("fListen").click()}
+  },true);
+  /* the mouse: near the top or bottom edge the calm bars come back; over the page the pointer hides while reading */
+  let mvT=0,curT=0;
+  document.addEventListener("pointermove",e=>{if(e.pointerType!=="mouse")return;
+    if(stage.classList.contains("nocur"))stage.classList.remove("nocur");clearTimeout(curT);
+    if($("app").classList.contains("calm")){curT=setTimeout(()=>{if($("app").classList.contains("calm")&&!flip&&!busy)stage.classList.add("nocur")},2500);
+      const n=performance.now();if(n-mvT>200&&(e.clientY<56||e.clientY>innerHeight-64)){mvT=n;setCalm(false)}}},{passive:true});
+  /* once, so the shortcuts are found */
+  if(!store.get("mushaf.winKeys")){store.set("mushaf.winKeys","1");setTimeout(()=>{try{toast("اضغط F1 لاختصارات لوحة المفاتيح")}catch(e){}},6000)}
+}
 })();
 </script>
