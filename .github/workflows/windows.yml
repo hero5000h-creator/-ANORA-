@@ -1,0 +1,56 @@
+name: Windows
+
+# Builds the Windows version (desktop/, Electron) from the same web app as the APK:
+#   anora-windows-setup.exe     installs for the current user (no admin), with Start menu and desktop shortcuts
+#   anora-windows-portable.exe  runs without installing
+# Both are unsigned, so Windows SmartScreen asks once: "More info" -> "Run anyway".
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths: ["desktop/**", ".github/workflows/windows.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build the web app (with the Quran text lock check)
+        run: python tools/build.py
+      - name: Install Electron and the packager
+        working-directory: desktop
+        run: npm ci --no-audit --no-fund
+      - name: Build the Windows installer and portable exe
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: |
+          node copy-www.js
+          npx electron-builder --win --x64 --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anora-windows
+          path: |
+            desktop/dist/anora-windows-setup.exe
+            desktop/dist/anora-windows-portable.exe
+      # main, and pull requests from this repository that change the Windows app, refresh the public test download
+      - name: Publish to the test release
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view test >/dev/null 2>&1 || gh release create test --prerelease --title "أنورا - نسخة تجريبية" --notes "نسخة تجريبية تتحدث مع كل تعديل."
+          gh release upload test desktop/dist/anora-windows-setup.exe desktop/dist/anora-windows-portable.exe --clobber
