@@ -934,7 +934,7 @@ html.electron :focus-visible{outline:2px solid var(--orn);outline-offset:2px}
 .tabs{position:relative}.shtabs{position:sticky}
 .shtabs button,.tabs button{position:relative;z-index:1}
 .shtabs button[aria-selected="true"],.tabs button[aria-selected="true"]{background:transparent!important;box-shadow:none!important}
-.tpill{position:absolute;z-index:0;top:3px;bottom:3px;right:0;width:0;border-radius:8px;background:var(--bar);box-shadow:0 1px 3px var(--line);transition:transform .32s var(--ease),width .32s var(--ease)}
+.tpill{position:absolute;z-index:0;top:3px;bottom:3px;right:0;width:0;border-radius:8px;background:var(--bar);box-shadow:0 1px 3px var(--line);transform-origin:100% 50%}
 .tabs .tpill{top:4px;bottom:4px;border-radius:9px}
 #drawer.searching #kh,#drawer.searching #recent{display:none}
 #drawer.searching .tabs{opacity:.5}
@@ -1742,6 +1742,19 @@ html.phoneM:not([data-frame="1"]) .pg.gL,html.phoneM:not([data-frame="1"]) .pg.g
 #noteBox[hidden]{display:none}
 #noteBox .nb{box-sizing:border-box;width:min(560px,100%);background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);border-radius:16px;padding:10px 14px 12px;box-shadow:0 18px 50px -14px rgba(0,0,0,.55);display:grid;gap:10px;animation:nbIn .22s var(--ease)}
 @keyframes nbIn{from{opacity:0;transform:translateY(-10px)}}
+/* the note box: its shade fades in and out with it; it used to snap shut */
+#noteBox:not([hidden]){animation:sdFade .2s ease-out}#noteBox.out{animation:sdFadeO .18s ease-in forwards;pointer-events:none}#noteBox.out .nb{animation:nbOut .18s cubic-bezier(.5,0,.75,.4) forwards}
+@keyframes nbOut{to{opacity:0;transform:translateY(-8px) scale(.98)}}
+/* a bar leaving the footer sinks away (a copy, footOut); the footer's own row rises back in under it */
+.foot>.fOut{position:absolute;margin:0;z-index:2;animation:footOut .16s cubic-bezier(.5,0,.75,.4) forwards!important;pointer-events:none}
+.foot>.fOut *{animation:none!important;transition:none!important}
+.foot.back>:not(.fOut){animation:rise .3s var(--ease) both}.foot.back{overflow:clip}/* the leaving bar stays inside the footer, never over the page */
+@keyframes footOut{to{opacity:0;transform:translateY(12px)}}
+/* the adhkar screen fades away on closing, and its night sky fades in once painted */
+#az.out{animation:azOut .22s cubic-bezier(.5,0,.75,.4) forwards;pointer-events:none}
+@keyframes azOut{to{opacity:0;transform:scale(1.02)}}
+#azSky{opacity:0;transition:opacity .6s ease-out}#azSky.lit{opacity:1}
+@media (prefers-reduced-motion:reduce){#noteBox,#noteBox .nb,.foot.back>*{animation:none!important}#azSky{transition:none}}
 html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var(--uz,1)))}
 #noteBox .nb-h{display:flex;align-items:center;gap:8px;min-height:44px}
 #noteBox .nb-h b{font-family:var(--f-display);font-size:18px}
@@ -2889,7 +2902,7 @@ document.addEventListener("keydown",e=>{
   if($("drawer").classList.contains("on")){if(e.key==="Escape")closeIndex();return}
   if(e.key==="Escape"&&!$("sheet").hidden){closeAyah();return}
   if(e.key==="Escape"&&!$("cont").hidden&&!$("cont").classList.contains("off")){contHide();return}
-  if(e.key==="Escape"){if(!$("prefs").hidden)showPrefs(false);else if($("app").classList.contains("imm"))toggleFull();return}
+  if(e.key==="Escape"){if(!$("prefs").hidden)showPrefs(false);else if(!$("repBox").hidden)softHide($("repBox"));else if(memo.on)setMemo(false);else if($("app").classList.contains("imm"))toggleFull();return}
   if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
   if(e.key==="ArrowLeft"||e.key==="PageDown"||e.key===" "){e.preventDefault();autoFlip("fwd")}
   else if(e.key==="ArrowRight"||e.key==="PageUp"){e.preventDefault();autoFlip("back")}
@@ -3359,10 +3372,12 @@ const hadLast=+store.get("mushaf.last")>1;
 /* ayah of the day: a short ayah of hope, the same for everyone on a given day */
 const AYD=[[2,152],[2,186],[3,139],[3,173],[7,23],[13,28],[14,7],[20,114],[39,53],[40,60],[14,40],[94,5],[94,6],[2,45],[2,153],[3,8],[8,46],[26,62],[12,87],[16,128],[17,80],[18,10],[20,25],[21,87],[25,74],[29,69],[33,41],[50,16],[9,51],[64,11],[93,5],[94,7],[55,60],[42,19],[67,2],[3,160],[7,56],[29,45],[3,200],[20,46]];
 const aydId=()=>{const [s,a]=AYD[today()%AYD.length];return SST[s-1]+a-1};
-function hijri(){try{return new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-arab",{day:"numeric",month:"long"}).format(new Date())}catch(e){return ""}}
+/* a date formatter costs tens of milliseconds to build (the Islamic calendar most): built once, used again */
+const IFMT={};function ifmt(k,loc,o){try{return IFMT[k]||(IFMT[k]=new Intl.DateTimeFormat(loc,o))}catch(e){return null}}
+function hijri(){try{return ifmt("hj","ar-SA-u-ca-islamic-umalqura-nu-arab",{day:"numeric",month:"long"}).format(new Date())}catch(e){return ""}}
 function contShow(){const c=$("cont"),id=pStart(cur);azNudgeHide();
   {const h=new Date().getHours();$("cHi").textContent=greetW(h);
-   const wd=new Intl.DateTimeFormat("ar",{weekday:"long"}).format(new Date()),hj=hijri();$("cDate").innerHTML=`<em>${wd}</em>${hj}`}
+   const wd=(ifmt("wd","ar",{weekday:"long"})||{format:()=>""}).format(new Date()),hj=hijri();$("cDate").innerHTML=`<em>${wd}</em>${hj}`}
   {const a=aydId(),b=$("cAy");b.innerHTML=`<small>آية اليوم</small><q>${escH(qY(txt(a).replace(/[۞۩]/g,"").trim()))} <span class="an">۝${ar(aOf(a))}</span></q><span>سورة ${SUR[sOf(a)][0]} · صفحة ${ar(pOf(a))}</span>`;b.onclick=()=>{contHide();showAyahPage(a);setTimeout(()=>openAyah(a),reduce?0:700)}}
   root.style.setProperty("--fh",document.querySelector(".foot").offsetHeight+"px");
   $("cWhere").textContent=`تكمل من سورة ${SUR[sOf(id)][0]} · صفحة ${ar(cur)}`;
@@ -3697,7 +3712,8 @@ async function sbRender(){
 }
 let sbTf=store.get("mushaf.sbtf")!=="0";
 function shareOpen(id){if(!id)return;sbId=id;const x=$("shareBox");x.hidden=false;void x.offsetWidth;x.classList.add("on");$("sbTf").setAttribute("aria-pressed",String(sbTf));
-  if(sbTf&&!TF)tafsir().then(()=>{if(sbId===id)sbRender()},()=>{});sbRender()}
+  /* the picture is drawn once the box has opened: drawing it in the same moment held the opening for a fifth of a second */
+  $("sbImg").classList.add("busy");clearTimeout(shareOpen.t);shareOpen.t=setTimeout(()=>{if(sbId!==id||$("shareBox").hidden)return;if(sbTf&&!TF)tafsir().then(()=>{if(sbId===id)sbRender()},()=>{});sbRender()},reduce?0:240)}
 $("sbTf").onclick=e=>{e.stopPropagation();sbTf=!sbTf;store.set("mushaf.sbtf",sbTf?"1":"0");$("sbTf").setAttribute("aria-pressed",String(sbTf));if(sbTf&&!TF)tafsir().then(sbRender,()=>{});sbRender()};
 function shareClose(){const x=$("shareBox");x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
 $("sbClose").onclick=shareClose;$("shareBox").addEventListener("click",e=>{if(e.target.id==="shareBox"){shareClose();return}
@@ -3752,13 +3768,13 @@ function noteOpen(id){let bx=$("noteBox");
     $("nbT").oninput=()=>{clearTimeout(ntTimer);ntTimer=setTimeout(()=>notes.set(bx._id,$("nbT").value),500)};
     if(window.visualViewport)visualViewport.addEventListener("resize",noteFit);addEventListener("resize",noteFit);
     document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("noteBox").hidden){e.stopImmediatePropagation();noteClose(true)}},true)}
-  bx._id=id;const n=notes.get()[id];$("nbT").value=n?n.t:"";$("nbR").textContent=ref(id);$("nbD").hidden=!n;bx.hidden=false;noteFit();
+  bx._id=id;const n=notes.get()[id];$("nbT").value=n?n.t:"";$("nbR").textContent=ref(id);$("nbD").hidden=!n;bx.classList.remove("out");bx.hidden=false;noteFit();
   $("nbT").focus({preventScroll:true});const L=$("nbT").value.length;try{$("nbT").setSelectionRange(L,L)}catch(e){}}
 function noteFit(){const bx=$("noteBox"),t=$("nbT");if(!bx||bx.hidden||!t)return;const z=root.classList.contains("uzL")?(parseFloat(root.style.getPropertyValue("--uz"))||1):1;
   const vh=window.visualViewport?visualViewport.height:innerHeight,top=t.getBoundingClientRect().top;
   /* about a quarter of the screen, and never below what the keyboard leaves visible */
   t.style.height=Math.max(96,Math.min(innerHeight*.26,vh-top-74))/z+"px"}
-function noteClose(save){const bx=$("noteBox");if(!bx||bx.hidden)return;clearTimeout(ntTimer);if(save)notes.set(bx._id,$("nbT").value);$("nbT").blur();bx.hidden=true;if(selA===bx._id&&shK==="nt")shBody(bx._id)}
+function noteClose(save){const bx=$("noteBox");if(!bx||bx.hidden||bx.classList.contains("out"))return;clearTimeout(ntTimer);if(save)notes.set(bx._id,$("nbT").value);$("nbT").blur();if(reduce)bx.hidden=true;else{bx.classList.add("out");setTimeout(()=>{if(bx.classList.contains("out")){bx.hidden=true;bx.classList.remove("out")}},200)}if(selA===bx._id&&shK==="nt")shBody(bx._id)}
 $("aGrp").addEventListener("click",e=>{if(e.target.closest("#mgEd")){ceOpen("mg");return}const b=e.target.closest("[data-mg]");if(!b||!selA)return;mgrp.set(selA,b.dataset.mg);aGrpUI();paintHL();rasterDirtyLazy();toast(`في مجموعة «${MG.find(g=>g.k===b.dataset.mg).n}»`);if(indexOpen)renderList()});
 $("aMark").onclick=()=>{const prevG=mgrp.get()[selA]||"";const on=marks.toggle(selA);if(!on)mgrp.set(selA,"");$("aMark").setAttribute("aria-pressed",String(on));aGrpUI();paintHL();rasterDirtyLazy();(on?toast("أُضيفت إلى العلامات"):(()=>{const id=selA,g=prevG;toastU("أُزيلت من العلامات",()=>{if(!marks.has(id))marks.toggle(id);if(g)mgrp.set(id,g);if(selA===id){$("aMark").setAttribute("aria-pressed","true");aGrpUI()}paintHL();rasterDirtyLazy()})})());if(indexOpen)renderList()};
 
@@ -3816,8 +3832,11 @@ function pillTo(g){if(!g||!g.offsetWidth)return;let p=g.querySelector(".tpill");
   const b=g.querySelector('[aria-selected="true"]');if(!b)return;const gr=g.getBoundingClientRect(),br=b.getBoundingClientRect();
   /* screen sizes are zoomed with large text (--uz) but the pill's own sizes are not: divide the zoom back out */
   const z=g.offsetWidth?gr.width/g.offsetWidth:1;
-  if(fresh)p.style.transition="none";p.style.width=br.width/z+"px";p.style.transform=`translateX(${(br.left-gr.right+br.width)/z}px)`;
-  if(fresh){void p.offsetWidth;p.style.transition=""}}
+  /* the pill takes its new size at once and glides there on the compositor (FLIP): a width transition laid the tab row out
+     on every frame, and stuttered whenever the list under it was being built */
+  const w=br.width/z,tx=(br.left-gr.right+br.width)/z,ow=p._w,otx=p._tx;p._w=w;p._tx=tx;
+  p.style.width=w+"px";p.style.transform=`translateX(${tx}px)`;
+  if(!fresh&&!reduce&&ow&&(Math.abs(ow-w)>.5||Math.abs(otx-tx)>.5)){try{p._a&&p._a.cancel();p._a=p.animate([{transform:`translateX(${otx}px) scaleX(${(ow/w).toFixed(4)})`},{transform:`translateX(${tx}px)`}],{duration:320,easing:"cubic-bezier(.2,.8,.2,1)"})}catch(e){}}}
 const TFZ=[1,1.12,1.25,1.4],TFZN=["عادي","كبير","أكبر","الأكبر"];let tfz=Math.max(0,TFZ.indexOf(+store.get("mushaf.tfz")||1));
 function setTfz(i){tfz=i;root.style.setProperty("--tfz",TFZ[i]);store.set("mushaf.tfz",TFZ[i])}
 $("shSize").onclick=()=>{setTfz((tfz+1)%TFZ.length);toast("حجم الخط: "+TFZN[tfz])};
@@ -4472,7 +4491,14 @@ function setPlaying(on){
   $("pPlay").setAttribute("aria-label",on?"إيقاف مؤقت":"متابعة التلاوة");
   if(on)startAyah(true);else{pStop();AU.pause();bgSync()}
 }
-function stopPlay(){$("repBox").hidden=true;rep.on=false;repUI();player.on=false;pStop();AU.pause();if(PLAT==="android")nat("Playback","stop").catch(()=>{});mediaSync();playA=0;$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
+/* a bar leaving the footer (the player, the memorising bar): a copy of it sinks away over the footer while the
+   footer's own row rises back in, instead of the bar just vanishing */
+function footOut(el){if(reduce||el.hidden||!el.offsetWidth||!started)return;const f=el.parentNode,fr=f.getBoundingClientRect(),r=el.getBoundingClientRect(),g=el.cloneNode(true);
+  g.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));g.classList.add("fOut");g.setAttribute("aria-hidden","true");g.inert=true;
+  Object.assign(g.style,{left:(r.left-fr.left)+"px",width:r.width+"px",bottom:(fr.bottom-r.bottom)+"px",height:r.height+"px"});el.after(g);
+  const rm=()=>g.remove();g.addEventListener("animationend",rm);setTimeout(rm,400);
+  f.classList.add("back");clearTimeout(footOut.t);footOut.t=setTimeout(()=>f.classList.remove("back"),450)}
+function stopPlay(){{const b=$("repBox");if(!b.hidden)softHide(b)}rep.on=false;repUI();player.on=false;pStop();AU.pause();if(PLAT==="android")nat("Playback","stop").catch(()=>{});mediaSync();playA=0;footOut($("player"));$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
 function setReciter(r){if(!RECS[r]||r===reciter)return;const was=player.on;
   reciter=r;store.set("mushaf.reciter",reciter);recUI();AU.pause();auSrc="";
   audData(reciter).then(d=>{aud=d;if(!d){toast("تعذّر تحميل توقيت هذا القارئ. تحقق من الاتصال");return}if(was&&player.on)startAyah(false)});toast(`القارئ: ${RECS[reciter]}`)}
@@ -4685,7 +4711,7 @@ function setMemo(on){if(on)contHide();
   if(!on&&LS.on)micStop();
   memo.on=on;memo.rev.clear();memo.last=null;LS.se.clear();if(!on)memo.range=null;
   if(on){stopPlay();closeAyah();hideHint();setCalm(false)}
-  $("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
+  if(!on)footOut($("memo"));$("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
   $("bMemo").setAttribute("aria-pressed",String(on));
   if(!on)document.querySelectorAll(".hid,.nx").forEach(w=>w.classList.remove("hid","nx"));
   resize();paintMemo();
@@ -5462,8 +5488,10 @@ const azSt={get(){let d=jget("mushaf.az",{});const t=today();if(d.d!==t){const k
 let azOpen=false,azCat=null,azI=0,azList=[],azCount=0,azPh=0,azAnim=null,azRaf=0,azSkyRaf=0;
 function azQText(q){const [s,a,b]=q,si=s-1,from=a||1,to=b||SUR[si][1];let h=a?`<span class="bas">أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ</span><br>`:`<span class="bas">${AZ_BAS}</span><br>`;
   for(let k=from;k<=to;k++){const id=SST[si]+k-1;h+=AW[id].map(w=>escH(qY(w.replace(/[۞۩]/g,"")))).filter(Boolean).join(" ")+` <span class="an">۝${ar(k)}</span> `}return h}
-function azOpenUI(){if(azOpen)return;azOpen=true;showPrefs(false);const z=$("az");z.hidden=false;z.classList.remove("in");void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true");azHome();azSky(true);try{history.replaceState(null,"","#adhkar")}catch(e){}}
-function azClose(){azOpen=false;setTimeout(()=>{try{azMarkDue()}catch(e){}},0);$("az").hidden=true;$("app").removeAttribute("aria-hidden");clearTimeout(azSkyRaf);cancelAnimationFrame(azRaf);try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
+function azOpenUI(){if(azOpen)return;azOpen=true;showPrefs(false);const z=$("az");z.hidden=false;z.classList.remove("in");void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true");azHome();clearTimeout(azOpenUI.t);z.classList.remove("out");$("azSky").classList.remove("lit");
+  /* the sky is painted after the screen has started to open, then fades in: painting it first held the opening */
+  azOpenUI.t=setTimeout(()=>{if(!azOpen)return;azSky(true);$("azSky").classList.add("lit")},reduce?0:180);try{history.replaceState(null,"","#adhkar")}catch(e){}}
+function azClose(){azOpen=false;setTimeout(()=>{try{azMarkDue()}catch(e){}},0);clearTimeout(azOpenUI.t);{const z=$("az");if(reduce||z.hidden)z.hidden=true;else{z.classList.remove("in");z.classList.add("out");azOpenUI.t=setTimeout(()=>{if(!azOpen){z.hidden=true;z.classList.remove("out")}},240)}}$("app").removeAttribute("aria-hidden");clearTimeout(azSkyRaf);cancelAnimationFrame(azRaf);try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
 function azNowCat(){const t=ptToday();if(t){const n=Date.now(),M=60000;
     if(["fajr","dhuhr","asr","maghrib","isha"].some(k=>n>=t[k]&&n<t[k]+25*M))return "sal";
     return n>=t.fajr&&n<t.dhuhr?"sab":n>=t.asr&&n<t.isha+60*M?"mas":(n>=t.isha+90*M||new Date().getHours()<3)?"nom":""}
