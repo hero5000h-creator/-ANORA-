@@ -561,6 +561,8 @@ mark{background:color-mix(in srgb,var(--gold) 30%,transparent);color:inherit;bor
 .tf{font-family:var(--f-display);font-size:calc(17.5px * var(--tfz));line-height:2.05;margin-inline:auto;color:var(--bar-ink);max-width:62ch}
 .tf p{margin:0 0 .6em}
 .tf .q{font-family:var(--f-quran);color:var(--orn)}
+.tfShare{display:flex;align-items:center;justify-content:center;gap:8px;margin:18px auto 6px;min-height:42px;padding:0 20px;border-radius:999px;border:1px solid var(--line);background:var(--bar);color:var(--bar-ink);font:600 14px var(--f-ui)}
+.tfShare svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tf .lbl{font-family:var(--f-ui);font-size:12.5px;font-weight:600;color:color-mix(in srgb,var(--gold) 78%,var(--ink));margin-top:.8em}
 
 /* recitation bar */
@@ -3585,7 +3587,7 @@ function stepAyah(n,dir){if(n<1||n>NA)return;openAyah(n);showAyahPage(n);const b
 $("shPrev").onclick=()=>stepAyah(selA-1,-1);
 $("shNext").onclick=()=>stepAyah(selA+1,1);
 $("aCopy").onclick=()=>{
-  const t=`${txt(selA)} ﴿${SUR[sOf(selA)][0]}: ${ar(aOf(selA))}﴾`;
+  const t=ayahQ(selA);
   const ok=()=>toast("نُسخت الآية"),fail=()=>{
     /* older web views without the async clipboard: copy through a hidden text box */
     try{const ta=document.createElement("textarea");ta.value=t;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;top:0;left:0;opacity:0;pointer-events:none";document.body.appendChild(ta);ta.select();const done=document.execCommand("copy");ta.remove();if(done){ok();return}}catch(e){}
@@ -3593,19 +3595,32 @@ $("aCopy").onclick=()=>{
   try{navigator.clipboard.writeText(t).then(ok,fail)}catch(e){fail()}
 };
 $("aShare").onclick=()=>shareOpen(selA);
+$("shTafsir").addEventListener("click",e=>{if(e.target.closest(".tfShare"))shareTafsir()});
 /* error report: a prefilled issue on the project's public tracker, with everything needed to find the spot */
 $("aReport").onclick=()=>{const id=selA;if(!id)return;const ver="0.1.0",tf=$("shSrc").textContent.trim();
   const title=`خطأ: سورة ${SUR[sOf(id)][0]} آية ${aOf(id)} (صفحة ${pOf(id)})`;
   const body=`**وين:** سورة ${SUR[sOf(id)][0]}، الآية ${aOf(id)}، الصفحة ${pOf(id)}\n**الآية:** ${txt(id)}\n**التفسير المفتوح:** ${tf||"-"}\n**القارئ:** ${RECS[reciter]}\n**النسخة:** ${ver} · ${PLAT} · ${navigator.userAgent.slice(0,120)}\n\n**شنو الخطأ؟** (اكتب هنا)\n`;
   const u=`https://github.com/hero5000h-creator/-ANORA-/issues/new?title=${encodeURIComponent(title)}&body=${encodeURIComponent(body)}&labels=report`;
   try{window.open(u,"_blank")||(location.href=u)}catch(e){location.href=u}};
-function shareText(){
-  const id=$("shareBox").hidden?selA:sbId;let t=`${txt(id)} ﴿${SUR[sOf(id)][0]}: ${ar(aOf(id))}﴾`;
-  if(sbTf&&TF&&TF[id-1])t+=`\n\nالتفسير الميسّر: ${TF[id-1]}`;
+/* the ayah as people quote it: its text between the Quranic brackets, then the surah and ayah number */
+function ayahQ(id){return `﴿${txt(id)}﴾ [${SUR[sOf(id)][0]}: ${ar(aOf(id))}]`}
+/* every share carries the app's name, so whoever receives it knows where it came from */
+const APP_CR="— من تطبيق أنورا · مصحف المدينة";
+function shareStr(t,what){t+=`\n\n${APP_CR}`;
   if(natShareOK()){natShare({text:t});return}
   if(navigator.share)navigator.share({text:t}).catch(()=>{});
-  else{try{navigator.clipboard.writeText(t).then(()=>toast("نُسخت الآية لتشاركها"),()=>toast("المشاركة غير متاحة هنا"))}catch(e){toast("المشاركة غير متاحة هنا")}}
+  else{try{navigator.clipboard.writeText(t).then(()=>toast(`نُسخ ${what} لتشاركه`),()=>toast("المشاركة غير متاحة هنا"))}catch(e){toast("المشاركة غير متاحة هنا")}}}
+function shareText(){
+  const id=$("shareBox").hidden?selA:sbId;let t=ayahQ(id);
+  if(sbTf&&TF&&TF[id-1])t+=`\n\nالتفسير الميسّر: ${TF[id-1]}`;
+  shareStr(t,"النص")
 }
+/* share the tafsir that is open in the sheet: the ayah, the tafsir's name, then its text as shown */
+function shareTafsir(){const id=selA,b=$("shTafsir");if(!id||!b)return;const T=TFS.find(t=>t.k===tfK)||TFS[0];
+  const c=b.cloneNode(true);c.querySelectorAll(".tfShare,.sk").forEach(e=>e.remove());
+  const body=(c.innerText||c.textContent||"").replace(/\n{3,}/g,"\n\n").trim();if(!body)return;
+  const nm=T.k==="muyassar"?"التفسير الميسّر":T.k==="mukhtasar"?"المختصر في التفسير":`تفسير ${T.n}`;
+  shareStr(`${ayahQ(id)}\n\n${nm}:\n${body}`,"التفسير")}
 /* ---------- share an ayah as a picture: a framed mushaf card drawn on a canvas ---------- */
 const SB_STY={light:{bg:"#faf0e4",ink:"#1f1b16",gold:"#a8834f",orn:"#55705f",tint:"#f6e8d4",cov:"#3e5a4b",mut:"#8a7a62",anf:"#ecd6a6",anc:"#6e4f24"},
   sepia:{bg:"#f3e9d4",ink:"#3a3026",gold:"#97794a",orn:"#6b6243",tint:"#e7dabf",cov:"#6b4c2e",mut:"#7f705c",anf:"#e2c995",anc:"#5e4320"},
@@ -3671,7 +3686,7 @@ async function sbDraw(){
     c.fillStyle=S.gold;c.font='700 26px "Amiri",serif';c.fillText("التفسير الميسّر",W/2,ty+30);
     c.fillStyle=S.ink;c.globalAlpha=.86;c.font=`${ts}px "Amiri",serif`;tfL.forEach((l,i)=>c.fillText(l,W/2,ty+66+i*ts*1.7+ts*.4));c.globalAlpha=1}
   /* reference, quiet */
-  c.fillStyle=S.mut;c.font=`700 ${Math.round(W*.024)}px "Amiri",serif`;c.fillText(`سورة ${SUR[sOf(id)][0]} · الآية ${ar(aOf(id))}`,W/2,H-foot);
+  c.fillStyle=S.mut;c.font=`700 ${Math.round(W*.024)}px "Amiri",serif`;c.fillText(`سورة ${SUR[sOf(id)][0]} · الآية ${ar(aOf(id))} · تطبيق أنورا`,W/2,H-foot);
   return new Promise(res=>cv.toBlob(b=>res(b),"image/png"));
 }
 async function sbRender(){
@@ -3714,11 +3729,11 @@ $("bkFile").onchange=async()=>{const f=$("bkFile").files[0];if(!f)return;
     const ks=Object.keys(j.data).filter(k=>k.startsWith("mushaf.")&&typeof j.data[k]==="string");if(!ks.length)throw 0;
     ks.forEach(k=>store.set(k,j.data[k]));toast(`استُرجعت ${ar(ks.length)} عنصر · يُعاد التحميل`);setTimeout(()=>location.reload(),1200)}
   catch(x){toast("هذا الملف ليس نسخة احتياطية من المصحف")}};
-$("sbSave").onclick=async()=>{if(!sbBlob)return;if(natShareOK()){await natShare({text:`﴿${SUR[sOf(sbId)][0]}: ${ar(aOf(sbId))}﴾`},sbName(),sbBlob);return}let dl=null;try{dl=window.claude&&claude.use?await claude.use("downloads"):null}catch(e){}
+$("sbSave").onclick=async()=>{if(!sbBlob)return;if(natShareOK()){await natShare({text:`[${SUR[sOf(sbId)][0]}: ${ar(aOf(sbId))}]\n${APP_CR}`},sbName(),sbBlob);return}let dl=null;try{dl=window.claude&&claude.use?await claude.use("downloads"):null}catch(e){}
   if(dl){try{await dl.save({filename:sbName(),data:sbBlob});toast("حُفظت الصورة")}catch(e){if(e&&e.code==="declined")return;toast(e&&e.code==="rate_limited"?"لحظة وحاول مرة أخرى":"الحفظ غير متاح هنا")}return}
   try{const a=document.createElement("a");a.href=sbUrl;a.download=sbName();document.body.appendChild(a);a.click();a.remove()}catch(e){toast("الحفظ غير متاح هنا")}};
 $("sbShare").onclick=async()=>{if(!sbBlob)return;try{const fl=new File([sbBlob],sbName(),{type:"image/png"});
-  if(navigator.canShare&&navigator.canShare({files:[fl]})){await navigator.share({files:[fl],text:`﴿${SUR[sOf(sbId)][0]}: ${ar(aOf(sbId))}﴾`});return}}catch(e){if(e&&e.name==="AbortError")return}
+  if(navigator.canShare&&navigator.canShare({files:[fl]})){await navigator.share({files:[fl],text:`[${SUR[sOf(sbId)][0]}: ${ar(aOf(sbId))}]\n${APP_CR}`});return}}catch(e){if(e&&e.name==="AbortError")return}
   $("sbSave").onclick()};
 $("sbText").onclick=()=>{shareClose();shareText()};
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("shareBox").hidden){e.stopPropagation();shareClose()}},true);
@@ -3831,8 +3846,9 @@ function shBody(id){
   },k=shK;
   $("tfSel").hidden=k!=="tf";paintWSel();
   if(k==="tf"){paintTfSel();const T=TFS.find(t=>t.k===tfK)||TFS[0];src.innerHTML=`<span>تفسير ${T.n}</span><span>${T.by}</span>`;
-    if(T.k==="muyassar")load(()=>TF,tafsir,()=>tfGrp(i=>TF[i-1],id)+tfHTML(TF[id-1]),"التفسير");
-    else load(()=>tfHave(T.k,id),()=>tfChunk(T.k,id),()=>tfOther(T.k,id),`تفسير ${T.n}`)}
+    const shb=`<button class="tfShare" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M5 12v6.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V12"/></svg>مشاركة التفسير</button>`;
+    if(T.k==="muyassar")load(()=>TF,tafsir,()=>tfGrp(i=>TF[i-1],id)+tfHTML(TF[id-1])+shb,"التفسير");
+    else load(()=>tfHave(T.k,id),()=>tfChunk(T.k,id),()=>tfOther(T.k,id)+shb,`تفسير ${T.n}`)}
   else if(k==="wd"){src.innerHTML="<span>مستكشف الكلمة</span><span>مدوّنة القرآن الكريم اللغوية</span>";load(()=>WD,wdData,()=>wxHTML(id,wSel),"تحليل الكلمات")}
   else if(k==="gh"){src.innerHTML="<span>الميسّر في غريب القرآن</span><span>مجمع الملك فهد</span>";load(()=>GH,gharib,()=>ghHTML(GH[id-1]),"معاني الكلمات")}
   else if(k==="nt"){src.innerHTML="<span>تأمّلي في هذه الآية</span><span>يُحفظ على جهازك</span>";
