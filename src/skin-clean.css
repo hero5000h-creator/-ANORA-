@@ -140,3 +140,11 @@ html[data-skin="clean"] #toast .tundo{border-color:var(--k-lime);color:var(--k-l
 /* simple mode puts a caption under each top button: a circle can't hold it, so those become soft rounded tiles */
 html[data-skin="clean"].simple .bar .tools .ib,html[data-skin="clean"].phoneM.simple .bar .tools .ib,html[data-skin="clean"].phoneM.simple .bar #bPrefs{border-radius:16px}
 html[data-skin="clean"].simple .bar .tools .tcap{font-size:11px;font-weight:600;letter-spacing:-.01em}
+/* council r27: Alexandria is wider than the classic UI font, so on a 360px phone with the biggest interface text
+   three things spilled: the index tabs crowded, long Latin names pushed the sources text past its card, and the
+   repeat box grew past the screen */
+html[data-skin="clean"] .tabs button{font-size:13px;letter-spacing:-.02em}
+html[data-skin="clean"] .si>*{min-width:0}
+html[data-skin="clean"] .si p{overflow-wrap:anywhere}
+html[data-skin="clean"] #repBox{letter-spacing:-.01em;max-height:calc((100dvh - var(--fh,56px) - var(--bh,56px) - var(--cutT,0px) - 20px) / var(--uz,1));overflow-y:auto;overscroll-behavior:contain}
+html[data-skin="clean"] .rbhint{font-size:12px}
