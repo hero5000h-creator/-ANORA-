@@ -186,3 +186,17 @@ html[data-skin="clean"] #jprog,html[data-skin="clean"].phoneM #jprog{height:2px;
 html[data-skin="clean"] .sdScope>i{top:4px;bottom:4px;right:4px;width:calc(50% - 4px);border-radius:999px;background:var(--k-sel);box-shadow:none}
 html[data-skin="clean"] #drawer b,html[data-skin="clean"] .sdP b{font-weight:700;font-size:16px}
 html[data-skin="clean"] .sbx :is(#sbGo,.solid,[data-k="img"]){background:var(--k-on);color:var(--k-ontx);border-color:var(--k-on)}
+/* player captions: the wider face pushed «السابقة» past its button (Fold, Windows, big text) */
+html[data-skin="clean"] #player .cap{letter-spacing:-.03em}
+html[data-skin="clean"] #player .ib{width:auto;min-width:40px}
+html[data-skin="clean"].uzL #player .cap{font-size:12px}
+html[data-skin="clean"].uzL #player .cap{font-size:11px;letter-spacing:-.04em}
+html[data-skin="clean"].uzL .ptabs button{font-size:12.5px;letter-spacing:-.03em;padding-inline:4px}
+html[data-skin="clean"] .qa.q4 .qt{min-width:0}
+html[data-skin="clean"].uzL .qa.q4 .qt{font-size:12px;letter-spacing:-.02em}
+/* the second row of menu tiles (icon beside the word) is too narrow for the wider face at big text: icon above the word */
+html[data-skin="clean"].uzL .qa.q4>:is(#bToday,#bFull,#bAuto,#bStudy){flex-direction:column;gap:3px;padding:6px 2px}
+html[data-skin="clean"].uzL .qa.q4>.qt span{white-space:normal;line-height:1.2;text-align:center}
+/* player buttons carry a caption under the icon: no ring around them, so neighbouring words don't collide */
+html[data-skin="clean"] .foot #player .ib,html[data-skin="clean"].phoneM .foot #player .ib{border:0;background:none;border-radius:14px}
+html[data-skin="clean"] .rseg button{padding:0 2px;letter-spacing:-.03em;min-width:0}
