@@ -222,13 +222,6 @@ html.phoneM #bookwrap::after{display:none}
 .lb{white-space:nowrap;text-align:right;flex:none;margin:0 -20em}
 .lb.mid{text-align:center;transform:scaleX(calc(var(--cx,1) * var(--fx,1)))}
 .lb .sp{display:inline-block}
-/* modern mushaf font: words spread across the full line like the print; a line still too long is narrowed by fit() */
-html[data-mf="k"] .lines{font-family:"Noto Kufi Mushaf","QMH Old Madina",serif;font-weight:var(--mkw,430)}
-html[data-mf="k"] .lb.lk{display:block;width:100%;margin:0;flex:none;min-width:0;text-align:justify;text-align-last:justify;font-size:var(--mks,.6em);transform:scaleX(var(--fx,1));transform-origin:100% 50%}
-html[data-mf="k"] .lb.lk .sp{display:inline}
-html[data-mf="k"] .lines{grid-template-columns:minmax(0,1fr)}html[data-mf="k"] .ln{min-width:0}
-html[data-mf="k"] .lb.mid{font-size:var(--mks,.72em)}
-html[data-mf="k"] .lb :is(.rub,.sj){font-family:"QMH Old Madina",serif}
 .an{color:var(--ink);white-space:nowrap}
 .rub,.sj{color:var(--gold)}
 .rub{margin-inline-end:.15em}
@@ -941,7 +934,7 @@ html.electron :focus-visible{outline:2px solid var(--orn);outline-offset:2px}
 .tabs{position:relative}.shtabs{position:sticky}
 .shtabs button,.tabs button{position:relative;z-index:1}
 .shtabs button[aria-selected="true"],.tabs button[aria-selected="true"]{background:transparent!important;box-shadow:none!important}
-.tpill{position:absolute;z-index:0;top:3px;bottom:3px;right:0;width:0;border-radius:8px;background:var(--bar);box-shadow:0 1px 3px var(--line);transition:transform .32s var(--ease),width .32s var(--ease)}
+.tpill{position:absolute;z-index:0;top:3px;bottom:3px;right:0;width:0;border-radius:8px;background:var(--bar);box-shadow:0 1px 3px var(--line);transform-origin:100% 50%}
 .tabs .tpill{top:4px;bottom:4px;border-radius:9px}
 #drawer.searching #kh,#drawer.searching #recent{display:none}
 #drawer.searching .tabs{opacity:.5}
@@ -1749,6 +1742,19 @@ html.phoneM:not([data-frame="1"]) .pg.gL,html.phoneM:not([data-frame="1"]) .pg.g
 #noteBox[hidden]{display:none}
 #noteBox .nb{box-sizing:border-box;width:min(560px,100%);background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);border-radius:16px;padding:10px 14px 12px;box-shadow:0 18px 50px -14px rgba(0,0,0,.55);display:grid;gap:10px;animation:nbIn .22s var(--ease)}
 @keyframes nbIn{from{opacity:0;transform:translateY(-10px)}}
+/* the note box: its shade fades in and out with it; it used to snap shut */
+#noteBox:not([hidden]){animation:sdFade .2s ease-out}#noteBox.out{animation:sdFadeO .18s ease-in forwards;pointer-events:none}#noteBox.out .nb{animation:nbOut .18s cubic-bezier(.5,0,.75,.4) forwards}
+@keyframes nbOut{to{opacity:0;transform:translateY(-8px) scale(.98)}}
+/* a bar leaving the footer sinks away (a copy, footOut); the footer's own row rises back in under it */
+.foot>.fOut{position:absolute;margin:0;z-index:2;animation:footOut .16s cubic-bezier(.5,0,.75,.4) forwards!important;pointer-events:none}
+.foot>.fOut *{animation:none!important;transition:none!important}
+.foot.back>:not(.fOut){animation:rise .3s var(--ease) both}.foot.back{overflow:clip}/* the leaving bar stays inside the footer, never over the page */
+@keyframes footOut{to{opacity:0;transform:translateY(12px)}}
+/* the adhkar screen fades away on closing, and its night sky fades in once painted */
+#az.out{animation:azOut .22s cubic-bezier(.5,0,.75,.4) forwards;pointer-events:none}
+@keyframes azOut{to{opacity:0;transform:scale(1.02)}}
+#azSky{opacity:0;transition:opacity .6s ease-out}#azSky.lit{opacity:1}
+@media (prefers-reduced-motion:reduce){#noteBox,#noteBox .nb,.foot.back>*{animation:none!important}#azSky{transition:none}}
 html.uzL #noteBox .nb{zoom:var(--uz,1);width:min(560px,calc((100vw - 20px) / var(--uz,1)))}
 #noteBox .nb-h{display:flex;align-items:center;gap:8px;min-height:44px}
 #noteBox .nb-h b{font-family:var(--f-display);font-size:18px}
@@ -1874,7 +1880,6 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
       </div></div>
       <div><h3>شكل الصفحة</h3><div class="seg" id="frmSeg"><button class="sw" data-frm="0">بسيطة</button><button class="sw" data-frm="1">بإطار مزخرف</button></div></div>
       <div><h3>أرقام الآيات</h3><div class="seg" id="anSeg"><button class="sw" data-an="0">دائرة</button><button class="sw" data-an="1">مذهّبة</button></div></div>
-      <div><h3>خط المصحف</h3><div class="seg" id="mfSeg"><button class="sw" data-mf="0">مصحف المدينة</button><button class="sw" data-mf="k">حديث</button></div></div>
       <div><h3>سماكة خط المصحف</h3><div class="seg" id="wtSeg"><button class="sw" data-wt="0">رفيع</button><button class="sw" data-wt="1">متوسط</button><button class="sw" data-wt="2">عريض</button></div></div>
       <div class="adv"><h3>لون الجلد</h3><div class="seg c5">
         <button class="sw" data-cover="green"><i class="cv" style="background:#3e5a4b"></i>أخضر</button>
@@ -2044,7 +2049,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
 <div class="ce-s"><span id="ceStrL"></span><div class="seg" id="ceStr"></div><div class="cepv" id="cePv"></div></div>
 <button class="ceres" id="ceReset">استرجاع الألوان الأصلية</button></div></div>
 <div id="recPick" role="dialog" aria-modal="true" aria-labelledby="rpT" hidden><div class="rp"><div class="rp-h"><b id="rpT">القارئ</b><button class="ib" id="rpX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><label class="rp-q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="rpQ" type="search" placeholder="ابحث عن قارئ" aria-label="ابحث عن قارئ" autocomplete="off" enterkeyhint="search"></label><div class="rp-l" id="rpL" role="radiogroup" aria-labelledby="rpT"></div><p class="rp-n" id="rpN" hidden>ما لگينا قارئ بهذا الاسم</p></div></div>
-<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p><p>أسماء السور في الصفحة بخط مصحف المدينة (sura_names) من مجمع الملك فهد لطباعة المصحف الشريف، مستعمل بإذن مكتوب من وحدة التراخيص وحقوق النشر في المجمع (٢٠٢٦/١١/٤)، في تطبيق مجاني غير تجاري، ودون تعديل الخط أو توزيعه منفصلاً. والإطار حولها من رسم أنورا.</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>مواقيت الصلاة</h4><p>تُحسب على جهازك بمكتبة adhan-js من Batoul Apps (رخصة MIT)، دون إنترنت. موقعك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوات المشايخ: <span id="srcRecs">محمود خليل الحصري، ومشاري العفاسي، وغيرهم</span> (رواية حفص عن عاصم، مرتّلة ومجوّدة) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>المتشابهات</h4><p>قائمة الآيات المتشابهة التي يلتبس فيها الحفّاظ من مشروع Quran_Mutashabihat_Data للأخ وقار أحمد، المبني على عمل القارئ إدريس العاصم رحمه الله، برخصة CC0 (ملك عام). أما الكلمات الملوّنة فيستخرجها التطبيق من نص المصحف نفسه.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic وAlexandria، وNoto Kufi Arabic للمصحف بالخط الحديث، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b><span class="src-du">لا تنسونا من صالح دعائكم</span></div></div></div>
+<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p><p>أسماء السور في الصفحة بخط مصحف المدينة (sura_names) من مجمع الملك فهد لطباعة المصحف الشريف، مستعمل بإذن مكتوب من وحدة التراخيص وحقوق النشر في المجمع (٢٠٢٦/١١/٤)، في تطبيق مجاني غير تجاري، ودون تعديل الخط أو توزيعه منفصلاً. والإطار حولها من رسم أنورا.</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>مواقيت الصلاة</h4><p>تُحسب على جهازك بمكتبة adhan-js من Batoul Apps (رخصة MIT)، دون إنترنت. موقعك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوات المشايخ: <span id="srcRecs">محمود خليل الحصري، ومشاري العفاسي، وغيرهم</span> (رواية حفص عن عاصم، مرتّلة ومجوّدة) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>المتشابهات</h4><p>قائمة الآيات المتشابهة التي يلتبس فيها الحفّاظ من مشروع Quran_Mutashabihat_Data للأخ وقار أحمد، المبني على عمل القارئ إدريس العاصم رحمه الله، برخصة CC0 (ملك عام). أما الكلمات الملوّنة فيستخرجها التطبيق من نص المصحف نفسه.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic وAlexandria، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b><span class="src-du">لا تنسونا من صالح دعائكم</span></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="si-g" id="siGrid"></div>
@@ -2213,9 +2218,7 @@ const splT=performance.now();
   const fr=store.get("mushaf.frame"),wt=store.get("mushaf.wt");if(fr==="1")document.documentElement.dataset.frame="1";if(wt==="1"||wt==="2")document.documentElement.dataset.wt=wt;
   /* big-text readers (interface text large) start with the medium stroke: thin letters are harder on tired eyes */
   else if(wt===null&&+store.get("mushaf.uz")>=1.15)document.documentElement.dataset.wt="1";
-  if(store.get("mushaf.an")==="1")document.documentElement.dataset.an="1";
-  /* mushaf letters: the Madinah print's font, or the modern one that matches the interface */
-  if(store.get("mushaf.mf")==="k")document.documentElement.dataset.mf="k"}
+  if(store.get("mushaf.an")==="1")document.documentElement.dataset.an="1"}
 const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 const $=id=>document.getElementById(id);
@@ -2228,26 +2231,7 @@ let W=300,H=450,mode="single",cur=1,cache=new Map(),flip=null,busy=false;const p
 const feats=f=>f.split(",").filter(Boolean).map(kv=>{const [t,v]=kv.split("=");return t.slice(0,2)!=="jp"?`"${t}"`:`"q${t.slice(2)}${Number(v||1).toString(36)}"`}).join(",");
 const esc=t=>t.replace(/۞/g,'<span class="rub">۞</span>').replace(/۩/g,'<span class="sj">۩</span>');
 /* every word and the space before it carry their ayah's number (data-a), counted from the page's first ayah */
-/* the modern mushaf font: same words, lines and ayah numbers as the print, but no print-font tricks (stretched
-   alternates, hand-set gaps, per-word squeeze); each line is spread edge to edge instead. The print data writes the
-   jazm as U+0652, which in a standard font is the round sukun: give it the Uthmani jazm (U+06E1) it stands for. */
-const kw=t=>t.replace(/\u0652/g,"\u06E1");
-function pageHTMLk(p){
-  let id=pStart(p),wn=0;
-  return K[p-1].map(([k,w,z,c,x,s,ws])=>{
-    const word=(t,a,wi)=>{const tx=kw(typeof t==="string"?t:t[0]);return `<span${a?` data-a="${a}"`:""}${wi>=0?` data-w="${wi}"`:""}>${esc(tx)}</span>`};
-    if(k!=="t"){const inner=ws.map(t=>word(t)).join(" ");
-      return k==="s"?`<div class="ln sh"><span class="sh-n" data-sn="${String(sOf(id)+1).padStart(3,"0")}">${inner}</span></div>`:`<div class="ln"><div class="lb mid">${inner}</div></div>`}
-    let h="",open=false;ws.forEach((t,i)=>{const end=(typeof t==="string"?t:t[0]).indexOf("\u06DD")>=0;
-      if(i)h+=`<span class="sp"${open?` data-a="${id}"`:""}> </span>`;
-      {const tx=typeof t==="string"?t:t[0];if(tx.trim()==="۞")HZW.add(id+":"+wn)}h+=word(t,id,end?-1:wn++);if(end){id++;wn=0}open=!end});
-    /* a short line of the print (the opening pages' arch, a surah's last line) keeps its share of the width */
-    const r=Math.min(1,w/LW)*(z?.84:1);
-    return `<div class="ln"><div class="lb lk"${r<.97?` style="width:${(r*100).toFixed(1)}%"`:""}>${h}</div></div>`;
-  }).join("");
-}
 function pageHTML(p){
-  if(root.dataset.mf==="k")return pageHTMLk(p);
   let id=pStart(p),wn=0;
   return K[p-1].map(([k,w,z,c,x,s,ws])=>{
     const word=(t,i,n,a,wi)=>{const [tx,f]=typeof t==="string"?[t,""]:t;let st=f?`font-feature-settings:${feats(f)};`:"";
@@ -2288,7 +2272,7 @@ function tajPage(el){
     if(/ٓ/.test(g.m)){g.c="md";return}
     if(/۟/.test(g.m)){g.c="s";return}
     if((g.b==="ن"||g.b==="م")&&/ّ/.test(g.m)){g.c="gh";return}
-    if("قطبجد".includes(g.b)&&/[ْۡ]/.test(g.m)){g.c="qa";return}
+    if("قطبجد".includes(g.b)&&/ْ/.test(g.m)){g.c="qa";return}
     if(/[ۭۢ]/.test(g.m)){if(!atEnd)g.c="gh";return}
     if((g.b==="ن"&&!vowel(g))||openTan(g)){if(!nb)return;
       if("تثجدذزسشصضطظفقكبينمو".includes(nb))g.c="gh";else if("لر".includes(nb))g.c="s";return}
@@ -2918,7 +2902,7 @@ document.addEventListener("keydown",e=>{
   if($("drawer").classList.contains("on")){if(e.key==="Escape")closeIndex();return}
   if(e.key==="Escape"&&!$("sheet").hidden){closeAyah();return}
   if(e.key==="Escape"&&!$("cont").hidden&&!$("cont").classList.contains("off")){contHide();return}
-  if(e.key==="Escape"){if(!$("prefs").hidden)showPrefs(false);else if($("app").classList.contains("imm"))toggleFull();return}
+  if(e.key==="Escape"){if(!$("prefs").hidden)showPrefs(false);else if(!$("repBox").hidden)softHide($("repBox"));else if(memo.on)setMemo(false);else if($("app").classList.contains("imm"))toggleFull();return}
   if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
   if(e.key==="ArrowLeft"||e.key==="PageDown"||e.key===" "){e.preventDefault();autoFlip("fwd")}
   else if(e.key==="ArrowRight"||e.key==="PageUp"){e.preventDefault();autoFlip("back")}
@@ -3094,7 +3078,6 @@ function setLook(k,v,save){if(v&&v!=="0")root.dataset[k]=v;else delete root.data
   markLook()}
 function markLook(){const f=root.dataset.frame||"0",w=root.dataset.wt||"0";document.querySelectorAll("[data-frm].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.frm===f)));
   document.querySelectorAll("[data-wt].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.wt===w)));
-  const mf=root.dataset.mf||"0";document.querySelectorAll("[data-mf].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mf===mf)));
   const an=root.dataset.an||"0";document.querySelectorAll("[data-an].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.an===an)))}
 markLook();
 /* interface look (data-skin on <html>): only the chrome changes, never the mushaf page; bar heights may change, so re-measure */
@@ -3389,10 +3372,12 @@ const hadLast=+store.get("mushaf.last")>1;
 /* ayah of the day: a short ayah of hope, the same for everyone on a given day */
 const AYD=[[2,152],[2,186],[3,139],[3,173],[7,23],[13,28],[14,7],[20,114],[39,53],[40,60],[14,40],[94,5],[94,6],[2,45],[2,153],[3,8],[8,46],[26,62],[12,87],[16,128],[17,80],[18,10],[20,25],[21,87],[25,74],[29,69],[33,41],[50,16],[9,51],[64,11],[93,5],[94,7],[55,60],[42,19],[67,2],[3,160],[7,56],[29,45],[3,200],[20,46]];
 const aydId=()=>{const [s,a]=AYD[today()%AYD.length];return SST[s-1]+a-1};
-function hijri(){try{return new Intl.DateTimeFormat("ar-SA-u-ca-islamic-umalqura-nu-arab",{day:"numeric",month:"long"}).format(new Date())}catch(e){return ""}}
+/* a date formatter costs tens of milliseconds to build (the Islamic calendar most): built once, used again */
+const IFMT={};function ifmt(k,loc,o){try{return IFMT[k]||(IFMT[k]=new Intl.DateTimeFormat(loc,o))}catch(e){return null}}
+function hijri(){try{return ifmt("hj","ar-SA-u-ca-islamic-umalqura-nu-arab",{day:"numeric",month:"long"}).format(new Date())}catch(e){return ""}}
 function contShow(){const c=$("cont"),id=pStart(cur);azNudgeHide();
   {const h=new Date().getHours();$("cHi").textContent=greetW(h);
-   const wd=new Intl.DateTimeFormat("ar",{weekday:"long"}).format(new Date()),hj=hijri();$("cDate").innerHTML=`<em>${wd}</em>${hj}`}
+   const wd=(ifmt("wd","ar",{weekday:"long"})||{format:()=>""}).format(new Date()),hj=hijri();$("cDate").innerHTML=`<em>${wd}</em>${hj}`}
   {const a=aydId(),b=$("cAy");b.innerHTML=`<small>آية اليوم</small><q>${escH(qY(txt(a).replace(/[۞۩]/g,"").trim()))} <span class="an">۝${ar(aOf(a))}</span></q><span>سورة ${SUR[sOf(a)][0]} · صفحة ${ar(pOf(a))}</span>`;b.onclick=()=>{contHide();showAyahPage(a);setTimeout(()=>openAyah(a),reduce?0:700)}}
   root.style.setProperty("--fh",document.querySelector(".foot").offsetHeight+"px");
   $("cWhere").textContent=`تكمل من سورة ${SUR[sOf(id)][0]} · صفحة ${ar(cur)}`;
@@ -3420,7 +3405,6 @@ $("prefs").addEventListener("click",e=>{e.stopPropagation();const t=e.target.clo
   if(b.dataset.skin){vt(()=>setSkin(b.dataset.skin,true));toast(b.dataset.skin==="classic"?"الواجهة الكلاسيكية":"الواجهة الحديثة")}
   if(b.dataset.frm){setLook("frame",b.dataset.frm,true);toast(b.dataset.frm==="1"?"الصفحة بإطار مزخرف":"صفحة بسيطة بلا إطار")}
   if(b.dataset.wt){setLook("wt",b.dataset.wt,true)}
-  if(b.dataset.mf){setLook("mf",b.dataset.mf,true);toast(b.dataset.mf==="k"?"المصحف بالخط الحديث":"المصحف بخط مصحف المدينة")}
   if(b.dataset.an){setLook("an",b.dataset.an,true);toast(b.dataset.an==="1"?"أرقام الآيات مذهّبة":"أرقام الآيات بدائرة")}
   if(b.dataset.view)vt(()=>{store.set("mushaf.view",b.dataset.view);markView();resize()},1);
   if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();if(b.dataset.turn==="curl")rasterSoon();else RS.img.clear();toast(b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنباً إلى جنب":"تتبدّل الصفحة فوراً بلا حركة")}
@@ -3728,7 +3712,8 @@ async function sbRender(){
 }
 let sbTf=store.get("mushaf.sbtf")!=="0";
 function shareOpen(id){if(!id)return;sbId=id;const x=$("shareBox");x.hidden=false;void x.offsetWidth;x.classList.add("on");$("sbTf").setAttribute("aria-pressed",String(sbTf));
-  if(sbTf&&!TF)tafsir().then(()=>{if(sbId===id)sbRender()},()=>{});sbRender()}
+  /* the picture is drawn once the box has opened: drawing it in the same moment held the opening for a fifth of a second */
+  $("sbImg").classList.add("busy");clearTimeout(shareOpen.t);shareOpen.t=setTimeout(()=>{if(sbId!==id||$("shareBox").hidden)return;if(sbTf&&!TF)tafsir().then(()=>{if(sbId===id)sbRender()},()=>{});sbRender()},reduce?0:240)}
 $("sbTf").onclick=e=>{e.stopPropagation();sbTf=!sbTf;store.set("mushaf.sbtf",sbTf?"1":"0");$("sbTf").setAttribute("aria-pressed",String(sbTf));if(sbTf&&!TF)tafsir().then(sbRender,()=>{});sbRender()};
 function shareClose(){const x=$("shareBox");x.classList.remove("on");setTimeout(()=>{x.hidden=true},reduce?0:260)}
 $("sbClose").onclick=shareClose;$("shareBox").addEventListener("click",e=>{if(e.target.id==="shareBox"){shareClose();return}
@@ -3783,13 +3768,13 @@ function noteOpen(id){let bx=$("noteBox");
     $("nbT").oninput=()=>{clearTimeout(ntTimer);ntTimer=setTimeout(()=>notes.set(bx._id,$("nbT").value),500)};
     if(window.visualViewport)visualViewport.addEventListener("resize",noteFit);addEventListener("resize",noteFit);
     document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("noteBox").hidden){e.stopImmediatePropagation();noteClose(true)}},true)}
-  bx._id=id;const n=notes.get()[id];$("nbT").value=n?n.t:"";$("nbR").textContent=ref(id);$("nbD").hidden=!n;bx.hidden=false;noteFit();
+  bx._id=id;const n=notes.get()[id];$("nbT").value=n?n.t:"";$("nbR").textContent=ref(id);$("nbD").hidden=!n;bx.classList.remove("out");bx.hidden=false;noteFit();
   $("nbT").focus({preventScroll:true});const L=$("nbT").value.length;try{$("nbT").setSelectionRange(L,L)}catch(e){}}
 function noteFit(){const bx=$("noteBox"),t=$("nbT");if(!bx||bx.hidden||!t)return;const z=root.classList.contains("uzL")?(parseFloat(root.style.getPropertyValue("--uz"))||1):1;
   const vh=window.visualViewport?visualViewport.height:innerHeight,top=t.getBoundingClientRect().top;
   /* about a quarter of the screen, and never below what the keyboard leaves visible */
   t.style.height=Math.max(96,Math.min(innerHeight*.26,vh-top-74))/z+"px"}
-function noteClose(save){const bx=$("noteBox");if(!bx||bx.hidden)return;clearTimeout(ntTimer);if(save)notes.set(bx._id,$("nbT").value);$("nbT").blur();bx.hidden=true;if(selA===bx._id&&shK==="nt")shBody(bx._id)}
+function noteClose(save){const bx=$("noteBox");if(!bx||bx.hidden||bx.classList.contains("out"))return;clearTimeout(ntTimer);if(save)notes.set(bx._id,$("nbT").value);$("nbT").blur();if(reduce)bx.hidden=true;else{bx.classList.add("out");setTimeout(()=>{if(bx.classList.contains("out")){bx.hidden=true;bx.classList.remove("out")}},200)}if(selA===bx._id&&shK==="nt")shBody(bx._id)}
 $("aGrp").addEventListener("click",e=>{if(e.target.closest("#mgEd")){ceOpen("mg");return}const b=e.target.closest("[data-mg]");if(!b||!selA)return;mgrp.set(selA,b.dataset.mg);aGrpUI();paintHL();rasterDirtyLazy();toast(`في مجموعة «${MG.find(g=>g.k===b.dataset.mg).n}»`);if(indexOpen)renderList()});
 $("aMark").onclick=()=>{const prevG=mgrp.get()[selA]||"";const on=marks.toggle(selA);if(!on)mgrp.set(selA,"");$("aMark").setAttribute("aria-pressed",String(on));aGrpUI();paintHL();rasterDirtyLazy();(on?toast("أُضيفت إلى العلامات"):(()=>{const id=selA,g=prevG;toastU("أُزيلت من العلامات",()=>{if(!marks.has(id))marks.toggle(id);if(g)mgrp.set(id,g);if(selA===id){$("aMark").setAttribute("aria-pressed","true");aGrpUI()}paintHL();rasterDirtyLazy()})})());if(indexOpen)renderList()};
 
@@ -3847,8 +3832,11 @@ function pillTo(g){if(!g||!g.offsetWidth)return;let p=g.querySelector(".tpill");
   const b=g.querySelector('[aria-selected="true"]');if(!b)return;const gr=g.getBoundingClientRect(),br=b.getBoundingClientRect();
   /* screen sizes are zoomed with large text (--uz) but the pill's own sizes are not: divide the zoom back out */
   const z=g.offsetWidth?gr.width/g.offsetWidth:1;
-  if(fresh)p.style.transition="none";p.style.width=br.width/z+"px";p.style.transform=`translateX(${(br.left-gr.right+br.width)/z}px)`;
-  if(fresh){void p.offsetWidth;p.style.transition=""}}
+  /* the pill takes its new size at once and glides there on the compositor (FLIP): a width transition laid the tab row out
+     on every frame, and stuttered whenever the list under it was being built */
+  const w=br.width/z,tx=(br.left-gr.right+br.width)/z,ow=p._w,otx=p._tx;p._w=w;p._tx=tx;
+  p.style.width=w+"px";p.style.transform=`translateX(${tx}px)`;
+  if(!fresh&&!reduce&&ow&&(Math.abs(ow-w)>.5||Math.abs(otx-tx)>.5)){try{p._a&&p._a.cancel();p._a=p.animate([{transform:`translateX(${otx}px) scaleX(${(ow/w).toFixed(4)})`},{transform:`translateX(${tx}px)`}],{duration:320,easing:"cubic-bezier(.2,.8,.2,1)"})}catch(e){}}}
 const TFZ=[1,1.12,1.25,1.4],TFZN=["عادي","كبير","أكبر","الأكبر"];let tfz=Math.max(0,TFZ.indexOf(+store.get("mushaf.tfz")||1));
 function setTfz(i){tfz=i;root.style.setProperty("--tfz",TFZ[i]);store.set("mushaf.tfz",TFZ[i])}
 $("shSize").onclick=()=>{setTfz((tfz+1)%TFZ.length);toast("حجم الخط: "+TFZN[tfz])};
@@ -4503,7 +4491,14 @@ function setPlaying(on){
   $("pPlay").setAttribute("aria-label",on?"إيقاف مؤقت":"متابعة التلاوة");
   if(on)startAyah(true);else{pStop();AU.pause();bgSync()}
 }
-function stopPlay(){$("repBox").hidden=true;rep.on=false;repUI();player.on=false;pStop();AU.pause();if(PLAT==="android")nat("Playback","stop").catch(()=>{});mediaSync();playA=0;$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
+/* a bar leaving the footer (the player, the memorising bar): a copy of it sinks away over the footer while the
+   footer's own row rises back in, instead of the bar just vanishing */
+function footOut(el){if(reduce||el.hidden||!el.offsetWidth||!started)return;const f=el.parentNode,fr=f.getBoundingClientRect(),r=el.getBoundingClientRect(),g=el.cloneNode(true);
+  g.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));g.classList.add("fOut");g.setAttribute("aria-hidden","true");g.inert=true;
+  Object.assign(g.style,{left:(r.left-fr.left)+"px",width:r.width+"px",bottom:(fr.bottom-r.bottom)+"px",height:r.height+"px"});el.after(g);
+  const rm=()=>g.remove();g.addEventListener("animationend",rm);setTimeout(rm,400);
+  f.classList.add("back");clearTimeout(footOut.t);footOut.t=setTimeout(()=>f.classList.remove("back"),450)}
+function stopPlay(){{const b=$("repBox");if(!b.hidden)softHide(b)}rep.on=false;repUI();player.on=false;pStop();AU.pause();if(PLAT==="android")nat("Playback","stop").catch(()=>{});mediaSync();playA=0;footOut($("player"));$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
 function setReciter(r){if(!RECS[r]||r===reciter)return;const was=player.on;
   reciter=r;store.set("mushaf.reciter",reciter);recUI();AU.pause();auSrc="";
   audData(reciter).then(d=>{aud=d;if(!d){toast("تعذّر تحميل توقيت هذا القارئ. تحقق من الاتصال");return}if(was&&player.on)startAyah(false)});toast(`القارئ: ${RECS[reciter]}`)}
@@ -4716,7 +4711,7 @@ function setMemo(on){if(on)contHide();
   if(!on&&LS.on)micStop();
   memo.on=on;memo.rev.clear();memo.last=null;LS.se.clear();if(!on)memo.range=null;
   if(on){stopPlay();closeAyah();hideHint();setCalm(false)}
-  $("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
+  if(!on)footOut($("memo"));$("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
   $("bMemo").setAttribute("aria-pressed",String(on));
   if(!on)document.querySelectorAll(".hid,.nx").forEach(w=>w.classList.remove("hid","nx"));
   resize();paintMemo();
@@ -5493,8 +5488,10 @@ const azSt={get(){let d=jget("mushaf.az",{});const t=today();if(d.d!==t){const k
 let azOpen=false,azCat=null,azI=0,azList=[],azCount=0,azPh=0,azAnim=null,azRaf=0,azSkyRaf=0;
 function azQText(q){const [s,a,b]=q,si=s-1,from=a||1,to=b||SUR[si][1];let h=a?`<span class="bas">أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ</span><br>`:`<span class="bas">${AZ_BAS}</span><br>`;
   for(let k=from;k<=to;k++){const id=SST[si]+k-1;h+=AW[id].map(w=>escH(qY(w.replace(/[۞۩]/g,"")))).filter(Boolean).join(" ")+` <span class="an">۝${ar(k)}</span> `}return h}
-function azOpenUI(){if(azOpen)return;azOpen=true;showPrefs(false);const z=$("az");z.hidden=false;z.classList.remove("in");void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true");azHome();azSky(true);try{history.replaceState(null,"","#adhkar")}catch(e){}}
-function azClose(){azOpen=false;setTimeout(()=>{try{azMarkDue()}catch(e){}},0);$("az").hidden=true;$("app").removeAttribute("aria-hidden");clearTimeout(azSkyRaf);cancelAnimationFrame(azRaf);try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
+function azOpenUI(){if(azOpen)return;azOpen=true;showPrefs(false);const z=$("az");z.hidden=false;z.classList.remove("in");void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true");azHome();clearTimeout(azOpenUI.t);z.classList.remove("out");$("azSky").classList.remove("lit");
+  /* the sky is painted after the screen has started to open, then fades in: painting it first held the opening */
+  azOpenUI.t=setTimeout(()=>{if(!azOpen)return;azSky(true);$("azSky").classList.add("lit")},reduce?0:180);try{history.replaceState(null,"","#adhkar")}catch(e){}}
+function azClose(){azOpen=false;setTimeout(()=>{try{azMarkDue()}catch(e){}},0);clearTimeout(azOpenUI.t);{const z=$("az");if(reduce||z.hidden)z.hidden=true;else{z.classList.remove("in");z.classList.add("out");azOpenUI.t=setTimeout(()=>{if(!azOpen){z.hidden=true;z.classList.remove("out")}},240)}}$("app").removeAttribute("aria-hidden");clearTimeout(azSkyRaf);cancelAnimationFrame(azRaf);try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
 function azNowCat(){const t=ptToday();if(t){const n=Date.now(),M=60000;
     if(["fajr","dhuhr","asr","maghrib","isha"].some(k=>n>=t[k]&&n<t[k]+25*M))return "sal";
     return n>=t.fajr&&n<t.dhuhr?"sab":n>=t.asr&&n<t.isha+60*M?"mas":(n>=t.isha+90*M||new Date().getHours()<3)?"nom":""}
