@@ -50,8 +50,8 @@ html[data-skin="clean"] #prefs h3.ph::before,html[data-skin="clean"] .grp span:f
 html[data-skin="clean"] .qlink{font-weight:600;color:var(--k-mut)}
 
 /* segmented choices and tabs: pills; the chosen one is solid */
-html[data-skin="clean"] .seg button,html[data-skin="clean"] .sw{border-radius:16px;border:1px solid var(--k-hair);background:var(--k-sf);font-weight:600}
-html[data-skin="clean"] .seg button[aria-pressed="true"],html[data-skin="clean"] .seg button[aria-checked="true"],html[data-skin="clean"] .seg button.on,html[data-skin="clean"] .sw[aria-pressed="true"],html[data-skin="clean"] .sw[aria-checked="true"],html[data-skin="clean"] .sw.on{background:var(--k-sel);color:var(--k-seltx);border-color:var(--k-sel)}
+html[data-skin="clean"] .seg button,html[data-skin="clean"] button.sw{border-radius:16px;border:1px solid var(--k-hair);background:var(--k-sf);font-weight:600}
+html[data-skin="clean"] .seg button[aria-pressed="true"],html[data-skin="clean"] .seg button[aria-checked="true"],html[data-skin="clean"] .seg button.on,html[data-skin="clean"] button.sw[aria-pressed="true"],html[data-skin="clean"] button.sw[aria-checked="true"],html[data-skin="clean"] button.sw.on{background:var(--k-sel);color:var(--k-seltx);border-color:var(--k-sel)}
 html[data-skin="clean"] .tabs{background:var(--k-chip);border-radius:999px}
 html[data-skin="clean"] .tabs button{border-radius:999px;font-weight:600}
 html[data-skin="clean"] .tabs button[aria-selected="true"]{background:none;color:var(--k-seltx);box-shadow:none;font-weight:700}
@@ -131,7 +131,7 @@ html[data-skin="clean"] .ptabs,html[data-skin="clean"].phoneM .ptabs{border-radi
 html[data-skin="clean"] .ptabs button,html[data-skin="clean"].phoneM .ptabs button{border-radius:999px;font-weight:600}
 html[data-skin="clean"] .ptabs button[aria-selected="true"],html[data-skin="clean"].phoneM .ptabs button[aria-selected="true"]{background:none;color:var(--k-seltx);box-shadow:none;font-weight:700}
 html[data-skin="clean"] :is(.ptabs,.tabs) .tpill{border-radius:999px;background:var(--k-sel);box-shadow:none}
-html[data-skin="clean"].phoneM .sw{border-radius:16px;border-color:var(--k-hair)}
+html[data-skin="clean"].phoneM button.sw{border-radius:16px;border-color:var(--k-hair)}
 html[data-skin="clean"].phoneM #sheet{border-color:var(--k-hair);border-radius:28px 28px 0 0}
 html[data-skin="clean"].phoneM #sheet .shh{background:var(--k-sf);border-bottom:1px solid var(--k-hair)}
 html[data-skin="clean"].phoneM #sheet .grab{background:var(--k-hair2)}
@@ -179,7 +179,7 @@ html[data-skin="clean"] .cazb{border-radius:16px;background:var(--k-chip);box-sh
 html[data-skin="clean"] .cazb svg{stroke:var(--k-ink)}html[data-skin="clean"] .cazb b{color:var(--k-ink)}
 /* 8 · a switch that is off still reads as a switch */
 html[data-skin="clean"] .tg{background:var(--k-off)!important}
-html[data-skin="clean"] .tg[aria-checked="true"]{background:var(--k-on)!important}
+html[data-skin="clean"] .tg[aria-checked="true"]{background:var(--k-sel)!important}
 html[data-skin="clean"] .tg[aria-checked="true"]::before{color:var(--k-ink)}
 /* 9 · juz progress under the top bar: a quiet hairline, not a tab mark */
 html[data-skin="clean"] #jprog,html[data-skin="clean"].phoneM #jprog{height:2px;bottom:-1px;background:var(--k-mut);opacity:.45}
@@ -200,3 +200,13 @@ html[data-skin="clean"].uzL .qa.q4>.qt span{white-space:normal;line-height:1.2;t
 /* player buttons carry a caption under the icon: no ring around them, so neighbouring words don't collide */
 html[data-skin="clean"] .foot #player .ib,html[data-skin="clean"].phoneM .foot #player .ib{border:0;background:none;border-radius:14px}
 html[data-skin="clean"] .rseg button{padding:0 2px;letter-spacing:-.03em;min-width:0}
+
+/* Reading text that is not Quran (tafsir, word meanings, adhkar) in the UI font. Quran text keeps its mushaf font:
+   Alexandria has no Uthmani marks (round sukun, small waw/ya, waqf signs), so every ayah quote stays in .q / f-quran.
+   Scheherazade sits second in the stack so a stray Quranic mark outside brackets still draws instead of a box. */
+html[data-skin="clean"]{--f-read:"Alexandria","Scheherazade New","IBM Plex Sans Arabic",sans-serif}
+html[data-skin="clean"] .tf{font-family:var(--f-read);font-size:calc(16px * var(--tfz));line-height:2}
+html[data-skin="clean"] .wxm{font-family:var(--f-read);font-size:calc(15.5px * var(--tfz));line-height:1.85}
+html[data-skin="clean"] .gw span:not(.q){font-family:var(--f-read)}
+html[data-skin="clean"] .az-txt:not(.q){font-family:var(--f-read);font-weight:600;line-height:1.85}
+html[data-skin="clean"] .az-list li .t:not(.q){font-family:var(--f-read);font-weight:600;font-size:calc(17.5px * var(--azs));line-height:1.9}
