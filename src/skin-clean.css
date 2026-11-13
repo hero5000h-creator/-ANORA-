@@ -6,16 +6,16 @@
 
 html[data-skin="clean"]{
   --k-bg:#fafafa;--k-sf:#fff;--k-ink:#0d0d0d;--k-mut:#5e5e5e;--k-chip:#f4f4f0;--k-hair:rgba(13,13,13,.09);--k-hair2:rgba(13,13,13,.14);
-  --k-lime:#d7fc00;--k-on:#0d0d0d;--k-ontx:#fff;--k-sh:0 30px 80px -30px rgba(13,13,13,.28);--k-sh2:0 16px 32px -24px rgba(13,13,13,.45);
+  --k-lime:#d7fc00;--k-on:#0d0d0d;--k-ontx:#fff;--k-sel:#0d0d0d;--k-seltx:#fff;--k-off:rgba(13,13,13,.3);--k-sh:0 30px 80px -30px rgba(13,13,13,.28);--k-sh2:0 16px 32px -24px rgba(13,13,13,.45);
   --f-ui:"Alexandria","IBM Plex Sans Arabic","Segoe UI",Tahoma,sans-serif}
 html[data-skin="clean"][data-paper="night"],html[data-skin="clean"][data-paper="black"],html[data-skin="clean"][data-paper="sky"]{
   --k-bg:#121211;--k-sf:#1c1c1a;--k-ink:#faf9f6;--k-mut:#a3a39d;--k-chip:#2a2a27;--k-hair:rgba(255,255,255,.09);--k-hair2:rgba(255,255,255,.16);
-  --k-on:#d9f207;--k-ontx:#0d0d0d;--k-sh:0 30px 80px -30px rgba(0,0,0,.7);--k-sh2:0 16px 32px -20px rgba(0,0,0,.8)}
+  --k-on:#d9f207;--k-ontx:#0d0d0d;--k-sel:#f1f0ea;--k-seltx:#0d0d0d;--k-off:rgba(255,255,255,.3);--k-sh:0 30px 80px -30px rgba(0,0,0,.7);--k-sh2:0 16px 32px -20px rgba(0,0,0,.8)}
 
 /* chrome containers get the new tokens; the page inside #book never sees them */
 html[data-skin="clean"] :is(.bar,.foot,#prefs,#drawer,#sheet,#cont,.si,#recPick,#lpBar,#sDrop,#repBox,#quiz,#guide,#easyBox,#colEd,#sInfo,#keysBox,#noteBox,#dlBox,#shareBox,#scrubBig,#autoBar,#deck,.flbar,#toast){
-  --bar:var(--k-sf);--bar-ink:var(--k-ink);--muted:var(--k-mut);--orn:var(--k-on);--sel:var(--k-chip);--line:var(--k-hair);
-  --gold:var(--k-ink);--rule:var(--k-hair);--shadow:rgba(13,13,13,.22);font-family:var(--f-ui)}
+  --bar:var(--k-sf);--bar-ink:var(--k-ink);--muted:var(--k-mut);--orn:var(--k-sel);--sel:var(--k-chip);--line:var(--k-hair);
+  --gold:var(--k-ink);--rule:var(--k-hair);--paper:var(--k-sf);--ink:var(--k-ink);--paper-edge:var(--k-hair2);--shadow:rgba(13,13,13,.22);font-family:var(--f-ui)}
 
 /* bars: white, a single hairline, heavy sans title */
 html[data-skin="clean"] body{background:var(--k-bg)}
@@ -28,11 +28,11 @@ html[data-skin="clean"] .where b svg{fill:var(--k-ink)}
 html[data-skin="clean"] :is(.bar,.foot,.flbar) .ib{border-radius:999px;border:1px solid var(--k-hair2);background:var(--k-sf);color:var(--k-ink)}
 html[data-skin="clean"] .tools{gap:6px}
 html[data-skin="clean"] .ib svg{stroke-width:1.8}
-html[data-skin="clean"] #bPrefs[aria-expanded="true"],html[data-skin="clean"] .ib[aria-pressed="true"]{background:var(--k-on);color:var(--k-ontx);border-color:var(--k-on)}
+html[data-skin="clean"] #bPrefs[aria-expanded="true"],html[data-skin="clean"] .ib[aria-pressed="true"]{background:var(--k-sel);color:var(--k-seltx);border-color:var(--k-sel)}
 html[data-skin="clean"] .btn-index{border-radius:999px;background:var(--k-chip);color:var(--k-ink);font-weight:700}
 
 /* the main call to action: a black pill (lime in the dark) */
-html[data-skin="clean"] #fListen{background:var(--k-on);color:var(--k-ontx);font-weight:700;box-shadow:var(--k-sh2)}
+html[data-skin="clean"] #fListen{background:var(--k-sel);color:var(--k-seltx);font-weight:700;box-shadow:var(--k-sh2)}
 html[data-skin="clean"] .pg-n{font-weight:800}
 html[data-skin="clean"] .pg-n em{font-weight:500}
 
@@ -41,8 +41,8 @@ html[data-skin="clean"] #prefs{border-radius:24px;border:1px solid var(--k-hair)
 html[data-skin="clean"] .qt{background:var(--k-sf);border:1px solid var(--k-hair);border-radius:18px;font-weight:600;color:var(--k-ink)}
 html[data-skin="clean"] .qa.q4 .qt{border-radius:18px}
 html[data-skin="clean"] .qt svg{stroke:var(--k-ink);stroke-width:1.8}
-html[data-skin="clean"] .qt[aria-pressed="true"]{background:var(--k-on);border-color:var(--k-on);color:var(--k-ontx)}
-html[data-skin="clean"] .qt[aria-pressed="true"] svg{stroke:var(--k-ontx)}
+html[data-skin="clean"] .qt[aria-pressed="true"]{background:var(--k-sel);border-color:var(--k-sel);color:var(--k-seltx)}
+html[data-skin="clean"] .qt[aria-pressed="true"] svg{stroke:var(--k-seltx)}
 html[data-skin="clean"] #prefs h3{font-weight:700;color:var(--k-mut)}
 html[data-skin="clean"] #prefs h3.ph{font-size:15px;font-weight:800;color:var(--k-ink)}
 /* the gold diamond before section titles becomes a small lime dot with an ink ring */
@@ -51,18 +51,18 @@ html[data-skin="clean"] .qlink{font-weight:600;color:var(--k-mut)}
 
 /* segmented choices and tabs: pills; the chosen one is solid */
 html[data-skin="clean"] .seg button,html[data-skin="clean"] .sw{border-radius:16px;border:1px solid var(--k-hair);background:var(--k-sf);font-weight:600}
-html[data-skin="clean"] .seg button[aria-pressed="true"],html[data-skin="clean"] .seg button[aria-checked="true"],html[data-skin="clean"] .seg button.on,html[data-skin="clean"] .sw[aria-pressed="true"],html[data-skin="clean"] .sw[aria-checked="true"],html[data-skin="clean"] .sw.on{background:var(--k-on);color:var(--k-ontx);border-color:var(--k-on)}
+html[data-skin="clean"] .seg button[aria-pressed="true"],html[data-skin="clean"] .seg button[aria-checked="true"],html[data-skin="clean"] .seg button.on,html[data-skin="clean"] .sw[aria-pressed="true"],html[data-skin="clean"] .sw[aria-checked="true"],html[data-skin="clean"] .sw.on{background:var(--k-sel);color:var(--k-seltx);border-color:var(--k-sel)}
 html[data-skin="clean"] .tabs{background:var(--k-chip);border-radius:999px}
 html[data-skin="clean"] .tabs button{border-radius:999px;font-weight:600}
-html[data-skin="clean"] .tabs button[aria-selected="true"]{background:none;color:var(--k-ontx);box-shadow:none;font-weight:700}
-html[data-skin="clean"] .tg[aria-checked="true"]{background:var(--k-on)!important}
+html[data-skin="clean"] .tabs button[aria-selected="true"]{background:none;color:var(--k-seltx);box-shadow:none;font-weight:700}
+html[data-skin="clean"] .tg[aria-checked="true"]{background:var(--k-sel)!important}
 html[data-skin="clean"][data-paper="night"] .tg[aria-checked="true"]::after,html[data-skin="clean"][data-paper="black"] .tg[aria-checked="true"]::after,html[data-skin="clean"][data-paper="sky"] .tg[aria-checked="true"]::after{background:#0d0d0d!important}
 html[data-skin="clean"] .rsel{border-radius:16px;background:var(--k-sf);border-color:var(--k-hair2);color:var(--k-ink);font-weight:600}
 html[data-skin="clean"] .rsel svg{stroke:var(--k-ink)}
 
 /* buttons on cards: outline pills, and the solid one is the black pill */
 html[data-skin="clean"] .ctb{border-radius:999px;font-weight:600;border-color:var(--k-hair2)}
-html[data-skin="clean"] .ctb.solid{background:var(--k-on);border-color:var(--k-on);color:var(--k-ontx);font-weight:700}
+html[data-skin="clean"] .ctb.solid{background:var(--k-sel);border-color:var(--k-sel);color:var(--k-seltx);font-weight:700}
 html[data-skin="clean"] #cont .cb #cPl{background:var(--k-sf);border:1px solid var(--k-hair2);color:var(--k-ink)}
 
 /* the index */
@@ -71,9 +71,9 @@ html[data-skin="clean"] #drawer input{border-radius:999px!important;background:v
 
 /* cards and dialogs */
 html[data-skin="clean"] #cont{border-radius:24px;border:1px solid var(--k-hair);box-shadow:var(--k-sh)}
-html[data-skin="clean"] #cont .ch i{border-radius:999px;background:var(--k-on);color:var(--k-ontx)}
+html[data-skin="clean"] #cont .ch i{border-radius:999px;background:var(--k-sel);color:var(--k-seltx)}
 html[data-skin="clean"] #cont b{font-family:var(--f-ui);font-weight:800;font-size:16px}
-html[data-skin="clean"] #cont .cw span i{background:var(--k-on)}
+html[data-skin="clean"] #cont .cw span i{background:var(--k-sel)}
 html[data-skin="clean"] .si{border-radius:28px;border:1px solid var(--k-hair);box-shadow:var(--k-sh)}
 html[data-skin="clean"] #sheet{border-radius:28px 28px 0 0}
 html[data-skin="clean"] #recPick .rp{border-radius:28px 28px 0 0}
@@ -81,8 +81,8 @@ html[data-skin="clean"] #recPick .rp{border-radius:28px 28px 0 0}
 /* the ayah pop-up: a white card, the main action a black pill */
 html[data-skin="clean"] #lpBar{border-radius:22px;border:1px solid var(--k-hair);box-shadow:var(--k-sh)}
 html[data-skin="clean"] #lpBar .lpRow button{font-weight:600}
-html[data-skin="clean"] #lpBar .lpRow .pri{background:var(--k-on);color:var(--k-ontx)}
-html[data-skin="clean"] #lpBar .lpRef{background:var(--k-on);color:var(--k-ontx);border-radius:999px;font-weight:700}
+html[data-skin="clean"] #lpBar .lpRow .pri{background:var(--k-sel);color:var(--k-seltx)}
+html[data-skin="clean"] #lpBar .lpRef{background:var(--k-sel);color:var(--k-seltx);border-radius:999px;font-weight:700}
 
 /* adhkar: keep the night sky and the moon, flatten the cards, lime instead of gold for actions */
 html[data-skin="clean"] #az{font-family:var(--f-ui)}
@@ -90,10 +90,9 @@ html[data-skin="clean"] .az-ib{border-radius:999px;background:#1c1c1a;border-col
 html[data-skin="clean"] .az-cat{background:#161615!important;border:1px solid rgba(255,255,255,.09)!important;border-radius:24px}
 html[data-skin="clean"] .az-cat b,html[data-skin="clean"] .az-sec{font-family:var(--f-ui);font-weight:800;color:#faf9f6}
 html[data-skin="clean"] .az-pt{background:#161615;border:1px solid rgba(255,255,255,.09);border-radius:24px}
-html[data-skin="clean"] .az-pt button:not(.az-ib),html[data-skin="clean"] .az-btn.solid,html[data-skin="clean"] .az-btn.pri{background:#d9f207!important;color:#0d0d0d!important;border-color:#d9f207!important;border-radius:999px!important;font-weight:700}
+html[data-skin="clean"] .az-pt button:not(.az-ib){border-radius:999px!important;font-weight:700}
 html[data-skin="clean"] .az-chip,html[data-skin="clean"] .az-btn{border-radius:999px}
 html[data-skin="clean"] .az-set{border-radius:24px;background:#161615}
-html[data-skin="clean"] .az-sw[aria-checked="true"]{background:#d9f207}
 
 /* the phone layout (html.phoneM) dressed its bars as a gilded mushaf frame; in this skin they become plain white bars */
 html[data-skin="clean"].phoneM{--b-bg:var(--k-sf);--b-rim:var(--k-hair2);--b-soft:var(--k-hair)}
@@ -102,36 +101,36 @@ html[data-skin="clean"].phoneM #app>.foot{background:var(--k-sf);border-top:1px 
 html[data-skin="clean"].phoneM #app>.bar::after,html[data-skin="clean"].phoneM #app>.foot::after,
 html[data-skin="clean"].phoneM .where b::before,html[data-skin="clean"].phoneM .where b::after{display:none}
 html[data-skin="clean"].phoneM .where b{font-size:18px}
-html[data-skin="clean"].phoneM #jprog{background:var(--k-on);opacity:1}
+html[data-skin="clean"].phoneM #jprog{background:var(--k-sel);opacity:1}
 html[data-skin="clean"].phoneM .bar .ib,html[data-skin="clean"].phoneM #bPrefs,html[data-skin="clean"].phoneM .btn-index{border-radius:999px;background:var(--k-sf);border:1px solid var(--k-hair2);box-shadow:none;color:var(--k-ink)}
 html[data-skin="clean"].phoneM .bar .ib.azb{color:var(--k-ink)}
-html[data-skin="clean"].phoneM .bar .ib:active,html[data-skin="clean"].phoneM .btn-index:active,html[data-skin="clean"].phoneM #bPrefs[aria-expanded="true"]{background:var(--k-on);color:var(--k-ontx);border-color:var(--k-on)}
+html[data-skin="clean"].phoneM .bar .ib:active,html[data-skin="clean"].phoneM .btn-index:active,html[data-skin="clean"].phoneM #bPrefs[aria-expanded="true"]{background:var(--k-sel);color:var(--k-seltx);border-color:var(--k-sel)}
 html[data-skin="clean"].phoneM .tools{gap:3px}
 html[data-skin="clean"].phoneM .pnum{border-radius:999px;background:var(--k-chip);border:0;box-shadow:none}
 html[data-skin="clean"].phoneM .pnum b{font-weight:800}
 html[data-skin="clean"].phoneM .trk{background:var(--k-hair2)}
-html[data-skin="clean"].phoneM .trk>i{background:var(--k-on)}
+html[data-skin="clean"].phoneM .trk>i{background:var(--k-sel)}
 html[data-skin="clean"].phoneM .trk>b{background:var(--k-hair2)}
-html[data-skin="clean"].phoneM #range::-webkit-slider-thumb{width:22px;height:22px;border-radius:50%;transform:none;background:var(--k-on);border:3px solid var(--k-sf);box-shadow:0 0 0 1px var(--k-hair2),0 4px 10px -2px rgba(13,13,13,.35)}
+html[data-skin="clean"].phoneM #range::-webkit-slider-thumb{width:22px;height:22px;border-radius:50%;transform:none;background:var(--k-sel);border:3px solid var(--k-sf);box-shadow:0 0 0 1px var(--k-hair2),0 4px 10px -2px rgba(13,13,13,.35)}
 html[data-skin="clean"].phoneM #range:active::-webkit-slider-thumb{transform:scale(1.2)}
 html[data-skin="clean"].phoneM #range::-moz-range-thumb{border-radius:50%;transform:none}
-html[data-skin="clean"].phoneM #player .pp{background:var(--k-on);color:var(--k-ontx);box-shadow:0 12px 24px -12px rgba(13,13,13,.6)}
+html[data-skin="clean"].phoneM #player .pp{background:var(--k-sel);color:var(--k-seltx);box-shadow:0 12px 24px -12px rgba(13,13,13,.6)}
 html[data-skin="clean"].phoneM #player .pbar{background:var(--k-hair2)}
-html[data-skin="clean"].phoneM #player .pbar i{background:var(--k-on)}
+html[data-skin="clean"].phoneM #player .pbar i{background:var(--k-sel)}
 html[data-skin="clean"].phoneM #player .ib{color:var(--k-ink);border-radius:999px}
 html[data-skin="clean"].phoneM #player .ib+.ib{border-inline-start:0;border-radius:999px}
 html[data-skin="clean"].phoneM #player .ib:active{background:var(--k-chip)}
 html[data-skin="clean"].phoneM #player .cap{font-weight:600}
 html[data-skin="clean"].phoneM #prefs{border-radius:24px;border:1px solid var(--k-hair);box-shadow:var(--k-sh)}
 html[data-skin="clean"].phoneM .qa.q4 .qt,html[data-skin="clean"].phoneM .qt{border-radius:18px;background:var(--k-sf);border:1px solid var(--k-hair)}
-html[data-skin="clean"].phoneM .qt[aria-pressed="true"],html[data-skin="clean"].phoneM .qa.q4 .qt[aria-pressed="true"]{background:var(--k-on);border-color:var(--k-on);color:var(--k-ontx)}
+html[data-skin="clean"].phoneM .qt[aria-pressed="true"],html[data-skin="clean"].phoneM .qa.q4 .qt[aria-pressed="true"]{background:var(--k-sel);border-color:var(--k-sel);color:var(--k-seltx)}
 html[data-skin="clean"].phoneM #prefs h3{color:var(--k-mut)}
 html[data-skin="clean"].phoneM #prefs h3.ph,html[data-skin="clean"].phoneM #prefs .qh{color:var(--k-ink);font-weight:800}
 html[data-skin="clean"].phoneM #prefs .qh::before{width:8px;height:8px;border-radius:50%;transform:translateY(-1px);background:#d7fc00;box-shadow:0 0 0 1.5px var(--k-ink)}
 html[data-skin="clean"] .ptabs,html[data-skin="clean"].phoneM .ptabs{border-radius:999px;background:var(--k-chip);border:0;padding:4px}
 html[data-skin="clean"] .ptabs button,html[data-skin="clean"].phoneM .ptabs button{border-radius:999px;font-weight:600}
-html[data-skin="clean"] .ptabs button[aria-selected="true"],html[data-skin="clean"].phoneM .ptabs button[aria-selected="true"]{background:none;color:var(--k-ontx);box-shadow:none;font-weight:700}
-html[data-skin="clean"] :is(.ptabs,.tabs) .tpill{border-radius:999px;background:var(--k-on);box-shadow:none}
+html[data-skin="clean"] .ptabs button[aria-selected="true"],html[data-skin="clean"].phoneM .ptabs button[aria-selected="true"]{background:none;color:var(--k-seltx);box-shadow:none;font-weight:700}
+html[data-skin="clean"] :is(.ptabs,.tabs) .tpill{border-radius:999px;background:var(--k-sel);box-shadow:none}
 html[data-skin="clean"].phoneM .sw{border-radius:16px;border-color:var(--k-hair)}
 html[data-skin="clean"].phoneM #sheet{border-color:var(--k-hair);border-radius:28px 28px 0 0}
 html[data-skin="clean"].phoneM #sheet .shh{background:var(--k-sf);border-bottom:1px solid var(--k-hair)}
@@ -140,3 +139,50 @@ html[data-skin="clean"] #toast .tundo{border-color:var(--k-lime);color:var(--k-l
 /* simple mode puts a caption under each top button: a circle can't hold it, so those become soft rounded tiles */
 html[data-skin="clean"].simple .bar .tools .ib,html[data-skin="clean"].phoneM.simple .bar .tools .ib,html[data-skin="clean"].phoneM.simple .bar #bPrefs{border-radius:16px}
 html[data-skin="clean"].simple .bar .tools .tcap{font-size:11px;font-weight:600;letter-spacing:-.01em}
+/* council r27: Alexandria is wider than the classic UI font, so on a 360px phone with the biggest interface text
+   three things spilled: the index tabs crowded, long Latin names pushed the sources text past its card, and the
+   repeat box grew past the screen */
+html[data-skin="clean"] .tabs button{font-size:13px;letter-spacing:-.02em}
+html[data-skin="clean"] .si>*{min-width:0}
+html[data-skin="clean"] .si p{overflow-wrap:anywhere}
+html[data-skin="clean"] #repBox{letter-spacing:-.01em;max-height:calc((100dvh - var(--fh,56px) - var(--bh,56px) - var(--cutT,0px) - 20px) / var(--uz,1));overflow-y:auto;overscroll-behavior:contain}
+html[data-skin="clean"] .rbhint{font-size:12px}
+
+/* ---- designers' review 2026-11-13 ---- */
+/* the one primary action on a screen keeps the accent (black by day, lime by night); everything merely selected is quiet */
+html[data-skin="clean"] :is(#fListen,.ctb.solid,#player .pp,.kh-go,.gnav .solid,.mb.solid,#rbGo,#siGo,.sbx .solid,#nbS,.sdP .solid),
+html[data-skin="clean"].phoneM #player .pp,html[data-skin="clean"] #lpBar .lpRow .pri{background:var(--k-on);color:var(--k-ontx);border-color:var(--k-on)}
+/* 1 · one font: titles that were still set in the classic display face */
+html[data-skin="clean"] :is(.pnum b,.pg-n,#drawer b,.kh-w,#pTitle,#rpT,.rp-h b,.sdP b,.src-h b,#gT,.sbx b,#rbFrom,#rbTo,#mTitle,#shNum,.si h4,#cont b,.az-tt b,#azTitle,.az-hero h2,.az-pt .nx,.az-sec,.az-cat b){font-family:var(--f-ui);font-weight:800;letter-spacing:-.01em}
+html[data-skin="clean"] :is(#rbFrom,#rbTo,#pTitle,.pnum b){font-weight:700}
+html[data-skin="clean"] .az-hero h2{font-size:26px}
+/* 2 · one shape: every tab strip and segmented choice is a pill track with a solid pill */
+html[data-skin="clean"] :is(.shtabs,.sdScope,.rseg){border-radius:999px;background:var(--k-chip)!important;padding:4px;box-shadow:none}
+html[data-skin="clean"] .shtabs{box-shadow:0 -10px 0 var(--k-sf),0 8px 12px -8px var(--k-sf)}
+html[data-skin="clean"] :is(.shtabs,.sdScope,.rseg) button{border-radius:999px;font-weight:600}
+html[data-skin="clean"] :is(.shtabs,.sdScope) button[aria-selected="true"],html[data-skin="clean"] .sdScope button[aria-checked="true"]{color:var(--k-seltx);font-weight:700}
+html[data-skin="clean"] :is(.shtabs,.sdScope) .tpill{border-radius:999px;background:var(--k-sel);box-shadow:none}
+html[data-skin="clean"] .rseg button[aria-pressed="true"]{background:var(--k-sel);color:var(--k-seltx);box-shadow:none;font-weight:700}
+html[data-skin="clean"] .rst{background:var(--k-chip);color:var(--k-ink)}
+html[data-skin="clean"] .mb{border-radius:999px;background:var(--k-chip);color:var(--k-ink)}
+html[data-skin="clean"] .mb[aria-pressed="true"],html[data-skin="clean"] #mMic.on{background:var(--k-sel);color:var(--k-seltx)}
+/* 3 · fields and rows inside panels: white with a hairline, or a chip, never the page's cream */
+html[data-skin="clean"] :is(.rp-q,.sdIn input){border-radius:999px}
+html[data-skin="clean"] .sdIn input{background:var(--k-chip);border-color:transparent}
+html[data-skin="clean"] .sdIn input:focus{border-color:var(--k-hair2);box-shadow:none}
+html[data-skin="clean"] .rp-q{background:var(--k-chip);border-color:transparent}
+html[data-skin="clean"] .rp-o{border-radius:16px;border-color:var(--k-hair)}
+html[data-skin="clean"] .cay{border-radius:18px;background:var(--k-chip);box-shadow:none}
+html[data-skin="clean"] .cay>small{color:var(--k-mut)}
+/* 7 · "time for adhkar" row on the today card: an even chip */
+html[data-skin="clean"] .cazb{border-radius:16px;background:var(--k-chip);box-shadow:none;border:0;font-weight:600}
+html[data-skin="clean"] .cazb svg{stroke:var(--k-ink)}html[data-skin="clean"] .cazb b{color:var(--k-ink)}
+/* 8 · a switch that is off still reads as a switch */
+html[data-skin="clean"] .tg{background:var(--k-off)!important}
+html[data-skin="clean"] .tg[aria-checked="true"]{background:var(--k-on)!important}
+html[data-skin="clean"] .tg[aria-checked="true"]::before{color:var(--k-ink)}
+/* 9 · juz progress under the top bar: a quiet hairline, not a tab mark */
+html[data-skin="clean"] #jprog,html[data-skin="clean"].phoneM #jprog{height:2px;bottom:-1px;background:var(--k-mut);opacity:.45}
+html[data-skin="clean"] .sdScope>i{top:4px;bottom:4px;right:4px;width:calc(50% - 4px);border-radius:999px;background:var(--k-sel);box-shadow:none}
+html[data-skin="clean"] #drawer b,html[data-skin="clean"] .sdP b{font-weight:700;font-size:16px}
+html[data-skin="clean"] .sbx :is(#sbGo,.solid,[data-k="img"]){background:var(--k-on);color:var(--k-ontx);border-color:var(--k-on)}
