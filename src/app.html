@@ -1822,6 +1822,16 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
 /* the docked ayah panel already slides in whole: its contents do not rise and fade on top of that */
 #sheet.dock.on .acard,#sheet.dock.on .acts>*,#sheet.dock.on .shtabs,#sheet.dock.on .amed{animation:none}
 @media (prefers-reduced-motion:reduce){html.thumb body #prefs,html.thumb #repBox.side,html.thumb #srcBox .si.src{animation:none;transition:none}}
+/* debug 2026-11-13: at the biggest interface text on a 360px phone three panels were wider than the screen.
+   The menu's grid track grew to its widest child, the ayah sheet's six actions could not fit 40px columns, and
+   the prev/next row under the ayah card pushed "التالية" past the edge. Let them shrink, and wrap the actions. */
+#prefs{grid-template-columns:minmax(0,1fr)}
+.anv{grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)}
+.anv button{min-width:0;padding:0 6px}
+.acts{grid-template-columns:repeat(6,minmax(0,1fr))}
+.acts button{min-width:0}
+@media (max-width:420px){html.uzL .acts{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:10px}html.uzL .anv button span{display:none}}
+
 /*SKIN*/
 </style>
 
