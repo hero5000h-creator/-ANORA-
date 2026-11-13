@@ -179,7 +179,7 @@ html[data-skin="clean"] .cazb{border-radius:16px;background:var(--k-chip);box-sh
 html[data-skin="clean"] .cazb svg{stroke:var(--k-ink)}html[data-skin="clean"] .cazb b{color:var(--k-ink)}
 /* 8 · a switch that is off still reads as a switch */
 html[data-skin="clean"] .tg{background:var(--k-off)!important}
-html[data-skin="clean"] .tg[aria-checked="true"]{background:var(--k-on)!important}
+html[data-skin="clean"] .tg[aria-checked="true"]{background:var(--k-sel)!important}
 html[data-skin="clean"] .tg[aria-checked="true"]::before{color:var(--k-ink)}
 /* 9 · juz progress under the top bar: a quiet hairline, not a tab mark */
 html[data-skin="clean"] #jprog,html[data-skin="clean"].phoneM #jprog{height:2px;bottom:-1px;background:var(--k-mut);opacity:.45}
