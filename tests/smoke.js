@@ -251,8 +251,14 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         const a=nx();if(!a)return {err:"no cursor"};const pg=a.closest(".pg"),ws=[...pg.querySelectorAll(".lb [data-a][data-w]")];const i0=ws.indexOf(a);
         window.__L.Speechheard({text:bare(ws[i0].textContent),final:false,engine:"q"});await W(150);const lit=!ws[i0].classList.contains("hid");
         window.__L.Speechheard({text:ws.slice(i0,i0+5).map(w=>bare(w.textContent)).join(" "),final:true,engine:"q"});await W(200);
-        return {lit,moved:ws.indexOf(nx())-i0,red:document.querySelectorAll("#book .pg .err").length,sample:bare(ws[i0+1].textContent)}});
+        const moved=ws.indexOf(nx())-i0;
+        /* the reader goes back over the words just read: nothing moves */
+        window.__L.Speechheard({text:ws.slice(i0+1,i0+4).map(w=>bare(w.textContent)).join(" "),final:true,engine:"q"});await W(150);const back=ws.indexOf(nx())-i0;
+        /* the recogniser lost ten words: the next ones heard are found further on and followed from there */
+        window.__L.Speechheard({text:ws.slice(i0+15,i0+18).map(w=>bare(w.textContent)).join(" "),final:true,engine:"q"});await W(150);const gap=ws.indexOf(nx())-i0;
+        return {lit,moved,back,gap,red:document.querySelectorAll("#book .pg .err").length,sample:bare(ws[i0+1].textContent)}});
       ok(r.lit&&r.moved===5&&!r.red,`${name}: the Quran recogniser's letters follow the page word by word ${JSON.stringify(r)}`);
+      ok(r.back===5&&r.gap===18,`${name}: following along, a repeated stretch moves nothing and a lost stretch is caught up ${JSON.stringify(r)}`);
       await p.keyboard.press("Escape");await p.waitForTimeout(400)}
     if(name==="phone"){/* prayer times are computed on the device: Baghdad, Ja'fari, a fixed day, in Baghdad time */
       const r=await p.evaluate(()=>{const c=new adhan.Coordinates(33.3152,44.3661),d=new Date(Date.UTC(2026,10,4,9));

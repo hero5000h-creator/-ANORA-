@@ -40,6 +40,7 @@ public class QasrService extends Service {
 
     private static QuranAsr asr;
     private static boolean failed = false;
+    private static String why = "";
 
     private volatile boolean on = false;
     private volatile Messenger client;
@@ -132,6 +133,7 @@ public class QasrService extends Service {
         } catch (Throwable e) {
             Log.e(TAG, "model failed", e);
             failed = true;
+            why = e.getClass().getSimpleName() + ": " + e.getMessage();
         }
         return asr;
     }
@@ -172,7 +174,9 @@ public class QasrService extends Service {
         if (thread != me || !on) return;
         if (a == null) {
             on = false;
-            send(READY, 0, null);
+            Bundle b = new Bundle();
+            b.putString("why", why);
+            send(READY, 0, b);
             return;
         }
         int rate = QuranAsr.RATE;
