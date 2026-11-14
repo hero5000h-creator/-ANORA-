@@ -42,12 +42,12 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     /* page turn: the page images for the curl must render (an invalid SVG once made every turn a flat fold),
        the curl / 3D spread must be the one used, and every turn style must move exactly one page (spread: two) */
     {const dflt=await p.evaluate(()=>__smk.turn.pick()+(document.querySelector("#book canvas")?" canvas":""));
-      ok(dflt==="slide",`${name}: pages glide by default (${dflt})`);
+      ok(dflt==="book",`${name}: pages turn as a book by default (${dflt})`);
       const r=await p.evaluate(async()=>{localStorage.setItem("mushaf.turn","curl");const T=__smk.turn,c0=T.cur();const img=await T.rasterPage(c0);await T.rasterPage(c0+(T.mode()==="spread"?2:1));
         const fontsIn=!/url\(["']?fonts\//.test(__smk.rcss());const step=T.mode()==="spread"?2:1;const f=T.setupFlip("fwd",c0+step);const kind=f.b3?"3d":f.curl?"curl":"flat";T.finish(f,false);return {img:!!img,kind,c0,step,fontsIn}});
       ok(r.img,`${name}: page image for the curl renders`);ok(r.fontsIn,`${name}: the turning page image carries the mushaf fonts (no font file left to load)`);ok(r.kind===(name==="fold"?"3d":"curl"),`${name}: turn uses the ${name==="fold"?"3D spread":"curl"} (${r.kind})`);
       const bb=await p.locator("#book").boundingBox(),y=bb.y+bb.height*.6;
-      for(const st of ["curl","slide","none"]){await p.evaluate(s=>localStorage.setItem("mushaf.turn",s),st);
+      for(const st of ["book","curl","slide","none"]){await p.evaluate(s=>localStorage.setItem("mushaf.turn",s),st);
         const c0=await p.evaluate(()=>__smk.turn.cur());
         await p.mouse.move(bb.x+bb.width*.2,y);await p.mouse.down();for(let k=1;k<=10;k++){await p.mouse.move(bb.x+bb.width*(.2+k*.06),y);await p.waitForTimeout(16)}await p.mouse.up();await p.waitForTimeout(1100);
         const c1=await p.evaluate(()=>__smk.turn.cur());ok(c1===c0+r.step,`${name}: swipe turns one ${r.step>1?"spread":"page"} with "${st}" (${c0}→${c1})`);
