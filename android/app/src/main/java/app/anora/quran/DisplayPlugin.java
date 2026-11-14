@@ -15,4 +15,11 @@ public class DisplayPlugin extends Plugin {
         if (a != null) a.setFast(Boolean.TRUE.equals(call.getBoolean("on", true)));
         call.resolve();
     }
+
+    @PluginMethod
+    public void cap60(PluginCall call) {
+        MainActivity a = MainActivity.inst;
+        if (a != null) a.setCap60(Boolean.TRUE.equals(call.getBoolean("on", true)));
+        call.resolve();
+    }
 }

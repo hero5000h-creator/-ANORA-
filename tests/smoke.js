@@ -43,6 +43,8 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
        the curl / 3D spread must be the one used, and every turn style must move exactly one page (spread: two) */
     {const dflt=await p.evaluate(()=>__smk.turn.pick()+(document.querySelector("#book canvas")?" canvas":""));
       ok(dflt==="book",`${name}: pages turn as a book by default (${dflt})`);
+      {const L=await p.evaluate(()=>({warm:getComputedStyle(document.getElementById("warm")).display,dim:getComputedStyle(document.getElementById("dimV")).display,drawer:getComputedStyle(document.getElementById("drawer")).visibility}));
+        ok(L.warm==="none"&&L.dim==="none"&&L.drawer==="hidden",`${name}: hidden full-screen layers are not drawn (${JSON.stringify(L)})`)}
       const r=await p.evaluate(async()=>{localStorage.setItem("mushaf.turn","curl");const T=__smk.turn,c0=T.cur();const img=await T.rasterPage(c0);await T.rasterPage(c0+(T.mode()==="spread"?2:1));
         const fontsIn=!/url\(["']?fonts\//.test(__smk.rcss());const step=T.mode()==="spread"?2:1;const f=T.setupFlip("fwd",c0+step);const kind=f.b3?"3d":f.curl?"curl":"flat";T.finish(f,false);return {img:!!img,kind,c0,step,fontsIn}});
       ok(r.img,`${name}: page image for the curl renders`);ok(r.fontsIn,`${name}: the turning page image carries the mushaf fonts (no font file left to load)`);ok(r.kind===(name==="fold"?"3d":"curl"),`${name}: turn uses the ${name==="fold"?"3D spread":"curl"} (${r.kind})`);
