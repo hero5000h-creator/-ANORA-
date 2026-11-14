@@ -4917,13 +4917,18 @@ function heardWords(words,fin,q){const key=q?mk:sk;
      - a reader going back over what they just read (often, while memorising) moves nothing;
      - a short word (لا، ما، من) found further on is taken only when the next heard word follows it there;
      - a two-letter scrap counts only when it is exactly the word */
-  if(q&&memo.follow){if(fin&&W.length>1&&repeated(W,st))return;
+  if(q&&memo.follow){if(fin&&(W.length>1?repeated(W,st):!st.length&&shownBefore(12).some(w=>mk(w.textContent)===W[0])))return;
     const ok=[];let kk=0;for(let j=0;j<st.length;j++){const [,,at,n]=st[j],nb=st[j+1];
       if(at>kk&&T[at].length<=3&&!(nb&&nb[2]===at+n))break;if(W[st[j][0]].length<=2&&W[st[j][0]]!==T[at])break;ok.push(st[j]);kk=at+n}st=ok}
-  for(const [,,at,n] of st){
+  let hp=0;
+  for(const [hi,hu,at,n] of st){
     /* hidden words passed over: one meaningful word right before a match was probably really skipped by the
        reader (marked to revise); more than one is the recogniser missing a stretch, so they are just shown */
     if(at-k===1&&T[k].length>=4&&!memo.follow)sErr(nx[k][1]);
+    /* following with the Quran recogniser: a word said in the place of the mushaf's word (one or two of them,
+       heard clearly and unlike it) is a slip in the recitation, shown in red */
+    else if(q&&memo.follow&&at-k===1&&hi-hp===1&&slip(W[hp],T[k])&&!recent().some(r=>near(W[hp],r)))sErr(nx[k][1]);
+    hp=hi+hu;
     for(let q=k;q<at+n;q++)revealNext(nx[q][0]);k=at+n;skipMarks()}
   if(st.length){LS.miss=0;return}
   /* following along: the recogniser lost a stretch (or the reader skipped one) and the words heard lie further
@@ -4932,10 +4937,18 @@ function heardWords(words,fin,q){const key=q?mk:sk;
   /* nothing in the final text of a phrase fits: flash the word due, and after two such phrases show it in red */
   if(!fin||W.every(w=>w.length<=2))return;
   const el=nx[0][1];el.classList.remove("miss");void el.offsetWidth;el.classList.add("miss");
-  /* following along, a word the reader did not say is just passed over when they read on (no red mark) */
-  if(++LS.miss>=2&&!memo.follow){sErr(el);revealNext(nx[0][0]);LS.miss=0;skipMarks()}
+  /* following along, a word the reader did not say is just passed over when they read on (no red mark); with
+     the Quran recogniser, two phrases in a row that do not fit mean the word due was said wrong: red */
+  if(memo.follow&&!W.some(w=>w.length>=3&&qLex().has(w)&&!recent().some(r=>near(w,r))))return;
+  if(++LS.miss>=2&&(!memo.follow||q)){sErr(el);revealNext(nx[0][0]);LS.miss=0;skipMarks()}
 }
 const heard=word=>heardWords([word],true);
+/* every word of the Quran in bare letters (built once, on first use): a recogniser's garbled word is seldom one */
+let QLX=null;function qLex(){if(!QLX){QLX=new Set();for(let i=1;i<=NA;i++)toks(i).forEach(w=>QLX.add(mk(w[0])))}return QLX}
+/* a heard word that is a slip of the reader, not of the recogniser: a real word of the Quran, unlike the one due */
+/* the last words read, in bare letters: what the reader says again while going back */
+const recent=()=>shownBefore(30).map(w=>mk(w.textContent));
+const slip=(w,t)=>w.length>=3&&!near(w,t)&&qLex().has(w);
 function resync(W,key){const nx=hiddenNext(60),T=nx.map(x=>key(x[1].textContent));
   for(let p=0;p<T.length;p++)for(let i=0;i+1<W.length;i++){let r=0;while(i+r<W.length&&p+r<T.length&&near(W[i+r],T[p+r]))r++;
     if(r>=3||r===2&&(W[i]+W[i+1]).length>=7){for(let q=0;q<p+r;q++)revealNext(nx[q][0]);skipMarks();LS.miss=0;return true}}

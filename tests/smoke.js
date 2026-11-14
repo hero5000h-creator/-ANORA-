@@ -256,8 +256,13 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         window.__L.Speechheard({text:ws.slice(i0+1,i0+4).map(w=>bare(w.textContent)).join(" "),final:true,engine:"q"});await W(150);const back=ws.indexOf(nx())-i0;
         /* the recogniser lost ten words: the next ones heard are found further on and followed from there */
         window.__L.Speechheard({text:ws.slice(i0+15,i0+18).map(w=>bare(w.textContent)).join(" "),final:true,engine:"q"});await W(150);const gap=ws.indexOf(nx())-i0;
-        return {lit,moved,back,gap,red:document.querySelectorAll("#book .pg .err").length,sample:bare(ws[i0+1].textContent)}});
-      ok(r.lit&&r.moved===5&&!r.red,`${name}: the Quran recogniser's letters follow the page word by word ${JSON.stringify(r)}`);
+        /* a slip: another word of the Quran said in the place of the one due, then the reading goes on: that word turns red */
+        const i1=ws.indexOf(nx()),swap=bare(ws[i1].textContent)==="السماء"?"الارض":"السماء";const red0=document.querySelectorAll("#book .pg .err").length;
+        window.__L.Speechheard({text:[swap,...ws.slice(i1+1,i1+4).map(w=>bare(w.textContent))].join(" "),final:true,engine:"q"});await W(150);
+        const slipRed=ws[i1].classList.contains("err")&&document.querySelectorAll("#book .pg .err").length===red0+1,after=ws.indexOf(nx())-i1;
+        return {lit,moved,back,gap,slipRed,after,red0,red:document.querySelectorAll("#book .pg .err").length,sample:bare(ws[i0+1].textContent)}});
+      ok(r.lit&&r.moved===5&&!r.red0,`${name}: the Quran recogniser's letters follow the page word by word ${JSON.stringify(r)}`);
+      ok(r.slipRed&&r.after===4,`${name}: following along, a word said wrong turns red and the reading goes on ${JSON.stringify(r)}`);
       ok(r.back===5&&r.gap===18,`${name}: following along, a repeated stretch moves nothing and a lost stretch is caught up ${JSON.stringify(r)}`);
       await p.keyboard.press("Escape");await p.waitForTimeout(400)}
     if(name==="phone"){/* prayer times are computed on the device: Baghdad, Ja'fari, a fixed day, in Baghdad time */
