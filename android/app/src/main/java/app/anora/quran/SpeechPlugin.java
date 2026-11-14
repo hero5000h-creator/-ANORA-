@@ -1,12 +1,18 @@
 package app.anora.quran;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.speech.RecognitionListener;
+import android.speech.RecognitionSupport;
+import android.speech.RecognitionSupportCallback;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import com.getcapacitor.JSArray;
@@ -18,10 +24,21 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Listens while the user recites from memory. The Android WebView has no speech recognition of its own,
+ * Listens while the user recites (from memory, or following the page).
+ *
+ * First choice: the app's own Quran recogniser (quran-asr-tiny, in assets/qasr), which runs on the phone with
+ * no internet and knows recitation (madd, ghunna, waqf) far better than a general Arabic recogniser. It emits the
+ * same "heard" events, with engine "q": the bare Uthmani letters of each word, given out word by word.
+ *
+ * Otherwise (model missing, or the phone cannot run it): The Android WebView has no speech recognition of its own,
  * so this uses the phone's recogniser (Arabic) and keeps restarting it after each pause until stopped.
  * Emits "heard" {text, final}: partial text while speaking, then the final text of each phrase.
  */
@@ -37,6 +54,122 @@ public class SpeechPlugin extends Plugin {
      *  needs Google's Arabic offline speech pack, which Android 13+ is asked to download when it is missing. */
     private boolean offline = false;
     private boolean askedModel = false;
+    /** Android 13+: the phone's own Arabic recogniser, in one continuous (segmented) session. It never stops between
+     *  phrases, so nothing is lost while a new session starts, and it needs no internet. Chosen when the Arabic
+     *  on-device pack is installed; otherwise the usual recogniser with a restart after each phrase. */
+    private boolean device = false;
+    private String devLang = "ar-SA";
+    private int devFails = 0;
+    /** follow-along reading: quicker phrase ends (the page follows each word, it does not wait for whole phrases) */
+    private boolean quick = false;
+
+    /* ---- the app's own Quran recogniser ---- */
+    private static QuranAsr qasr;
+    private static boolean qasrFailed = false;
+    private volatile boolean qOn = false;
+    private Thread qThread;
+    private QuranListen qListen;
+
+    /** Loads the model once (copied out of the APK to app storage the first time). Slow: call off the main thread. */
+    private static synchronized QuranAsr qasr(Context ctx) {
+        if (qasr != null || qasrFailed) return qasr;
+        try {
+            File f = new File(ctx.getFilesDir(), "qasr-1.onnx");
+            if (!f.exists()) {
+                File tmp = new File(ctx.getFilesDir(), "qasr.tmp");
+                try (InputStream in = ctx.getAssets().open("qasr/model.onnx"); OutputStream out = new FileOutputStream(tmp)) {
+                    byte[] buf = new byte[1 << 16];
+                    int k;
+                    while ((k = in.read(buf)) > 0) out.write(buf, 0, k);
+                }
+                if (!tmp.renameTo(f)) throw new Exception("rename");
+            }
+            int cores = Runtime.getRuntime().availableProcessors();
+            qasr = new QuranAsr(f.getAbsolutePath(), cores >= 6 ? 2 : 1);
+        } catch (Throwable e) {
+            // no model in this build, or no ONNX Runtime for this processor: the phone's recogniser is used
+            qasrFailed = true;
+        }
+        return qasr;
+    }
+
+    private void qStart(PluginCall call) {
+        qOn = true;
+        qThread = new Thread(() -> {
+            QuranAsr asr = qasr(getContext());
+            if (asr == null || !qOn) {
+                qOn = false;
+                if (asr == null) main.post(() -> googleBegin(call));
+                return;
+            }
+            int rate = QuranAsr.RATE;
+            int min = AudioRecord.getMinBufferSize(rate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+            AudioRecord ar;
+            try {
+                // 4 s of buffer: the recorder keeps hearing while a decode runs
+                ar = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, rate, AudioFormat.CHANNEL_IN_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT, Math.max(min, rate * 2 * 4));
+                if (ar.getState() != AudioRecord.STATE_INITIALIZED) throw new IllegalStateException("mic");
+                ar.startRecording();
+            } catch (Throwable e) {
+                qOn = false;
+                main.post(() -> call.reject("mic", "mic"));
+                return;
+            }
+            JSObject ok = new JSObject();
+            ok.put("device", true);
+            ok.put("quran", true);
+            call.resolve(ok);
+            QuranListen L = new QuranListen(asr, (text, fin) -> {
+                if (!qOn) return;
+                JSObject o = new JSObject();
+                o.put("text", text);
+                o.put("final", fin);
+                o.put("engine", "q");
+                notifyListeners("heard", o);
+            });
+            qListen = L;
+            short[] pcm = new short[rate / 10];
+            float[] x = new float[pcm.length];
+            try {
+                while (qOn) {
+                    int k = ar.read(pcm, 0, pcm.length);
+                    if (k <= 0) {
+                        if (k < 0) break;
+                        continue;
+                    }
+                    for (int i = 0; i < k; i++) x[i] = pcm[i] / 32768f;
+                    L.feed(x, k);
+                }
+                if (qOn) emitError(-2);
+            } catch (Throwable e) {
+                emitError(-2);
+            } finally {
+                try { ar.stop(); } catch (Throwable ignored) {}
+                ar.release();
+                qListen = null;
+            }
+        }, "anora-qasr");
+        qThread.setPriority(Thread.MAX_PRIORITY - 1);
+        qThread.start();
+    }
+
+    private void qStop() {
+        qOn = false;
+        Thread t = qThread;
+        qThread = null;
+        if (t != null) {
+            try { t.join(800); } catch (InterruptedException ignored) {}
+        }
+    }
+
+    /** The reader starts again from another word (a tap on the page): forget what was heard so far. */
+    @PluginMethod
+    public void reset(PluginCall call) {
+        QuranListen L = qListen;
+        if (L != null) L.reset();
+        call.resolve();
+    }
 
     private void takeBias(PluginCall call) {
         JSArray a = call.getArray("words", null);
@@ -60,6 +193,7 @@ public class SpeechPlugin extends Plugin {
     public void start(PluginCall call) {
         takeBias(call);
         offline = call.getBoolean("offline", false);
+        quick = call.getBoolean("quick", false);
         if (getPermissionState("mic") != PermissionState.GRANTED) {
             requestPermissionForAlias("mic", call, "micAnswered");
             return;
@@ -74,19 +208,32 @@ public class SpeechPlugin extends Plugin {
     }
 
     private void begin(PluginCall call) {
+        if (!call.getBoolean("google", false) && !qasrFailed) {
+            qStart(call);
+            return;
+        }
+        googleBegin(call);
+    }
+
+    private void googleBegin(PluginCall call) {
         if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
             call.reject("unavailable", "unavailable");
             return;
         }
         main.post(() -> {
             running = true;
-            listen();
-            call.resolve();
+            pickDevice(() -> {
+                listen();
+                JSObject o = new JSObject();
+                o.put("device", device);
+                call.resolve(o);
+            });
         });
     }
 
     @PluginMethod
     public void stop(PluginCall call) {
+        qStop();
         main.post(() -> {
             running = false;
             destroy();
@@ -96,6 +243,7 @@ public class SpeechPlugin extends Plugin {
 
     @Override
     protected void handleOnDestroy() {
+        qStop();
         running = false;
         destroy();
     }
@@ -110,23 +258,88 @@ public class SpeechPlugin extends Plugin {
         }
     }
 
+    /** Is Arabic installed for the on-device recogniser? Asks Android to fetch it once when it can be but is not. */
+    private void pickDevice(Runnable then) {
+        device = false;
+        if (Build.VERSION.SDK_INT < 33 || devFails >= 2) { then.run(); return; }
+        try {
+            if (!SpeechRecognizer.isOnDeviceRecognitionAvailable(getContext())) { then.run(); return; }
+            final SpeechRecognizer probe = SpeechRecognizer.createOnDeviceSpeechRecognizer(getContext());
+            final Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar-SA");
+            final boolean[] done = { false };
+            final Runnable finish = () -> {
+                if (done[0]) return;
+                done[0] = true;
+                try { probe.destroy(); } catch (Exception ignored) {}
+                then.run();
+            };
+            probe.checkRecognitionSupport(i, getContext().getMainExecutor(), new RecognitionSupportCallback() {
+                @Override
+                public void onSupportResult(RecognitionSupport r) {
+                    String tag = arabic(r.getInstalledOnDeviceLanguages());
+                    if (tag != null) {
+                        device = true;
+                        devLang = tag;
+                    } else if (!askedModel && arabic(r.getSupportedOnDeviceLanguages()) != null) {
+                        askedModel = true;
+                        try { probe.triggerModelDownload(i); } catch (Exception ignored) {}
+                    }
+                    main.post(finish);
+                }
+
+                @Override
+                public void onError(int e) {
+                    main.post(finish);
+                }
+            });
+            // a recogniser that never answers must not hold the start
+            main.postDelayed(finish, 1500);
+        } catch (Exception e) {
+            then.run();
+        }
+    }
+
+    private static String arabic(List<String> tags) {
+        if (tags == null) return null;
+        String best = null;
+        for (String t : tags) {
+            if (t == null || !t.toLowerCase().startsWith("ar")) continue;
+            if (t.equalsIgnoreCase("ar-SA")) return t;
+            if (best == null) best = t;
+        }
+        return best;
+    }
+
     private void listen() {
         if (!running) return;
         if (rec == null) {
-            rec = SpeechRecognizer.createSpeechRecognizer(getContext());
+            rec = device && Build.VERSION.SDK_INT >= 31
+                ? SpeechRecognizer.createOnDeviceSpeechRecognizer(getContext())
+                : SpeechRecognizer.createSpeechRecognizer(getContext());
             rec.setRecognitionListener(new Listener());
         }
         Intent i = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         i.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar-SA");
+        i.putExtra(RecognizerIntent.EXTRA_LANGUAGE, device ? devLang : "ar-SA");
         i.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
         // several guesses per phrase: the page keeps the one that follows the mushaf furthest
         i.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5);
         if (Build.VERSION.SDK_INT >= 33 && !bias.isEmpty()) i.putStringArrayListExtra(RecognizerIntent.EXTRA_BIASING_STRINGS, bias);
-        // recitation has long breaths between ayat: wait longer before ending a phrase
-        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2500);
-        i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 2500);
-        if (offline) i.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
+        if (device && Build.VERSION.SDK_INT >= 33) {
+            // one session for the whole reading, cut into segments at each short breath: each segment's text comes
+            // at once and listening goes on with no gap
+            i.putExtra(RecognizerIntent.EXTRA_SEGMENTED_SESSION, RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS);
+            i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, quick ? 700 : 1200);
+            i.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
+        } else {
+            // recitation has long breaths between ayat: wait longer before ending a phrase (follow-along: shorter,
+            // the words are matched from the partial text anyway)
+            int sil = quick ? 1500 : 2500;
+            i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, sil);
+            i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, sil);
+            if (offline) i.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
+        }
         try {
             rec.startListening(i);
         } catch (Exception e) {
@@ -163,7 +376,19 @@ public class SpeechPlugin extends Plugin {
         @Override
         public void onResults(Bundle b) {
             emit(b, true);
-            again(60);
+            again(device ? 20 : 60);
+        }
+
+        /** a breath inside the continuous session: the phrase is settled, listening never stopped */
+        @Override
+        public void onSegmentResults(Bundle b) {
+            devFails = 0;
+            emit(b, true);
+        }
+
+        @Override
+        public void onEndOfSegmentedSession() {
+            if (running) again(20);
         }
 
         @Override
@@ -177,6 +402,14 @@ public class SpeechPlugin extends Plugin {
             if (e == SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS) {
                 running = false;
                 emitError(e);
+                return;
+            }
+            // the phone's own recogniser failing over and over: back to the usual one
+            if (device && e != SpeechRecognizer.ERROR_NO_MATCH && e != SpeechRecognizer.ERROR_SPEECH_TIMEOUT && ++devFails >= 2) {
+                device = false;
+                destroy();
+                emitError(101);
+                again(150);
                 return;
             }
             if (e == SpeechRecognizer.ERROR_RECOGNIZER_BUSY || e == SpeechRecognizer.ERROR_CLIENT) {

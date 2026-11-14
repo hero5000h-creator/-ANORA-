@@ -227,16 +227,33 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         const all=[...pg.querySelectorAll(".lb [data-a][data-w]")].map(w=>plain(w.textContent));
         window.__L.Speechheard({text:all.slice(0,6).join(" "),final:true});await W(300);
         const moved=nx()!==a,col=getComputedStyle(a).color;
+        /* the word being said lights up from the partial text, before the phrase ends; the pill glides to it */
+        const b0=nx();window.__L.Speechheard({text:plain(b0.textContent),final:false});await W(150);
+        const instant=nx()!==b0&&!b0.classList.contains("hid"),pill=document.getElementById("flPill"),pillOn=!!pill&&!pill.hidden&&pill.parentNode===nx().closest(".pg");
+        window.__L.Speechheard({text:plain(b0.textContent),final:true});await W(100);
         for(let i=6;i<all.length;i+=8){window.__L.Speechheard({text:all.slice(i,i+8).join(" "),final:true});await W(60)}
         /* a spread: the second page follows the first */
         await W(200);{const n2=nx(),p2=n2&&n2.closest(".pg");if(p2&&p2!==pg&&+localStorage.getItem("mushaf.last")===c0){const ws=[...p2.querySelectorAll(".lb [data-a][data-w]")].map(w=>plain(w.textContent));
           for(let i=0;i<ws.length;i+=8){window.__L.Speechheard({text:ws.slice(i,i+8).join(" "),final:true});await W(60)}}}
         await W(2600);
-        return {on:app.classList.contains("follow")&&document.getElementById("mMic").classList.contains("on"),faint,col,moved,from:c0,to:+localStorage.getItem("mushaf.last"),still:app.classList.contains("follow")}});
+        return {on:app.classList.contains("follow")&&document.getElementById("mMic").classList.contains("on"),faint,col,moved,instant,pillOn,from:c0,to:+localStorage.getItem("mushaf.last"),still:app.classList.contains("follow")}});
+      ok(r.instant&&r.pillOn,`${name}: follow-along lights the word as it is said and the pill moves to the next ${JSON.stringify(r)}`);
       ok(r.on&&r.moved&&r.faint!=="rgba(0, 0, 0, 0)"&&r.col!==r.faint,`${name}: follow-along shows the text and colours the words recited ${JSON.stringify(r)}`);
       ok(r.to>r.from&&r.still,`${name}: reciting the whole page turns to the next and keeps following ${JSON.stringify(r)}`);
       await p.keyboard.press("Escape");await p.waitForTimeout(400);
       ok(await p.evaluate(()=>!document.getElementById("app").classList.contains("follow")&&!document.querySelector("#book .hid")),`${name}: leaving follow-along clears the page`)}
+    /* the app's own Quran recogniser: bare Uthmani letters, a lit word from the partial, whole words in each final */
+    {await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(400);
+      await p.evaluate(()=>document.getElementById("bFollow").click());await p.waitForTimeout(900);
+      const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z)),nx=()=>{const l=+localStorage.getItem("mushaf.last");return document.querySelector(`#book .pg[data-p="${l}"] .nx,#book .pg[data-p="${l+1}"] .nx`)};
+        const F={"أ":"ا","إ":"ا","آ":"ا","ٱ":"ا","ى":"ي","ئ":"ي","ؤ":"و","ة":"ه"},L="ءابتثجحخدذرزسشصضطظعغفقكلمنهوي";
+        const bare=t=>[...t].map(c=>F[c]||c).filter(c=>L.includes(c)).join("");
+        const a=nx();if(!a)return {err:"no cursor"};const pg=a.closest(".pg"),ws=[...pg.querySelectorAll(".lb [data-a][data-w]")];const i0=ws.indexOf(a);
+        window.__L.Speechheard({text:bare(ws[i0].textContent),final:false,engine:"q"});await W(150);const lit=!ws[i0].classList.contains("hid");
+        window.__L.Speechheard({text:ws.slice(i0,i0+5).map(w=>bare(w.textContent)).join(" "),final:true,engine:"q"});await W(200);
+        return {lit,moved:ws.indexOf(nx())-i0,red:document.querySelectorAll("#book .pg .err").length,sample:bare(ws[i0+1].textContent)}});
+      ok(r.lit&&r.moved===5&&!r.red,`${name}: the Quran recogniser's letters follow the page word by word ${JSON.stringify(r)}`);
+      await p.keyboard.press("Escape");await p.waitForTimeout(400)}
     if(name==="phone"){/* prayer times are computed on the device: Baghdad, Ja'fari, a fixed day, in Baghdad time */
       const r=await p.evaluate(()=>{const c=new adhan.Coordinates(33.3152,44.3661),d=new Date(Date.UTC(2026,10,4,9));
         const f=t=>["fajr","sunrise","dhuhr","asr","maghrib","isha"].map(k=>t[k].toLocaleTimeString("en-GB",{timeZone:"Asia/Baghdad",hour:"2-digit",minute:"2-digit"}));
