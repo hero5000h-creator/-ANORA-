@@ -33,6 +33,7 @@ def asjson(src):
 fontcss = unfont(open(S('font.css'), encoding='utf-8').read(), 'mushaf') + unfont(open(S('amiri.css'), encoding='utf-8').read(), 'amiri') + unfont(open(S('suranames.css'), encoding='utf-8').read(), 'suranames') + unfont(open(S('alexandria.css'), encoding='utf-8').read(), 'alexandria')
 SCRIPTS = {'adhan.js': open(S('adhan.js'), encoding='utf-8').read(), 'data.js': asjson(open(S('data.js'), encoding='utf-8').read()), 'k.js': asjson(open(S('k.js'), encoding='utf-8').read())}
 app = app.replace('/*SKIN*/', open(S('skin-clean.css'), encoding='utf-8').read())
+app = app.replace('/*TFONT*/', unfont(open(S('textfonts.css'), encoding='utf-8').read(), 'text'))
 app = app.replace('/*FONT*/', fontcss).replace('/*QP*/', '')
 assert '<script>/*ADHAN*/</script>' in app and '<script>\n/*DATA*/\n/*K*/\n</script>' in app
 app = (app.replace('<script>/*ADHAN*/</script>', '<script src="adhan.js"></script>')

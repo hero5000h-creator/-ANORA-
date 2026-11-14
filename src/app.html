@@ -1,8 +1,6 @@
 <title>أنورا · مصحف المدينة</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;500&family=Amiri+Quran&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" media="print" onload="this.media='all'">
+<style id="tfonts">/*TFONT*/</style>
 <style>
 /*FONT*/
 /* Layout: one-screen reader built for long reading. Quiet bars, a page that fills the screen, the index slides in from the right.
@@ -1716,6 +1714,7 @@ html.phoneM .posture{font-size:15px;min-height:48px}
 html.phoneM .posture small{font-size:13px;line-height:1.45}
 html.phoneM .tg{width:52px;height:32px;border-radius:16px}
 html.phoneM .tg::after{width:26px;height:26px}
+@media (pointer:coarse){html:not(.phoneM) .tg{width:52px;height:32px;border-radius:16px}html:not(.phoneM) .tg::after{width:26px;height:26px}html:not(.phoneM) .tg[aria-checked="true"]::after{transform:translateX(-20px)}}
 html.phoneM .tg[aria-checked="true"]::after{transform:translateX(-20px)}
 html.phoneM #prefs .rng{font-size:13.5px}
 html.phoneM #warmR{height:44px}
@@ -2816,7 +2815,7 @@ stage.addEventListener("pointerdown",e=>{
   const cx=e.clientX,cy=e.clientY,me=down;
   me.prT=setTimeout(()=>{if(down!==me||me.drag||memo.on)return;const a=ayahAt(cx,cy);if(a&&a!==selA)pressBands(a)},140);
   me.lpT=setTimeout(()=>{if(down!==me||me.drag)return;const a=ayahAt(cx,cy);if(!a)return;me.lp=true;me.drag="none";lpAt=performance.now();try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(8)}catch(e){}ayahPop(a,cx,cy)},480);
-  stage.setPointerCapture(e.pointerId);
+  try{stage.setPointerCapture(e.pointerId)}catch(_){}
 });
 stage.addEventListener("pointermove",e=>{
   const b=bookPt(e);
@@ -3211,7 +3210,7 @@ const RS={img:new Map(),ver:0,css:null,vars:null,busy:false,queue:[]};
 function rasterCSS(){
   /* inside the SVG image there is no <html>: rules on html / :root (phone layout, paper, text size) are aimed at a stand-in
      element carrying the root's classes, or the page would be drawn in another layout and jump at the start of each turn */
-  if(!RS.css){RS.css=[...document.querySelectorAll("style")].map(x=>x.textContent).join("\n").replace(/(^|[\s,}>(])(?:html|:root)(?=[.\[:\s{,>)])/g,"$1.rrt");RS.vars=[...new Set(RS.css.match(/--[\w-]+/g)||[])]}
+  if(!RS.css){RS.css=[...document.querySelectorAll("style:not(#tfonts)")].map(x=>x.textContent).join("\n").replace(/(^|[\s,}>(])(?:html|:root)(?=[.\[:\s{,>)])/g,"$1.rrt");RS.vars=[...new Set(RS.css.match(/--[\w-]+/g)||[])]}
   return RS.css;
 }
 /* The fonts are files next to the page (fonts/*.woff2), but a page drawn as an SVG image may not load any file:
@@ -4843,6 +4842,8 @@ $("bMemo").onclick=()=>{showPrefs(false);memo.range=null;const was=memo.on&&!mem
    but the words stay on the page, faint until recited, and the page turns by itself at its end. */
 function setFollow(on){if(memo.on)setMemo(false);if(!on)return;memo.range=null;memo.follow=true;setMemo(true);micStart()}
 $("bFollow").onclick=()=>{showPrefs(false);setFollow(!(memo.on&&memo.follow))};
+/* Windows has no speech recogniser for the page: the tile would only say so */
+if(PLAT==="electron")$("bFollow").hidden=true;
 /* a tap on a word: start (again) from that word */
 function followFrom(x,y){const el=document.elementFromPoint(x,y),w=el&&el.closest&&el.closest(".lb [data-a]");if(!w)return;
   const ps=deckPages();let seen=false;for(const p of ps){const ws=pageWords(p),i=ws.indexOf(w);if(i>=0){memo.rev.set(p,i);seen=true}else memo.rev.set(p,seen?0:ws.length)}
@@ -5868,7 +5869,7 @@ natOn("LocalNotifications","localNotificationActionPerformed",a=>{const k=a&&a.n
 $("azFree").addEventListener("click",e=>{const b=e.target.closest(".az-chip");if(!b)return;e.stopPropagation();const d=azSt.get();
   if(b.dataset.fp!==undefined){d.fp=+b.dataset.fp;azList[0].t=AZ_FREE[d.fp]}if(b.dataset.ft!==undefined){d.ft=+b.dataset.ft;azList[0].n=d.ft}azSt.save(d);azCount=0;azFreeUI();azShow(0)});
 {let pd=null;const run=$("azRun");
-  run.addEventListener("pointerdown",e=>{if(e.target.closest("button:not(#azRing),.az-free"))return;const onBeads=!!e.target.closest(".az-beads");pd={x:e.clientX,y:e.clientY,t:performance.now(),b:onBeads,ph:azPh};if(onBeads){cancelAnimationFrame(azRaf);run.setPointerCapture(e.pointerId)}});
+  run.addEventListener("pointerdown",e=>{if(e.target.closest("button:not(#azRing),.az-free"))return;const onBeads=!!e.target.closest(".az-beads");pd={x:e.clientX,y:e.clientY,t:performance.now(),b:onBeads,ph:azPh};if(onBeads){cancelAnimationFrame(azRaf);try{run.setPointerCapture(e.pointerId)}catch(_){}}});
   run.addEventListener("pointermove",e=>{if(!pd||!pd.b)return;azPh=Math.max(-1,Math.min(.4,(e.clientX-pd.x)/AZB.sp));azDrawBeads()});
   const end=e=>{if(!pd)return;const d=pd;pd=null;const dx=e.clientX-d.x,dy=e.clientY-d.y;if(e.type==="pointercancel"){azPh=0;azDrawBeads();return}
     if(d.b){if(dx<-AZB.sp*.45){azTap();return}const f=azPh,t0=performance.now();const st=now=>{const t=Math.min(1,(now-t0)/200);azPh=f*(1-t);azDrawBeads();if(t<1)azRaf=requestAnimationFrame(st)};azRaf=requestAnimationFrame(st);if(Math.hypot(dx,dy)<8)azTap();return}

@@ -56,6 +56,10 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         await p.evaluate(()=>{document.dispatchEvent(new KeyboardEvent("keydown",{key:"ArrowRight"}))});await p.waitForTimeout(1100)}
       await p.evaluate(()=>localStorage.removeItem("mushaf.turn"))}
     ok(!errs.length,`${name}: no script errors on load ${errs.join(" | ")}`);
+    /* offline from the first start: no font or style comes from the internet, and the Quran text font of the
+       index, sheet and search is the app's own file */
+    {const r=await p.evaluate(async()=>{await document.fonts.load('20px "Scheherazade New"',"بِسۡمِ");return {ext:[...document.querySelectorAll('link[rel=stylesheet],link[rel=preconnect]')].map(l=>l.href).filter(h=>/^https?:/.test(h)&&!h.includes(location.host)),sch:document.fonts.check('20px "Scheherazade New"',"بِسۡمِ")&&[...document.fonts].some(f=>f.family.replace(/"/g,"")==="Scheherazade New"&&f.status==="loaded")}});
+      ok(!r.ext.length&&r.sch,`${name}: fonts are bundled, nothing loaded from the internet ${JSON.stringify(r)}`)}
     /* any device: letters drawn 15% bigger after the page measured them (a phone's font size setting) never run past the frame */
     {const over=()=>p.evaluate(()=>{let n=0;document.querySelectorAll("#book>.pg:not(.pk):not(.blank)").forEach(pg=>{const bx=pg.querySelector(".box"),br=bx.getBoundingClientRect(),bl=parseFloat(getComputedStyle(bx).borderLeftWidth)||0;
        pg.querySelectorAll(".lb").forEach(l=>{const r=l.getBoundingClientRect();if(r.left<br.left+bl*.5-1||r.right>br.right-bl*.5+1)n++})});return n});
