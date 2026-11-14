@@ -37,6 +37,10 @@ public class MainActivity extends BridgeActivity {
         super.onCreate(savedInstanceState);
         inst = this;
         fromWidget(getIntent());
+        // CI only: run the own recogniser once on noise in its process (adb: --ez qasrSelfTest true)
+        if ((getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0 && getIntent() != null && getIntent().getBooleanExtra("qasrSelfTest", false)) {
+            startService(new Intent(this, QasrService.class).setAction(QasrService.SELFTEST));
+        }
         fixedTextZoom();
         immersive();
         fastestRefresh();

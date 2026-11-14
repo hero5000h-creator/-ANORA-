@@ -26,6 +26,12 @@
 
         </activity>
 
+        <!-- the own Quran recogniser runs apart: a native failure there can never close the app -->
+        <service
+            android:name=".QasrService"
+            android:process=":qasr"
+            android:exported="false" />
+
         <service
             android:name=".PlaybackService"
             android:exported="false"

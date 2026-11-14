@@ -1,15 +1,18 @@
 package app.anora.quran;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.MediaRecorder;
+import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
+import android.os.Messenger;
+import android.os.RemoteException;
 import android.speech.RecognitionListener;
 import android.speech.RecognitionSupport;
 import android.speech.RecognitionSupportCallback;
@@ -24,10 +27,6 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -63,114 +62,188 @@ public class SpeechPlugin extends Plugin {
     /** follow-along reading: quicker phrase ends (the page follows each word, it does not wait for whole phrases) */
     private boolean quick = false;
 
-    /* ---- the app's own Quran recogniser ---- */
-    private static QuranAsr qasr;
+    /* ---- the app's own Quran recogniser, in its own process (QasrService) ---- */
     private static boolean qasrFailed = false;
-    private volatile boolean qOn = false;
-    private Thread qThread;
-    private QuranListen qListen;
+    private boolean qOn = false;
+    private PluginCall qCall;
+    private Messenger svc;
+    private boolean bound = false;
+    private final Messenger inbox = new Messenger(new Handler(Looper.getMainLooper(), this::fromQasr));
+    private final Runnable unbindLater = this::unbindQasr;
 
-    /** Loads the model once (copied out of the APK to app storage the first time). Slow: call off the main thread. */
-    private static synchronized QuranAsr qasr(Context ctx) {
-        if (qasr != null || qasrFailed) return qasr;
-        try {
-            File f = new File(ctx.getFilesDir(), "qasr-1.onnx");
-            if (!f.exists()) {
-                File tmp = new File(ctx.getFilesDir(), "qasr.tmp");
-                try (InputStream in = ctx.getAssets().open("qasr/model.onnx"); OutputStream out = new FileOutputStream(tmp)) {
-                    byte[] buf = new byte[1 << 16];
-                    int k;
-                    while ((k = in.read(buf)) > 0) out.write(buf, 0, k);
-                }
-                if (!tmp.renameTo(f)) throw new Exception("rename");
+    private final ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder b) {
+            try {
+                b.linkToDeath(() -> main.post(SpeechPlugin.this::qasrDied), 0);
+            } catch (RemoteException e) {
+                qasrDied();
+                return;
             }
-            int cores = Runtime.getRuntime().availableProcessors();
-            qasr = new QuranAsr(f.getAbsolutePath(), cores >= 6 ? 2 : 1);
-        } catch (Throwable e) {
-            // no model in this build, or no ONNX Runtime for this processor: the phone's recogniser is used
-            qasrFailed = true;
+            svc = new Messenger(b);
+            if (qOn) qSend(QasrService.START);
         }
-        return qasr;
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            svc = null;
+        }
+    };
+
+    /** The recogniser's process ended on its own (it can fail natively on some processor): never try it again
+     *  with this app version, and carry on listening with the phone's recogniser. */
+    private void qasrDied() {
+        svc = null;
+        if (bound) {
+            try { getContext().unbindService(conn); } catch (Throwable ignored) {}
+            bound = false;
+        }
+        if (qasrFailed) return;
+        qasrFailed = true;
+        prefs().edit().putLong("qasrDead", appVersion()).apply();
+        if (!qOn) return;
+        qOn = false;
+        PluginCall c = qCall;
+        qCall = null;
+        if (c != null) {
+            googleBegin(c);
+        } else {
+            emitError(-3);
+            googleBegin(null);
+        }
     }
 
-    private void qStart(PluginCall call) {
-        qOn = true;
-        qThread = new Thread(() -> {
-            QuranAsr asr = qasr(getContext());
-            if (asr == null || !qOn) {
-                qOn = false;
-                if (asr == null) main.post(() -> googleBegin(call));
-                return;
+    private android.content.SharedPreferences prefs() {
+        return getContext().getSharedPreferences("speech", Context.MODE_PRIVATE);
+    }
+
+    private long appVersion() {
+        try {
+            android.content.pm.PackageInfo p = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+            return Build.VERSION.SDK_INT >= 28 ? p.getLongVersionCode() : p.versionCode;
+        } catch (Throwable e) {
+            return 0;
+        }
+    }
+
+    @Override
+    public void load() {
+        // the recogniser failed on this phone with this app version: a new version tries again
+        if (prefs().getLong("qasrDead", -1) == appVersion()) qasrFailed = true;
+    }
+
+    private void qSend(int what) {
+        Messenger s = svc;
+        if (s == null) return;
+        Message m = Message.obtain(null, what);
+        m.replyTo = inbox;
+        try {
+            s.send(m);
+        } catch (RemoteException e) {
+            qasrDied();
+        }
+    }
+
+    private boolean fromQasr(Message m) {
+        switch (m.what) {
+            case QasrService.READY: {
+                PluginCall c = qCall;
+                qCall = null;
+                if (m.arg1 == 1) {
+                    if (c != null) {
+                        JSObject ok = new JSObject();
+                        ok.put("device", true);
+                        ok.put("quran", true);
+                        c.resolve(ok);
+                    }
+                } else if (m.arg1 == 0) {
+                    qasrFailed = true;
+                    qOn = false;
+                    unbindQasr();
+                    googleBegin(c);
+                } else {
+                    qOn = false;
+                    if (c != null) c.reject("mic", "mic");
+                    else emitError(-2);
+                }
+                return true;
             }
-            int rate = QuranAsr.RATE;
-            int min = AudioRecord.getMinBufferSize(rate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-            AudioRecord ar;
-            try {
-                // 4 s of buffer: the recorder keeps hearing while a decode runs
-                ar = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, rate, AudioFormat.CHANNEL_IN_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT, Math.max(min, rate * 2 * 4));
-                if (ar.getState() != AudioRecord.STATE_INITIALIZED) throw new IllegalStateException("mic");
-                ar.startRecording();
-            } catch (Throwable e) {
-                qOn = false;
-                main.post(() -> call.reject("mic", "mic"));
-                return;
-            }
-            JSObject ok = new JSObject();
-            ok.put("device", true);
-            ok.put("quran", true);
-            call.resolve(ok);
-            QuranListen L = new QuranListen(asr, (text, fin) -> {
-                if (!qOn) return;
+            case QasrService.HEARD: {
+                if (!qOn) return true;
+                Bundle b = m.getData();
                 JSObject o = new JSObject();
-                o.put("text", text);
-                o.put("final", fin);
+                o.put("text", b.getString("text", ""));
+                o.put("final", b.getBoolean("fin", false));
                 o.put("engine", "q");
                 notifyListeners("heard", o);
-            });
-            qListen = L;
-            short[] pcm = new short[rate / 10];
-            float[] x = new float[pcm.length];
-            try {
-                while (qOn) {
-                    int k = ar.read(pcm, 0, pcm.length);
-                    if (k <= 0) {
-                        if (k < 0) break;
-                        continue;
-                    }
-                    for (int i = 0; i < k; i++) x[i] = pcm[i] / 32768f;
-                    L.feed(x, k);
-                }
-                if (qOn) emitError(-2);
-            } catch (Throwable e) {
-                emitError(-2);
-            } finally {
-                try { ar.stop(); } catch (Throwable ignored) {}
-                ar.release();
-                qListen = null;
+                return true;
             }
-        }, "anora-qasr");
-        qThread.setPriority(Thread.MAX_PRIORITY - 1);
-        qThread.start();
+            case QasrService.ERROR:
+                if (!qOn) return true;
+                qOn = false;
+                emitError(m.arg1);
+                return true;
+            default:
+                return false;
+        }
     }
 
-    private void qStop() {
-        qOn = false;
-        Thread t = qThread;
-        qThread = null;
-        if (t != null) {
-            try { t.join(800); } catch (InterruptedException ignored) {}
+    /** Main thread. */
+    private void qStart(PluginCall call) {
+        main.removeCallbacks(unbindLater);
+        PluginCall old = qCall;
+        if (old != null && old != call) old.resolve(new JSObject());
+        qCall = call;
+        qOn = true;
+        if (svc != null) {
+            qSend(QasrService.START);
+            return;
         }
+        if (bound) return;   // connecting: START goes out once connected
+        boolean ok;
+        try {
+            ok = getContext().bindService(new Intent(getContext(), QasrService.class), conn,
+                Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT);
+        } catch (Throwable e) {
+            ok = false;
+        }
+        if (ok) {
+            bound = true;
+        } else {
+            try { getContext().unbindService(conn); } catch (Throwable ignored) {}
+            qasrFailed = true;
+            qOn = false;
+            qCall = null;
+            googleBegin(call);
+        }
+    }
+
+    /** Main thread. The process stays a minute after stopping, so starting again is instant. */
+    private void qStop() {
+        boolean was = qOn || qCall != null;
+        qOn = false;
+        PluginCall c = qCall;
+        qCall = null;
+        if (c != null) c.resolve(new JSObject());
+        if (was) qSend(QasrService.STOP);
+        main.removeCallbacks(unbindLater);
+        if (bound) main.postDelayed(unbindLater, 60000);
+    }
+
+    private void unbindQasr() {
+        main.removeCallbacks(unbindLater);
+        if (!bound) return;
+        bound = false;
+        svc = null;
+        try { getContext().unbindService(conn); } catch (Throwable ignored) {}
     }
 
     /** The reader starts again from another word (a tap on the page): forget what was heard so far. */
     @PluginMethod
     public void reset(PluginCall call) {
-        QuranListen L = qListen;
-        if (L != null) L.reset();
+        main.post(() -> qSend(QasrService.RESET));
         call.resolve();
     }
-
     private void takeBias(PluginCall call) {
         JSArray a = call.getArray("words", null);
         if (a == null) return;
@@ -209,15 +282,20 @@ public class SpeechPlugin extends Plugin {
 
     private void begin(PluginCall call) {
         if (!call.getBoolean("google", false) && !qasrFailed) {
-            qStart(call);
+            main.post(() -> {
+                if (qasrFailed) googleBegin(call);
+                else qStart(call);
+            });
             return;
         }
         googleBegin(call);
     }
 
+    /** call may be null: the own recogniser stopped mid-way and this one carries on in its place. */
     private void googleBegin(PluginCall call) {
         if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
-            call.reject("unavailable", "unavailable");
+            if (call != null) call.reject("unavailable", "unavailable");
+            else emitError(-2);
             return;
         }
         main.post(() -> {
@@ -226,15 +304,15 @@ public class SpeechPlugin extends Plugin {
                 listen();
                 JSObject o = new JSObject();
                 o.put("device", device);
-                call.resolve(o);
+                if (call != null) call.resolve(o);
             });
         });
     }
 
     @PluginMethod
     public void stop(PluginCall call) {
-        qStop();
         main.post(() -> {
+            qStop();
             running = false;
             destroy();
             call.resolve();
@@ -244,6 +322,7 @@ public class SpeechPlugin extends Plugin {
     @Override
     protected void handleOnDestroy() {
         qStop();
+        unbindQasr();
         running = false;
         destroy();
     }
