@@ -210,3 +210,7 @@ html[data-skin="clean"] .wxm{font-family:var(--f-read);font-size:calc(15.5px * v
 html[data-skin="clean"] .gw span:not(.q){font-family:var(--f-read)}
 html[data-skin="clean"] .az-txt:not(.q){font-family:var(--f-read);font-weight:600;line-height:1.85}
 html[data-skin="clean"] .az-list li .t:not(.q){font-family:var(--f-read);font-weight:600;font-size:calc(17.5px * var(--azs));line-height:1.9}
+/* pen writing toolbar */
+html[data-skin="clean"] #inkBar{background:var(--k-sf);color:var(--k-ink);border-color:var(--k-hair);font-family:var(--f-ui)}
+html[data-skin="clean"] #inkBar .ik[aria-pressed="true"]:not(.ic){background:var(--k-sel);color:var(--k-seltx)}
+html[data-skin="clean"] #inkBar .ikG{border-color:var(--k-hair)}

@@ -1745,6 +1745,37 @@ html.phoneM:not([data-frame="1"]) .pg.gL,html.phoneM:not([data-frame="1"]) .pg.g
 /* the note box: its shade fades in and out with it; it used to snap shut */
 #noteBox:not([hidden]){animation:sdFade .2s ease-out}#noteBox.out{animation:sdFadeO .18s ease-in forwards;pointer-events:none}#noteBox.out .nb{animation:nbOut .18s cubic-bezier(.5,0,.75,.4) forwards}
 @keyframes nbOut{to{opacity:0;transform:translateY(-8px) scale(.98)}}
+/* writing with a pen: faint words over ruled lines, each written word back in full ink */
+.inkc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+#app.ink .pg:not(.pk) .ln:not(.sh){background:linear-gradient(to top,color-mix(in srgb,var(--ink) 16%,transparent) 1px,transparent 1px)}
+#app.ink .pg .inkw{transition:opacity .45s ease-out}
+#app.ink.ikF .pg .inkw:not(.inkd){opacity:.16}
+#app.ink.ikH .pg .inkw:not(.inkd){opacity:0}
+#app.ink .pg .inkw.inkd{animation:inkW .5s ease-out}
+@keyframes inkW{from{opacity:.16}}
+#app.ink .pg.inkDone .lines{animation:inkDone 1.1s ease-out}
+@keyframes inkDone{30%{filter:drop-shadow(0 0 6px color-mix(in srgb,var(--gold) 60%,transparent))}}
+#inkBar{position:fixed;z-index:40;left:50%;top:calc(env(safe-area-inset-top,0px) + var(--cutT,0px) + 8px);transform:translateX(-50%);display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px;row-gap:2px;
+  width:max-content;max-width:calc(100vw - 16px);box-sizing:border-box;padding:5px 8px;border-radius:26px;background:var(--bar);color:var(--bar-ink);
+  border:1px solid var(--line);box-shadow:0 10px 30px -10px var(--shadow);animation:nbIn .26s var(--ease);transition:transform .32s var(--ease)}
+#inkBar::-webkit-scrollbar{display:none}
+#app:not(.calm)>#inkBar{transform:translate(-50%,calc(var(--bh,56px) - var(--cutT,0px)))}
+#inkBar.out{animation:nbOut .18s cubic-bezier(.5,0,.75,.4) forwards;pointer-events:none}
+#inkBar[hidden]{display:none}
+.ikG{display:flex;align-items:center;gap:2px;padding-inline-start:6px;margin-inline-start:2px;border-inline-start:1px solid var(--line)}
+.ik{flex:none;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:inherit;background:none;border:0;padding:0;cursor:pointer;transition:background-color .2s,transform .2s var(--spring)}
+.ik svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ik:active{transform:scale(.9)}.ik:disabled{opacity:.35}
+.ik[aria-pressed="true"]{background:color-mix(in srgb,var(--gold) 26%,transparent)}
+.ik i{display:block;width:var(--d,14px);height:var(--d,14px);border-radius:50%;background:currentColor}
+.ik.ic i{--d:18px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--bar-ink) 25%,transparent)}
+[data-icol="ink"] i{background:var(--ink)}[data-icol="red"] i{background:#d64545}[data-icol="gold"] i{background:#c79b3b}[data-icol="blue"] i{background:#3d7be0}[data-icol="green"] i{background:#3e9b5f}
+.ik.ic[aria-pressed="true"]{background:none}.ik.ic[aria-pressed="true"] i{box-shadow:0 0 0 2px var(--bar),0 0 0 4px var(--bar-ink)}
+#inkTxt[data-m="hide"] svg{opacity:.45}#inkTxt[data-m="show"] svg circle{fill:currentColor}
+#inkProg{flex:none;font-size:12.5px;color:var(--muted);padding-inline:8px 4px;white-space:nowrap;font-variant-numeric:tabular-nums}
+html.uzL #inkBar{zoom:var(--uz,1)}
+@media (max-width:560px){#inkProg,#inkRedo{display:none}#inkSz [data-isz]:not(.cur){display:none}.ik{width:31px;height:31px;margin-block:3px}.ik.ic i{--d:15px}.ik svg{width:19px;height:19px}#inkBar{padding:3px 5px;gap:1px}.ikG{gap:1px;padding-inline-start:2px;margin-inline-start:1px}}
+@media (prefers-reduced-motion:reduce){#inkBar,#inkBar.out,#app.ink .pg .inkw.inkd,#app.ink .pg.inkDone .lines{animation:none!important}}
 /* a bar leaving the footer sinks away (a copy, footOut); the footer's own row rises back in under it */
 .foot>.fOut{position:absolute;margin:0;z-index:2;animation:footOut .16s cubic-bezier(.5,0,.75,.4) forwards!important;pointer-events:none}
 .foot>.fOut *{animation:none!important;transition:none!important}
@@ -1859,6 +1890,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
         <button class="qt" id="bBook" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg><span>علامة الصفحة</span></button>
         <button class="qt" id="bFlow" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 5.5h16M4 10h16M4 14.5h16M4 19h9"/><path d="M17.5 17v4M15.5 19h4"/></svg><span>خط كبير</span></button>
         <button class="qt" id="bMemo" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6c1.6 0 3 .5 4.2 1.2M21 12s-3.5 6-9 6c-1.6 0-3-.5-4.2-1.2M4 20L20 4"/></svg><span>وضع الحفظ</span></button>
+        <button class="qt" id="bInk" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><path d="M5 19l1.1-4.4L16 4.7a2 2 0 0 1 2.8 0l.5.5a2 2 0 0 1 0 2.8l-9.9 9.9z"/><path d="M14 6.7l3.3 3.3M4 21h9"/></svg><span>الكتابة بالقلم</span></button>
         <button class="qt" id="bAdhkar"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg><span>الأذكار</span></button>
         <button class="qt adv" id="bAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6.5 4.5h8l3 3v12h-11z"/><path d="M14.5 4.5v3h3"/><path d="M10 11.5l4 2.5-4 2.5z"/></svg><span>تقليب تلقائي</span></button>
         <button class="qt adv" id="bFull"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>قراءة هادئة</span></button>
@@ -1897,6 +1929,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
         <button class="sw" data-view="2">صفحتان</button>
       </div></div>
       <div><h3>تقليب الصفحة</h3><div class="seg" id="turnSeg">
+        <button class="sw" data-turn="book">كتاب</button>
         <button class="sw" data-turn="slide">انزلاق</button>
         <button class="sw" data-turn="curl">ورقة</button>
         <button class="sw" data-turn="none">بدون حركة</button>
@@ -1939,6 +1972,17 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
       <button class="ib" id="bPrefs" title="المزيد" aria-label="المزيد: الأدوات والإعدادات" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg><span class="tcap">المزيد</span></button>
     </div>
   </header>
+  <div id="inkBar" role="toolbar" aria-label="أدوات الكتابة بالقلم" hidden>
+    <button class="ik" id="inkX" aria-label="إنهاء الكتابة بالقلم"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="ikG" id="inkSz" role="group" aria-label="سُمك القلم"><button class="ik" data-isz="1" aria-label="قلم رفيع"><i style="--d:5px"></i></button><button class="ik" data-isz="2" aria-label="قلم متوسط"><i style="--d:8px"></i></button><button class="ik" data-isz="3" aria-label="قلم عريض"><i style="--d:12px"></i></button></div>
+    <div class="ikG" id="inkCol" role="group" aria-label="لون الحبر"><button class="ik ic" data-icol="ink" aria-label="لون الحبر"><i></i></button><button class="ik ic" data-icol="red" aria-label="أحمر"><i></i></button><button class="ik ic" data-icol="gold" aria-label="ذهبي"><i></i></button><button class="ik ic" data-icol="blue" aria-label="أزرق"><i></i></button><button class="ik ic" data-icol="green" aria-label="أخضر"><i></i></button></div>
+    <div class="ikG"><button class="ik" id="inkEr" aria-pressed="false" aria-label="ممحاة"><svg viewBox="0 0 24 24"><path d="M8.5 19.5h11M4.6 14.9l8.8-8.8a2 2 0 0 1 2.8 0l2.7 2.7a2 2 0 0 1 0 2.8l-7.7 7.9H9.1z"/><path d="M9.3 10.2l5.5 5.5"/></svg></button>
+    <button class="ik" id="inkUndo" aria-label="تراجع"><svg viewBox="0 0 24 24"><path d="M9 7H15a5 5 0 0 1 0 10H8"/><path d="M12 4L9 7l3 3"/></svg></button>
+    <button class="ik" id="inkRedo" aria-label="إعادة"><svg viewBox="0 0 24 24"><path d="M15 7H9a5 5 0 0 0 0 10h7"/><path d="M12 4l3 3-3 3"/></svg></button>
+    <button class="ik" id="inkTxt" aria-label="ظهور النص"><svg viewBox="0 0 24 24"><path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></svg></button>
+    <button class="ik" id="inkClr" aria-label="مسح كتابة الصفحة"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4.8h4V7M7 7l.8 12.2h8.4L17 7"/></svg></button></div>
+    <small id="inkProg" aria-live="polite"></small>
+  </div>
   <main id="stage" aria-label="صفحات المصحف"><div id="rProg" aria-hidden="true"><i></i></div>
     <div id="bookwrap"><div id="rehal" aria-hidden="true"></div><div class="edge l" id="edgeL"></div><div id="book"></div><div class="edge r" id="edgeR"></div></div>
     <div id="loading" role="status" aria-label="جارٍ تحميل المصحف"><div class="spl">
@@ -2359,7 +2403,7 @@ function hizbMarks(el){
 }
 function get(p){
   let el=cache.get(p);
-  if(!el){el=buildPage(p);cache.set(p,el);if(memo.on&&p>=1&&p<=NP)applyMemo(p)}
+  if(!el){el=buildPage(p);cache.set(p,el);if(memo.on&&p>=1&&p<=NP)applyMemo(p);if(inkOn&&p>=1&&p<=NP)inkPaintPage(p,el)}
   if(cache.size>26){
     [...cache.keys()].sort((a,b)=>Math.abs(b-cur)-Math.abs(a-cur)).slice(0,cache.size-20)
       .forEach(k=>{const e=cache.get(k);if(e.classList.contains("pk")||!book.contains(e)){e.remove();cache.delete(k)}});
@@ -2467,7 +2511,7 @@ function layoutIdle(){
   park(mode==="spread"?[get(cur),get(cur+1)]:[get(cur)]);
   if(mode==="spread"){place(get(cur),W);place(get(cur+1),0)}
   else place(get(cur),0);
-  edges();ui();paintHL();paintMemo();rasterDirtyLazy();
+  edges();ui();paintHL();paintMemo();if(inkOn)inkPaint();rasterDirtyLazy();
   if(inStudy&&selA&&pOf(selA)!==cur)openAyah(pStart(cur));
   clearTimeout(layoutIdle.t);
   const ns=(mode==="spread"?[cur+2,cur+3,cur-1,cur-2]:[cur+1,cur-1,cur+2]).filter(n=>n>=1&&n<=NP&&!cache.has(n));
@@ -2539,8 +2583,34 @@ function render3D(f){
   /* the page coming into view lies in the leaf's shadow; the page it lands on darkens as it comes down */
   o(f.sU,up?.30*(1-pr)*(.3+s):.06*s);o(f.sS,up?0:.26*s);
 }
+/* one page (phones): the leaf swings up about the spine toward the reader, its face catching the light and then
+   turning dark as it stands on edge; the page beneath comes out of its shadow. Only the GPU moves: two finished
+   pages, a gradient on each, opacity and a 3D rotation */
+function setup3DS(kind,target){
+  park([get(cur),get(target)]);
+  const fw=kind==="fwd",f={kind,target,b3:true,single:true,a:1,sx0:0,cy:H,P:[fw?0:2*W,H],reverse:!fw};
+  f.under=place(get(fw?target:cur),0,1);f.front=place(get(fw?cur:target),0,3);
+  f.per=Math.round(W*4.2);f.fo="100% 50%";f.front.classList.add("t3");f.front.style.transformOrigin=f.fo;
+  if(!$("app").classList.contains("calm"))setCalm(true);
+  const sh=(z,bg,o)=>{const d=document.createElement("div");d.className="sh3";d.style.cssText=`left:0;width:${W}px;height:${H}px;z-index:${z};background:${bg};transform-origin:${o||"50% 50%"}`;book.appendChild(d);return d};
+  /* the page beneath: dim, darkest at the spine where the leaf still shades it */
+  f.sU=sh(2,"linear-gradient(to left,rgba(0,0,0,.62),rgba(0,0,0,.34) 35%,rgba(0,0,0,.2))");
+  /* the leaf: a soft sheen near its free edge, deepening to shadow at the spine */
+  f.shF=sh(4,"linear-gradient(to right,rgba(255,255,255,.22),rgba(255,255,255,0) 22%,rgba(0,0,0,.18) 55%,rgba(0,0,0,.62))",f.fo);
+  /* a thin bright edge, the paper's thickness catching the light */
+  f.shE=sh(5,"linear-gradient(to right,rgba(255,255,255,.55),rgba(255,255,255,0) 3%)",f.fo);
+  book.style.overflow="visible";flip=f;return f;
+}
+function render3DS(f){
+  const pr=Math.min(1,Math.max(0,f.P[0]/(2*W))),th=96*pr,s=Math.sin(th*Math.PI/180);
+  const tf=`perspective(${f.per}px) rotateY(${th.toFixed(2)}deg)`;
+  f.front.style.transform=f.shF.style.transform=f.shE.style.transform=tf;
+  const o=(e,a)=>{e.style.opacity=a>.002?Math.min(1,a).toFixed(3):"0"};
+  o(f.shF,.15+.95*s);o(f.shE,s*(1-s)*2.2);o(f.sU,.95*(1-Math.min(1,th/88)));
+}
 function setupFlip(kind,target){
   if(mode==="spread")return setup3D(kind,target);
+  if(turnPick()==="book")return setup3DS(kind,target);
   /* the page images for the curl are not drawn yet (just opened, or the page just changed): glide instead of
      falling back to the flat fold, which repaints a whole page of text every frame */
   if(!reduce&&(!rimg(cur)||!rimg(target)))return setupSlide(kind,target);
@@ -2571,7 +2641,7 @@ function clampP(f,P){
 }
 function render(f){
   if(f.slide){renderSlide(f);return}
-  if(f.b3){render3D(f);return}
+  if(f.b3){(f.single?render3DS:render3D)(f);return}
   const P=clampP(f,f.P),C=[0,f.cy],d=Math.hypot(P[0]-C[0],P[1]-C[1]);
   const toB=q=>[f.sx0+f.a*q[0],q[1]], toN=b=>[f.a*(b[0]-f.sx0),b[1]], mir=q=>[2*W-q[0],q[1]];
   const loc=(b,o)=>[b[0]-o,b[1]];
@@ -2633,7 +2703,7 @@ const eSlide=bez(.3,.1,.12,1);
 const eHand=s0=>t=>s0*(t*t*t-2*t*t+t)+(3*t*t-2*t*t*t);
 function finish(f,done){
   cancelAnimationFrame(f.raf);
-  if(f.b3){[f.sU,f.sS,f.shF,f.shB].forEach(d=>d.remove());[f.front,f.back].forEach(e=>{e.classList.remove("t3");e.style.transform="";e.style.transformOrigin="";e.style.opacity=""});flip=null;if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide();setTimeout(partNote,60)}layoutIdle();return}
+  if(f.b3){[f.sU,f.sS,f.shF,f.shB,f.shE].forEach(d=>d&&d.remove());[f.front,f.back].forEach(e=>{if(!e)return;e.classList.remove("t3");e.style.transform="";e.style.transformOrigin="";e.style.opacity=""});if(f.single)book.style.overflow=mode==="single"?"hidden":"visible";flip=null;if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide();setTimeout(partNote,60)}layoutIdle();return}
   if(f.slide){f.els.forEach(e=>{e.style.transform="";e.style.filter="";e.style.opacity="";e.classList.remove("sld")});book.style.overflow=mode==="single"?"hidden":"visible";
     flip=null;if(done){cur=f.target;store.set("mushaf.last",cur);setCalm(true);contHide();setTimeout(partNote,60)}layoutIdle();return}
   [f.under,f.front].forEach(e=>{e.querySelectorAll(".shd").forEach(s=>s.remove());e.style.clipPath="";e.style.transform="";e.style.visibility=""});
@@ -2648,7 +2718,10 @@ function finish(f,done){
    lifted sheet needs each page drawn into a picture first. The sheet stays a choice in the settings. Once, a saved
    "curl" from before this default is moved to the glide too */
 if(!store.get("mushaf.turn2")){if(store.get("mushaf.turn")==="curl")store.set("mushaf.turn","slide");store.set("mushaf.turn2","1")}
-const turnPick=()=>{const t=store.get("mushaf.turn");return t==="curl"||t==="none"?t:"slide"};
+/* the book turn (the leaf swings about the spine, lit and shaded as it goes) is the default since it was asked for;
+   the glide that was the default before is moved to it once, a reader's other choice is kept */
+if(!store.get("mushaf.turn3")){const t=store.get("mushaf.turn");if(!t||t==="slide")store.set("mushaf.turn","book");store.set("mushaf.turn3","1")}
+const turnPick=()=>{const t=store.get("mushaf.turn");return t==="curl"||t==="none"||t==="slide"?t:"book"};
 const turnSt=()=>reduce?"none":turnPick();
 function setupSlide(kind,target){
   park();
@@ -2693,7 +2766,7 @@ async function autoFlip(kind,target){
   if(st==="slide"){const f=setupSlide(kind,target);await tween(f,mode==="spread"?460:400,t=>[f.dir*f.vw*eSlide(t),0]);finish(f,true);busy=false;return}
   const f=setupFlip(kind,target), sx=f.reverse?2*W:0, ex=f.reverse?0:2*W;
   /* the corner rises early and is laid down flat before the leaf arrives, so it lands without a slap */
-  await tween(f,reduce?0:(mode==="spread"?780:820),t=>{const e=(mode==="spread"?eTurn3:eTurn)(t);return [sx+(ex-sx)*e,H-Math.pow(Math.sin(Math.PI*Math.min(1,e*1.06)),1.3)*H*(mode==="spread"?.035:.08)]});
+  const bk=f.single;await tween(f,reduce?0:(mode==="spread"?780:bk?600:820),t=>{const e=(mode==="spread"||bk?eTurn3:eTurn)(t);return [sx+(ex-sx)*e,H-Math.pow(Math.sin(Math.PI*Math.min(1,e*1.06)),1.3)*H*(mode==="spread"?.035:.08)]});
   finish(f,true);busy=false;
 }
 function goTo(p){
@@ -2731,7 +2804,7 @@ stage.addEventListener("pointermove",e=>{
     else kind=dx>0?"fwd":"back";
     if(!kind||(!down.peek&&!canGo(kind))){down.drag="none";return}
     let f=down.peek;const st=turnSt();
-    if(!f&&st!=="curl"){const tg=cur+(kind==="fwd"?1:-1)*(mode==="spread"?2:1);
+    if(!f&&st!=="curl"&&st!=="book"){const tg=cur+(kind==="fwd"?1:-1)*(mode==="spread"?2:1);
       f=st==="slide"?setupSlide(kind,tg):{jump:true,kind,target:tg,P:[0,0],dir:kind==="fwd"?1:-1,vw:mode==="spread"?2*W:W};
       down.drag=f;down.x=b[0];down.y=b[1];hideHint();}
     if(!f){f=setupFlip(kind,cur+(kind==="fwd"?1:-1)*(mode==="spread"?2:1));f.cy=down.y<H*.33?0:H;f.P=[f.reverse?2*W:0,f.cy]}
@@ -2902,7 +2975,7 @@ document.addEventListener("keydown",e=>{
   if($("drawer").classList.contains("on")){if(e.key==="Escape")closeIndex();return}
   if(e.key==="Escape"&&!$("sheet").hidden){closeAyah();return}
   if(e.key==="Escape"&&!$("cont").hidden&&!$("cont").classList.contains("off")){contHide();return}
-  if(e.key==="Escape"){if(!$("prefs").hidden)showPrefs(false);else if(!$("repBox").hidden)softHide($("repBox"));else if(memo.on)setMemo(false);else if($("app").classList.contains("imm"))toggleFull();return}
+  if(e.key==="Escape"){if(!$("prefs").hidden)showPrefs(false);else if(!$("repBox").hidden)softHide($("repBox"));else if(memo.on)setMemo(false);else if(inkOn)setInk(false);else if($("app").classList.contains("imm"))toggleFull();return}
   if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
   if(e.key==="ArrowLeft"||e.key==="PageDown"||e.key===" "){e.preventDefault();autoFlip("fwd")}
   else if(e.key==="ArrowRight"||e.key==="PageUp"){e.preventDefault();autoFlip("back")}
@@ -3407,7 +3480,7 @@ $("prefs").addEventListener("click",e=>{e.stopPropagation();const t=e.target.clo
   if(b.dataset.wt){setLook("wt",b.dataset.wt,true)}
   if(b.dataset.an){setLook("an",b.dataset.an,true);toast(b.dataset.an==="1"?"أرقام الآيات مذهّبة":"أرقام الآيات بدائرة")}
   if(b.dataset.view)vt(()=>{store.set("mushaf.view",b.dataset.view);markView();resize()},1);
-  if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();if(b.dataset.turn==="curl")rasterSoon();else RS.img.clear();toast(b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنباً إلى جنب":"تتبدّل الصفحة فوراً بلا حركة")}
+  if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();if(b.dataset.turn==="curl")rasterSoon();else RS.img.clear();toast(b.dataset.turn==="book"?"الصفحة تنقلب حول كعب المصحف":b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنباً إلى جنب":"تتبدّل الصفحة فوراً بلا حركة")}
 });
 $("bFull").onclick=e=>{e.stopPropagation();toggleFull()};
 document.addEventListener("pointerdown",e=>{if(!$("prefs").hidden&&!e.target.closest("#prefs,#bPrefs,#fPrefs"))showPrefs(false)});
@@ -5766,7 +5839,119 @@ if(location.hash==="#adhkar")setTimeout(azOpenUI,0);
 document.addEventListener("keydown",e=>{if(!$("guide").hidden&&e.key==="Escape"){e.stopPropagation();guide(false)}},true);
 /* Android back button (MainActivity asks this first): it closes whatever is open, one layer at a time, exactly like Escape;
    only when nothing is open does the app go to the background (the recitation keeps playing) */
-const backSig=()=>[azOpen,azCat,indexOpen,memo.on,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
+/* ---------- writing with a pen ----------
+   For tablets and phones with a stylus (and Windows pens): the page's words go faint over ruled lines, and the
+   reader writes the Quran over them by hand. Every word the pen passes over comes back to full ink, so the page
+   fills in as it is written. Only the pen writes: a finger still turns pages, opens an ayah or zooms, and a palm
+   resting on the screen while the pen is down is ignored. Strokes are kept per page (IndexedDB), in page units,
+   so they fit any screen size and turn with the page */
+var inkOn=false;
+const INK={tool:"pen",sz:Math.min(3,Math.max(1,+store.get("mushaf.inkSz")||2)),col:store.get("mushaf.inkCol")||"ink",txt:["faint","hide","show"].includes(store.get("mushaf.inkTxt"))?store.get("mushaf.inkTxt"):"faint",
+  pages:new Map(),undo:[],redo:[],cur:null,done:new Set()};
+const INK_COL={red:"#d64545",gold:"#c79b3b",blue:"#3d7be0",green:"#3e9b5f"};
+const INK_W=[0,1.5,2.5,4];
+const inkDB=(()=>{let dbp=null;const open=()=>dbp||(dbp=new Promise((res,rej)=>{try{const r=indexedDB.open("anora-ink",1);r.onupgradeneeded=()=>r.result.createObjectStore("pages");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}));
+  return {get:p=>open().then(db=>new Promise(res=>{try{const q=db.transaction("pages").objectStore("pages").get(p);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)}catch(e){res(null)}})).catch(()=>null),
+    put:(p,v)=>open().then(db=>new Promise(res=>{try{const t=db.transaction("pages","readwrite"),o=t.objectStore("pages");v&&(v.s.length||v.w.length)?o.put(v,p):o.delete(p);t.oncomplete=res;t.onerror=res}catch(e){res()}})).catch(()=>{})}})();
+function inkData(p){if(INK.pages.has(p))return Promise.resolve(INK.pages.get(p));
+  return inkDB.get(p).then(v=>{if(INK.pages.has(p))return INK.pages.get(p);const d={s:Array.isArray(v&&v.s)?v.s:[],w:Array.isArray(v&&v.w)?v.w:[]};d.ws=new Set(d.w);INK.pages.set(p,d);return d})}
+function inkSave(p){const d=INK.pages.get(p);if(!d)return;d.w=[...d.ws];clearTimeout(inkSave["t"+p]);inkSave["t"+p]=setTimeout(()=>inkDB.put(p,{s:d.s,w:d.w}),400)}
+const inkInk=()=>getComputedStyle(root).getPropertyValue("--ink").trim()||"#222";
+function inkColor(c){return INK_COL[c]||inkInk()}
+function inkCv(el){let c=el.querySelector(":scope>.inkc");if(!c){c=document.createElement("canvas");c.className="inkc";c.setAttribute("aria-hidden","true");el.appendChild(c)}
+  const dpr=Math.min(2,devicePixelRatio||1),w=Math.round(W*dpr),h=Math.round(H*dpr);if(c.width!==w||c.height!==h){c.width=w;c.height=h}return c}
+/* one stroke: each piece runs between the midpoints of its samples (a smooth curve through the pen's path), and is
+   as wide as the pen was pressed there */
+function inkSeg(x,P,i,w,h,base){const n=P.length/3;
+  const X=k=>P[k*3]*w,Y=k=>P[k*3+1]*h,mx=(a,b)=>(X(a)+X(b))/2,my=(a,b)=>(Y(a)+Y(b))/2;
+  const a=i===1?[X(0),Y(0)]:[mx(i-2,i-1),my(i-2,i-1)],b=i===n-1?[X(i),Y(i)]:[mx(i-1,i),my(i-1,i)];
+  x.lineWidth=base*(.35+.9*Math.min(1,P[(i-1)*3+2]));x.beginPath();x.moveTo(a[0],a[1]);x.quadraticCurveTo(X(i-1),Y(i-1),b[0],b[1]);x.stroke()}
+function inkDraw(x,st,w,h){const P=st.pts,n=P.length/3;if(!n)return;const base=INK_W[st.z||2]*W/400*(w/W);
+  x.strokeStyle=x.fillStyle=inkColor(st.c);x.lineCap=x.lineJoin="round";
+  if(n===1){x.beginPath();x.arc(P[0]*w,P[1]*h,base*(.35+.9*Math.min(1,P[2]))/2,0,7);x.fill();return}
+  for(let i=1;i<n;i++)inkSeg(x,P,i,w,h,base)}
+function inkWords(el){return el.querySelectorAll(".lb [data-w]")}
+function inkPaintPage(p,el){el=el||cache.get(p);if(!el||el.classList.contains("blank"))return;
+  inkData(p).then(d=>{if(!inkOn||cache.get(p)!==el)return;const c=inkCv(el),x=c.getContext("2d");x.clearRect(0,0,c.width,c.height);d.s.forEach(st=>inkDraw(x,st,c.width,c.height));
+    inkWords(el).forEach(w=>{w.classList.add("inkw");w.classList.toggle("inkd",d.ws.has(mKey(w)))});if(deckPages().includes(p))inkProg()})}
+function inkPaint(){cache.forEach((el,p)=>{if(p>=1&&p<=NP&&Math.abs(p-cur)<=3)inkPaintPage(p,el)})}
+function inkProg(){let t=0,n=0;deckPages().forEach(p=>{const el=cache.get(p),d=INK.pages.get(p);if(!el||!d)return;const ws=inkWords(el);t+=ws.length;ws.forEach(w=>{if(d.ws.has(mKey(w)))n++})});
+  $("inkProg").textContent=t?`${ar(n)} من ${ar(t)} كلمة`:"";
+  const k=deckPages().join();if(t&&n>=t&&!INK.done.has(k)){INK.done.add(k);toast(mode==="spread"?"أتممت كتابة الصفحتين، بارك الله فيك":"أتممت كتابة الصفحة، بارك الله فيك");deckPages().forEach(p=>{const el=cache.get(p);el&&el.classList.remove("inkDone");el&&void el.offsetWidth;el&&el.classList.add("inkDone")})}}
+function inkBarUI(){document.querySelectorAll("#inkSz [data-isz]").forEach(b=>{b.setAttribute("aria-pressed",String(+b.dataset.isz===INK.sz&&INK.tool==="pen"));b.classList.toggle("cur",+b.dataset.isz===INK.sz)});
+  document.querySelectorAll("#inkCol [data-icol]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.icol===INK.col&&INK.tool==="pen")));
+  $("inkEr").setAttribute("aria-pressed",String(INK.tool==="er"));$("inkUndo").disabled=!INK.undo.length;$("inkRedo").disabled=!INK.redo.length;
+  $("inkTxt").setAttribute("aria-label",INK.txt==="faint"?"النص خفيف: اضغط لإخفائه":INK.txt==="hide"?"النص مخفي: اضغط لإظهاره":"النص ظاهر: اضغط ليصير خفيفاً");$("inkTxt").dataset.m=INK.txt;
+  const a=$("app");a.classList.toggle("ikF",INK.txt==="faint");a.classList.toggle("ikH",INK.txt==="hide")}
+function setInk(on){if(on===inkOn)return;
+  if(on){if(memo.on)setMemo(false);closeAyah();hideHint();contHide();showPrefs(false)}
+  inkOn=on;$("bInk").setAttribute("aria-pressed",String(on));
+  const b=$("inkBar"),a=$("app");inkBarUI();
+  if(on){b.classList.remove("out");b.hidden=false;a.classList.add("ink");setCalm(true);inkPaint();if(!store.get("mushaf.inkTip")){store.set("mushaf.inkTip","1");setTimeout(()=>toast("اكتب بالقلم فوق الكلمات، وتظهر كل كلمة تكتبها · الإصبع يقلّب الصفحة"),500)}}
+  else{a.classList.remove("ink","ikF","ikH");INK.cur=null;
+    if(reduce)b.hidden=true;else{b.classList.add("out");setTimeout(()=>{if(!inkOn){b.hidden=true;b.classList.remove("out")}},200)}
+    book.querySelectorAll(".inkc").forEach(c=>c.remove());book.querySelectorAll(".inkw").forEach(w=>w.classList.remove("inkw","inkd"))}
+}
+function inkPageAt(x,y){return [...book.querySelectorAll(":scope>.pg:not(.pk):not(.blank)")].find(el=>{const r=el.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom})}
+const inkPen=e=>e.pointerType==="pen"||(INK.mouse&&e.pointerType==="mouse");
+function inkLight(c,cx,cy){const t=document.elementFromPoint(cx,cy),w=t&&t.closest&&t.closest(".inkw");if(!w||w.classList.contains("inkd")||!c.el.contains(w))return;
+  const k=mKey(w);c.d.ws.add(k);(c.s.lit||(c.s.lit=[])).push(k);w.classList.add("inkd");inkProg()}
+function inkEraseAt(c,u,v){const d=c.d,r=(14/W)**2,hit=[];d.s.forEach((st,i)=>{const P=st.pts;for(let k=0;k<P.length;k+=3){const dx=P[k]-u,dy=(P[k+1]-v)*H/W;if(dx*dx+dy*dy<r){hit.push(i);break}}});
+  if(!hit.length)return;for(let j=hit.length-1;j>=0;j--){const i=hit[j],st=d.s[i];d.s.splice(i,1);INK.undo.push({t:"er",p:c.p,st,i});(st.lit||[]).forEach(k=>d.ws.delete(k))}
+  INK.redo=[];inkPaintPage(c.p,c.el);inkSave(c.p);inkBarUI()}
+function inkMove(c,e){const r=c.r,u=(e.clientX-r.left)/r.width,v=(e.clientY-r.top)/r.height;
+  if(c.er){inkEraseAt(c,u,v);return}
+  const P=c.s.pts,pr=e.pressure>0&&e.pointerType==="pen"?e.pressure:.5;
+  if(P.length){const du=(u-P[P.length-3])*r.width,dv=(v-P[P.length-2])*r.height;if(du*du+dv*dv<1.2)return}
+  P.push(+u.toFixed(4),+v.toFixed(4),+pr.toFixed(2));
+  const n=P.length/3,cv=c.cv,x=cv.getContext("2d");x.strokeStyle=x.fillStyle=inkColor(c.s.c);x.lineCap=x.lineJoin="round";
+  if(n>1)inkSeg(x,P,n-1,cv.width,cv.height,INK_W[c.s.z]*W/400*(cv.width/W));
+  inkLight(c,e.clientX,e.clientY)}
+stage.addEventListener("pointerdown",e=>{
+  if(!inkOn)return;
+  /* the palm resting on the glass while the pen writes */
+  if(INK.cur&&e.pointerType==="touch"){e.stopImmediatePropagation();return}
+  if(!inkPen(e)||e.button>0)return;
+  e.stopImmediatePropagation();e.preventDefault();if(busy||flip)return;
+  const el=inkPageAt(e.clientX,e.clientY);if(!el)return;const p=+el.dataset.p,d=INK.pages.get(p);
+  if(!d){inkData(p);return}
+  try{stage.setPointerCapture(e.pointerId)}catch(_){}
+  INK.cur={p,el,d,id:e.pointerId,r:el.getBoundingClientRect(),cv:inkCv(el),er:INK.tool==="er"||e.button===5||(e.buttons&32)>0,s:{c:INK.col,z:INK.sz,pts:[]}};
+  hzPing();inkMove(INK.cur,e)},true);
+stage.addEventListener("pointermove",e=>{const c=INK.cur;if(!c){if(inkOn&&inkPen(e))e.stopImmediatePropagation();return}
+  if(e.pointerId!==c.id){if(e.pointerType==="touch")e.stopImmediatePropagation();return}
+  e.stopImmediatePropagation();const ev=e.getCoalescedEvents?e.getCoalescedEvents():[];(ev.length?ev:[e]).forEach(x=>inkMove(c,x))},true);
+const inkEnd=e=>{const c=INK.cur;if(!c){if(inkOn&&e.pointerType==="touch"&&e.timeStamp-(INK.upT||0)<300)e.stopImmediatePropagation();return}
+  if(e.pointerId!==c.id){if(e.pointerType==="touch")e.stopImmediatePropagation();return}
+  e.stopImmediatePropagation();INK.cur=null;INK.upT=e.timeStamp;
+  if(!c.er&&c.s.pts.length){c.d.s.push(c.s);INK.undo.push({t:"add",p:c.p,st:c.s});INK.redo=[];if(INK.undo.length>300)INK.undo.shift();inkSave(c.p)}
+  inkBarUI()};
+stage.addEventListener("pointerup",inkEnd,true);stage.addEventListener("pointercancel",inkEnd,true);
+function inkStep(from,to){const a=from.pop();if(!a)return;const d=INK.pages.get(a.p);if(!d)return;
+  const undoing=from===INK.undo;
+  if((a.t==="add")===undoing){const i=d.s.indexOf(a.st);if(i>=0){d.s.splice(i,1);a.i=i}(a.st.lit||[]).forEach(k=>d.ws.delete(k))}
+  else{d.s.splice(Math.min(a.i==null?d.s.length:a.i,d.s.length),0,a.st);(a.st.lit||[]).forEach(k=>d.ws.add(k))}
+  to.push(a);inkSave(a.p);if(a.p!==cur&&!(mode==="spread"&&a.p===cur+1))goTo(a.p);inkPaintPage(a.p);inkBarUI()}
+$("inkUndo").onclick=()=>inkStep(INK.undo,INK.redo);
+$("inkRedo").onclick=()=>inkStep(INK.redo,INK.undo);
+$("inkX").onclick=()=>setInk(false);
+$("inkEr").onclick=()=>{INK.tool=INK.tool==="er"?"pen":"er";inkBarUI()};
+$("inkSz").onclick=e=>{const b=e.target.closest("[data-isz]");if(!b)return;
+  /* narrow screens show one size button: tapping the pen in use steps to the next size */
+  const one=getComputedStyle($("inkSz").querySelector("[data-isz]:not(.cur)")||b).display==="none";INK.sz=one&&INK.tool==="pen"?INK.sz%3+1:+b.dataset.isz;INK.tool="pen";store.set("mushaf.inkSz",String(INK.sz));inkBarUI()};
+$("inkCol").onclick=e=>{const b=e.target.closest("[data-icol]");if(!b)return;INK.col=b.dataset.icol;INK.tool="pen";store.set("mushaf.inkCol",INK.col);inkBarUI()};
+$("inkTxt").onclick=()=>{INK.txt=INK.txt==="faint"?"hide":INK.txt==="hide"?"show":"faint";store.set("mushaf.inkTxt",INK.txt);inkBarUI();toast(INK.txt==="faint"?"النص خفيف تحت قلمك":INK.txt==="hide"?"النص مخفي: اكتب من حفظك":"النص ظاهر كاملاً")};
+$("inkClr").onclick=()=>{const ps=deckPages().filter(p=>{const d=INK.pages.get(p);return d&&(d.s.length||d.ws.size)});if(!ps.length){toast("لا كتابة على هذه الصفحة");return}
+  const old=ps.map(p=>{const d=INK.pages.get(p);return [p,d.s.slice(),new Set(d.ws)]});
+  ps.forEach(p=>{const d=INK.pages.get(p);d.s=[];d.ws=new Set();inkSave(p);inkPaintPage(p)});INK.undo=INK.undo.filter(a=>!ps.includes(a.p));INK.redo=INK.redo.filter(a=>!ps.includes(a.p));INK.done.clear();inkBarUI();
+  toastU("مُسحت كتابة الصفحة",()=>{old.forEach(([p,s,ws])=>{const d=INK.pages.get(p);d.s=s;d.ws=ws;inkSave(p);inkPaintPage(p)})})};
+["pointerdown","click"].forEach(t=>$("inkBar").addEventListener(t,e=>e.stopPropagation()));
+$("bInk").onclick=()=>{showPrefs(false);setInk(!inkOn)};
+/* the menu tile shows once the device has shown it has a pen (the first touch of a stylus anywhere), or with ?pen */
+function inkTile(){$("bInk").hidden=!(store.get("mushaf.pen")==="1"||/[?&]pen\b/.test(location.search))}
+inkTile();
+addEventListener("pointerdown",e=>{if(e.pointerType!=="pen"||store.get("mushaf.pen")==="1")return;store.set("mushaf.pen","1");inkTile();setTimeout(()=>toast("وجدنا قلماً: «الكتابة بالقلم» صارت في القائمة"),300)},true);
+const backSig=()=>[azOpen,azCat,indexOpen,memo.on,inkOn,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
   $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")&&(i!=="quiz"||e.classList.contains("on"))})].join();
 /* Android back, one step at a time:
    1 a panel opened from another one (sources or the guide from settings, the quiz or a reflection from the index)
