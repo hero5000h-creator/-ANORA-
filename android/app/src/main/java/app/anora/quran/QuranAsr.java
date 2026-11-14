@@ -129,7 +129,8 @@ public final class QuranAsr implements AutoCloseable {
 
     /** Bare Uthmani letters of what was recited in wave[0..n), words separated by single spaces. */
     public String decode(float[] wave, int n) throws Exception {
-        if (n < LENGTH) return "";
+        // the model's front end needs some frames to work on (under ~0.1 s it refuses the input): 0.25 s at least
+        if (n < RATE / 4) return "";
         float[] feats = fbank(wave, n);
         int t = feats.length / BINS;
         Map<String, OnnxTensor> in = new HashMap<>();

@@ -14,7 +14,11 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         /* ONNX Runtime (the on-device Quran recogniser) ships native code: phones only (ARM), so the APK
            does not carry it four times over */
-        ndk { abiFilters 'arm64-v8a', 'armeabi-v7a' }
+        ndk {
+            abiFilters 'arm64-v8a', 'armeabi-v7a'
+            // CI's emulator test (-PqasrX86) also needs the x86_64 build of ONNX Runtime
+            if (project.hasProperty('qasrX86')) abiFilters 'x86_64'
+        }
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61

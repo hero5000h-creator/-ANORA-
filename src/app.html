@@ -4953,7 +4953,7 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
   if(memo.follow&&!d.final&&ws.length>LS.done){const last=sk(ws[ws.length-1]),nx=hiddenNext(1)[0];
     if(nx&&last.length>1&&(last===sk(nx[1].textContent)||(last.length>=5&&near(last,sk(nx[1].textContent))))){heardWords([ws[ws.length-1]],false);LS.done=ws.length}}
   if(d.final)nat("Speech","bias",{words:biasWords()}).catch(()=>{})});
-natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===-2){micStop();toast("انقطع الاستماع، اضغط الميكروفون لتكمل")}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
+natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===-2){micStop();toast("انقطع الاستماع، اضغط الميكروفون لتكمل")}else if(c===-3){LS.q=false;LS.done=0;$("mSub").textContent=micMsg();toast("محرّك القرآن ما اشتغل على هذا الجهاز، كمّلنا بمحرّك Google")}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
 function micStart(){
   const SR=PLAT==="electron"?null:window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
