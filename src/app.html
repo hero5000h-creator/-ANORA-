@@ -4912,13 +4912,23 @@ function align(W,T){const st=[];let k=0;
 function heardWords(words,fin,q){const key=q?mk:sk;
   skipMarks();const nx=hiddenNext(LOOK*Math.max(2,words.length));if(!nx.length)return;
   const T=nx.map(x=>key(x[1].textContent)),W=words.map(key).filter(w=>w&&!/^\d+$/.test(w));if(!W.length)return;
-  const st=align(W,T);let k=0;
+  let st=align(W,T);let k=0;
+  /* following with the Quran recogniser (it hears the words well, so a poor fit means something real):
+     - a reader going back over what they just read (often, while memorising) moves nothing;
+     - a short word (لا، ما، من) found further on is taken only when the next heard word follows it there;
+     - a two-letter scrap counts only when it is exactly the word */
+  if(q&&memo.follow){if(fin&&W.length>1&&repeated(W,st))return;
+    const ok=[];let kk=0;for(let j=0;j<st.length;j++){const [,,at,n]=st[j],nb=st[j+1];
+      if(at>kk&&T[at].length<=3&&!(nb&&nb[2]===at+n))break;if(W[st[j][0]].length<=2&&W[st[j][0]]!==T[at])break;ok.push(st[j]);kk=at+n}st=ok}
   for(const [,,at,n] of st){
     /* hidden words passed over: one meaningful word right before a match was probably really skipped by the
        reader (marked to revise); more than one is the recogniser missing a stretch, so they are just shown */
     if(at-k===1&&T[k].length>=4&&!memo.follow)sErr(nx[k][1]);
     for(let q=k;q<at+n;q++)revealNext(nx[q][0]);k=at+n;skipMarks()}
   if(st.length){LS.miss=0;return}
+  /* following along: the recogniser lost a stretch (or the reader skipped one) and the words heard lie further
+     on than the usual look-ahead: find them on the page when two or more run on there, and carry on from them */
+  if(memo.follow&&fin&&resync(W,key))return;
   /* nothing in the final text of a phrase fits: flash the word due, and after two such phrases show it in red */
   if(!fin||W.every(w=>w.length<=2))return;
   const el=nx[0][1];el.classList.remove("miss");void el.offsetWidth;el.classList.add("miss");
@@ -4926,6 +4936,16 @@ function heardWords(words,fin,q){const key=q?mk:sk;
   if(++LS.miss>=2&&!memo.follow){sErr(el);revealNext(nx[0][0]);LS.miss=0;skipMarks()}
 }
 const heard=word=>heardWords([word],true);
+function resync(W,key){const nx=hiddenNext(60),T=nx.map(x=>key(x[1].textContent));
+  for(let p=0;p<T.length;p++)for(let i=0;i+1<W.length;i++){let r=0;while(i+r<W.length&&p+r<T.length&&near(W[i+r],T[p+r]))r++;
+    if(r>=3||r===2&&(W[i]+W[i+1]).length>=7){for(let q=0;q<p+r;q++)revealNext(nx[q][0]);skipMarks();LS.miss=0;return true}}
+  return false}
+/* the words already shown before the cursor, the last k of them in reading order */
+function shownBefore(k){const out=[];for(const p of deckPages()){const ws=pageWords(p),n=memo.rev.get(p)||0;for(let i=0;i<n&&i<ws.length;i++)if(!isMk(ws[i]))out.push(ws[i])}return out.slice(-k)}
+/* heard words that run on in what was just read (two or more in a row) and fit it better than what comes next */
+function repeated(W,st){const B=shownBefore(30).map(w=>mk(w.textContent));if(B.length<2)return false;
+  let best=0;for(let i=0;i<W.length;i++)for(let j=0;j<B.length;j++){let r=0;while(i+r<W.length&&j+r<B.length&&W[i+r]===B[j+r])r++;if(r>best)best=r}
+  const fwd=st.reduce((s,x)=>s+x[1],0);return best>=2&&best>fwd}
 /* of the recogniser's guesses for a phrase, the one that follows the mushaf furthest */
 function bestAlt(alts){if(alts.length<2)return alts[0]||"";const T=hiddenNext(60).map(x=>sk(x[1].textContent));
   let best=alts[0],bs=-1;for(const a of alts){const st=align(String(a).trim().split(/\s+/).map(sk).filter(Boolean),T),sc=st.reduce((s,x)=>s+x[3],0);if(sc>bs){bs=sc;best=a}}return String(best)}
@@ -4953,7 +4973,7 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
   if(memo.follow&&!d.final&&ws.length>LS.done){const last=sk(ws[ws.length-1]),nx=hiddenNext(1)[0];
     if(nx&&last.length>1&&(last===sk(nx[1].textContent)||(last.length>=5&&near(last,sk(nx[1].textContent))))){heardWords([ws[ws.length-1]],false);LS.done=ws.length}}
   if(d.final)nat("Speech","bias",{words:biasWords()}).catch(()=>{})});
-natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===-2){micStop();toast("انقطع الاستماع، اضغط الميكروفون لتكمل")}else if(c===-3){LS.q=false;LS.done=0;$("mSub").textContent=micMsg();toast("محرّك القرآن ما اشتغل على هذا الجهاز، كمّلنا بمحرّك Google")}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
+natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===-2){micStop();toast("انقطع الاستماع، اضغط الميكروفون لتكمل")}else if(c===-3){LS.q=false;LS.done=0;$("mSub").textContent=micMsg();toast("محرّك القرآن ما اشتغل على هذا الجهاز، كمّلنا بمحرّك Google"+(d.why?" ("+String(d.why).slice(0,80)+")":""))}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
 function micStart(){
   const SR=PLAT==="electron"?null:window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
@@ -4968,7 +4988,7 @@ function micStart(){
   try{r.start()}catch(e){no("تعذّر تشغيل الاستماع.");return}
   $("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent=micMsg();
 }
-const micMsg=()=>(memo.follow?"أتابعك… اقرأ والكلمات تتلوّن":"أسمعك… اقرأ من حفظك")+(LS.dev?" · على الجهاز":"");
+const micMsg=()=>(memo.follow?"أتابعك… اقرأ والكلمات تتلوّن":"أسمعك… اقرأ من حفظك")+(LS.q?" · محرّك القرآن":LS.dev?" · Google على الجهاز":LS.nat?" · Google":"");
 $("mMic").onclick=()=>{LS.on?micStop():micStart()};
 $("mAyah").onclick=()=>{const p=deckPages().find(p=>(memo.rev.get(p)||0)<pageWords(p).length);if(!p)return;const w=pageWords(p)[memo.rev.get(p)||0];revealAyah(+w.dataset.a)};
 $("mGood").onclick=()=>rate(true);$("mAgain").onclick=()=>rate(false);

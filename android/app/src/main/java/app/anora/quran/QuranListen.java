@@ -114,13 +114,29 @@ public final class QuranListen {
         // a word is given out once two decodes in a row agree on it and it is not the last word heard (that one
         // may still be unfinished); at a pause everything heard is given out
         int agree = 0;
+        StringBuilder done = new StringBuilder();
         if (pause) agree = now.length;
         else {
+            // The window moved on since the last decode (by more than a word on a slow phone): its first new
+            // word may have slid out or come back cut. When this decode starts with the previous decode's
+            // second or third new word, the ones before it were heard whole last time: they are given out now.
+            if (now.length > 0 && prevNew.length > 1 && !now[0].equals(prevNew[0])) {
+                for (int o = 1; o <= 2 && o < prevNew.length; o++) {
+                    if (now[0].equals(prevNew[o]) && now[0].length() > 1) {
+                        for (int k = 0; k < o; k++) {
+                            if (done.length() > 0) done.append(' ');
+                            done.append(prevNew[k]);
+                            said.add(prevNew[k]);
+                        }
+                        prevNew = Arrays.copyOfRange(prevNew, o, prevNew.length);
+                        break;
+                    }
+                }
+            }
             // in the quiet after a phrase its last word is finished too, once two decodes agree on it
             int last = quiet >= PAUSE ? now.length : now.length - 1;
             while (agree < last && agree < prevNew.length && now[agree].equals(prevNew[agree])) agree++;
         }
-        StringBuilder done = new StringBuilder();
         for (int k = 0; k < agree; k++) {
             if (done.length() > 0) done.append(' ');
             done.append(now[k]);
@@ -143,14 +159,15 @@ public final class QuranListen {
     private int newFrom(String[] h, boolean cut) {
         int m = said.size(), w = h.length;
         if (m == 0) return cut && w > 1 ? 1 : 0;
+        final double CUT = 0.3;                                         // a cut first word: cheap to pass over
         double[][] d = new double[m + 1][w + 1];
         for (int i = 0; i <= m; i++) d[i][0] = 0;                       // any number of older words not in h
-        for (int j = 1; j <= w; j++) d[0][j] = (j == 1 && cut ? 0.6 : 1) + d[0][j - 1];
+        for (int j = 1; j <= w; j++) d[0][j] = (j == 1 && cut ? CUT : 1) + d[0][j - 1];
         for (int i = 1; i <= m; i++) {
             for (int j = 1; j <= w; j++) {
                 double s = d[i - 1][j - 1] + sub(said.get(i - 1), h[j - 1]);
                 s = Math.min(s, d[i - 1][j] + 1);
-                s = Math.min(s, d[i][j - 1] + (j == 1 && cut ? 0.6 : 1));
+                s = Math.min(s, d[i][j - 1] + (j == 1 && cut ? CUT : 1));
                 d[i][j] = s;
             }
         }

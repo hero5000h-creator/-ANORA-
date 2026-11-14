@@ -101,16 +101,49 @@ public class SpeechPlugin extends Plugin {
         if (qasrFailed) return;
         qasrFailed = true;
         prefs().edit().putLong("qasrDead", appVersion()).apply();
+        // Android records why the process ended a moment later: kept, and shown to the reader
+        main.postDelayed(() -> {
+            String why = exitReason();
+            prefs().edit().putString("qasrWhy", why).apply();
+            fellBack(why);
+        }, 1200);
         if (!qOn) return;
         qOn = false;
         PluginCall c = qCall;
         qCall = null;
-        if (c != null) {
-            googleBegin(c);
-        } else {
-            emitError(-3);
-            googleBegin(null);
-        }
+        googleBegin(c);
+    }
+
+    /** Tells the page that the phone's recogniser listens in place of the own one, and why (shown once). */
+    private void fellBack(String why) {
+        JSObject o = new JSObject();
+        o.put("code", -3);
+        o.put("why", why == null ? "" : why);
+        notifyListeners("error", o);
+    }
+
+    /** Why the recogniser's process ended last (Android 11+), e.g. "crash_native SIGSEGV". */
+    private String exitReason() {
+        if (Build.VERSION.SDK_INT < 30) return "";
+        try {
+            android.app.ActivityManager am = (android.app.ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            for (android.app.ApplicationExitInfo e : am.getHistoricalProcessExitReasons(getContext().getPackageName(), 0, 16)) {
+                if (e.getProcessName() == null || !e.getProcessName().endsWith(":qasr")) continue;
+                String r;
+                switch (e.getReason()) {
+                    case android.app.ApplicationExitInfo.REASON_CRASH_NATIVE: r = "crash_native"; break;
+                    case android.app.ApplicationExitInfo.REASON_CRASH: r = "crash"; break;
+                    case android.app.ApplicationExitInfo.REASON_LOW_MEMORY: r = "low_memory"; break;
+                    case android.app.ApplicationExitInfo.REASON_SIGNALED: r = "signaled"; break;
+                    case android.app.ApplicationExitInfo.REASON_ANR: r = "anr"; break;
+                    case android.app.ApplicationExitInfo.REASON_EXCESSIVE_RESOURCE_USAGE: r = "excessive"; break;
+                    default: r = "reason" + e.getReason();
+                }
+                String d = e.getDescription();
+                return r + " " + e.getStatus() + (d != null && !d.isEmpty() ? " " + d : "") + " " + Build.MODEL;
+            }
+        } catch (Throwable ignored) {}
+        return Build.MODEL;
     }
 
     private android.content.SharedPreferences prefs() {
@@ -161,6 +194,8 @@ public class SpeechPlugin extends Plugin {
                     qOn = false;
                     unbindQasr();
                     googleBegin(c);
+                    String why = m.getData() == null ? "" : m.getData().getString("why", "");
+                    fellBack("load " + why + " " + Build.MODEL);
                 } else {
                     qOn = false;
                     if (c != null) c.reject("mic", "mic");

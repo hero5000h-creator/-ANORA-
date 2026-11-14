@@ -26,6 +26,14 @@ jobs:
         run: |
           v=$(grep -o 'onnxruntime-android:[0-9.]*' android/app/build.gradle | cut -d: -f2)
           curl -fsSL --retry 4 -o ort.jar "https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime/$v/onnxruntime-$v.jar"
+      - name: The phone build of ONNX Runtime has no KleidiAI kernels (their SME code ended the recogniser on Galaxy S26 Ultra)
+        run: |
+          v=$(grep -o 'onnxruntime-android:[0-9.]*' android/app/build.gradle | cut -d: -f2)
+          curl -fsSL --retry 4 -o ort.aar "https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime-android/$v/onnxruntime-android-$v.aar"
+          unzip -q -o ort.aar 'jni/arm64-v8a/libonnxruntime.so' -d aar
+          if strings aar/jni/arm64-v8a/libonnxruntime.so | grep -q 'ArmKleidiAI\|_sme2_\|_sme\.c'; then
+            echo "::error::onnxruntime-android $v carries KleidiAI/SME kernels, which crash on SME phones (Galaxy S26 Ultra)"; exit 1
+          fi
       - name: Decode on ARM (stream, whole window, short input; 1 and 2 threads)
         run: |
           J=android/app/src/main/java/app/anora/quran
