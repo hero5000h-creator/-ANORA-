@@ -33,6 +33,10 @@ public class SpeechPlugin extends Plugin {
     private final Handler main = new Handler(Looper.getMainLooper());
     /** The next hidden words of the page, in plain spelling: the recogniser is asked to lean towards them. */
     private ArrayList<String> bias = new ArrayList<>();
+    /** Listen on the phone itself, with no internet: set after a network failure (or asked for by the page);
+     *  needs Google's Arabic offline speech pack, which Android 13+ is asked to download when it is missing. */
+    private boolean offline = false;
+    private boolean askedModel = false;
 
     private void takeBias(PluginCall call) {
         JSArray a = call.getArray("words", null);
@@ -55,6 +59,7 @@ public class SpeechPlugin extends Plugin {
     @PluginMethod
     public void start(PluginCall call) {
         takeBias(call);
+        offline = call.getBoolean("offline", false);
         if (getPermissionState("mic") != PermissionState.GRANTED) {
             requestPermissionForAlias("mic", call, "micAnswered");
             return;
@@ -121,6 +126,7 @@ public class SpeechPlugin extends Plugin {
         // recitation has long breaths between ayat: wait longer before ending a phrase
         i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 2500);
         i.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 2500);
+        if (offline) i.putExtra(RecognizerIntent.EXTRA_PREFER_OFFLINE, true);
         try {
             rec.startListening(i);
         } catch (Exception e) {
@@ -178,9 +184,33 @@ public class SpeechPlugin extends Plugin {
                 again(300);
                 return;
             }
+            boolean net = e == SpeechRecognizer.ERROR_NETWORK || e == SpeechRecognizer.ERROR_SERVER
+                || e == SpeechRecognizer.ERROR_NETWORK_TIMEOUT;
+            // no internet: carry on with the phone's own recogniser instead of failing
+            if (net && !offline) {
+                offline = true;
+                emitError(100);
+                again(150);
+                return;
+            }
+            // offline and the Arabic pack is not on the phone: ask Android to fetch it (13+) and tell the page
+            if (Build.VERSION.SDK_INT >= 31 && (e == SpeechRecognizer.ERROR_LANGUAGE_UNAVAILABLE || e == SpeechRecognizer.ERROR_LANGUAGE_NOT_SUPPORTED)) {
+                if (Build.VERSION.SDK_INT >= 33 && !askedModel && rec != null) {
+                    askedModel = true;
+                    try {
+                        Intent d = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+                        d.putExtra(RecognizerIntent.EXTRA_LANGUAGE, "ar-SA");
+                        rec.triggerModelDownload(d);
+                    } catch (Exception ignored) {}
+                }
+                emitError(e);
+                offline = false;
+                again(3000);
+                return;
+            }
             // no match / speech timeout / network blips: keep listening
-            again(e == SpeechRecognizer.ERROR_NETWORK || e == SpeechRecognizer.ERROR_SERVER ? 1200 : 80);
-            if (e == SpeechRecognizer.ERROR_NETWORK || e == SpeechRecognizer.ERROR_SERVER) emitError(e);
+            again(net ? 1200 : 80);
+            if (net) emitError(e);
         }
 
         @Override public void onReadyForSpeech(Bundle b) {}

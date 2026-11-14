@@ -42,7 +42,7 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     /* page turn: the page images for the curl must render (an invalid SVG once made every turn a flat fold),
        the curl / 3D spread must be the one used, and every turn style must move exactly one page (spread: two) */
     {const dflt=await p.evaluate(()=>__smk.turn.pick()+(document.querySelector("#book canvas")?" canvas":""));
-      ok(dflt==="book",`${name}: pages turn as a book by default (${dflt})`);
+      ok(dflt==="slide",`${name}: pages glide by default (${dflt})`);
       {const L=await p.evaluate(()=>({warm:getComputedStyle(document.getElementById("warm")).display,dim:getComputedStyle(document.getElementById("dimV")).display,drawer:getComputedStyle(document.getElementById("drawer")).visibility}));
         ok(L.warm==="none"&&L.dim==="none"&&L.drawer==="hidden",`${name}: hidden full-screen layers are not drawn (${JSON.stringify(L)})`)}
       const r=await p.evaluate(async()=>{localStorage.setItem("mushaf.turn","curl");const T=__smk.turn,c0=T.cur();const img=await T.rasterPage(c0);await T.rasterPage(c0+(T.mode()==="spread"?2:1));
@@ -211,6 +211,28 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         window.__L.Speechheard({text:ws.slice(1).join(" "),final:true,alts:["كلام لا علاقة له",ws.slice(1).join(" ")]});await new Promise(z=>setTimeout(z,300));
         const n=nx();return {from:id,to:n?+n.dataset.a:0,red:document.querySelectorAll("#book .pg .err").length}});
       ok(r.to>r.from+1&&!r.red,`${name}: voice follows plain spelling past a lost word and an ayah end ${JSON.stringify(r)}`)}
+    /* follow-along recitation: the text stays on the page, recited words take the colour, the word due sits in the
+       pill, and reciting the whole page turns to the next one */
+    {await p.keyboard.press("Escape");await p.waitForTimeout(400);
+      await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(400);
+      await p.evaluate(()=>document.getElementById("bFollow").click());await p.waitForTimeout(900);
+      const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z)),app=document.getElementById("app"),c0=+localStorage.getItem("mushaf.last");
+        const nx=()=>document.querySelector("#book .pg .nx");const a=nx();if(!a)return {err:"no cursor"};
+        const faint=getComputedStyle(a.nextElementSibling.nextElementSibling).color,pg=a.closest(".pg");
+        const plain=t=>t.replace(/[\u064B-\u065F\u06D6-\u06ED\u08F0-\u08F2\u0640]/g,"").replace(/\u0670/g,"ا").replace(/ٱ/g,"ا");
+        const all=[...pg.querySelectorAll(".lb [data-a][data-w]")].map(w=>plain(w.textContent));
+        window.__L.Speechheard({text:all.slice(0,6).join(" "),final:true});await W(300);
+        const moved=nx()!==a,col=getComputedStyle(a).color;
+        for(let i=6;i<all.length;i+=8){window.__L.Speechheard({text:all.slice(i,i+8).join(" "),final:true});await W(60)}
+        /* a spread: the second page follows the first */
+        await W(200);{const n2=nx(),p2=n2&&n2.closest(".pg");if(p2&&p2!==pg&&+localStorage.getItem("mushaf.last")===c0){const ws=[...p2.querySelectorAll(".lb [data-a][data-w]")].map(w=>plain(w.textContent));
+          for(let i=0;i<ws.length;i+=8){window.__L.Speechheard({text:ws.slice(i,i+8).join(" "),final:true});await W(60)}}}
+        await W(2600);
+        return {on:app.classList.contains("follow")&&document.getElementById("mMic").classList.contains("on"),faint,col,moved,from:c0,to:+localStorage.getItem("mushaf.last"),still:app.classList.contains("follow")}});
+      ok(r.on&&r.moved&&r.faint!=="rgba(0, 0, 0, 0)"&&r.col!==r.faint,`${name}: follow-along shows the text and colours the words recited ${JSON.stringify(r)}`);
+      ok(r.to>r.from&&r.still,`${name}: reciting the whole page turns to the next and keeps following ${JSON.stringify(r)}`);
+      await p.keyboard.press("Escape");await p.waitForTimeout(400);
+      ok(await p.evaluate(()=>!document.getElementById("app").classList.contains("follow")&&!document.querySelector("#book .hid")),`${name}: leaving follow-along clears the page`)}
     if(name==="phone"){/* prayer times are computed on the device: Baghdad, Ja'fari, a fixed day, in Baghdad time */
       const r=await p.evaluate(()=>{const c=new adhan.Coordinates(33.3152,44.3661),d=new Date(Date.UTC(2026,10,4,9));
         const f=t=>["fajr","sunrise","dhuhr","asr","maghrib","isha"].map(k=>t[k].toLocaleTimeString("en-GB",{timeZone:"Asia/Baghdad",hour:"2-digit",minute:"2-digit"}));

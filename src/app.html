@@ -779,6 +779,16 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 .qz-s{font-family:var(--f-display);font-size:40px;font-weight:700;color:var(--orn);text-align:center;margin:8px 0 0}
 .qz-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 14px}
 #app.memo #book .lb [data-a].nx{background:linear-gradient(var(--orn),var(--orn)) left 78%/100% 2px no-repeat}
+/* follow-along recitation: the page stays readable, words still to come are faint, the word due sits in a soft
+   pill and the words already recited take the reading colour */
+#app.memo.follow{--fl:color-mix(in srgb,var(--ink) 30%,#2f63d8);--flp:color-mix(in srgb,#2f63d8 15%,transparent)}
+#app.memo.follow #book .lb [data-a].hid{color:color-mix(in srgb,var(--ink) 34%,transparent);background:none}
+#app.memo.follow #book .lb [data-a].hid *{color:inherit}
+#app.memo.follow #book .lb [data-a]:not(.hid):not(.sp):not(.err):not(.serr),#app.memo.follow #book .lb [data-a]:not(.hid):not(.err):not(.serr) *{color:var(--fl)}
+#app.memo.follow #book .lb [data-a].hid.nx{color:var(--ink);background:var(--flp);border-radius:.42em;box-shadow:0 0 0 .14em var(--flp)}
+#app.memo.follow #book .lb [data-a].hid.nx *{color:var(--ink)}
+:root:is([data-paper="night"],[data-paper="black"]) #app.memo.follow{--flp:color-mix(in srgb,#5b8cff 30%,transparent)}
+#app.follow #memo .mb.step:not(#mReset),#app.follow #memo .rate{display:none}
 #app.memo #deckList{visibility:hidden}
 #app.memo .dk-h::after{content:"التفسير مخفي أثناء الحفظ";color:var(--muted)}
 #memo{flex:1;min-width:0;max-width:880px;margin-inline:auto;display:flex;align-items:center;gap:6px;padding-block:5px}
@@ -1697,7 +1707,7 @@ html.phoneM #prefs{max-height:calc((100dvh - var(--cutT,0px) - var(--cutB,0px) -
 html.phoneM.simple .bar .tools .ib,html.phoneM.simple .bar #bPrefs{width:auto;min-width:54px;height:auto;min-height:50px;flex-direction:column;gap:2px;padding:5px 6px 4px}
 html.phoneM.simple .bar .tools .ib svg{flex:none}
 html.phoneM .qa.q4 .qt,html.phoneM .qt{font-size:14px}
-html.phoneM .qa.q4>#bToday,html.phoneM .qa.q4>#bFull,html.phoneM .qa.q4>#bAuto,html.phoneM .qa.q4>#bStudy{flex:1 1 0;min-width:0;min-height:48px;padding:6px 4px;gap:4px;font-size:13.5px}
+html.phoneM .qa.q4>#bAdhkar,html.phoneM .qa.q4>#bToday,html.phoneM .qa.q4>#bFull,html.phoneM .qa.q4>#bAuto,html.phoneM .qa.q4>#bStudy{flex:1 1 0;min-width:0;min-height:48px;padding:6px 4px;gap:4px;font-size:13.5px}
 html.phoneM .qa.q4>.qt span{white-space:normal;line-height:1.2}
 html.phoneM #prefs .qh,html.phoneM #prefs h3{font-size:14px}
 html.phoneM .ptabs button{height:48px;font-size:14px}
@@ -1718,8 +1728,8 @@ html.phoneM #cont .ch .cd,html.phoneM .cay>span{font-size:13px}html.phoneM .cay>
 html.phoneM #player .ib{min-height:48px}
 @media (max-width:390px){html.phoneM #app>.bar{padding-inline:10px}html.phoneM .where b::before,html.phoneM .where b::after{display:none}}
 /* menu: four main tools as tiles, the rest as a slim row under them */
-.qa.q4>#bToday,.qa.q4>#bFull,.qa.q4>#bAuto,.qa.q4>#bStudy{display:flex;align-items:center;justify-content:center;flex:1 0 calc((100% - 12px) / 3);min-height:44px;flex-direction:row;gap:6px;padding:6px 8px;font-size:12.5px}
-.qa.q4>#bToday svg,.qa.q4>#bFull svg,.qa.q4>#bAuto svg,.qa.q4>#bStudy svg{width:18px;height:18px;margin:0}
+.qa.q4>#bAdhkar,.qa.q4>#bToday,.qa.q4>#bFull,.qa.q4>#bAuto,.qa.q4>#bStudy{display:flex;align-items:center;justify-content:center;flex:1 0 calc((100% - 18px) / 4);min-height:44px;flex-direction:row;gap:6px;padding:6px 8px;font-size:12.5px}
+.qa.q4>#bAdhkar svg,.qa.q4>#bToday svg,.qa.q4>#bFull svg,.qa.q4>#bAuto svg,.qa.q4>#bStudy svg{width:18px;height:18px;margin:0}
 #bToday span,#bFull span,#bAuto span,#bStudy span{white-space:nowrap;margin:0}
 /* first opens: show the swipe, not only say it */
 .hint{font-size:14px;padding:8px 14px;display:flex;align-items:center;gap:8px}
@@ -1899,6 +1909,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
         <button class="qt" id="bBook" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6 3.5h12v17l-6-4.2-6 4.2z"/></svg><span>علامة الصفحة</span></button>
         <button class="qt" id="bFlow" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 5.5h16M4 10h16M4 14.5h16M4 19h9"/><path d="M17.5 17v4M15.5 19h4"/></svg><span>خط كبير</span></button>
         <button class="qt" id="bMemo" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6c1.6 0 3 .5 4.2 1.2M21 12s-3.5 6-9 6c-1.6 0-3-.5-4.2-1.2M4 20L20 4"/></svg><span>وضع الحفظ</span></button>
+        <button class="qt" id="bFollow" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="10.5" rx="3"/><path d="M5.8 10.8a6.2 6.2 0 0 0 12.4 0M12 17v2"/><path d="M3.5 21.2h7" opacity=".45"/><path d="M13.5 21.2h7"/></svg><span>تتبّع التلاوة</span></button>
         <button class="qt" id="bInk" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><path d="M5 19l1.1-4.4L16 4.7a2 2 0 0 1 2.8 0l.5.5a2 2 0 0 1 0 2.8l-9.9 9.9z"/><path d="M14 6.7l3.3 3.3M4 21h9"/></svg><span>الكتابة بالقلم</span></button>
         <button class="qt" id="bAdhkar"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg><span>الأذكار</span></button>
         <button class="qt adv" id="bAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6.5 4.5h8l3 3v12h-11z"/><path d="M14.5 4.5v3h3"/><path d="M10 11.5l4 2.5-4 2.5z"/></svg><span>تقليب تلقائي</span></button>
@@ -1938,8 +1949,8 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
         <button class="sw" data-view="2">صفحتان</button>
       </div></div>
       <div><h3>تقليب الصفحة</h3><div class="seg" id="turnSeg">
-        <button class="sw" data-turn="book">كتاب</button>
         <button class="sw" data-turn="slide">انزلاق</button>
+        <button class="sw" data-turn="book">كتاب</button>
         <button class="sw" data-turn="curl">ورقة</button>
         <button class="sw" data-turn="none">بدون حركة</button>
       </div></div>
@@ -2734,8 +2745,10 @@ function finish(f,done){
 if(!store.get("mushaf.turn2")){if(store.get("mushaf.turn")==="curl")store.set("mushaf.turn","slide");store.set("mushaf.turn2","1")}
 /* the book turn (the leaf swings about the spine, lit and shaded as it goes) is the default since it was asked for;
    the glide that was the default before is moved to it once, a reader's other choice is kept */
-if(!store.get("mushaf.turn3")){const t=store.get("mushaf.turn");if(!t||t==="slide")store.set("mushaf.turn","book");store.set("mushaf.turn3","1")}
-const turnPick=()=>{const t=store.get("mushaf.turn");return t==="curl"||t==="none"||t==="slide"?t:"book"};
+/* the glide is the default again (Mn, 2026-11-14): those moved to the book turn by the earlier default go back
+   once; a reader who picks «كتاب» after this keeps it */
+if(!store.get("mushaf.turn4")){if(store.get("mushaf.turn")==="book")store.set("mushaf.turn","slide");store.set("mushaf.turn3","1");store.set("mushaf.turn4","1")}
+const turnPick=()=>{const t=store.get("mushaf.turn");return t==="curl"||t==="none"||t==="book"?t:"slide"};
 const turnSt=()=>reduce?"none":turnPick();
 function setupSlide(kind,target){
   park();
@@ -2863,7 +2876,7 @@ function release(e){
     if(d.peek){endPeek();return}
     const x=d.x;
     if(x>=0&&x<=(mode==="spread"?2*W:W)&&d.y>=0&&d.y<=H){ // a tap never turns the page
-      if(memo.on){revealNext(mode==="spread"?memoAct():cur);return}
+      if(memo.on){if(memo.follow){followFrom(e.clientX,e.clientY);return}revealNext(mode==="spread"?memoAct():cur);return}
       {const sh=$("sheet");if(inStudy||(!sh.hidden&&sh.classList.contains("dock"))){const a=ayahAt(e.clientX,e.clientY);if(a){openAyah(a);return}}}
       if($("app").classList.contains("imm"))toggleFull();else setCalm(!$("app").classList.contains("calm"))}
     return;
@@ -3237,7 +3250,7 @@ function rasterPage(p){if(!RS.fd)return rasterFonts().then(()=>{RS.fd=!/url\(["'
 }
 /* after a page turn only pages not yet drawn are added; a change to what pages show redraws them all */
 let rasterKey="";
-function rasterDirtyLazy(){const k=[bmNow(),/* only classes that change how a page looks: passing UI states (calm bars, a toast) must not throw the page images away */["memo","mhint","tajweed","mut","full"].filter(c=>$("app").classList.contains(c)).join(" "),root.dataset.paper,memo.on?JSON.stringify([...memo.rev])+JSON.stringify(memo.range)+(store.get("mushaf.memoErr")||""):""].join("|");
+function rasterDirtyLazy(){const k=[bmNow(),/* only classes that change how a page looks: passing UI states (calm bars, a toast) must not throw the page images away */["memo","mhint","follow","tajweed","mut","full"].filter(c=>$("app").classList.contains(c)).join(" "),root.dataset.paper,memo.on?JSON.stringify([...memo.rev])+JSON.stringify(memo.range)+(store.get("mushaf.memoErr")||""):""].join("|");
   if(k!==rasterKey){rasterKey=k;rasterDirty()}else{clearTimeout(RS.t);RS.t=setTimeout(rasterSoon,350)}}
 function rasterSoon(){
   /* only the phone's curl uses page images; the spread's 3D leaf moves the pages themselves */
@@ -4800,6 +4813,7 @@ function paintMemo(){
   {const act=memoAct();deckPages().forEach(p=>{if(p!==act&&cache.has(p))cache.get(p).querySelectorAll(".nx").forEach(w=>w.classList.remove("nx"))})}
   const ps=deckPages(),db=memo.db(),r=db[ps[0]];
   $("mTitle").textContent=memo.range?`${repRef(memo.range.from)}–${ar(aOf(memo.range.to))}`:(ps.length>1?`الصفحتان ${ar(ps[0])}–${ar(ps[1])}`:`صفحة ${ar(ps[0])}`);
+  if(memo.follow){$("memo").classList.remove("done");$("mSub").textContent=LS.on?"أتابعك… اقرأ والكلمات تتلوّن":"اضغط الميكروفون واقرأ، أو المس كلمة لتبدأ منها";if(left===0)followNext();return}
   $("memo").classList.toggle("done",left===0);
   $("mSub").textContent=left===0?"كيف كان حفظك لهذه الصفحة؟":LS.on?"أسمعك… اقرأ من حفظك":r?`المراجعة رقم ${ar(r.n+1)} · المس الصفحة لتظهر الكلمة التالية`:"المس الصفحة لتظهر الكلمة التالية، واضغط مطوّلاً لتظهر الآية";
 }
@@ -4810,10 +4824,10 @@ function revealAyah(id){
 }
 function setMemo(on){if(on)contHide();
   if(!on&&LS.on)micStop();
-  memo.on=on;memo.rev.clear();memo.last=null;LS.se.clear();if(!on)memo.range=null;
+  memo.on=on;memo.rev.clear();memo.last=null;LS.se.clear();if(!on){memo.range=null;memo.follow=false}
   if(on){stopPlay();closeAyah();hideHint();setCalm(false)}
-  if(!on)footOut($("memo"));$("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
-  $("bMemo").setAttribute("aria-pressed",String(on));
+  if(!on)footOut($("memo"));$("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint&&!memo.follow);$("app").classList.toggle("follow",on&&!!memo.follow);$("bFollow").setAttribute("aria-pressed",String(on&&!!memo.follow));$("mExit").setAttribute("aria-label",memo.follow?"إنهاء تتبّع التلاوة":"إنهاء وضع الحفظ");$("mReset").textContent=memo.follow?"من البداية":"أخفِ";$("mReset").setAttribute("aria-label",memo.follow?"ابدأ الصفحة من أولها":"أخفِ الصفحة من جديد");$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
+  $("bMemo").setAttribute("aria-pressed",String(on&&!memo.follow));
   if(!on)document.querySelectorAll(".hid,.nx").forEach(w=>w.classList.remove("hid","nx"));
   resize();paintMemo();
 }
@@ -4823,7 +4837,22 @@ function rate(good){
   memo.save(db);paintMemo();
   toast(next===1?"المراجعة القادمة غداً":`المراجعة القادمة بعد ${ar(next)} ${next<=10?"أيام":"يوماً"}`);
 }
-$("bMemo").onclick=()=>{showPrefs(false);memo.range=null;setMemo(!memo.on)};
+$("bMemo").onclick=()=>{showPrefs(false);memo.range=null;const was=memo.on&&!memo.follow;if(memo.on)setMemo(false);if(!was)setMemo(true)};
+/* ---------- follow-along recitation ----------
+   The reader recites with the page in front of them (no hiding): the same listening as the recitation check,
+   but the words stay on the page, faint until recited, and the page turns by itself at its end. */
+function setFollow(on){if(memo.on)setMemo(false);if(!on)return;memo.range=null;memo.follow=true;setMemo(true);micStart()}
+$("bFollow").onclick=()=>{showPrefs(false);setFollow(!(memo.on&&memo.follow))};
+/* a tap on a word: start (again) from that word */
+function followFrom(x,y){const el=document.elementFromPoint(x,y),w=el&&el.closest&&el.closest(".lb [data-a]");if(!w)return;
+  const ps=deckPages();let seen=false;for(const p of ps){const ws=pageWords(p),i=ws.indexOf(w);if(i>=0){memo.rev.set(p,i);seen=true}else memo.rev.set(p,seen?0:ws.length)}
+  if(!seen)return;LS.miss=0;LS.se.clear();document.querySelectorAll("#book .err").forEach(x=>x.classList.remove("err"));skipMarks();paintMemo();rasterDirtyLazy();
+  if(LS.nat)nat("Speech","bias",{words:biasWords()}).catch(()=>{})}
+/* the page (or both pages) recited: turn on, after a breath so the last word is seen coloured */
+function followNext(){if(followNext.t)return;const ps=deckPages(),last=ps[ps.length-1];
+  if(last>=NP){toast("صدق الله العظيم، ختمت القراءة");return}
+  followNext.t=setTimeout(()=>{followNext.t=0;if(!memo.on||!memo.follow||deckPages()[0]!==ps[0])return;goTo(last+1);
+    setTimeout(()=>{if(memo.on&&memo.follow){paintMemo();if(LS.nat)nat("Speech","bias",{words:biasWords()}).catch(()=>{})}},reduce?60:900)},reduce?200:650)}
 $("mExit").onclick=()=>setMemo(false);
 $("mErr").onclick=()=>{const nx=deckPages().map(p=>cache.has(p)&&pageWords(p)[memo.rev.get(p)||0]).find(Boolean);
   if(nx){const E=mErrs();E.add(mKey(nx));store.set("mushaf.memoErr",JSON.stringify([...E]));
@@ -4892,12 +4921,12 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
   const ws=txt.trim().split(/\s+/),upto=d.final?ws.length:ws.length-2;
   if(upto>LS.done)heardWords(ws.slice(LS.done,upto),d.final);LS.done=d.final?0:Math.max(LS.done,upto);
   if(d.final)nat("Speech","bias",{words:biasWords()}).catch(()=>{})});
-natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
+natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
 function micStart(){
   const SR=PLAT==="electron"?null:window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
-  if(PLAT==="android"&&NATIVE){LS.on=true;LS.nat=true;LS.done=0;LS.miss=0;$("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent="أسمعك… اقرأ من حفظك";
-    nat("Speech","start",{words:biasWords()}).catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
+  if(PLAT==="android"&&NATIVE){LS.on=true;LS.nat=true;LS.done=0;LS.miss=0;$("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent=micMsg();
+    nat("Speech","start",{words:biasWords(),offline:navigator.onLine===false}).catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
   if(!SR){no(PLAT==="electron"?"التسميع بالصوت متاح بتطبيق الهاتف، وما زال غير متاح بنسخة الويندوز. تقدر تسمّع بإظهار الكلمات واحدة واحدة.":"التسميع بالصوت غير متاح في هذا المتصفح. جرّبه في Chrome، وسيكون مدمجاً في التطبيق.");return}
   const r=new SR();r.lang="ar-SA";r.continuous=true;r.interimResults=false;r.maxAlternatives=5;
   LS.rec=r;LS.on=true;LS.used=0;LS.miss=0;
@@ -4905,8 +4934,9 @@ function micStart(){
   r.onerror=e=>{if(e.error==="not-allowed"||e.error==="service-not-allowed"||e.error==="audio-capture")no("لم يُسمح بالميكروفون هنا. في التطبيق سيطلب الإذن مرة واحدة.");else if(e.error!=="no-speech"&&e.error!=="aborted")no("انقطع الاستماع، اضغط الميكروفون لتكمل.")};
   r.onend=()=>{if(LS.on){try{r.start()}catch(e){micStop()}}};
   try{r.start()}catch(e){no("تعذّر تشغيل الاستماع.");return}
-  $("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent="أسمعك… اقرأ من حفظك";
+  $("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent=micMsg();
 }
+const micMsg=()=>memo.follow?"أتابعك… اقرأ والكلمات تتلوّن":"أسمعك… اقرأ من حفظك";
 $("mMic").onclick=()=>{LS.on?micStop():micStart()};
 $("mAyah").onclick=()=>{const p=deckPages().find(p=>(memo.rev.get(p)||0)<pageWords(p).length);if(!p)return;const w=pageWords(p)[memo.rev.get(p)||0];revealAyah(+w.dataset.a)};
 $("mGood").onclick=()=>rate(true);$("mAgain").onclick=()=>rate(false);
