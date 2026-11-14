@@ -12,6 +12,9 @@ android {
         versionCode((System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger())
         versionName "0.1." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        /* ONNX Runtime (the on-device Quran recogniser) ships native code: phones only (ARM), so the APK
+           does not carry it four times over */
+        ndk { abiFilters 'arm64-v8a', 'armeabi-v7a' }
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
              // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
@@ -39,6 +42,8 @@ android {
             }
         }
     }
+    /* the Quran recogniser's model is copied out of the APK once: stored as is, it copies fast */
+    androidResources { noCompress += 'onnx' }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
@@ -65,6 +70,8 @@ dependencies {
     implementation "androidx.media:media:1.7.0"
     /* native recitation player (AudioPlugin.kt) */
     implementation "androidx.media3:media3-exoplayer:1.8.0"
+    /* on-device Quran recogniser (QuranAsr.java): ONNX Runtime, MIT licence */
+    implementation "com.microsoft.onnxruntime:onnxruntime-android:1.23.2"
     implementation project(':capacitor-android')
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"

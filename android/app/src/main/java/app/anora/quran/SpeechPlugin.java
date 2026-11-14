@@ -1,7 +1,11 @@
 package app.anora.quran;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.media.AudioFormat;
+import android.media.AudioRecord;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,11 +24,21 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
 import com.getcapacitor.annotation.PermissionCallback;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Listens while the user recites from memory. The Android WebView has no speech recognition of its own,
+ * Listens while the user recites (from memory, or following the page).
+ *
+ * First choice: the app's own Quran recogniser (quran-asr-tiny, in assets/qasr), which runs on the phone with
+ * no internet and knows recitation (madd, ghunna, waqf) far better than a general Arabic recogniser. It emits the
+ * same "heard" events, with engine "q": the bare Uthmani letters of each word, given out word by word.
+ *
+ * Otherwise (model missing, or the phone cannot run it): The Android WebView has no speech recognition of its own,
  * so this uses the phone's recogniser (Arabic) and keeps restarting it after each pause until stopped.
  * Emits "heard" {text, final}: partial text while speaking, then the final text of each phrase.
  */
@@ -48,6 +62,114 @@ public class SpeechPlugin extends Plugin {
     private int devFails = 0;
     /** follow-along reading: quicker phrase ends (the page follows each word, it does not wait for whole phrases) */
     private boolean quick = false;
+
+    /* ---- the app's own Quran recogniser ---- */
+    private static QuranAsr qasr;
+    private static boolean qasrFailed = false;
+    private volatile boolean qOn = false;
+    private Thread qThread;
+    private QuranListen qListen;
+
+    /** Loads the model once (copied out of the APK to app storage the first time). Slow: call off the main thread. */
+    private static synchronized QuranAsr qasr(Context ctx) {
+        if (qasr != null || qasrFailed) return qasr;
+        try {
+            File f = new File(ctx.getFilesDir(), "qasr-1.onnx");
+            if (!f.exists()) {
+                File tmp = new File(ctx.getFilesDir(), "qasr.tmp");
+                try (InputStream in = ctx.getAssets().open("qasr/model.onnx"); OutputStream out = new FileOutputStream(tmp)) {
+                    byte[] buf = new byte[1 << 16];
+                    int k;
+                    while ((k = in.read(buf)) > 0) out.write(buf, 0, k);
+                }
+                if (!tmp.renameTo(f)) throw new Exception("rename");
+            }
+            int cores = Runtime.getRuntime().availableProcessors();
+            qasr = new QuranAsr(f.getAbsolutePath(), cores >= 6 ? 2 : 1);
+        } catch (Throwable e) {
+            // no model in this build, or no ONNX Runtime for this processor: the phone's recogniser is used
+            qasrFailed = true;
+        }
+        return qasr;
+    }
+
+    private void qStart(PluginCall call) {
+        qOn = true;
+        qThread = new Thread(() -> {
+            QuranAsr asr = qasr(getContext());
+            if (asr == null || !qOn) {
+                qOn = false;
+                if (asr == null) main.post(() -> googleBegin(call));
+                return;
+            }
+            int rate = QuranAsr.RATE;
+            int min = AudioRecord.getMinBufferSize(rate, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+            AudioRecord ar;
+            try {
+                // 4 s of buffer: the recorder keeps hearing while a decode runs
+                ar = new AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, rate, AudioFormat.CHANNEL_IN_MONO,
+                    AudioFormat.ENCODING_PCM_16BIT, Math.max(min, rate * 2 * 4));
+                if (ar.getState() != AudioRecord.STATE_INITIALIZED) throw new IllegalStateException("mic");
+                ar.startRecording();
+            } catch (Throwable e) {
+                qOn = false;
+                main.post(() -> call.reject("mic", "mic"));
+                return;
+            }
+            JSObject ok = new JSObject();
+            ok.put("device", true);
+            ok.put("quran", true);
+            call.resolve(ok);
+            QuranListen L = new QuranListen(asr, (text, fin) -> {
+                if (!qOn) return;
+                JSObject o = new JSObject();
+                o.put("text", text);
+                o.put("final", fin);
+                o.put("engine", "q");
+                notifyListeners("heard", o);
+            });
+            qListen = L;
+            short[] pcm = new short[rate / 10];
+            float[] x = new float[pcm.length];
+            try {
+                while (qOn) {
+                    int k = ar.read(pcm, 0, pcm.length);
+                    if (k <= 0) {
+                        if (k < 0) break;
+                        continue;
+                    }
+                    for (int i = 0; i < k; i++) x[i] = pcm[i] / 32768f;
+                    L.feed(x, k);
+                }
+                if (qOn) emitError(-2);
+            } catch (Throwable e) {
+                emitError(-2);
+            } finally {
+                try { ar.stop(); } catch (Throwable ignored) {}
+                ar.release();
+                qListen = null;
+            }
+        }, "anora-qasr");
+        qThread.setPriority(Thread.MAX_PRIORITY - 1);
+        qThread.start();
+    }
+
+    private void qStop() {
+        qOn = false;
+        Thread t = qThread;
+        qThread = null;
+        if (t != null) {
+            try { t.join(800); } catch (InterruptedException ignored) {}
+        }
+    }
+
+    /** The reader starts again from another word (a tap on the page): forget what was heard so far. */
+    @PluginMethod
+    public void reset(PluginCall call) {
+        QuranListen L = qListen;
+        if (L != null) L.reset();
+        call.resolve();
+    }
 
     private void takeBias(PluginCall call) {
         JSArray a = call.getArray("words", null);
@@ -86,6 +208,14 @@ public class SpeechPlugin extends Plugin {
     }
 
     private void begin(PluginCall call) {
+        if (!call.getBoolean("google", false) && !qasrFailed) {
+            qStart(call);
+            return;
+        }
+        googleBegin(call);
+    }
+
+    private void googleBegin(PluginCall call) {
         if (!SpeechRecognizer.isRecognitionAvailable(getContext())) {
             call.reject("unavailable", "unavailable");
             return;
@@ -103,6 +233,7 @@ public class SpeechPlugin extends Plugin {
 
     @PluginMethod
     public void stop(PluginCall call) {
+        qStop();
         main.post(() -> {
             running = false;
             destroy();
@@ -112,6 +243,7 @@ public class SpeechPlugin extends Plugin {
 
     @Override
     protected void handleOnDestroy() {
+        qStop();
         running = false;
         destroy();
     }
