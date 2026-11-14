@@ -24,6 +24,8 @@ public class MainActivity extends BridgeActivity {
     static MainActivity inst;
     /** The page asks for the fast refresh while something moves (a touch, a page turn) and lets it go at rest. */
     private boolean fastWanted = true;
+    /** Light mode on a slower phone: the screen stays at 60 Hz, so the GPU draws half as many frames and each one on time. */
+    private boolean cap60 = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -189,9 +191,15 @@ public class MainActivity extends BridgeActivity {
      * kept the screen and the GPU at 120 Hz for hours: more heat, so the phone slowed itself down and the app
      * felt heavy after a while. At rest the system picks the rate again (an adaptive screen drops low).
      */
+    void setCap60(boolean on) {
+        cap60 = on;
+        setFast(fastWanted);
+    }
+
     void setFast(boolean on) {
         fastWanted = on;
         runOnUiThread(() -> {
+            if (cap60) { pinRefresh(60f); return; }
             if (fastWanted) { fastestRefresh(); return; }
             try {
                 WindowManager.LayoutParams lp = getWindow().getAttributes();
@@ -208,6 +216,27 @@ public class MainActivity extends BridgeActivity {
     public void onDestroy() {
         if (inst == this) inst = null;
         super.onDestroy();
+    }
+
+    /** The supported mode at this resolution whose rate is closest to the one asked for. */
+    @SuppressWarnings("deprecation")
+    private void pinRefresh(float hz) {
+        if (Build.VERSION.SDK_INT < 23) return;
+        try {
+            Display d = Build.VERSION.SDK_INT >= 30 ? getDisplay() : getWindowManager().getDefaultDisplay();
+            if (d == null) return;
+            Display.Mode cur = d.getMode(), best = null;
+            for (Display.Mode m : d.getSupportedModes()) {
+                if (m.getPhysicalWidth() != cur.getPhysicalWidth() || m.getPhysicalHeight() != cur.getPhysicalHeight()) continue;
+                if (best == null || Math.abs(m.getRefreshRate() - hz) < Math.abs(best.getRefreshRate() - hz)) best = m;
+            }
+            if (best == null) return;
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            boolean change = lp.preferredDisplayModeId != best.getModeId() || lp.preferredRefreshRate != best.getRefreshRate();
+            lp.preferredDisplayModeId = best.getModeId();
+            lp.preferredRefreshRate = best.getRefreshRate();
+            if (change) getWindow().setAttributes(lp);
+        } catch (Exception ignored) { }
     }
 
     @SuppressWarnings("deprecation")

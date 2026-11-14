@@ -118,6 +118,11 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--orn);outline-of
 #prefs .rng input{width:100%;accent-color:var(--orn)}
 /* warm light: a soft amber veil over everything, for reading at night */
 #warm{position:fixed;inset:0;pointer-events:none;z-index:200;background:#ff9a3c;mix-blend-mode:multiply;opacity:0;transition:opacity .25s}
+/* off, the warm filter is not drawn at all: a full-screen blend layer at opacity 0 still cost every frame */
+#warm:not(.on){display:none}
+/* light mode (slower phones): the paper's grain, glass blur and the extra light layers of the page turn are left out */
+html.lite .pg::before,html.lite #flow::before{display:none}
+html.lite *,html.lite *::before,html.lite *::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 #prefs h3{margin:0 0 8px;font-size:12.5px;font-weight:600;color:var(--muted)}
 .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .seg.two{grid-template-columns:repeat(2,1fr)}
@@ -337,6 +342,9 @@ html.phoneM .pg.opening .box{background-size:120% 100%}
   transform:translateX(102%);transition:transform .32s cubic-bezier(.2,.8,.2,1);box-shadow:-10px 0 40px -10px var(--shadow);
   padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px)}
 #drawer.on{transform:none}
+/* closed and slid away, the index (with its long list) is not drawn or laid out at all: it used to hold a
+   full-height layer the GPU kept in every frame */
+#drawer.shut{visibility:hidden;content-visibility:hidden}
 .dh{padding:14px 16px 10px;display:flex;align-items:center;gap:10px}
 .dh h2{margin:0 auto;flex:none;display:grid;place-items:center;width:min(calc(100% - 96px),250px);height:42px;padding:0 54px;box-sizing:border-box;background:var(--o-head) center/100% 100% no-repeat;font-family:var(--f-display);font-size:20px;color:var(--ink);font-weight:700}
 .dh{position:relative;justify-content:center}
@@ -1291,6 +1299,7 @@ html[data-theme="dark"] .dnb .dn-m{transform:none;opacity:1}
 #atDim[aria-pressed="true"] svg{fill:currentColor;stroke:none}
 #dimV{position:fixed;inset:0;z-index:7;pointer-events:none;background:#000;opacity:0;transition:opacity .6s var(--ease)}
 html.dimmed #dimV{opacity:.5}
+html:not(.dimmed) #dimV{display:none}@starting-style{html.dimmed #dimV{opacity:0}}
 html.dimmed #autoBar{z-index:9}
 
 /* v49 motion */
@@ -1934,6 +1943,11 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
         <button class="sw" data-turn="curl">ورقة</button>
         <button class="sw" data-turn="none">بدون حركة</button>
       </div></div>
+      <div><h3>الأداء (خفيف للأجهزة الأقدم)</h3><div class="seg" id="liteSeg">
+        <button class="sw" data-lite="auto">تلقائي</button>
+        <button class="sw" data-lite="1">خفيف</button>
+        <button class="sw" data-lite="0">كامل</button>
+      </div></div>
       <div class="posture" id="volRow" hidden><span>أزرار الصوت تقلّب الصفحة<small>زر خفض الصوت للصفحة التالية، والرفع للسابقة. أثناء التلاوة يعودان للتحكم بالصوت</small></span><button class="tg" id="bVol" role="switch" aria-checked="false" aria-label="أزرار الصوت تقلّب الصفحة"></button></div>
       <div class="posture"><span>ألوان التجويد<small>المد والغنة والإخفاء والقلقلة</small></span><button class="tg" id="bTaj" role="switch" aria-checked="false" aria-label="ألوان التجويد"></button></div>
       <div class="tjk" id="tjKey" hidden><span style="--c:var(--tj-md)">مد لازم وواجب وجائز</span><span style="--c:var(--tj-gh)">غنة وإخفاء وإقلاب وإدغام بغنة</span><span style="--c:var(--tj-qa)">قلقلة</span><span style="--c:var(--tj-s)">ما لا يُلفظ</span></div>
@@ -2038,7 +2052,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
   <div class="sdScope" role="radiogroup" aria-label="أين تبحث"><button data-scope="all" role="radio" aria-checked="true">كل القرآن</button><button data-scope="sur" role="radio" aria-checked="false" id="sdSur">هذه السورة</button><i></i></div>
   <div id="sres" class="list sres"></div></div></div>
 <div id="scrim" hidden></div><div id="warm" aria-hidden="true"></div>
-<aside id="drawer" role="dialog" aria-modal="true" aria-label="فهرس المصحف" dir="rtl">
+<aside id="drawer" class="shut" role="dialog" aria-modal="true" aria-label="فهرس المصحف" dir="rtl">
   <div class="dh"><h2>الفهرس</h2><button class="ib" id="bClose" aria-label="إغلاق الفهرس"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><input id="q" type="search" placeholder="ابحث عن سورة أو جزء أو صفحة أو كلمة من القرآن" autocomplete="off"></div>
   <section id="kh" aria-label="ختمتي"></section>
@@ -2598,15 +2612,15 @@ function setup3DS(kind,target){
   /* the leaf: a soft sheen near its free edge, deepening to shadow at the spine */
   f.shF=sh(4,"linear-gradient(to right,rgba(255,255,255,.22),rgba(255,255,255,0) 22%,rgba(0,0,0,.18) 55%,rgba(0,0,0,.62))",f.fo);
   /* a thin bright edge, the paper's thickness catching the light */
-  f.shE=sh(5,"linear-gradient(to right,rgba(255,255,255,.55),rgba(255,255,255,0) 3%)",f.fo);
+  if(!LITE.on)f.shE=sh(5,"linear-gradient(to right,rgba(255,255,255,.55),rgba(255,255,255,0) 3%)",f.fo);
   book.style.overflow="visible";flip=f;return f;
 }
 function render3DS(f){
   const pr=Math.min(1,Math.max(0,f.P[0]/(2*W))),th=96*pr,s=Math.sin(th*Math.PI/180);
   const tf=`perspective(${f.per}px) rotateY(${th.toFixed(2)}deg)`;
-  f.front.style.transform=f.shF.style.transform=f.shE.style.transform=tf;
+  f.front.style.transform=f.shF.style.transform=tf;if(f.shE)f.shE.style.transform=tf;
   const o=(e,a)=>{e.style.opacity=a>.002?Math.min(1,a).toFixed(3):"0"};
-  o(f.shF,.15+.95*s);o(f.shE,s*(1-s)*2.2);o(f.sU,.95*(1-Math.min(1,th/88)));
+  o(f.shF,.15+.95*s);if(f.shE)o(f.shE,s*(1-s)*2.2);o(f.sU,.95*(1-Math.min(1,th/88)));
 }
 function setupFlip(kind,target){
   if(mode==="spread")return setup3D(kind,target);
@@ -2682,7 +2696,7 @@ function tween(f,dur,path){
   return new Promise(res=>{
     if(dur<=0){f.P=path(1);render(f);return res()}
     const t0=performance.now();
-    const step=now=>{const t=Math.min(1,(now-t0)/dur);f.P=path(t);render(f);if(t<1)f.raf=requestAnimationFrame(step);else res()};
+    let last=0;const step=now=>{if(last)LITE.frame(now-last);last=now;const t=Math.min(1,(now-t0)/dur);f.P=path(t);render(f);if(t<1)f.raf=requestAnimationFrame(step);else{LITE.turnEnd();res()}};
     f.raf=requestAnimationFrame(step);
   });
 }
@@ -3049,7 +3063,19 @@ function renderFlow(){
   if(!samePage){f.scrollTop=0;if(dir&&!reduce){b.classList.remove("in","inr");void b.offsetWidth;b.classList.add(dir>0?"in":"inr")}}
 }
 /* a soft cross-fade for changes that repaint the whole screen (paper, cover, layout, large print) */
-function vt(fn,lay){if(reduce||!document.startViewTransition)return fn();
+/* light mode for slower phones (a Note 20 and its age): the screen held at 60 Hz, no paper grain, no glass blur,
+   no full-screen cross-fades and a leaner page turn. "auto" watches the page turns: when more of their
+   frames come late (over 15%), the phone is too slow for the full motion and light mode turns itself on, once, with a word */
+const LITE={mode:["auto","1","0"].includes(store.get("mushaf.lite"))?store.get("mushaf.lite"):"auto",on:false,F:[],turns:0,
+  frame(d){if(d>0&&d<400)this.F.push(d)},
+  turnEnd(){if(this.mode!=="auto"||this.on||reduce)return;this.turns++;if(this.turns<3||this.F.length<40)return;
+    const F=this.F.slice().sort((a,b)=>a-b),base=F[Math.floor(F.length*.1)],late=F.filter(x=>x>Math.max(base*1.7,21)).length/F.length;
+    if(this.turns>=10){this.F=[];this.turns=0}
+    if(late>.15){store.set("mushaf.liteAuto","1");liteSet();toast("خفّفنا الحركة حتى تكون أنعم على هذا الجهاز")}}};
+function liteSet(){LITE.on=LITE.mode==="1"||(LITE.mode==="auto"&&store.get("mushaf.liteAuto")==="1");root.classList.toggle("lite",LITE.on);
+  try{if(NATIVE&&PLAT==="android")nat("Display","cap60",{on:LITE.on}).catch(()=>{})}catch(e){}
+  document.querySelectorAll("[data-lite].sw").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lite===LITE.mode)))}
+function vt(fn,lay){if(reduce||LITE.on||!document.startViewTransition)return fn();
   /* a change of layout (flow, study, one/two pages) dips through the paper: the old page is gone before the new one comes */
   if(lay)root.classList.add("vtL");
   /* the cross-fade already carries the change: the buttons' own colour transitions (about 180 of them at a paper or
@@ -3480,6 +3506,8 @@ $("prefs").addEventListener("click",e=>{e.stopPropagation();const t=e.target.clo
   if(b.dataset.wt){setLook("wt",b.dataset.wt,true)}
   if(b.dataset.an){setLook("an",b.dataset.an,true);toast(b.dataset.an==="1"?"أرقام الآيات مذهّبة":"أرقام الآيات بدائرة")}
   if(b.dataset.view)vt(()=>{store.set("mushaf.view",b.dataset.view);markView();resize()},1);
+  if(b.dataset.lite){LITE.mode=b.dataset.lite;store.set("mushaf.lite",LITE.mode);if(LITE.mode==="auto"){store.set("mushaf.liteAuto","0");LITE.F=[];LITE.turns=0}liteSet();
+    toast(LITE.mode==="1"?"وضع خفيف: حركة أنعم على الأجهزة الأقدم":LITE.mode==="0"?"الحركة كاملة":"يختار التطبيق حسب سرعة جهازك")}
   if(b.dataset.turn){store.set("mushaf.turn",b.dataset.turn);markView();if(b.dataset.turn==="curl")rasterSoon();else RS.img.clear();toast(b.dataset.turn==="book"?"الصفحة تنقلب حول كعب المصحف":b.dataset.turn==="curl"?"الصفحة تنقلب مثل ورقة المصحف":b.dataset.turn==="slide"?"الصفحات تنزلق جنباً إلى جنب":"تتبدّل الصفحة فوراً بلا حركة")}
 });
 $("bFull").onclick=e=>{e.stopPropagation();toggleFull()};
@@ -5056,10 +5084,10 @@ function recentRender(){let L=jget("mushaf.recent",[]).filter(x=>x&&typeof x.p==
     b.onclick=()=>{closeIndex();setTimeout(()=>goTo(x.p),120)};return b}))}
 window.__t={sunDown:d=>sunDown(d),autoPaper:()=>autoPaper(),goTo:p=>goTo(p),openIndex:()=>openIndex()};
 function openIndex(){contHide();
-  indexOpen=true;recentRender();khOpen=false;$("scrim").hidden=false;void $("scrim").offsetWidth;requestAnimationFrame(()=>{$("scrim").classList.add("on");$("drawer").classList.add("on")});
+  indexOpen=true;recentRender();khOpen=false;$("scrim").hidden=false;$("drawer").classList.remove("shut");void $("scrim").offsetWidth;requestAnimationFrame(()=>{$("scrim").classList.add("on");$("drawer").classList.add("on")});
   if(khMode==="g")gkStart();khCard();renderList(true);setTimeout(()=>pillTo(document.querySelector(".tabs")),30);setTimeout(()=>{const c=$("list").querySelector(".cur");c&&c.scrollIntoView({block:"center"})},60);
 }
-function closeIndex(){indexOpen=false;$("scrim").classList.remove("on");$("drawer").classList.remove("on");setTimeout(()=>{if(!indexOpen)$("scrim").hidden=true},300);$("bIndex").focus()}
+function closeIndex(){indexOpen=false;$("scrim").classList.remove("on");$("drawer").classList.remove("on");setTimeout(()=>{if(!indexOpen){$("scrim").hidden=true;$("drawer").classList.add("shut")}},340);$("bIndex").focus()}
 $("bIndex").onclick=openIndex;
 /* the search button opens the index with the cursor in its search box (surah, juz, page or any word of the Quran) */
 /* the search button drops a search panel from under the top bar (surah, juz, page or any word of the Quran);
@@ -5417,7 +5445,7 @@ $("atMinus").onclick=e=>{e.stopPropagation();atStep(-1)};$("atPlus").onclick=e=>
 $("atDim").onclick=e=>{e.stopPropagation();const on=!root.classList.contains("dimmed");root.classList.toggle("dimmed",on);$("atDim").setAttribute("aria-pressed",String(on))};
 $("autoBar").addEventListener("pointerdown",e=>e.stopPropagation());
 /* ---------- comfort: warm light, screen kept awake, the sound of paper ---------- */
-function setWarm(v){v=Math.max(0,Math.min(100,+v||0));$("warm").style.opacity=(v/100*.32).toFixed(3);$("warmR").value=v;store.set("mushaf.warm",String(v))}
+function setWarm(v){v=Math.max(0,Math.min(100,+v||0));$("warm").classList.toggle("on",v>0);$("warm").style.opacity=(v/100*.32).toFixed(3);$("warmR").value=v;store.set("mushaf.warm",String(v))}
 $("warmR").addEventListener("input",e=>setWarm(e.target.value));
 let wakeOn=store.get("mushaf.wake")!=="0",wakeL=null;
 async function wake(){try{if(wakeOn&&!document.hidden&&navigator.wakeLock&&!wakeL){wakeL=await navigator.wakeLock.request("screen");wakeL.addEventListener("release",()=>{wakeL=null})}
@@ -5984,7 +6012,12 @@ window.anoraBack=()=>{try{
   if(Date.now()-backQuitAt<2000){backQuitAt=0;return false}
   backQuitAt=Date.now();toast("اضغط رجوع مرة ثانية للخروج");return true}catch(e){}return false};
 root.dir="rtl";root.lang="ar";
-function start(){if(started)return;started=true;
+/* the paper's grain and fibres are SVG noise filters: drawn once into small pictures, so a page never has to run the
+   filter again when it is painted (every turn, every zoom step, at the phone's full pixel density) */
+function bakeTex(){const cs=getComputedStyle(root);["--grain","--fiber"].forEach(v=>{const m=/url\(\s*"(data:image\/svg\+xml[^"]*)"/.exec(cs.getPropertyValue(v));if(!m)return;
+  const im=new Image();im.onload=()=>{try{const c=document.createElement("canvas");c.width=im.naturalWidth||180;c.height=im.naturalHeight||180;c.getContext("2d").drawImage(im,0,0);
+    c.toBlob(b=>{if(b)root.style.setProperty(v,`url(${URL.createObjectURL(b)})`)},"image/png")}catch(e){}};im.src=m[1]})}
+function start(){if(started)return;started=true;liteSet();setTimeout(()=>{(window.requestIdleCallback||setTimeout)(bakeTex)},2500);
   {const pp=store.get("mushaf.paper");setPaper(["light","sepia","night","black","sky","auto"].includes(pp)?pp:"light")}
   setWarm(store.get("mushaf.warm"));$("bWake").setAttribute("aria-checked",String(wakeOn));$("bSnd").setAttribute("aria-checked",String(sndOn));$("bBuzz").setAttribute("aria-checked",String(buzzOn));wake();
   addEventListener("pointerdown",wake,{passive:true});$("app").classList.toggle("tajweed",tajOn);if(mutOn)setMut(true,true);markView();setCover(root.dataset.cover,false);ornaments();resize();{const l=$("loading"),w=reduce?0:Math.max(0,800-(performance.now()-splT));setTimeout(()=>{l.classList.add("out");if(!reduce){const bw=$("bookwrap");bw.classList.add("intro");setTimeout(()=>bw.classList.remove("intro"),800)}setTimeout(()=>l.remove(),reduce?0:600)},w)}{const n=+store.get("mushaf.hintN")||0;store.set("mushaf.hintN",String(n+1));if(n>=3)hideHint();else setTimeout(hideHint,6000)}
