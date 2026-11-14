@@ -783,7 +783,11 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #app.memo.follow #book .lb [data-a].hid{color:color-mix(in srgb,var(--ink) 34%,transparent);background:none}
 #app.memo.follow #book .lb [data-a].hid *{color:inherit}
 #app.memo.follow #book .lb [data-a]:not(.hid):not(.sp):not(.err):not(.serr),#app.memo.follow #book .lb [data-a]:not(.hid):not(.err):not(.serr) *{color:var(--fl)}
-#app.memo.follow #book .lb [data-a].hid.nx{color:var(--ink);background:var(--flp);border-radius:.42em;box-shadow:0 0 0 .14em var(--flp)}
+#app.memo.follow #book .lb [data-a].hid.nx{color:var(--ink);background:none}
+#flPill{position:absolute;left:0;top:0;border-radius:999px;background:var(--flp);pointer-events:none;z-index:2;transition:transform .26s cubic-bezier(.25,.8,.25,1),width .26s cubic-bezier(.25,.8,.25,1),height .2s ease}
+#flPill.jump{transition:none}
+#flPill[hidden],#app:not(.follow) #flPill{display:none}
+@media (prefers-reduced-motion:reduce){#flPill{transition:none}}
 #app.memo.follow #book .lb [data-a].hid.nx *{color:var(--ink)}
 :root:is([data-paper="night"],[data-paper="black"]) #app.memo.follow{--flp:color-mix(in srgb,#5b8cff 30%,transparent)}
 #app.follow #memo .mb.step:not(#mReset),#app.follow #memo .rate{display:none}
@@ -4812,7 +4816,7 @@ function paintMemo(){
   {const act=memoAct();deckPages().forEach(p=>{if(p!==act&&cache.has(p))cache.get(p).querySelectorAll(".nx").forEach(w=>w.classList.remove("nx"))})}
   const ps=deckPages(),db=memo.db(),r=db[ps[0]];
   $("mTitle").textContent=memo.range?`${repRef(memo.range.from)}–${ar(aOf(memo.range.to))}`:(ps.length>1?`الصفحتان ${ar(ps[0])}–${ar(ps[1])}`:`صفحة ${ar(ps[0])}`);
-  if(memo.follow){$("memo").classList.remove("done");$("mSub").textContent=LS.on?"أتابعك… اقرأ والكلمات تتلوّن":"اضغط الميكروفون واقرأ، أو المس كلمة لتبدأ منها";if(left===0)followNext();return}
+  if(memo.follow){$("memo").classList.remove("done");$("mSub").textContent=LS.on?micMsg():"اضغط الميكروفون واقرأ، أو المس كلمة لتبدأ منها";flPill();if(left===0)followNext();return}
   $("memo").classList.toggle("done",left===0);
   $("mSub").textContent=left===0?"كيف كان حفظك لهذه الصفحة؟":LS.on?"أسمعك… اقرأ من حفظك":r?`المراجعة رقم ${ar(r.n+1)} · المس الصفحة لتظهر الكلمة التالية`:"المس الصفحة لتظهر الكلمة التالية، واضغط مطوّلاً لتظهر الآية";
 }
@@ -4840,10 +4844,22 @@ $("bMemo").onclick=()=>{showPrefs(false);memo.range=null;const was=memo.on&&!mem
 /* ---------- follow-along recitation ----------
    The reader recites with the page in front of them (no hiding): the same listening as the recitation check,
    but the words stay on the page, faint until recited, and the page turns by itself at its end. */
-function setFollow(on){if(memo.on)setMemo(false);if(!on)return;memo.range=null;memo.follow=true;setMemo(true);micStart()}
+function setFollow(on){if(memo.on)setMemo(false);{const el=$("flPill");if(el)el.hidden=true}if(!on)return;memo.range=null;memo.follow=true;setMemo(true);micStart()}
 $("bFollow").onclick=()=>{showPrefs(false);setFollow(!(memo.on&&memo.follow))};
 /* Windows has no speech recogniser for the page: the tile would only say so */
 if(PLAT==="electron")$("bFollow").hidden=true;
+/* the soft pill that glides from word to word: one element on the page, moved with transform (its size eases too),
+   so the eye follows it instead of seeing the highlight blink from word to word */
+function flPill(){let el=$("flPill");const act=memoAct(),pg=cache.get(act),w=memo.on&&memo.follow&&pg&&pg.querySelector(".nx");
+  if(!w){if(el)el.hidden=true;return}
+  if(!el){el=document.createElement("i");el.id="flPill";el.setAttribute("aria-hidden","true")}
+  const jump=el.parentNode!==pg||el.hidden;if(el.parentNode!==pg)pg.appendChild(el);el.hidden=false;
+  const pr=pg.getBoundingClientRect(),r=w.getBoundingClientRect(),k=pr.width/(pg.offsetWidth||pr.width)||1,ln=w.closest(".ln"),lr=ln?ln.getBoundingClientRect():r;
+  const h=Math.min(r.height,lr.height)*.78/k,x=(r.left-pr.left)/k-3,y=(lr.top+lr.height/2-pr.top)/k-h/2,wd=r.width/k+6;
+  if(jump){el.classList.add("jump");void el.offsetWidth}
+  el.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;el.style.width=wd.toFixed(1)+"px";el.style.height=h.toFixed(1)+"px";
+  if(jump){void el.offsetWidth;el.classList.remove("jump")}}
+addEventListener("resize",()=>{if(memo.follow)setTimeout(flPill,120)});
 /* a tap on a word: start (again) from that word */
 function followFrom(x,y){const el=document.elementFromPoint(x,y),w=el&&el.closest&&el.closest(".lb [data-a]");if(!w)return;
   const ps=deckPages();let seen=false;for(const p of ps){const ws=pageWords(p),i=ws.indexOf(w);if(i>=0){memo.rev.set(p,i);seen=true}else memo.rev.set(p,seen?0:ws.length)}
@@ -4919,15 +4935,19 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
   /* partial text: the last two words can still change, so they wait; the final text settles the phrase, read
      from the guess that fits the mushaf best */
   const txt=d.final&&Array.isArray(d.alts)&&d.alts.length?bestAlt(d.alts):d.text;
-  const ws=txt.trim().split(/\s+/),upto=d.final?ws.length:ws.length-2;
+  const ws=txt.trim().split(/\s+/);let upto=d.final?ws.length:ws.length-(memo.follow?1:2);
   if(upto>LS.done)heardWords(ws.slice(LS.done,upto),d.final);LS.done=d.final?0:Math.max(LS.done,upto);
+  /* following along: the word being said lights up as soon as it is heard, when it is the very word due (the
+     recogniser may still change a word it is unsure of, so anything else waits for the next word) */
+  if(memo.follow&&!d.final&&ws.length>LS.done){const last=sk(ws[ws.length-1]),nx=hiddenNext(1)[0];
+    if(nx&&last.length>1&&(last===sk(nx[1].textContent)||(last.length>=5&&near(last,sk(nx[1].textContent))))){heardWords([ws[ws.length-1]],false);LS.done=ws.length}}
   if(d.final)nat("Speech","bias",{words:biasWords()}).catch(()=>{})});
 natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
 function micStart(){
   const SR=PLAT==="electron"?null:window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
   if(PLAT==="android"&&NATIVE){LS.on=true;LS.nat=true;LS.done=0;LS.miss=0;$("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent=micMsg();
-    nat("Speech","start",{words:biasWords(),offline:navigator.onLine===false}).catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
+    nat("Speech","start",{words:biasWords(),offline:navigator.onLine===false,quick:!!memo.follow}).then(r=>{LS.dev=!!(r&&r.device);if(LS.on)$("mSub").textContent=micMsg()}).catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
   if(!SR){no(PLAT==="electron"?"التسميع بالصوت متاح بتطبيق الهاتف، وما زال غير متاح بنسخة الويندوز. تقدر تسمّع بإظهار الكلمات واحدة واحدة.":"التسميع بالصوت غير متاح في هذا المتصفح. جرّبه في Chrome، وسيكون مدمجاً في التطبيق.");return}
   const r=new SR();r.lang="ar-SA";r.continuous=true;r.interimResults=false;r.maxAlternatives=5;
   LS.rec=r;LS.on=true;LS.used=0;LS.miss=0;
@@ -4937,7 +4957,7 @@ function micStart(){
   try{r.start()}catch(e){no("تعذّر تشغيل الاستماع.");return}
   $("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent=micMsg();
 }
-const micMsg=()=>memo.follow?"أتابعك… اقرأ والكلمات تتلوّن":"أسمعك… اقرأ من حفظك";
+const micMsg=()=>(memo.follow?"أتابعك… اقرأ والكلمات تتلوّن":"أسمعك… اقرأ من حفظك")+(LS.dev?" · على الجهاز":"");
 $("mMic").onclick=()=>{LS.on?micStop():micStart()};
 $("mAyah").onclick=()=>{const p=deckPages().find(p=>(memo.rev.get(p)||0)<pageWords(p).length);if(!p)return;const w=pageWords(p)[memo.rev.get(p)||0];revealAyah(+w.dataset.a)};
 $("mGood").onclick=()=>rate(true);$("mAgain").onclick=()=>rate(false);

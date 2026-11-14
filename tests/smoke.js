@@ -227,12 +227,17 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         const all=[...pg.querySelectorAll(".lb [data-a][data-w]")].map(w=>plain(w.textContent));
         window.__L.Speechheard({text:all.slice(0,6).join(" "),final:true});await W(300);
         const moved=nx()!==a,col=getComputedStyle(a).color;
+        /* the word being said lights up from the partial text, before the phrase ends; the pill glides to it */
+        const b0=nx();window.__L.Speechheard({text:plain(b0.textContent),final:false});await W(150);
+        const instant=nx()!==b0&&!b0.classList.contains("hid"),pill=document.getElementById("flPill"),pillOn=!!pill&&!pill.hidden&&pill.parentNode===nx().closest(".pg");
+        window.__L.Speechheard({text:plain(b0.textContent),final:true});await W(100);
         for(let i=6;i<all.length;i+=8){window.__L.Speechheard({text:all.slice(i,i+8).join(" "),final:true});await W(60)}
         /* a spread: the second page follows the first */
         await W(200);{const n2=nx(),p2=n2&&n2.closest(".pg");if(p2&&p2!==pg&&+localStorage.getItem("mushaf.last")===c0){const ws=[...p2.querySelectorAll(".lb [data-a][data-w]")].map(w=>plain(w.textContent));
           for(let i=0;i<ws.length;i+=8){window.__L.Speechheard({text:ws.slice(i,i+8).join(" "),final:true});await W(60)}}}
         await W(2600);
-        return {on:app.classList.contains("follow")&&document.getElementById("mMic").classList.contains("on"),faint,col,moved,from:c0,to:+localStorage.getItem("mushaf.last"),still:app.classList.contains("follow")}});
+        return {on:app.classList.contains("follow")&&document.getElementById("mMic").classList.contains("on"),faint,col,moved,instant,pillOn,from:c0,to:+localStorage.getItem("mushaf.last"),still:app.classList.contains("follow")}});
+      ok(r.instant&&r.pillOn,`${name}: follow-along lights the word as it is said and the pill moves to the next ${JSON.stringify(r)}`);
       ok(r.on&&r.moved&&r.faint!=="rgba(0, 0, 0, 0)"&&r.col!==r.faint,`${name}: follow-along shows the text and colours the words recited ${JSON.stringify(r)}`);
       ok(r.to>r.from&&r.still,`${name}: reciting the whole page turns to the next and keeps following ${JSON.stringify(r)}`);
       await p.keyboard.press("Escape");await p.waitForTimeout(400);
