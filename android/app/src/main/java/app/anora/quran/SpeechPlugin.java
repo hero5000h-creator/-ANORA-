@@ -165,10 +165,13 @@ public class SpeechPlugin extends Plugin {
         if (prefs().getLong("qasrDead", -1) == appVersion()) qasrFailed = true;
     }
 
+    /** follow-along: check each phrase's vowels too (the page asks for it) */
+    private boolean qVowels = false;
+
     private void qSend(int what) {
         Messenger s = svc;
         if (s == null) return;
-        Message m = Message.obtain(null, what);
+        Message m = Message.obtain(null, what, what == QasrService.START && qVowels ? 1 : 0, 0);
         m.replyTo = inbox;
         try {
             s.send(m);
@@ -211,6 +214,31 @@ public class SpeechPlugin extends Plugin {
                 o.put("final", b.getBoolean("fin", false));
                 o.put("engine", "q");
                 notifyListeners("heard", o);
+                return true;
+            }
+            case QasrService.PHRASE: {
+                if (!qOn) return true;
+                JSObject o = new JSObject();
+                o.put("seq", m.arg1);
+                notifyListeners("phrase", o);
+                return true;
+            }
+            case QasrService.VOWELS: {
+                if (!qOn) return true;
+                Bundle b = m.getData();
+                String[] sym = b.getStringArray("sym");
+                float[] pr = b.getFloatArray("prob");
+                if (sym == null || pr == null) return true;
+                JSArray js = new JSArray(), jp = new JSArray();
+                for (int i = 0; i < sym.length; i++) {
+                    js.put(sym[i]);
+                    try { jp.put(Math.round(pr[i] * 100) / 100.0); } catch (Exception ignored) {}
+                }
+                JSObject o = new JSObject();
+                o.put("seq", m.arg1);
+                o.put("sym", js);
+                o.put("prob", jp);
+                notifyListeners("vowels", o);
                 return true;
             }
             case QasrService.ERROR:
@@ -301,6 +329,7 @@ public class SpeechPlugin extends Plugin {
     public void start(PluginCall call) {
         takeBias(call);
         offline = call.getBoolean("offline", false);
+        qVowels = call.getBoolean("vowels", false);
         quick = call.getBoolean("quick", false);
         if (getPermissionState("mic") != PermissionState.GRANTED) {
             requestPermissionForAlias("mic", call, "micAnswered");

@@ -34,12 +34,22 @@ import java.util.Random;
 public class QasrService extends Service {
 
     static final int START = 1, STOP = 2, RESET = 3;
-    static final int READY = 10, HEARD = 11, ERROR = 12;
+    static final int READY = 10, HEARD = 11, ERROR = 12, PHRASE = 13, VOWELS = 14;
     static final String TAG = "qasr";
     static final String SELFTEST = "app.anora.quran.QASR_SELFTEST";
 
     private static QuranAsr asr;
     private static boolean failed = false;
+    /** the vowel model (tajweed-v2), loaded on the first phrase heard with the vowel check on */
+    private static HarakatAsr vowels;
+    private static boolean vowelsFailed = false;
+    private volatile boolean checkVowels = false;
+    private int phraseSeq = 0;
+    private final java.util.concurrent.ExecutorService vowelWork = java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "anora-vowels");
+        t.setPriority(Thread.NORM_PRIORITY - 1);
+        return t;
+    });
     private static String why = "";
 
     private volatile boolean on = false;
@@ -50,6 +60,7 @@ public class QasrService extends Service {
     private final Messenger inbox = new Messenger(new Handler(Looper.getMainLooper(), m -> {
         switch (m.what) {
             case START:
+                checkVowels = m.arg1 == 1;
                 begin(m.replyTo);
                 return true;
             case STOP:
@@ -77,6 +88,7 @@ public class QasrService extends Service {
 
     @Override
     public void onDestroy() {
+        vowelWork.shutdownNow();
         end();
         super.onDestroy();
     }
@@ -117,17 +129,7 @@ public class QasrService extends Service {
     static synchronized QuranAsr model(Context ctx) {
         if (asr != null || failed) return asr;
         try {
-            File f = new File(ctx.getFilesDir(), "qasr-1.onnx");
-            if (!f.exists() || f.length() < 1000000) {
-                File tmp = new File(ctx.getFilesDir(), "qasr.tmp");
-                try (InputStream in = ctx.getAssets().open("qasr/model.onnx"); OutputStream out = new FileOutputStream(tmp)) {
-                    byte[] buf = new byte[1 << 16];
-                    int k;
-                    while ((k = in.read(buf)) > 0) out.write(buf, 0, k);
-                }
-                if (f.exists()) f.delete();
-                if (!tmp.renameTo(f)) throw new Exception("rename");
-            }
+            File f = copiedFile(ctx, "qasr/model.onnx", "qasr-1.onnx");
             int cores = Runtime.getRuntime().availableProcessors();
             asr = new QuranAsr(f.getAbsolutePath(), cores >= 6 ? 2 : 1);
         } catch (Throwable e) {
@@ -136,6 +138,60 @@ public class QasrService extends Service {
             why = e.getClass().getSimpleName() + ": " + e.getMessage();
         }
         return asr;
+    }
+
+    static synchronized HarakatAsr vowelModel(Context ctx) {
+        if (vowels != null || vowelsFailed) return vowels;
+        try {
+            vowels = new HarakatAsr(copied(ctx, "qasr/harakat.onnx", "harakat-1.onnx"), 1);
+        } catch (Throwable e) {
+            Log.e(TAG, "vowel model failed", e);
+            vowelsFailed = true;
+        }
+        return vowels;
+    }
+
+    /** An asset copied once to app storage (ONNX Runtime reads a file, so the model is not held twice in memory). */
+    static File copiedFile(Context ctx, String asset, String name) throws Exception {
+        File f = new File(ctx.getFilesDir(), name);
+        if (!f.exists() || f.length() < 1000000) {
+            File tmp = new File(ctx.getFilesDir(), name + ".tmp");
+            try (InputStream in = ctx.getAssets().open(asset); OutputStream out = new FileOutputStream(tmp)) {
+                byte[] buf = new byte[1 << 16];
+                int k;
+                while ((k = in.read(buf)) > 0) out.write(buf, 0, k);
+            }
+            if (f.exists()) f.delete();
+            if (!tmp.renameTo(f)) throw new Exception("rename");
+        }
+        return f;
+    }
+
+    static String copied(Context ctx, String asset, String name) throws Exception {
+        return copiedFile(ctx, asset, name).getAbsolutePath();
+    }
+
+    /** A phrase ended: tell the page now (it notes which words it lit), check its vowels in the background. */
+    private void phrase(float[] a, int n, Thread me) {
+        if (!checkVowels || vowelsFailed || thread != me) return;
+        int seq = ++phraseSeq;
+        send(PHRASE, seq, null);
+        float[] copy = java.util.Arrays.copyOf(a, n);
+        try {
+            vowelWork.execute(() -> {
+                HarakatAsr h = vowelModel(this);
+                if (h == null || !on) return;
+                try {
+                    HarakatAsr.Heard r = h.hear(copy, copy.length);
+                    Bundle b = new Bundle();
+                    b.putStringArray("sym", r.sym);
+                    b.putFloatArray("prob", r.prob);
+                    send(VOWELS, seq, b);
+                } catch (Throwable e) {
+                    Log.e(TAG, "vowels failed", e);
+                }
+            });
+        } catch (Throwable ignored) {}
     }
 
     private void send(int what, int arg1, Bundle data) {
@@ -197,12 +253,20 @@ public class QasrService extends Service {
             return;
         }
         send(READY, 1, null);
-        QuranListen l = new QuranListen(a, (text, fin) -> {
-            if (!on || thread != me) return;
-            Bundle b = new Bundle();
-            b.putString("text", text);
-            b.putBoolean("fin", fin);
-            send(HEARD, 0, b);
+        QuranListen l = new QuranListen(a, new QuranListen.Out() {
+            @Override
+            public void heard(String text, boolean fin) {
+                if (!on || thread != me) return;
+                Bundle b = new Bundle();
+                b.putString("text", text);
+                b.putBoolean("fin", fin);
+                send(HEARD, 0, b);
+            }
+
+            @Override
+            public void phrase(float[] x, int n) {
+                QasrService.this.phrase(x, n, me);
+            }
         });
         listen = l;
         short[] pcm = new short[rate / 10];

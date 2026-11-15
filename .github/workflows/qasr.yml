@@ -37,8 +37,8 @@ jobs:
       - name: Decode on ARM (stream, whole window, short input; 1 and 2 threads)
         run: |
           J=android/app/src/main/java/app/anora/quran
-          javac -encoding UTF-8 -cp ort.jar -d out $J/QuranAsr.java $J/QuranListen.java tests/qasr/Noise.java
-          java -cp ort.jar:out Noise android/app/src/main/assets/qasr/model.onnx | tee log.txt
+          javac -encoding UTF-8 -cp ort.jar -d out $J/QuranAsr.java $J/QuranListen.java $J/HarakatAsr.java tests/qasr/Noise.java
+          java -cp ort.jar:out Noise android/app/src/main/assets/qasr/model.onnx android/app/src/main/assets/qasr/harakat.onnx | tee log.txt
           grep -q "QASR OK" log.txt
 
   emulator:
