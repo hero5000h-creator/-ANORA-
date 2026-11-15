@@ -39,7 +39,9 @@ public final class QuranListen {
     private long phraseFrom = -1;                           // where the phrase being said began (total)
     private long total = 0;                                 // samples heard since start
     private long lastDecode = 0, lastVoice = -1;
-    private int step = RATE * 35 / 100;                     // grows if the phone decodes slowly
+    private static final int STEP = RATE * 35 / 100;        // decode every 350 ms on a quick phone
+    private int step = STEP;                                // grows if the phone decodes slowly
+    private int sameLast = 0;                               // decodes in a row ending on the same unfinished word
     private int quiet = 0;
     private double floor = 0.003;
     private final float[] hop = new float[HOP];
@@ -126,7 +128,7 @@ public final class QuranListen {
         String text = asr.decode(win, n);
         decodeMs = (System.nanoTime() - t0) / 1_000_000;
         // a phone that needs longer than a step to decode decodes less often, so it never falls behind
-        step = (int) Math.max(RATE * 35 / 100, Math.min(RATE * 12 / 10, decodeMs * RATE / 1000 * 3 / 2));
+        step = (int) Math.max(STEP, Math.min(RATE * 12 / 10, decodeMs * RATE / 1000 * 3 / 2));
         if (DEBUG) System.out.printf("   dec %.2f-%.2f%s: %s%n", start / (double) RATE, total / (double) RATE, pause ? " P" : "", text);
         if (text.isEmpty()) return;
         String[] h = text.split(" ");
@@ -162,8 +164,12 @@ public final class QuranListen {
                     }
                 }
             }
-            // in the quiet after a phrase its last word is finished too, once two decodes agree on it
-            int last = quiet >= PAUSE ? now.length : now.length - 1;
+            // the last word heard may be unfinished; it is given out in the quiet after a phrase, or once three
+            // decodes in a row (most of a second) end on it unchanged, so a room that is never quite silent does
+            // not hold the phrase's last word back for seconds
+            if (now.length > 0 && now[now.length - 1].length() >= 3 && prevNew.length == now.length && now[now.length - 1].equals(prevNew[prevNew.length - 1])) sameLast++;
+            else sameLast = 0;
+            int last = quiet >= PAUSE || sameLast >= 2 ? now.length : now.length - 1;
             while (agree < last && agree < prevNew.length && now[agree].equals(prevNew[agree])) agree++;
         }
         for (int k = 0; k < agree; k++) {
@@ -172,6 +178,7 @@ public final class QuranListen {
             said.add(now[k]);
         }
         while (said.size() > 24) said.remove(0);
+        if (agree > 0) sameLast = 0;
         prevNew = Arrays.copyOfRange(now, agree, now.length);
         if (done.length() > 0) out.heard(done.toString(), true);
         // the next word not yet given out: the page lights it at once when it is exactly the word due

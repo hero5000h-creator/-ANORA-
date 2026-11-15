@@ -5012,7 +5012,10 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
     /* following along, the status line shows the last words heard, so the reader sees what the recogniser took them to say */
     if(memo.follow&&ws.length){if(d.final)LS.hw=(LS.hw||[]).concat(ws.slice(LS.done)).slice(-4);LS.hp=d.final?"":ws[ws.length-1];$("mSub").textContent=micMsg()}
     if(d.final){if(ws.length>LS.done)heardWords(ws.slice(LS.done),true,true);LS.done=0}
-    else{const nx=hiddenNext(1)[0],w=mk(ws[ws.length-1]||"");if(nx&&w.length>1&&w===mk(nx[1].textContent)){heardWords([ws[ws.length-1]],false,true);LS.done=1}}
+    else{const nx=hiddenNext(1)[0],w=mk(ws[ws.length-1]||""),t=nx?mk(nx[1].textContent):"";
+      /* the word being said lights at once when it is the word due: exactly, or a long word a letter or two off
+         (the mushaf's own spelling of it) */
+      if(nx&&w.length>1&&(w===t||(w.length>=5&&t.length>=5&&near(w,t)))){heardWords([t],false,true);LS.done=1}}
     return}
   /* partial text: the last two words can still change, so they wait; the final text settles the phrase, read
      from the guess that fits the mushaf best */
