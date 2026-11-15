@@ -4947,7 +4947,7 @@ function heardWords(words,fin,q){const key=q?mk:sk;
       /* read again over a vowel said wrong: those words are in this phrase's vowel check, which clears the red when it is right now */
       const R=W.length>1&&repeated.els;if(R&&R.some(w=>w.classList.contains("vw")))LS.lit.push(...R);return}
     const ok=[];let kk=0;for(let j=0;j<st.length;j++){const [,,at,n]=st[j],nb=st[j+1];
-      if(at>kk&&T[at].length<=3&&!(nb&&nb[2]===at+n))break;if(W[st[j][0]].length<=2&&W[st[j][0]]!==T[at])break;ok.push(st[j]);kk=at+n}st=ok}
+      if(at>kk&&n===1&&T[at].length<=3&&!(nb&&nb[2]===at+n))break;if(W[st[j][0]].length<=2&&W[st[j][0]]!==T[at])break;ok.push(st[j]);kk=at+n}st=ok}
   let hp=0;
   for(const [hi,hu,at,n] of st){
     /* hidden words passed over: one meaningful word right before a match was probably really skipped by the
@@ -4957,6 +4957,11 @@ function heardWords(words,fin,q){const key=q?mk:sk;
        heard clearly and unlike it) is a slip in the recitation, shown in red */
     else if(q&&memo.follow&&at-k===1&&hi-hp===1&&slip(W[hp],T[k])&&!recent().some(r=>near(W[hp],r)))sErr(nx[k][1]);
     hp=hi+hu;
+    /* following with the Quran recogniser: a word heard clearly as another word of the Quran, close to the one due
+       but not it (مصلحون → مصبحين, المفسدون → المفسدين, قيل → قال): a slip. The word turns red and the follow-along
+       waits on it until it is said right */
+    if(q&&memo.follow&&fin&&hu===1&&n===1&&wrongWord(W[hi],T[at])){for(let q=k;q<at;q++){const el=nx[q][1];if(el===LS.hold)LS.hold=null;revealNext(nx[q][0]);LS.lit.push(el)}
+      const el=nx[at][1];if(LS.hold!==el){sErr(el);LS.hold=el}k=at;skipMarks();LS.miss=0;return}
     for(let q=k;q<at+n;q++){const el=nx[q][1];
       /* the word held in red: said right now (it is this match's own word), or passed over by the reader going on */
       if(el===LS.hold){LS.hold=null;if(q>=at)sFix(el)}
@@ -4968,7 +4973,7 @@ function heardWords(words,fin,q){const key=q?mk:sk;
   /* following with the Quran recogniser: a real Quran word heard where the word due should be, unlike it, turns
      that word red at once; the follow-along waits on it until it is said right (or the reader reads on) */
   if(q&&memo.follow&&fin){const el=nx[0][1];
-    if(W.some(w=>slip(w,T[0])&&!recent().some(r=>near(w,r)))){if(LS.hold!==el){sErr(el);LS.hold=el}LS.miss=0;return}
+    if(W.some(w=>slip(w,T[0])&&!fromRecent(w))){if(LS.hold!==el){sErr(el);LS.hold=el}LS.miss=0;return}
     if(LS.hold===el)return}
   /* nothing in the final text of a phrase fits: flash the word due, and after two such phrases show it in red */
   if(!fin||W.every(w=>w.length<=2))return;
@@ -4984,7 +4989,14 @@ let QLX=null;function qLex(){if(!QLX){QLX=new Set();for(let i=1;i<=NA;i++)toks(i
 /* a heard word that is a slip of the reader, not of the recogniser: a real word of the Quran, unlike the one due */
 /* the last words read, in bare letters: what the reader says again while going back */
 const recent=()=>shownBefore(30).map(w=>mk(w.textContent));
-const slip=(w,t)=>w.length>=3&&!near(w,t)&&qLex().has(w);
+const slip=(w,t)=>w.length>=3&&!near(w,t)&&ck(w)!==ck(t)&&qLex().has(w);
+/* a word heard as another real word of the Quran, close to the one due: a slip, unless one is the other cut short
+   (the recogniser drops a word's tail now and then) */
+/* the same word in another spelling: the mushaf leaves out many long alifs (تبرك) that the recogniser may write (تبارك) */
+const ck=w=>w[0]+w.slice(1).replace(/ا/g,"");
+const wrongWord=(w,t)=>w!==t&&ck(w)!==ck(t)&&w.length>=3&&t.length>=3&&qLex().has(w)&&!t.startsWith(w)&&!w.startsWith(t)&&!fromRecent(w);
+/* a word (or the cut end of one) just read: the reader going back over it, not a slip */
+const fromRecent=w=>recent().some(r=>r===w||(w.length>=3&&(r.endsWith(w)||r.startsWith(w))));
 function resync(W,key){const nx=hiddenNext(60),T=nx.map(x=>key(x[1].textContent));
   for(let p=0;p<T.length;p++)for(let i=0;i+1<W.length;i++){let r=0;while(i+r<W.length&&p+r<T.length&&near(W[i+r],T[p+r]))r++;
     if(r>=3||r===2&&(W[i]+W[i+1]).length>=7){for(let q=0;q<p+r;q++){revealNext(nx[q][0]);LS.lit.push(nx[q][1])}skipMarks();LS.miss=0;return true}}
@@ -5011,11 +5023,14 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
   if(d.engine==="q"){const ws=String(d.text).trim().split(/\s+/).filter(Boolean);
     /* following along, the status line shows the last words heard, so the reader sees what the recogniser took them to say */
     if(memo.follow&&ws.length){if(d.final)LS.hw=(LS.hw||[]).concat(ws.slice(LS.done)).slice(-4);LS.hp=d.final?"":ws[ws.length-1];$("mSub").textContent=micMsg()}
-    if(d.final){if(ws.length>LS.done)heardWords(ws.slice(LS.done),true,true);LS.done=0}
+    if(d.final){
+      /* the word lit from the partial came out as another word of the Quran in the end: it was a slip after all */
+      if(LS.done&&LS.pl&&memo.follow&&ws[0]&&wrongWord(mk(ws[0]),LS.pl.t))sErr(LS.pl.el);LS.pl=null;
+      if(ws.length>LS.done)heardWords(ws.slice(LS.done),true,true);LS.done=0}
     else{const nx=hiddenNext(1)[0],w=mk(ws[ws.length-1]||""),t=nx?mk(nx[1].textContent):"";
       /* the word being said lights at once when it is the word due: exactly, or a long word a letter or two off
          (the mushaf's own spelling of it) */
-      if(nx&&w.length>1&&(w===t||(w.length>=5&&t.length>=5&&near(w,t)))){heardWords([t],false,true);LS.done=1}}
+      if(nx&&w.length>1&&(w===t||(w.length>=5&&t.length>=5&&near(w,t)&&!qLex().has(w)))){LS.pl={el:nx[1],t};heardWords([t],false,true);LS.done=1}}
     return}
   /* partial text: the last two words can still change, so they wait; the final text settles the phrase, read
      from the guess that fits the mushaf best */
