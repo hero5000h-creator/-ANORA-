@@ -348,5 +348,19 @@ await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(3000)
     const r=await p.evaluate(()=>({t:document.getElementById("pTitle").textContent,log:window.__log.join(" | ")}));
     ok(/الفلق/.test(r.t)&&/queue 113\.mp3/.test(r.log)&&/AUTO->113/.test(r.log)&&!/load 113/.test(r.log),`android: the next surah follows the last ayah with no stop (${JSON.stringify(r)})`);
     await ctx.close()}
+  /* al-Fatiha and the start of al-Baqarah: every word and the surah band stay inside the arched panel's walls and
+     below / above its caps, on a short phone, a tall phone, an open Fold and a landscape screen, plain and framed */
+  for(const [w,h] of [[320,568],[412,915],[884,1104],[915,412]])for(const fr of ["0","1"]){
+    const ctx=await b.newContext({viewport:{width:w,height:h},hasTouch:true,isMobile:w<700});const p=await ctx.newPage();
+    await p.addInitScript(fr=>{localStorage.setItem("mushaf.last","1");localStorage.setItem("mushaf.hintN","9");localStorage.setItem("mushaf.easyQ","1");localStorage.setItem("mushaf.frame",fr)},fr);
+    await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(2200);
+    const r=await p.evaluate(()=>{const P=new Path2D("M21 110V99Q38 30 150 15Q262 30 279 99V110Z"),c=document.createElement("canvas").getContext("2d");let n=0;const bad=[];
+      document.querySelectorAll("#book .pg.opening").forEach(pg=>{const box=pg.querySelector(".box"),cs=getComputedStyle(box),B=box.getBoundingClientRect();
+        const L=B.left+(parseFloat(cs.borderLeftWidth)||0),T=B.top+(parseFloat(cs.borderTopWidth)||0),bw=box.clientWidth,bh=box.clientHeight,cap=parseFloat(cs.getPropertyValue("--capH"));
+        const inside=(x,y)=>{const X=(x-L)/bw*300,yy=y-T;if(X<22||X>278)return false;if(yy<cap)return c.isPointInPath(P,X,yy/cap*110);if(yy>bh-cap)return c.isPointInPath(P,X,(bh-yy)/cap*110);return true};
+        pg.querySelectorAll(".lines [data-a],.lines .sh").forEach(e=>{const q=e.getBoundingClientRect();if(!q.width)return;n++;
+          if(![[q.left,q.top+q.height*.2],[q.right,q.top+q.height*.2],[q.left,q.bottom-q.height*.15],[q.right,q.bottom-q.height*.15]].every(([x,y])=>inside(x,y)))bad.push(pg.dataset.p+":"+(e.textContent||"").slice(0,10))})});
+      return {n,bad}});
+    ok(r.n>100&&!r.bad.length,`opening pages ${w}x${h}${fr==="1"?" framed":""}: ${r.n} words inside the arch ${r.bad.join(", ")}`);await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});

@@ -288,9 +288,8 @@ html.phoneM #bookwrap::after{display:none}
 .hm.sj{background-image:var(--o-sajda);height:calc(var(--pw) * .104);font-size:calc(var(--pw) * .02 * var(--tk,1));padding-top:.9em}
 html[data-theme="dark"][data-cover="green"]{--cover:#1d2622}html[data-theme="dark"][data-cover="navy"]{--cover:#181e2b}html[data-theme="dark"][data-cover="maroon"]{--cover:#2c1517}html[data-theme="dark"][data-cover="brown"]{--cover:#2b2017}html[data-theme="dark"][data-cover="black"]{--cover:#151514}
 /* the opening pages: al-Fatiha and the start of al-Baqarah sit in an illuminated arched panel, as in the printed mushaf */
-.pg.opening .box{background:var(--o-open) center/100% 100% no-repeat;padding:0 15%}
-/* tall phones: the arch opens wider so the longest line of al-Fatiha stays inside its walls */
-html.phoneM .pg.opening .box{background-size:120% 100%}
+.pg.opening .box{background:var(--o-openT) top/100% var(--capH,18%) no-repeat,var(--o-openB) bottom/100% var(--capH,18%) no-repeat,var(--o-openW) center/100% 100% no-repeat;
+  padding:0 9.5%!important;box-sizing:border-box}
 /* rehal: on a half-folded Fold the book rests on a carved wooden stand */
 #rehal{display:none}
 #app.table #rehal{display:block;position:absolute;left:-24px;right:-24px;top:-12px;bottom:-20px;z-index:-2;border-radius:8px;pointer-events:none;
@@ -2388,7 +2387,7 @@ function fit(el,fresh){
   const box=el.querySelector(".lines"); if(!box) return;
   const opening=el.classList.contains("opening"), phoneM=root.classList.contains("phoneM"), gk=W+"x"+H+(opening?"o":"")+(phoneM?"p":"");
   let g=fresh?null:fitG.get(gk);
-  if(g){box.style.fontSize=g.fs;box.style.setProperty("--cx",g.cx);box.style.setProperty("--lh",g.lh)}
+  if(g){box.style.fontSize=g.fs;box.style.setProperty("--cx",g.cx);box.style.setProperty("--lh",g.lh);if(g.cap)el.querySelector(".box").style.setProperty("--capH",g.cap)}
   else{
   const outer=el.querySelector(".box");
   /* the print's letters are taller than this font's: set it larger and narrow each line back to the width */
@@ -2398,8 +2397,14 @@ function fit(el,fresh){
   {const got=parseFloat(getComputedStyle(box).fontSize)||f;if(Math.abs(got/f-1)>.01){textK=f/got;root.style.setProperty("--tk",textK.toFixed(4));box.style.fontSize=f*textK+"px"}}
   box.style.setProperty("--cx",Math.min(1,bw*.995/(LW*f)).toFixed(4));
   /* the opening pages on a tall phone: the arch is tall, so the lines spread through it instead of huddling in the middle */
-  box.style.setProperty("--lh",rowH*(opening?(phoneM?1.4:1.1):1)+"px");
-  g={fs:box.style.fontSize,cx:box.style.getPropertyValue("--cx"),lh:box.style.getPropertyValue("--lh"),inW:box.getBoundingClientRect().width};
+  if(opening){
+    /* the arched caps: their own proportions where the page is tall enough, flatter on a short one; the lines spread
+       through the room between them (more on a tall phone) and never reach into the narrowing arch */
+    const bh=outer.clientHeight,bwO=outer.clientWidth,rows=box.querySelectorAll(".ln").length||8;
+    const capH=Math.max(bh*.07,Math.min(bwO*110/300,bh*.2));outer.style.setProperty("--capH",capH.toFixed(1)+"px");
+    box.style.setProperty("--lh",Math.min(rowH*(phoneM?1.4:1.1),(bh-capH*2)/rows)+"px")}
+  else box.style.setProperty("--lh",rowH+"px");
+  g={fs:box.style.fontSize,cx:box.style.getPropertyValue("--cx"),lh:box.style.getPropertyValue("--lh"),cap:outer.style.getPropertyValue("--capH"),inW:box.getBoundingClientRect().width};
   if(rowH>0&&bw>0)fitG.set(gk,g)}
   /* a device whose shaping runs wider than the print data would push words past the frame: narrow that line */
   /* and whatever the cause (a device font size, display size, an odd screen), no line may run wider than the frame's inside */
@@ -2472,7 +2477,9 @@ function tPanApply(glide){const w=$("bookwrap");if(!w)return;stage.classList.tog
 function segments(){try{const v=window.viewport&&window.viewport.segments;return v&&v.length===2?v:null}catch(e){return null}}
 function resize(){
   posture();applyStudy();$("app").classList.toggle("ovl",!inTable&&!inStudy);root.style.setProperty("--fh",document.querySelector(".foot").offsetHeight+"px");root.style.setProperty("--bh",document.querySelector(".bar").offsetHeight+"px");
-  requestAnimationFrame(()=>{pillTo(document.querySelector(".tabs"));pillTo(document.querySelector(".shtabs"))});
+  /* the tab pills of the index and the ayah sheet, only when they are open (each is set again as it opens): measuring a
+     closed index forced a whole layout of it at start, about a sixth of the first second on a slow phone */
+  requestAnimationFrame(()=>{if(!$("drawer").classList.contains("shut"))pillTo(document.querySelector(".tabs"));if(!$("sheet").hidden)pillTo(document.querySelector(".shtabs"))});
   const r=stage.getBoundingClientRect(), full=!inTable&&(r.width<1000||matchMedia("(pointer:coarse)").matches), pad=inTable?(r.width<600?12:24):full?0:18;
   /* never plan the page wider or taller than the screen the person actually sees */
   let SW=Math.min(r.width,innerWidth||r.width), SH=Math.min(r.height,innerHeight||r.height), cx=SW/2, cy=SH/2, force=null;
@@ -3435,17 +3442,22 @@ function ornaments(){
   let pt="";for(let i=0;i<16;i++){pt+=`<circle cx="20" cy="3.6" r="1.5" transform="rotate(${i*22.5} 20 20)"/>`}
   const hizb=`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><g fill="${gl}">${pt}</g><path d="${star(20,20,15.5)}" fill="${t}" stroke="${g}" stroke-width="1"/><circle cx="20" cy="20" r="9.8" fill="${p}" stroke="${g}" stroke-width="1"/><circle cx="20" cy="20" r="8.2" fill="none" stroke="${gl}" stroke-width=".5"/></svg>`;
   const sajda=`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="48" viewBox="0 0 40 48"><path d="M4 46V22Q4 10 20 2Q36 10 36 22V46Z" fill="${t}" stroke="${g}" stroke-width="1.2"/><path d="M8.5 43V23Q8.5 13.5 20 7.5Q31.5 13.5 31.5 23V43Z" fill="${p}" stroke="${gl}" stroke-width=".7"/><circle cx="20" cy="2.6" r="1.6" fill="${g}"/></svg>`;
-  /* illuminated arched panel for the two opening pages */
-  const open=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420" viewBox="0 0 300 420" preserveAspectRatio="none">
-    <rect x="0" y="0" width="300" height="420" fill="${t}"/>
-    <g fill="${ot}" stroke="${o}" stroke-width=".8">${[[40,40],[260,40],[40,380],[260,380]].map(([x,y])=>`<path d="${star(x,y,16)}"/>`).join("")}</g>
-    <g fill="${g}">${[[40,40],[260,40],[40,380],[260,380]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.5"/>`).join("")}${[90,130,170,210,250,290,330].map(y=>`<circle cx="14" cy="${y}" r="1.8"/><circle cx="286" cy="${y}" r="1.8"/>`).join("")}</g>
-    <path d="M150 16Q252 44 270 128V292Q252 376 150 404Q48 376 30 292V128Q48 44 150 16Z" fill="${p}" stroke="${g}" stroke-width="2.4"/>
-    <path d="M150 26Q244 52 260 132V288Q244 368 150 394Q56 368 40 288V132Q56 52 150 26Z" fill="none" stroke="${gl}" stroke-width="1"/>
-    <g fill="${o}"><circle cx="150" cy="16" r="4"/><circle cx="150" cy="404" r="4"/></g></svg>`;
+  /* illuminated arched panel for the two opening pages, in three pieces so it is never stretched out of shape:
+     an arched cap at the top and bottom (always drawn at its own proportions) and straight walls between them,
+     as tall as the page needs. The text sits between the walls and below the caps (fit()), on every screen */
+  const capPath=`M12 110V96Q30 20 150 5Q270 20 288 96V110`,capIn=`M21 110V99Q38 30 150 15Q262 30 279 99V110`;
+  const corner=`<g fill="${ot}" stroke="${o}" stroke-width=".8"><path d="${star(24,24,13)}"/><path d="${star(276,24,13)}"/></g><g fill="${g}"><circle cx="24" cy="24" r="2.8"/><circle cx="276" cy="24" r="2.8"/></g>`;
+  const openT=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="110" viewBox="0 0 300 110">
+    <rect width="300" height="110" fill="${t}"/>${corner}
+    <path d="${capPath}Z" fill="${p}"/><path d="${capPath}" fill="none" stroke="${g}" stroke-width="2.4"/><path d="${capIn}" fill="none" stroke="${gl}" stroke-width="1"/>
+    <circle cx="150" cy="5" r="4" fill="${o}"/></svg>`;
+  const openB=openT.replace(`viewBox="0 0 300 110">`,`viewBox="0 0 300 110"><g transform="translate(0 110) scale(1 -1)">`).replace(`</svg>`,`</g></svg>`);
+  const openW=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="10" viewBox="0 0 300 10" preserveAspectRatio="none">
+    <rect width="300" height="10" fill="${t}"/><rect x="12" width="276" height="10" fill="${p}"/>
+    <path d="M12 0V10M288 0V10" stroke="${g}" stroke-width="2.4"/><path d="M21 0V10M279 0V10" stroke="${gl}" stroke-width="1"/></svg>`;
   /* carved arches along the front of the rehal */
   const carve=`<svg xmlns="http://www.w3.org/2000/svg" width="28" height="14" viewBox="0 0 28 14"><path d="M3 14V8Q3 2 14 1Q25 2 25 8V14" fill="rgba(0,0,0,.28)" stroke="rgba(255,220,160,.35)" stroke-width=".8"/><circle cx="14" cy="9" r="1.6" fill="rgba(255,220,160,.35)"/></svg>`;
-  root.style.setProperty("--o-open",svg(open));root.style.setProperty("--o-carve",svg(carve));
+  root.style.setProperty("--o-openT",svg(openT));root.style.setProperty("--o-openB",svg(openB));root.style.setProperty("--o-openW",svg(openW));root.style.setProperty("--o-carve",svg(carve));
   root.style.setProperty("--o-hizb",svg(hizb));root.style.setProperty("--o-sajda",svg(sajda));
   root.style.setProperty("--o-frame",svg(frame));root.style.setProperty("--o-head",svg(head));root.style.setProperty("--o-num",svg(num));
 }
@@ -4376,12 +4388,17 @@ function repUI(){try{paintHL()}catch(e){}$("pRepCap").textContent=rep.on?"يكر
 function repOpen(){const id=player.id||selA||pStart(cur);
   if(!rep.on||rep.from>id||rep.to<id){rep.from=id;const pe=pStart(cur+(mode==="spread"?2:1))-1;rep.to=Math.min(NA,Math.max(id,Math.min(id+4,pe>id?pe:id+4)))}
   repUI();const b=$("repBox");b.classList.remove("out","top");b.hidden=false;paintHL();repPlace()}
-function repPlace(){const b=$("repBox");if(b.hidden)return;b.classList.remove("top","side","sR");b.style.left="";b.style.minHeight="";
+function repPlace(){const b=$("repBox");if(b.hidden)return;b.classList.remove("top");b.style.left="";b.style.minHeight="";
+  /* docked at the side it stays put: taking the class off and back on (after every ayah) slid it in again each time */
+  const unSide=()=>b.classList.remove("side","sR");
   /* half open: the panel stays in the lower half, under the thumbs, and the page above stays clear */
-  if(inTable)return;
+  if(inTable){unSide();return}
   if(mode==="spread"&&!inTable&&document.documentElement.classList.contains("thumb")){const br=book.getBoundingClientRect(),mid=br.left+br.width/2;let L=0,Rr=0;
     book.querySelectorAll(".pg:not(.pk) [data-a]").forEach(w=>{const a=+w.dataset.a;if(a<rep.from||a>rep.to)return;const q=w.getBoundingClientRect();if(q.width)(q.left+q.width/2<mid)?L++:Rr++});
-    b.classList.add("side");if(L>Rr)b.classList.add("sR");return}
+    const R=L>Rr;if(b.classList.contains("side")&&b.classList.contains("sR")===R)return;
+    /* moving to the other side: the slide-in plays again from that side */
+    unSide();void b.offsetWidth;b.classList.add("side");if(R)b.classList.add("sR");return}
+  unSide();
   if(mode==="spread"&&!inTable){const br=book.getBoundingClientRect(),mid=br.left+br.width/2;let L=0,Rr=0;
     book.querySelectorAll(".pg:not(.pk) [data-a]").forEach(w=>{const a=+w.dataset.a;if(a<rep.from||a>rep.to)return;const q=w.getBoundingClientRect();if(!q.width)return;(q.left+q.width/2<mid)?L++:Rr++});
     if(L+Rr)b.style.left=(Rr>=L?br.left+br.width/4:br.left+br.width*3/4)+"px"}const r=b.getBoundingClientRect(),bh=parseFloat(getComputedStyle($("app")).getPropertyValue("--bh"))||56,t0=bh+10,t1=t0+r.height;let lo=0,hi=0;
