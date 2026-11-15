@@ -362,7 +362,7 @@ await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(3000)
     await ctx.close()}
   /* al-Fatiha and the start of al-Baqarah: every word and the surah band stay inside the arched panel's walls and
      below / above its caps, on a short phone, a tall phone, an open Fold and a landscape screen, plain and framed */
-  for(const [w,h] of [[320,568],[412,915],[884,1104],[915,412]])for(const fr of ["0","1"]){
+  for(const [w,h] of [[320,568],[412,915],[884,1104],[915,412],[832,750],[960,690]])for(const fr of ["0","1"]){
     const ctx=await b.newContext({viewport:{width:w,height:h},hasTouch:true,isMobile:w<700});const p=await ctx.newPage();
     await p.addInitScript(fr=>{localStorage.setItem("mushaf.last","1");localStorage.setItem("mushaf.hintN","9");localStorage.setItem("mushaf.easyQ","1");localStorage.setItem("mushaf.frame",fr)},fr);
     await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(2200);
@@ -373,6 +373,10 @@ await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(3000)
         pg.querySelectorAll(".lines [data-a],.lines .sh").forEach(e=>{const q=e.getBoundingClientRect();if(!q.width)return;n++;
           if(![[q.left,q.top+q.height*.2],[q.right,q.top+q.height*.2],[q.left,q.bottom-q.height*.15],[q.right,q.bottom-q.height*.15]].every(([x,y])=>inside(x,y)))bad.push(pg.dataset.p+":"+(e.textContent||"").slice(0,10))})});
       return {n,bad}});
-    ok(r.n>100&&!r.bad.length,`opening pages ${w}x${h}${fr==="1"?" framed":""}: ${r.n} words inside the arch ${r.bad.join(", ")}`);await ctx.close()}
+    ok(r.n>100&&!r.bad.length,`opening pages ${w}x${h}${fr==="1"?" framed":""}: ${r.n} words inside the arch ${r.bad.join(", ")}`);
+    /* the caps span the whole panel, so the arch meets its walls: on a short wide page (an open Fold, landscape) a cap
+       drawn at its own proportions shrank to the middle and left the walls standing apart */
+    if(w===960&&fr==="0")ok(await p.evaluate(()=>/preserveAspectRatio(=|%3D)("|'|%22|%27)none/.test(getComputedStyle(document.documentElement).getPropertyValue("--o-openT"))),"opening pages: the arched caps stretch to the panel's full width");
+    await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});

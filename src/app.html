@@ -288,7 +288,9 @@ html.phoneM #bookwrap::after{display:none}
 .hm.sj{background-image:var(--o-sajda);height:calc(var(--pw) * .104);font-size:calc(var(--pw) * .02 * var(--tk,1));padding-top:.9em}
 html[data-theme="dark"][data-cover="green"]{--cover:#1d2622}html[data-theme="dark"][data-cover="navy"]{--cover:#181e2b}html[data-theme="dark"][data-cover="maroon"]{--cover:#2c1517}html[data-theme="dark"][data-cover="brown"]{--cover:#2b2017}html[data-theme="dark"][data-cover="black"]{--cover:#151514}
 /* the opening pages: al-Fatiha and the start of al-Baqarah sit in an illuminated arched panel, as in the printed mushaf */
-.pg.opening .box{background:var(--o-openT) top/100% var(--capH,18%) no-repeat,var(--o-openB) bottom/100% var(--capH,18%) no-repeat,var(--o-openW) center/100% 100% no-repeat;
+.pg.opening .box{background:var(--o-openS) left var(--sX,3%) top var(--sY,3%)/var(--sS,10%) auto no-repeat,var(--o-openS) right var(--sX,3%) top var(--sY,3%)/var(--sS,10%) auto no-repeat,
+  var(--o-openS) left var(--sX,3%) bottom var(--sY,3%)/var(--sS,10%) auto no-repeat,var(--o-openS) right var(--sX,3%) bottom var(--sY,3%)/var(--sS,10%) auto no-repeat,
+  var(--o-openT) top/100% var(--capH,18%) no-repeat,var(--o-openB) bottom/100% var(--capH,18%) no-repeat,var(--o-openW) center/100% 100% no-repeat;
   padding:0 9.5%!important;box-sizing:border-box}
 /* rehal: on a half-folded Fold the book rests on a carved wooden stand */
 #rehal{display:none}
@@ -2392,7 +2394,7 @@ function fit(el,fresh){
   const box=el.querySelector(".lines"); if(!box) return;
   const opening=el.classList.contains("opening"), phoneM=root.classList.contains("phoneM"), gk=W+"x"+H+(opening?"o":"")+(phoneM?"p":"");
   let g=fresh?null:fitG.get(gk);
-  if(g){box.style.fontSize=g.fs;box.style.setProperty("--cx",g.cx);box.style.setProperty("--lh",g.lh);if(g.cap)el.querySelector(".box").style.setProperty("--capH",g.cap)}
+  if(g){box.style.fontSize=g.fs;box.style.setProperty("--cx",g.cx);box.style.setProperty("--lh",g.lh);if(g.cap){const o=el.querySelector(".box").style;o.setProperty("--capH",g.cap);o.setProperty("--sX",g.sX);o.setProperty("--sY",g.sY);o.setProperty("--sS",g.sS)}}
   else{
   const outer=el.querySelector(".box");
   /* the print's letters are taller than this font's: set it larger and narrow each line back to the width */
@@ -2407,9 +2409,12 @@ function fit(el,fresh){
        through the room between them (more on a tall phone) and never reach into the narrowing arch */
     const bh=outer.clientHeight,bwO=outer.clientWidth,rows=box.querySelectorAll(".ln").length||8;
     const capH=Math.max(bh*.07,Math.min(bwO*110/300,bh*.2));outer.style.setProperty("--capH",capH.toFixed(1)+"px");
+    /* corner stars: their own shape always, a little smaller and higher when the caps are flattened */
+    {const u=bwO/300,k=Math.min(1,capH/(110*u)),S=30*u*Math.min(1,k+.15);outer.style.setProperty("--sS",S.toFixed(1)+"px");
+     outer.style.setProperty("--sX",(24*u-S/2).toFixed(1)+"px");outer.style.setProperty("--sY",Math.max(1,24*u*k-S/2).toFixed(1)+"px")}
     box.style.setProperty("--lh",Math.min(rowH*(phoneM?1.4:1.1),(bh-capH*2)/rows)+"px")}
   else box.style.setProperty("--lh",rowH+"px");
-  g={fs:box.style.fontSize,cx:box.style.getPropertyValue("--cx"),lh:box.style.getPropertyValue("--lh"),cap:outer.style.getPropertyValue("--capH"),inW:box.getBoundingClientRect().width};
+  g={fs:box.style.fontSize,cx:box.style.getPropertyValue("--cx"),lh:box.style.getPropertyValue("--lh"),cap:outer.style.getPropertyValue("--capH"),sX:outer.style.getPropertyValue("--sX"),sY:outer.style.getPropertyValue("--sY"),sS:outer.style.getPropertyValue("--sS"),inW:box.getBoundingClientRect().width};
   if(rowH>0&&bw>0)fitG.set(gk,g)}
   /* a device whose shaping runs wider than the print data would push words past the frame: narrow that line */
   /* and whatever the cause (a device font size, display size, an odd screen), no line may run wider than the frame's inside */
@@ -3451,9 +3456,12 @@ function ornaments(){
      an arched cap at the top and bottom (always drawn at its own proportions) and straight walls between them,
      as tall as the page needs. The text sits between the walls and below the caps (fit()), on every screen */
   const capPath=`M12 110V96Q30 20 150 5Q270 20 288 96V110`,capIn=`M21 110V99Q38 30 150 15Q262 30 279 99V110`;
-  const corner=`<g fill="${ot}" stroke="${o}" stroke-width=".8"><path d="${star(24,24,13)}"/><path d="${star(276,24,13)}"/></g><g fill="${g}"><circle cx="24" cy="24" r="2.8"/><circle cx="276" cy="24" r="2.8"/></g>`;
-  const openT=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="110" viewBox="0 0 300 110">
-    <rect width="300" height="110" fill="${t}"/>${corner}
+  /* the caps always span the panel's full width so they meet its walls; on a page too short for their own height
+     (an open Fold, a landscape screen) they flatten instead of shrinking to the middle. The corner stars are drawn
+     on their own so they keep their shape (sized and placed in fit()) */
+  const openS=`<svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="9 9 30 30"><path d="${star(24,24,13)}" fill="${ot}" stroke="${o}" stroke-width=".8"/><circle cx="24" cy="24" r="2.8" fill="${g}"/></svg>`;
+  const openT=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="110" preserveAspectRatio="none" viewBox="0 0 300 110">
+    <rect width="300" height="110" fill="${t}"/>
     <path d="${capPath}Z" fill="${p}"/><path d="${capPath}" fill="none" stroke="${g}" stroke-width="2.4"/><path d="${capIn}" fill="none" stroke="${gl}" stroke-width="1"/>
     <circle cx="150" cy="5" r="4" fill="${o}"/></svg>`;
   const openB=openT.replace(`viewBox="0 0 300 110">`,`viewBox="0 0 300 110"><g transform="translate(0 110) scale(1 -1)">`).replace(`</svg>`,`</g></svg>`);
@@ -3462,7 +3470,7 @@ function ornaments(){
     <path d="M12 0V10M288 0V10" stroke="${g}" stroke-width="2.4"/><path d="M21 0V10M279 0V10" stroke="${gl}" stroke-width="1"/></svg>`;
   /* carved arches along the front of the rehal */
   const carve=`<svg xmlns="http://www.w3.org/2000/svg" width="28" height="14" viewBox="0 0 28 14"><path d="M3 14V8Q3 2 14 1Q25 2 25 8V14" fill="rgba(0,0,0,.28)" stroke="rgba(255,220,160,.35)" stroke-width=".8"/><circle cx="14" cy="9" r="1.6" fill="rgba(255,220,160,.35)"/></svg>`;
-  root.style.setProperty("--o-openT",svg(openT));root.style.setProperty("--o-openB",svg(openB));root.style.setProperty("--o-openW",svg(openW));root.style.setProperty("--o-carve",svg(carve));
+  root.style.setProperty("--o-openT",svg(openT));root.style.setProperty("--o-openB",svg(openB));root.style.setProperty("--o-openW",svg(openW));root.style.setProperty("--o-openS",svg(openS));root.style.setProperty("--o-carve",svg(carve));
   root.style.setProperty("--o-hizb",svg(hizb));root.style.setProperty("--o-sajda",svg(sajda));
   root.style.setProperty("--o-frame",svg(frame));root.style.setProperty("--o-head",svg(head));root.style.setProperty("--o-num",svg(num));
 }
