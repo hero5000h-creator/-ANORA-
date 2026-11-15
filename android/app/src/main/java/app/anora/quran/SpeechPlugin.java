@@ -90,8 +90,9 @@ public class SpeechPlugin extends Plugin {
         }
     };
 
-    /** The recogniser's process ended on its own (it can fail natively on some processor): never try it again
-     *  with this app version, and carry on listening with the phone's recogniser. */
+    /** The recogniser's process ended on its own: carry on listening with the phone's recogniser. If it crashed
+     *  (it can fail natively on some processor), it is never tried again with this app version; if the system
+     *  ended it (low on memory), the next start tries it again. */
     private void qasrDied() {
         svc = null;
         if (bound) {
@@ -100,12 +101,17 @@ public class SpeechPlugin extends Plugin {
         }
         if (qasrFailed) return;
         qasrFailed = true;
-        prefs().edit().putLong("qasrDead", appVersion()).apply();
-        // Android records why the process ended a moment later: kept, and shown to the reader
+        boolean listening = qOn;
+        // Android records why the process ended a moment later
         main.postDelayed(() -> {
             String why = exitReason();
-            prefs().edit().putString("qasrWhy", why).apply();
-            fellBack(why);
+            if (crashed(why)) {
+                prefs().edit().putLong("qasrDead", appVersion()).putString("qasrWhy", why).apply();
+                fellBack(why, false);
+            } else {
+                qasrFailed = false;
+                if (listening) fellBack(why, true);
+            }
         }, 1200);
         if (!qOn) return;
         qOn = false;
@@ -114,16 +120,26 @@ public class SpeechPlugin extends Plugin {
         googleBegin(c);
     }
 
+    /** Whether the last exitReason() found the record of how the process ended. */
+    private boolean reasonFound = false;
+
+    /** A crash of the recogniser itself, not the system ending it; no record counts as a crash (the safe side). */
+    private boolean crashed(String why) {
+        return !reasonFound || why == null || why.startsWith("crash") || why.startsWith("anr");
+    }
+
     /** Tells the page that the phone's recogniser listens in place of the own one, and why (shown once). */
-    private void fellBack(String why) {
+    private void fellBack(String why, boolean again) {
         JSObject o = new JSObject();
         o.put("code", -3);
+        o.put("again", again);
         o.put("why", why == null ? "" : why);
         notifyListeners("error", o);
     }
 
     /** Why the recogniser's process ended last (Android 11+), e.g. "crash_native SIGSEGV". */
     private String exitReason() {
+        reasonFound = false;
         if (Build.VERSION.SDK_INT < 30) return "";
         try {
             android.app.ActivityManager am = (android.app.ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
@@ -140,6 +156,7 @@ public class SpeechPlugin extends Plugin {
                     default: r = "reason" + e.getReason();
                 }
                 String d = e.getDescription();
+                reasonFound = true;
                 return r + " " + e.getStatus() + (d != null && !d.isEmpty() ? " " + d : "") + " " + Build.MODEL;
             }
         } catch (Throwable ignored) {}
@@ -165,10 +182,13 @@ public class SpeechPlugin extends Plugin {
         if (prefs().getLong("qasrDead", -1) == appVersion()) qasrFailed = true;
     }
 
+    /** follow-along: check each phrase's vowels too (the page asks for it) */
+    private boolean qVowels = false;
+
     private void qSend(int what) {
         Messenger s = svc;
         if (s == null) return;
-        Message m = Message.obtain(null, what);
+        Message m = Message.obtain(null, what, what == QasrService.START && qVowels ? 1 : 0, 0);
         m.replyTo = inbox;
         try {
             s.send(m);
@@ -195,7 +215,7 @@ public class SpeechPlugin extends Plugin {
                     unbindQasr();
                     googleBegin(c);
                     String why = m.getData() == null ? "" : m.getData().getString("why", "");
-                    fellBack("load " + why + " " + Build.MODEL);
+                    fellBack("load " + why + " " + Build.MODEL, false);
                 } else {
                     qOn = false;
                     if (c != null) c.reject("mic", "mic");
@@ -211,6 +231,31 @@ public class SpeechPlugin extends Plugin {
                 o.put("final", b.getBoolean("fin", false));
                 o.put("engine", "q");
                 notifyListeners("heard", o);
+                return true;
+            }
+            case QasrService.PHRASE: {
+                if (!qOn) return true;
+                JSObject o = new JSObject();
+                o.put("seq", m.arg1);
+                notifyListeners("phrase", o);
+                return true;
+            }
+            case QasrService.VOWELS: {
+                if (!qOn) return true;
+                Bundle b = m.getData();
+                String[] sym = b.getStringArray("sym");
+                float[] pr = b.getFloatArray("prob");
+                if (sym == null || pr == null) return true;
+                JSArray js = new JSArray(), jp = new JSArray();
+                for (int i = 0; i < sym.length; i++) {
+                    js.put(sym[i]);
+                    try { jp.put(Math.round(pr[i] * 100) / 100.0); } catch (Exception ignored) {}
+                }
+                JSObject o = new JSObject();
+                o.put("seq", m.arg1);
+                o.put("sym", js);
+                o.put("prob", jp);
+                notifyListeners("vowels", o);
                 return true;
             }
             case QasrService.ERROR:
@@ -301,6 +346,7 @@ public class SpeechPlugin extends Plugin {
     public void start(PluginCall call) {
         takeBias(call);
         offline = call.getBoolean("offline", false);
+        qVowels = call.getBoolean("vowels", false);
         quick = call.getBoolean("quick", false);
         if (getPermissionState("mic") != PermissionState.GRANTED) {
             requestPermissionForAlias("mic", call, "micAnswered");

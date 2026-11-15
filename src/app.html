@@ -288,9 +288,8 @@ html.phoneM #bookwrap::after{display:none}
 .hm.sj{background-image:var(--o-sajda);height:calc(var(--pw) * .104);font-size:calc(var(--pw) * .02 * var(--tk,1));padding-top:.9em}
 html[data-theme="dark"][data-cover="green"]{--cover:#1d2622}html[data-theme="dark"][data-cover="navy"]{--cover:#181e2b}html[data-theme="dark"][data-cover="maroon"]{--cover:#2c1517}html[data-theme="dark"][data-cover="brown"]{--cover:#2b2017}html[data-theme="dark"][data-cover="black"]{--cover:#151514}
 /* the opening pages: al-Fatiha and the start of al-Baqarah sit in an illuminated arched panel, as in the printed mushaf */
-.pg.opening .box{background:var(--o-open) center/100% 100% no-repeat;padding:0 15%}
-/* tall phones: the arch opens wider so the longest line of al-Fatiha stays inside its walls */
-html.phoneM .pg.opening .box{background-size:120% 100%}
+.pg.opening .box{background:var(--o-openT) top/100% var(--capH,18%) no-repeat,var(--o-openB) bottom/100% var(--capH,18%) no-repeat,var(--o-openW) center/100% 100% no-repeat;
+  padding:0 9.5%!important;box-sizing:border-box}
 /* rehal: on a half-folded Fold the book rests on a carved wooden stand */
 #rehal{display:none}
 #app.table #rehal{display:block;position:absolute;left:-24px;right:-24px;top:-12px;bottom:-20px;z-index:-2;border-radius:8px;pointer-events:none;
@@ -1828,7 +1827,8 @@ html.thumb body #prefs.pOut{animation:dockOut .22s cubic-bezier(.5,0,.75,.4) for
 /* the bars' shadow fades with them instead of snapping off */
 #app.ovl>.bar,#app.ovl>.foot{transition:opacity .4s var(--ease),transform .4s var(--ease)}
 /* memorising on a phone: the five step buttons share one row (no lone "أخفِ" on a second line); the hint stays one line so the bar never changes height mid-test */
-@media (max-width:560px){#memo .mb.step{flex:1 1 0;min-width:0;padding:0 4px;font-size:12.5px;overflow:hidden;text-overflow:ellipsis}}
+/* a phone: the five tools in two rows (microphone and two, then three), each label whole */
+@media (max-width:560px){#memo .mb.step{flex:1 1 calc(33% - 8px);min-width:0;padding:0 4px;font-size:12.5px;overflow:hidden;text-overflow:ellipsis}}
 @media (max-width:370px){#memo .mb.step{font-size:12px;padding:0 2px}#memo{gap:4px}}
 /* Fold motion pass (2026-11-05): one motion language on the open Fold.
    1 no two texts are ever seen through each other: a change of layout dips through the paper instead of a crossfade
@@ -1966,6 +1966,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
       <div class="posture"><span>ألوان التجويد<small>المد والغنة والإخفاء والقلقلة</small></span><button class="tg" id="bTaj" role="switch" aria-checked="false" aria-label="ألوان التجويد"></button></div>
       <div class="tjk" id="tjKey" hidden><span style="--c:var(--tj-md)">مد لازم وواجب وجائز</span><span style="--c:var(--tj-gh)">غنة وإخفاء وإقلاب وإدغام بغنة</span><span style="--c:var(--tj-qa)">قلقلة</span><span style="--c:var(--tj-s)">ما لا يُلفظ</span></div>
       <div class="posture"><span>المتشابهات الملوّنة<small>تلوين العبارات التي تتكرر بلفظ قريب في موضع آخر، عوناً على ضبط الحفظ</small></span><button class="tg" id="bMut" role="switch" aria-checked="false" aria-label="المتشابهات الملوّنة"></button></div>
+      <div class="posture" id="vwRow" hidden><span>تنبيه الحركات بالمتابعة<small>إذا قرأت فتحة أو ضمّة أو كسرة بغير مكانها تصير الكلمة حمراء بعد الوقفة</small></span><button class="tg" id="bVw" role="switch" aria-checked="true" aria-label="تنبيه الحركات بالمتابعة"></button></div>
       <div class="tjk msk" id="msKey" hidden><span class="k1">اللون: عبارة لها نظيرة في موضع آخر</span><span class="k2">النقاط: الكلمة التي يختلف فيها اللفظ</span><span class="k3">المس الكلمة الملوّنة لترى نظيرتها</span></div>
       <div class="posture"><span>ألوان العلامات والتظليل<small>أضف ألوانك، وسمّها، واختر قوة ظهورها على الصفحة</small></span><button class="pbtn" id="bColEd">تخصيص</button></div>
       <div class="posture"><span>العلامات على الصفحة<small>خط ملوّن تحت الآيات المعلَّمة ونقطة عند الملاحظات</small></span><button class="tg" id="bMkShow" role="switch" aria-checked="true" aria-label="إظهار العلامات على الصفحة"></button></div>
@@ -2121,7 +2122,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
 <div class="ce-s"><span id="ceStrL"></span><div class="seg" id="ceStr"></div><div class="cepv" id="cePv"></div></div>
 <button class="ceres" id="ceReset">استرجاع الألوان الأصلية</button></div></div>
 <div id="recPick" role="dialog" aria-modal="true" aria-labelledby="rpT" hidden><div class="rp"><div class="rp-h"><b id="rpT">القارئ</b><button class="ib" id="rpX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><label class="rp-q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="rpQ" type="search" placeholder="ابحث عن قارئ" aria-label="ابحث عن قارئ" autocomplete="off" enterkeyhint="search"></label><div class="rp-l" id="rpL" role="radiogroup" aria-labelledby="rpT"></div><p class="rp-n" id="rpN" hidden>ما لگينا قارئ بهذا الاسم</p></div></div>
-<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p><p>أسماء السور في الصفحة بخط مصحف المدينة (sura_names) من مجمع الملك فهد لطباعة المصحف الشريف، مستعمل بإذن مكتوب من وحدة التراخيص وحقوق النشر في المجمع (٢٠٢٦/١١/٤)، في تطبيق مجاني غير تجاري، ودون تعديل الخط أو توزيعه منفصلاً. والإطار حولها من رسم أنورا.</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>مواقيت الصلاة</h4><p>تُحسب على جهازك بمكتبة adhan-js من Batoul Apps (رخصة MIT)، دون إنترنت. موقعك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>الاستماع للتلاوة</h4><p>نموذج quran-asr-tiny للتعرّف على التلاوة (رخصة MIT) يعمل بمكتبة ONNX Runtime من Microsoft (رخصة MIT) على جهازك، دون إنترنت. صوتك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوات المشايخ: <span id="srcRecs">محمود خليل الحصري، ومشاري العفاسي، وغيرهم</span> (رواية حفص عن عاصم، مرتّلة ومجوّدة) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>المتشابهات</h4><p>قائمة الآيات المتشابهة التي يلتبس فيها الحفّاظ من مشروع Quran_Mutashabihat_Data للأخ وقار أحمد، المبني على عمل القارئ إدريس العاصم رحمه الله، برخصة CC0 (ملك عام). أما الكلمات الملوّنة فيستخرجها التطبيق من نص المصحف نفسه.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic وAlexandria، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b><span class="src-du">لا تنسونا من صالح دعائكم</span></div></div></div>
+<div id="srcBox" role="dialog" aria-modal="true" aria-label="المصادر والتراخيص" hidden><div class="si src"><div class="src-h"><b>المصادر والتراخيص</b><button class="ib" id="srcX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="si-t mcard"><h4>المصحف</h4><p>مصحف المدينة النبوية، طبعة مجمع الملك فهد لطباعة المصحف الشريف سنة ١٤٠٥هـ، برواية حفص عن عاصم، وعدّ الآي الكوفي (٦٢٣٦ آية)، في ٦٠٤ صفحات بخط «QMH Old Madina».</p><p>أسماء السور في الصفحة بخط مصحف المدينة (sura_names) من مجمع الملك فهد لطباعة المصحف الشريف، مستعمل بإذن مكتوب من وحدة التراخيص وحقوق النشر في المجمع (٢٠٢٦/١١/٤)، في تطبيق مجاني غير تجاري، ودون تعديل الخط أو توزيعه منفصلاً. والإطار حولها من رسم أنورا.</p></div><div class="si-t"><h4>نص المصحف وترتيب صفحاته</h4><p>ترتيب الأسطر والصفحات وخط «QMH Old Madina» على طبعة المدينة النبوية ١٤٠٥هـ، من مشروع quran-madina-html (أجوبة Ojuba) برخصة Waqf GPL 2.0. وقُوبل النص آيةً آية بنص المصحف من موسوعة القرآن الكريم QuranEnc (حزمة quran-json، رخصة CC BY 4.0).</p></div><div class="si-t"><h4>بيانات المصحف</h4><p>أرقام الصفحات والأجزاء والأحزاب وأسماء السور: حزمة quran-meta (رخصة MIT).</p></div><div class="si-t"><h4>مواقيت الصلاة</h4><p>تُحسب على جهازك بمكتبة adhan-js من Batoul Apps (رخصة MIT)، دون إنترنت. موقعك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>الاستماع للتلاوة</h4><p>نموذج quran-asr-tiny للتعرّف على التلاوة (رخصة MIT) يعمل بمكتبة ONNX Runtime من Microsoft (رخصة MIT) على جهازك، دون إنترنت. وفحص الحركات بنموذج tajweed-v2 من HisnLabs (رخصة Apache 2.0)، والنطق الصحيح من نص Tanzil عبر quran-transcript. صوتك لا يخرج من هاتفك.</p></div><div class="si-t"><h4>التفاسير</h4><p>التفسير الميسّر: مجمع الملك فهد لطباعة المصحف الشريف. المختصر في التفسير: مركز تفسير للدراسات القرآنية. تفسير السعدي، وتفسير الجلالين، وتفسير ابن كثير، وتفسير البغوي. النصوص الرقمية من مستودع tafsir_api (spa5k)، والحقوق محفوظة لأصحابها.</p></div><div class="si-t"><h4>معاني الكلمات</h4><p>«الميسّر في غريب القرآن»، عن مستودع tafsir_api (spa5k).</p></div><div class="si-t"><h4>صرف الكلمات وجذورها</h4><p>مدونة القرآن العربية (Quranic Arabic Corpus) عبر مشروع quran-morphology، برخصة GNU GPL.</p></div><div class="si-t"><h4>التلاوة</h4><p>تلاوات المشايخ: <span id="srcRecs">محمود خليل الحصري، ومشاري العفاسي، وغيرهم</span> (رواية حفص عن عاصم، مرتّلة ومجوّدة) وتوقيت الآيات من موقع <a href="https://mp3quran.net" target="_blank" rel="noopener">MP3Quran.net</a>، تُشغَّل من خوادمهم مباشرة، بإذن مكتوب من فريق MP3Quran بتاريخ ٣ نوفمبر ٢٠٢٦ للاستخدام غير التجاري. جزاهم الله خيراً.</p></div><div class="si-t"><h4>المتشابهات</h4><p>قائمة الآيات المتشابهة التي يلتبس فيها الحفّاظ من مشروع Quran_Mutashabihat_Data للأخ وقار أحمد، المبني على عمل القارئ إدريس العاصم رحمه الله، برخصة CC0 (ملك عام). أما الكلمات الملوّنة فيستخرجها التطبيق من نص المصحف نفسه.</p></div><div class="si-t"><h4>الأذكار</h4><p>من «حصن المسلم» للشيخ سعيد بن علي بن وهف القحطاني رحمه الله، مع تخريج كل ذكر.</p></div><div class="si-t"><h4>خطوط الواجهة</h4><p>Amiri وAmiri Quran وScheherazade New وIBM Plex Sans Arabic وAlexandria، كلها برخصة SIL Open Font License.</p></div><div class="si-t"><p style="font-size:13px;color:var(--muted)">جزى الله كل من أتاح هذه الأعمال خيراً. وكل عمل منها يبقى على رخصته وحقوق أصحابه.</p></div><div class="si-t"><h4>الخصوصية</h4><p>لا يجمع أنورا أي بيانات ولا يرسل شيئاً إلينا، وليس فيه إعلانات ولا تتبّع. كل علاماتك وملاحظاتك على جهازك فقط. والميكروفون يُستعمل في وضع الحفظ فقط حين تضغط زر التسميع. <a href="https://github.com/hero5000h-creator/-ANORA-/blob/main/PRIVACY.md" target="_blank" rel="noopener">سياسة الخصوصية كاملة</a></p></div><div class="si-t" id="qLockNote"><h4>سلامة نص المصحف</h4><p id="qLockMsg">جارٍ التحقق من النص…</p></div><div class="src-by"><small>تم التطوير من قبل</small><b>مصطفى نصير عبد العكيدي</b><span class="src-du">لا تنسونا من صالح دعائكم</span></div></div></div>
 <div id="sInfo" role="dialog" aria-modal="true" aria-label="عن السورة" hidden><div class="si">
   <div class="si-h"><span class="si-n" id="siNum"></span><b id="siName"></b><button class="ib" id="siX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div class="si-g" id="siGrid"></div>
@@ -2386,7 +2387,7 @@ function fit(el,fresh){
   const box=el.querySelector(".lines"); if(!box) return;
   const opening=el.classList.contains("opening"), phoneM=root.classList.contains("phoneM"), gk=W+"x"+H+(opening?"o":"")+(phoneM?"p":"");
   let g=fresh?null:fitG.get(gk);
-  if(g){box.style.fontSize=g.fs;box.style.setProperty("--cx",g.cx);box.style.setProperty("--lh",g.lh)}
+  if(g){box.style.fontSize=g.fs;box.style.setProperty("--cx",g.cx);box.style.setProperty("--lh",g.lh);if(g.cap)el.querySelector(".box").style.setProperty("--capH",g.cap)}
   else{
   const outer=el.querySelector(".box");
   /* the print's letters are taller than this font's: set it larger and narrow each line back to the width */
@@ -2396,8 +2397,14 @@ function fit(el,fresh){
   {const got=parseFloat(getComputedStyle(box).fontSize)||f;if(Math.abs(got/f-1)>.01){textK=f/got;root.style.setProperty("--tk",textK.toFixed(4));box.style.fontSize=f*textK+"px"}}
   box.style.setProperty("--cx",Math.min(1,bw*.995/(LW*f)).toFixed(4));
   /* the opening pages on a tall phone: the arch is tall, so the lines spread through it instead of huddling in the middle */
-  box.style.setProperty("--lh",rowH*(opening?(phoneM?1.4:1.1):1)+"px");
-  g={fs:box.style.fontSize,cx:box.style.getPropertyValue("--cx"),lh:box.style.getPropertyValue("--lh"),inW:box.getBoundingClientRect().width};
+  if(opening){
+    /* the arched caps: their own proportions where the page is tall enough, flatter on a short one; the lines spread
+       through the room between them (more on a tall phone) and never reach into the narrowing arch */
+    const bh=outer.clientHeight,bwO=outer.clientWidth,rows=box.querySelectorAll(".ln").length||8;
+    const capH=Math.max(bh*.07,Math.min(bwO*110/300,bh*.2));outer.style.setProperty("--capH",capH.toFixed(1)+"px");
+    box.style.setProperty("--lh",Math.min(rowH*(phoneM?1.4:1.1),(bh-capH*2)/rows)+"px")}
+  else box.style.setProperty("--lh",rowH+"px");
+  g={fs:box.style.fontSize,cx:box.style.getPropertyValue("--cx"),lh:box.style.getPropertyValue("--lh"),cap:outer.style.getPropertyValue("--capH"),inW:box.getBoundingClientRect().width};
   if(rowH>0&&bw>0)fitG.set(gk,g)}
   /* a device whose shaping runs wider than the print data would push words past the frame: narrow that line */
   /* and whatever the cause (a device font size, display size, an odd screen), no line may run wider than the frame's inside */
@@ -2470,7 +2477,9 @@ function tPanApply(glide){const w=$("bookwrap");if(!w)return;stage.classList.tog
 function segments(){try{const v=window.viewport&&window.viewport.segments;return v&&v.length===2?v:null}catch(e){return null}}
 function resize(){
   posture();applyStudy();$("app").classList.toggle("ovl",!inTable&&!inStudy);root.style.setProperty("--fh",document.querySelector(".foot").offsetHeight+"px");root.style.setProperty("--bh",document.querySelector(".bar").offsetHeight+"px");
-  requestAnimationFrame(()=>{pillTo(document.querySelector(".tabs"));pillTo(document.querySelector(".shtabs"))});
+  /* the tab pills of the index and the ayah sheet, only when they are open (each is set again as it opens): measuring a
+     closed index forced a whole layout of it at start, about a sixth of the first second on a slow phone */
+  requestAnimationFrame(()=>{if(!$("drawer").classList.contains("shut"))pillTo(document.querySelector(".tabs"));if(!$("sheet").hidden)pillTo(document.querySelector(".shtabs"))});
   const r=stage.getBoundingClientRect(), full=!inTable&&(r.width<1000||matchMedia("(pointer:coarse)").matches), pad=inTable?(r.width<600?12:24):full?0:18;
   /* never plan the page wider or taller than the screen the person actually sees */
   let SW=Math.min(r.width,innerWidth||r.width), SH=Math.min(r.height,innerHeight||r.height), cx=SW/2, cy=SH/2, force=null;
@@ -3433,17 +3442,22 @@ function ornaments(){
   let pt="";for(let i=0;i<16;i++){pt+=`<circle cx="20" cy="3.6" r="1.5" transform="rotate(${i*22.5} 20 20)"/>`}
   const hizb=`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><g fill="${gl}">${pt}</g><path d="${star(20,20,15.5)}" fill="${t}" stroke="${g}" stroke-width="1"/><circle cx="20" cy="20" r="9.8" fill="${p}" stroke="${g}" stroke-width="1"/><circle cx="20" cy="20" r="8.2" fill="none" stroke="${gl}" stroke-width=".5"/></svg>`;
   const sajda=`<svg xmlns="http://www.w3.org/2000/svg" width="40" height="48" viewBox="0 0 40 48"><path d="M4 46V22Q4 10 20 2Q36 10 36 22V46Z" fill="${t}" stroke="${g}" stroke-width="1.2"/><path d="M8.5 43V23Q8.5 13.5 20 7.5Q31.5 13.5 31.5 23V43Z" fill="${p}" stroke="${gl}" stroke-width=".7"/><circle cx="20" cy="2.6" r="1.6" fill="${g}"/></svg>`;
-  /* illuminated arched panel for the two opening pages */
-  const open=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="420" viewBox="0 0 300 420" preserveAspectRatio="none">
-    <rect x="0" y="0" width="300" height="420" fill="${t}"/>
-    <g fill="${ot}" stroke="${o}" stroke-width=".8">${[[40,40],[260,40],[40,380],[260,380]].map(([x,y])=>`<path d="${star(x,y,16)}"/>`).join("")}</g>
-    <g fill="${g}">${[[40,40],[260,40],[40,380],[260,380]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.5"/>`).join("")}${[90,130,170,210,250,290,330].map(y=>`<circle cx="14" cy="${y}" r="1.8"/><circle cx="286" cy="${y}" r="1.8"/>`).join("")}</g>
-    <path d="M150 16Q252 44 270 128V292Q252 376 150 404Q48 376 30 292V128Q48 44 150 16Z" fill="${p}" stroke="${g}" stroke-width="2.4"/>
-    <path d="M150 26Q244 52 260 132V288Q244 368 150 394Q56 368 40 288V132Q56 52 150 26Z" fill="none" stroke="${gl}" stroke-width="1"/>
-    <g fill="${o}"><circle cx="150" cy="16" r="4"/><circle cx="150" cy="404" r="4"/></g></svg>`;
+  /* illuminated arched panel for the two opening pages, in three pieces so it is never stretched out of shape:
+     an arched cap at the top and bottom (always drawn at its own proportions) and straight walls between them,
+     as tall as the page needs. The text sits between the walls and below the caps (fit()), on every screen */
+  const capPath=`M12 110V96Q30 20 150 5Q270 20 288 96V110`,capIn=`M21 110V99Q38 30 150 15Q262 30 279 99V110`;
+  const corner=`<g fill="${ot}" stroke="${o}" stroke-width=".8"><path d="${star(24,24,13)}"/><path d="${star(276,24,13)}"/></g><g fill="${g}"><circle cx="24" cy="24" r="2.8"/><circle cx="276" cy="24" r="2.8"/></g>`;
+  const openT=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="110" viewBox="0 0 300 110">
+    <rect width="300" height="110" fill="${t}"/>${corner}
+    <path d="${capPath}Z" fill="${p}"/><path d="${capPath}" fill="none" stroke="${g}" stroke-width="2.4"/><path d="${capIn}" fill="none" stroke="${gl}" stroke-width="1"/>
+    <circle cx="150" cy="5" r="4" fill="${o}"/></svg>`;
+  const openB=openT.replace(`viewBox="0 0 300 110">`,`viewBox="0 0 300 110"><g transform="translate(0 110) scale(1 -1)">`).replace(`</svg>`,`</g></svg>`);
+  const openW=`<svg xmlns="http://www.w3.org/2000/svg" width="300" height="10" viewBox="0 0 300 10" preserveAspectRatio="none">
+    <rect width="300" height="10" fill="${t}"/><rect x="12" width="276" height="10" fill="${p}"/>
+    <path d="M12 0V10M288 0V10" stroke="${g}" stroke-width="2.4"/><path d="M21 0V10M279 0V10" stroke="${gl}" stroke-width="1"/></svg>`;
   /* carved arches along the front of the rehal */
   const carve=`<svg xmlns="http://www.w3.org/2000/svg" width="28" height="14" viewBox="0 0 28 14"><path d="M3 14V8Q3 2 14 1Q25 2 25 8V14" fill="rgba(0,0,0,.28)" stroke="rgba(255,220,160,.35)" stroke-width=".8"/><circle cx="14" cy="9" r="1.6" fill="rgba(255,220,160,.35)"/></svg>`;
-  root.style.setProperty("--o-open",svg(open));root.style.setProperty("--o-carve",svg(carve));
+  root.style.setProperty("--o-openT",svg(openT));root.style.setProperty("--o-openB",svg(openB));root.style.setProperty("--o-openW",svg(openW));root.style.setProperty("--o-carve",svg(carve));
   root.style.setProperty("--o-hizb",svg(hizb));root.style.setProperty("--o-sajda",svg(sajda));
   root.style.setProperty("--o-frame",svg(frame));root.style.setProperty("--o-head",svg(head));root.style.setProperty("--o-num",svg(num));
 }
@@ -4374,12 +4388,17 @@ function repUI(){try{paintHL()}catch(e){}$("pRepCap").textContent=rep.on?"يكر
 function repOpen(){const id=player.id||selA||pStart(cur);
   if(!rep.on||rep.from>id||rep.to<id){rep.from=id;const pe=pStart(cur+(mode==="spread"?2:1))-1;rep.to=Math.min(NA,Math.max(id,Math.min(id+4,pe>id?pe:id+4)))}
   repUI();const b=$("repBox");b.classList.remove("out","top");b.hidden=false;paintHL();repPlace()}
-function repPlace(){const b=$("repBox");if(b.hidden)return;b.classList.remove("top","side","sR");b.style.left="";b.style.minHeight="";
+function repPlace(){const b=$("repBox");if(b.hidden)return;b.classList.remove("top");b.style.left="";b.style.minHeight="";
+  /* docked at the side it stays put: taking the class off and back on (after every ayah) slid it in again each time */
+  const unSide=()=>b.classList.remove("side","sR");
   /* half open: the panel stays in the lower half, under the thumbs, and the page above stays clear */
-  if(inTable)return;
+  if(inTable){unSide();return}
   if(mode==="spread"&&!inTable&&document.documentElement.classList.contains("thumb")){const br=book.getBoundingClientRect(),mid=br.left+br.width/2;let L=0,Rr=0;
     book.querySelectorAll(".pg:not(.pk) [data-a]").forEach(w=>{const a=+w.dataset.a;if(a<rep.from||a>rep.to)return;const q=w.getBoundingClientRect();if(q.width)(q.left+q.width/2<mid)?L++:Rr++});
-    b.classList.add("side");if(L>Rr)b.classList.add("sR");return}
+    const R=L>Rr;if(b.classList.contains("side")&&b.classList.contains("sR")===R)return;
+    /* moving to the other side: the slide-in plays again from that side */
+    unSide();void b.offsetWidth;b.classList.add("side");if(R)b.classList.add("sR");return}
+  unSide();
   if(mode==="spread"&&!inTable){const br=book.getBoundingClientRect(),mid=br.left+br.width/2;let L=0,Rr=0;
     book.querySelectorAll(".pg:not(.pk) [data-a]").forEach(w=>{const a=+w.dataset.a;if(a<rep.from||a>rep.to)return;const q=w.getBoundingClientRect();if(!q.width)return;(q.left+q.width/2<mid)?L++:Rr++});
     if(L+Rr)b.style.left=(Rr>=L?br.left+br.width/4:br.left+br.width*3/4)+"px"}const r=b.getBoundingClientRect(),bh=parseFloat(getComputedStyle($("app")).getPropertyValue("--bh"))||56,t0=bh+10,t1=t0+r.height;let lo=0,hi=0;
@@ -4796,7 +4815,7 @@ const memo={on:false,rev:new Map(),range:null,last:null,hint:store.get("mushaf.m
   save(d){store.set("mushaf.memo",JSON.stringify(d))}};
 const pageWords=p=>{const el=cache.get(p),R=memo.range;return el?[...el.querySelectorAll(".lb [data-a]:not(.sp)")].filter(w=>w.textContent.indexOf("۝")<0&&(!R||(+w.dataset.a>=R.from&&+w.dataset.a<=R.to))):[]};
 /* words missed while reciting this session, shown in red; kept by key so a re-laid page keeps them */
-const LS={rec:null,on:false,used:0,miss:0,se:new Set()};
+const LS={rec:null,on:false,used:0,miss:0,se:new Set(),lit:[],ph:new Map()};
 function sErr(w){LS.se.add(mKey(w));w.classList.add("err")}
 const mKey=w=>w.dataset.a+":"+(w.dataset.w||"");
 const mErrs=()=>{try{return new Set(JSON.parse(store.get("mushaf.memoErr")||"[]"))}catch(e){return new Set()}};
@@ -4863,7 +4882,7 @@ addEventListener("resize",()=>{if(memo.follow)setTimeout(flPill,120)});
 /* a tap on a word: start (again) from that word */
 function followFrom(x,y){const el=document.elementFromPoint(x,y),w=el&&el.closest&&el.closest(".lb [data-a]");if(!w)return;
   const ps=deckPages();let seen=false;for(const p of ps){const ws=pageWords(p),i=ws.indexOf(w);if(i>=0){memo.rev.set(p,i);seen=true}else memo.rev.set(p,seen?0:ws.length)}
-  if(!seen)return;LS.miss=0;LS.done=0;LS.se.clear();if(LS.nat)nat("Speech","reset").catch(()=>{});document.querySelectorAll("#book .err").forEach(x=>x.classList.remove("err"));skipMarks();paintMemo();rasterDirtyLazy();
+  if(!seen)return;LS.miss=0;LS.done=0;LS.lit=[];LS.se.clear();if(LS.nat)nat("Speech","reset").catch(()=>{});document.querySelectorAll("#book .err").forEach(x=>x.classList.remove("err"));skipMarks();paintMemo();rasterDirtyLazy();
   if(LS.nat)nat("Speech","bias",{words:biasWords()}).catch(()=>{})}
 /* the page (or both pages) recited: turn on, after a breath so the last word is seen coloured */
 function followNext(){if(followNext.t)return;const ps=deckPages(),last=ps[ps.length-1];
@@ -4917,14 +4936,19 @@ function heardWords(words,fin,q){const key=q?mk:sk;
      - a reader going back over what they just read (often, while memorising) moves nothing;
      - a short word (لا، ما، من) found further on is taken only when the next heard word follows it there;
      - a two-letter scrap counts only when it is exactly the word */
-  if(q&&memo.follow){if(fin&&W.length>1&&repeated(W,st))return;
+  if(q&&memo.follow){if(fin&&(W.length>1?repeated(W,st):!st.length&&shownBefore(12).some(w=>mk(w.textContent)===W[0])))return;
     const ok=[];let kk=0;for(let j=0;j<st.length;j++){const [,,at,n]=st[j],nb=st[j+1];
       if(at>kk&&T[at].length<=3&&!(nb&&nb[2]===at+n))break;if(W[st[j][0]].length<=2&&W[st[j][0]]!==T[at])break;ok.push(st[j]);kk=at+n}st=ok}
-  for(const [,,at,n] of st){
+  let hp=0;
+  for(const [hi,hu,at,n] of st){
     /* hidden words passed over: one meaningful word right before a match was probably really skipped by the
        reader (marked to revise); more than one is the recogniser missing a stretch, so they are just shown */
     if(at-k===1&&T[k].length>=4&&!memo.follow)sErr(nx[k][1]);
-    for(let q=k;q<at+n;q++)revealNext(nx[q][0]);k=at+n;skipMarks()}
+    /* following with the Quran recogniser: a word said in the place of the mushaf's word (one or two of them,
+       heard clearly and unlike it) is a slip in the recitation, shown in red */
+    else if(q&&memo.follow&&at-k===1&&hi-hp===1&&slip(W[hp],T[k])&&!recent().some(r=>near(W[hp],r)))sErr(nx[k][1]);
+    hp=hi+hu;
+    for(let q=k;q<at+n;q++){revealNext(nx[q][0]);if(memo.follow)LS.lit.push(nx[q][1])}k=at+n;skipMarks()}
   if(st.length){LS.miss=0;return}
   /* following along: the recogniser lost a stretch (or the reader skipped one) and the words heard lie further
      on than the usual look-ahead: find them on the page when two or more run on there, and carry on from them */
@@ -4932,13 +4956,21 @@ function heardWords(words,fin,q){const key=q?mk:sk;
   /* nothing in the final text of a phrase fits: flash the word due, and after two such phrases show it in red */
   if(!fin||W.every(w=>w.length<=2))return;
   const el=nx[0][1];el.classList.remove("miss");void el.offsetWidth;el.classList.add("miss");
-  /* following along, a word the reader did not say is just passed over when they read on (no red mark) */
-  if(++LS.miss>=2&&!memo.follow){sErr(el);revealNext(nx[0][0]);LS.miss=0;skipMarks()}
+  /* following along, a word the reader did not say is just passed over when they read on (no red mark); with
+     the Quran recogniser, two phrases in a row that do not fit mean the word due was said wrong: red */
+  if(memo.follow&&!W.some(w=>w.length>=3&&qLex().has(w)&&!recent().some(r=>near(w,r))))return;
+  if(++LS.miss>=2&&(!memo.follow||q)){sErr(el);revealNext(nx[0][0]);LS.miss=0;skipMarks()}
 }
 const heard=word=>heardWords([word],true);
+/* every word of the Quran in bare letters (built once, on first use): a recogniser's garbled word is seldom one */
+let QLX=null;function qLex(){if(!QLX){QLX=new Set();for(let i=1;i<=NA;i++)toks(i).forEach(w=>QLX.add(mk(w[0])))}return QLX}
+/* a heard word that is a slip of the reader, not of the recogniser: a real word of the Quran, unlike the one due */
+/* the last words read, in bare letters: what the reader says again while going back */
+const recent=()=>shownBefore(30).map(w=>mk(w.textContent));
+const slip=(w,t)=>w.length>=3&&!near(w,t)&&qLex().has(w);
 function resync(W,key){const nx=hiddenNext(60),T=nx.map(x=>key(x[1].textContent));
   for(let p=0;p<T.length;p++)for(let i=0;i+1<W.length;i++){let r=0;while(i+r<W.length&&p+r<T.length&&near(W[i+r],T[p+r]))r++;
-    if(r>=3||r===2&&(W[i]+W[i+1]).length>=7){for(let q=0;q<p+r;q++)revealNext(nx[q][0]);skipMarks();LS.miss=0;return true}}
+    if(r>=3||r===2&&(W[i]+W[i+1]).length>=7){for(let q=0;q<p+r;q++){revealNext(nx[q][0]);LS.lit.push(nx[q][1])}skipMarks();LS.miss=0;return true}}
   return false}
 /* the words already shown before the cursor, the last k of them in reading order */
 function shownBefore(k){const out=[];for(const p of deckPages()){const ws=pageWords(p),n=memo.rev.get(p)||0;for(let i=0;i<n&&i<ws.length;i++)if(!isMk(ws[i]))out.push(ws[i])}return out.slice(-k)}
@@ -4973,12 +5005,46 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
   if(memo.follow&&!d.final&&ws.length>LS.done){const last=sk(ws[ws.length-1]),nx=hiddenNext(1)[0];
     if(nx&&last.length>1&&(last===sk(nx[1].textContent)||(last.length>=5&&near(last,sk(nx[1].textContent))))){heardWords([ws[ws.length-1]],false);LS.done=ws.length}}
   if(d.final)nat("Speech","bias",{words:biasWords()}).catch(()=>{})});
-natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===-2){micStop();toast("انقطع الاستماع، اضغط الميكروفون لتكمل")}else if(c===-3){LS.q=false;LS.done=0;$("mSub").textContent=micMsg();toast("محرّك القرآن ما اشتغل على هذا الجهاز، كمّلنا بمحرّك Google"+(d.why?" ("+String(d.why).slice(0,80)+")":""))}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
-function micStart(){
+/* ---------- vowels said wrong (follow-along, Android): after each phrase the vowel model (tajweed-v2) writes what it
+   heard in the Quran phonetic script; it is lined up with how the words lit in that phrase must sound (hph.json,
+   tools/harakat_ref.py) and a fatha, damma or kasra heard clearly in the place of another turns its word red */
+const vowelsOn=()=>store.get("mushaf.vowels")!=="0";
+$("vwRow").hidden=PLAT!=="android";$("bVw").setAttribute("aria-checked",String(vowelsOn()));
+$("bVw").onclick=e=>{e.stopPropagation();const on=!vowelsOn();store.set("mushaf.vowels",on?"1":"0");$("bVw").setAttribute("aria-checked",String(on));toast(on?"تنبيه الحركات مفعّل، يشتغل من المتابعة الجاية":"تنبيه الحركات متوقف")};
+let HPH=null,hphP=null;const hphGet=()=>hphP||(hphP=fetch("hph.json").then(r=>r.json()).then(j=>HPH=j).catch(()=>{hphP=null;return null}));
+const VWL="\u064E\u064F\u0650";
+/* the symbols of one word as it must sound, or null (the ayah is not in the table) */
+function wordSound(el){if(!HPH)return null;const a=+el.dataset.a,w=+el.dataset.w,e=HPH[(sOf(a)+1)+":"+aOf(a)];if(!e||!(w>=0))return null;
+  let i=0;for(let k=0;k<w;k++)if(!HZW.has(a+":"+k))i++;
+  const [p,l]=e.split("|"),L=l.split(",").map(Number);if(i>=L.length)return null;
+  let st=0;for(let k=0;k<i;k++)st+=L[k];return [...p].slice(st,st+L[i])}
+function vowelCheck(ws,sym,prob){
+  ws=ws.filter(el=>el.isConnected&&el.textContent.trim()!=="۞");if(ws.length<2||!sym.length)return;
+  const R=[],O=[];for(let i=0;i<ws.length;i++){const s=wordSound(ws[i]);if(!s)return;s.forEach(c=>{R.push(c);O.push(i)})}
+  /* edit-distance alignment; what was heard before or after these words (a repeat, a breath) costs nothing */
+  const n=R.length,m=sym.length,D=Array.from({length:n+1},()=>new Float32Array(m+1));
+  for(let i=1;i<=n;i++)D[i][0]=i;
+  for(let i=1;i<=n;i++)for(let j=1;j<=m;j++)D[i][j]=Math.min(D[i-1][j-1]+(R[i-1]===sym[j-1]?0:1),D[i-1][j]+1,D[i][j-1]+1);
+  let j=0;for(let k=1;k<=m;k++)if(D[n][k]<D[n][j])j=k;
+  if(D[n][j]>n*.3)return;                       /* a poor fit: the phrase was not these words; nothing is judged */
+  const bad=new Set();let i=n;
+  while(i>0&&j>0){const d=D[i][j];
+    if(d===D[i-1][j-1]+(R[i-1]===sym[j-1]?0:1)){
+      if(R[i-1]!==sym[j-1]&&VWL.includes(R[i-1])&&VWL.includes(sym[j-1])&&prob[j-1]>=.7&&O[i-1]<ws.length-1)bad.add(O[i-1]);i--;j--}
+    else if(d===D[i-1][j]+1)i--;else j--}
+  [...bad].slice(0,2).forEach(k=>{const el=ws[k];if(!el.classList.contains("err")){sErr(el);el.classList.add("vw")}});
+}
+natOn("Speech","phrase",d=>{if(!LS.on||!memo.follow)return;LS.ph.set(d.seq,LS.lit.splice(0));if(LS.ph.size>8)LS.ph.delete(LS.ph.keys().next().value)});
+natOn("Speech","vowels",d=>{if(!LS.on||!memo.follow)return;const ws=LS.ph.get(d.seq);LS.ph.delete(d.seq);if(!ws)return;
+  hphGet().then(()=>{try{vowelCheck(ws,d.sym||[],d.prob||[])}catch(e){}})});
+natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===-2){micStop();toast("انقطع الاستماع، اضغط الميكروفون لتكمل")}else if(c===-3){LS.q=false;LS.done=0;$("mSub").textContent=micMsg();toast(d.again?"محرّك القرآن توقف لأن الجهاز احتاج الذاكرة، كمّلنا بمحرّك Google. المرة الجاية يرجع يشتغل":"محرّك القرآن ما اشتغل على هذا الجهاز، كمّلنا بمحرّك Google"+(d.why?" ("+String(d.why).slice(0,80)+")":""))}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
+function micStart(){LS.lit=[];LS.ph.clear();
+  /* the Quran word list for telling a slip from a garbled word: built while the reader starts, not at the first slip */
+  if(memo.follow&&!QLX)setTimeout(()=>window.requestIdleCallback?requestIdleCallback(qLex,{timeout:3000}):qLex(),400);
   const SR=PLAT==="electron"?null:window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
   if(PLAT==="android"&&NATIVE){LS.on=true;LS.nat=true;LS.done=0;LS.miss=0;$("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent=micMsg();
-    nat("Speech","start",{words:biasWords(),offline:navigator.onLine===false,quick:!!memo.follow}).then(r=>{LS.dev=!!(r&&r.device);LS.q=!!(r&&r.quran);if(LS.on)$("mSub").textContent=micMsg()}).catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
+    nat("Speech","start",{words:biasWords(),offline:navigator.onLine===false,quick:!!memo.follow,vowels:!!memo.follow&&vowelsOn()&&(hphGet(),true)}).then(r=>{LS.dev=!!(r&&r.device);LS.q=!!(r&&r.quran);if(LS.on)$("mSub").textContent=micMsg()}).catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
   if(!SR){no(PLAT==="electron"?"التسميع بالصوت متاح بتطبيق الهاتف، وما زال غير متاح بنسخة الويندوز. تقدر تسمّع بإظهار الكلمات واحدة واحدة.":"التسميع بالصوت غير متاح في هذا المتصفح. جرّبه في Chrome، وسيكون مدمجاً في التطبيق.");return}
   const r=new SR();r.lang="ar-SA";r.continuous=true;r.interimResults=false;r.maxAlternatives=5;
   LS.rec=r;LS.on=true;LS.used=0;LS.miss=0;

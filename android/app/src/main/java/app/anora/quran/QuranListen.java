@@ -18,6 +18,9 @@ public final class QuranListen {
 
     public interface Out {
         void heard(String text, boolean fin);
+
+        /** A phrase ended (the reader stopped): its audio, for the vowel check. a[0..n) is only valid during the call. */
+        default void phrase(float[] a, int n) {}
     }
 
     private static final int RATE = QuranAsr.RATE;
@@ -25,11 +28,15 @@ public final class QuranListen {
     private static final int WIN = RATE * 6;                // the model always hears the last 6 s
     private static final int PAUSE = 50;                    // 500 ms of quiet: hear the phrase once more
     private static final int STOP = 90;                     // 900 ms of quiet: the phrase is over, all of it is given out
+    private static final int LONG = RATE * 28;              // a phrase's audio is kept up to 28 s (the vowel model's limit)
 
     private final QuranAsr asr;
     private final Out out;
     private final float[] ring = new float[WIN];
     private final float[] win = new float[WIN];
+    private final float[] longRing = new float[LONG];
+    private final float[] phraseBuf = new float[LONG];
+    private long phraseFrom = -1;                           // where the phrase being said began (total)
     private long total = 0;                                 // samples heard since start
     private long lastDecode = 0, lastVoice = -1;
     private int step = RATE * 35 / 100;                     // grows if the phone decodes slowly
@@ -48,8 +55,19 @@ public final class QuranListen {
         this.out = out;
     }
 
-    /** The reader starts over somewhere else (a tap on a word): forget what was heard. */
+    private volatile boolean resetAsked = false;
+
+    /**
+     * The reader starts over somewhere else (a tap on a word): forget what was heard. Safe from any thread: it is
+     * carried out on the feeding thread before the next samples, never in the middle of a decode.
+     */
     public void reset() {
+        resetAsked = true;
+    }
+
+    private void doReset() {
+        resetAsked = false;
+        phraseFrom = -1;
         said.clear();
         pending = "";
         prevNew = new String[0];
@@ -58,8 +76,10 @@ public final class QuranListen {
 
     /** Feed samples in [-1, 1]. Decoding happens on the caller's thread. */
     public void feed(float[] x, int len) throws Exception {
+        if (resetAsked) doReset();
         for (int i = 0; i < len; i++) {
             ring[(int) (total % WIN)] = x[i];
+            longRing[(int) (total % LONG)] = x[i];
             total++;
             hop[hopN++] = x[i];
             if (hopN == HOP) {
@@ -77,12 +97,21 @@ public final class QuranListen {
         floor = rms < floor ? floor * 0.9 + rms * 0.1 : floor * 0.998 + rms * 0.002;
         boolean loud = rms > Math.max(floor * 2.5, 0.003);
         if (loud) {
+            if (phraseFrom < 0) phraseFrom = Math.max(0, total - RATE * 3 / 10);
             quiet = 0;
             lastVoice = total;
         } else quiet++;
         if ((quiet == PAUSE || quiet == STOP) && lastVoice >= 0) {
             // a pause: hear the end of the phrase again; after a longer one its last word is given out too
             decode(quiet == STOP);
+            if (quiet == STOP && phraseFrom >= 0) {
+                // the phrase with a little quiet on each side; a longer one keeps its last 28 s
+                long from = Math.max(phraseFrom, Math.max(0, total - LONG)), to = Math.min(total, lastVoice + RATE * 3 / 10);
+                int n = (int) (to - from);
+                for (int i = 0; i < n; i++) phraseBuf[i] = longRing[(int) ((from + i) % LONG)];
+                phraseFrom = -1;
+                if (n > RATE / 2) out.phrase(phraseBuf, n);
+            }
             return;
         }
         if (lastVoice >= 0 && quiet < PAUSE && total - lastDecode >= step) decode(false);

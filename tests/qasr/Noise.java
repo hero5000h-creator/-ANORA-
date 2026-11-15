@@ -1,5 +1,6 @@
 import app.anora.quran.QuranAsr;
 import app.anora.quran.QuranListen;
+import app.anora.quran.HarakatAsr;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Random;
@@ -29,6 +30,16 @@ public class Noise {
                 threads, (System.nanoTime() - t0) / 1000000, l.decodeMs, heard, s1, s1.equals(s2), s3, s4);
             q.close();
             qb.close();
+        }
+        if (a.length > 1) {
+            HarakatAsr h = new HarakatAsr(a[1], 1);
+            Random r = new Random(3);
+            float[] w = new float[16000 * 5];
+            for (int i = 0; i < w.length; i++) w[i] = (float) (r.nextGaussian() * 0.1 + 0.3 * Math.sin(2 * Math.PI * 180 * i / 16000.0));
+            long t0 = System.nanoTime();
+            HarakatAsr.Heard v = h.hear(w, w.length);
+            System.out.printf("vowel model %dms heard=[%s] %d symbols%n", (System.nanoTime() - t0) / 1000000, v.text(), v.sym.length);
+            h.close();
         }
         System.out.println("QASR OK");
     }

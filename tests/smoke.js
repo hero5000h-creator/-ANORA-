@@ -4,7 +4,7 @@ const {chromium}=require("playwright");const fs=require("fs"),path=require("path
 const WWW=path.join(__dirname,"..","www"),TONE=fs.readFileSync(path.join(__dirname,"tone.mp3"));
 const src=fs.readFileSync(path.join(WWW,"index.html"),"utf8"),hook='recUI();audData(reciter).then(d=>{if(!aud)aud=d});';
 if(!src.includes(hook))throw new Error("test hook point not found in www/index.html");
-fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={audData,playFrom,P:()=>player,aud:()=>aud,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,rcss:rasterCSS,turn:{pick:turnPick,rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
+fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={hphGet:()=>hphGet(),wordSound:e=>wordSound(e),audData,playFrom,P:()=>player,aud:()=>aud,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,rcss:rasterCSS,turn:{pick:turnPick,rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
 const types={".html":"text/html",".js":"text/javascript",".json":"application/json",".woff2":"font/woff2",".ttf":"font/ttf",".css":"text/css"};
 const srv=http.createServer((q,r)=>{const f=path.join(WWW,decodeURIComponent(q.url.split("?")[0]));
   fs.readFile(f,(e,b)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{"content-type":types[path.extname(f)]||"application/octet-stream"});r.end(b)})}).listen(0);
@@ -256,8 +256,23 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         window.__L.Speechheard({text:ws.slice(i0+1,i0+4).map(w=>bare(w.textContent)).join(" "),final:true,engine:"q"});await W(150);const back=ws.indexOf(nx())-i0;
         /* the recogniser lost ten words: the next ones heard are found further on and followed from there */
         window.__L.Speechheard({text:ws.slice(i0+15,i0+18).map(w=>bare(w.textContent)).join(" "),final:true,engine:"q"});await W(150);const gap=ws.indexOf(nx())-i0;
-        return {lit,moved,back,gap,red:document.querySelectorAll("#book .pg .err").length,sample:bare(ws[i0+1].textContent)}});
-      ok(r.lit&&r.moved===5&&!r.red,`${name}: the Quran recogniser's letters follow the page word by word ${JSON.stringify(r)}`);
+        /* a slip: another word of the Quran said in the place of the one due, then the reading goes on: that word turns red */
+        const i1=ws.indexOf(nx()),swap=bare(ws[i1].textContent)==="السماء"?"الارض":"السماء";const red0=document.querySelectorAll("#book .pg .err").length;
+        window.__L.Speechheard({text:[swap,...ws.slice(i1+1,i1+4).map(w=>bare(w.textContent))].join(" "),final:true,engine:"q"});await W(150);
+        const slipRed=ws[i1].classList.contains("err")&&document.querySelectorAll("#book .pg .err").length===red0+1,after=ws.indexOf(nx())-i1;
+        /* vowels: after a phrase the vowel model's script is lined up with how the lit words must sound; an exact
+           reading turns nothing red, a kasra heard in the place of a fatha turns its word red */
+        await window.__smk.hphGet();const vw=async(seq,swap)=>{const i2=ws.indexOf(nx()),four=ws.slice(i2,i2+4);
+          window.__L.Speechheard({text:four.map(w=>bare(w.textContent)).join(" "),final:true,engine:"q"});await W(100);window.__L.Speechphrase({seq});
+          const parts=four.map(el=>window.__smk.wordSound(el)||[]);let done=false;
+          if(swap)parts[1]=parts[1].map(c=>!done&&"\u064E\u064F\u0650".includes(c)?(done=true,c==="\u0650"?"\u064E":"\u0650"):c);
+          const sym=parts.flat();window.__L.Speechvowels({seq,sym,prob:sym.map(()=>1)});await W(200);
+          return {sounds:parts.map(p=>p.length).join(","),red:four.map(el=>el.classList.contains("vw")?1:0).join("")}};
+        const vOk=await vw(1,false),vBad=await vw(2,true);
+        return {lit,moved,back,gap,slipRed,after,red0,vOk,vBad,red:document.querySelectorAll("#book .pg .err").length,sample:bare(ws[i0+1].textContent)}});
+      ok(r.lit&&r.moved===5&&!r.red0,`${name}: the Quran recogniser's letters follow the page word by word ${JSON.stringify(r)}`);
+      ok(r.slipRed&&r.after===4,`${name}: following along, a word said wrong turns red and the reading goes on ${JSON.stringify(r)}`);
+      ok(r.vOk&&r.vOk.red==="0000"&&r.vBad&&r.vBad.red==="0100"&&!/(^|,)0(,|$)/.test(r.vOk.sounds),`${name}: following along, a vowel said wrong turns its word red and an exact reading nothing ${JSON.stringify({vOk:r.vOk,vBad:r.vBad})}`);
       ok(r.back===5&&r.gap===18,`${name}: following along, a repeated stretch moves nothing and a lost stretch is caught up ${JSON.stringify(r)}`);
       await p.keyboard.press("Escape");await p.waitForTimeout(400)}
     if(name==="phone"){/* prayer times are computed on the device: Baghdad, Ja'fari, a fixed day, in Baghdad time */
@@ -333,5 +348,19 @@ await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(3000)
     const r=await p.evaluate(()=>({t:document.getElementById("pTitle").textContent,log:window.__log.join(" | ")}));
     ok(/الفلق/.test(r.t)&&/queue 113\.mp3/.test(r.log)&&/AUTO->113/.test(r.log)&&!/load 113/.test(r.log),`android: the next surah follows the last ayah with no stop (${JSON.stringify(r)})`);
     await ctx.close()}
+  /* al-Fatiha and the start of al-Baqarah: every word and the surah band stay inside the arched panel's walls and
+     below / above its caps, on a short phone, a tall phone, an open Fold and a landscape screen, plain and framed */
+  for(const [w,h] of [[320,568],[412,915],[884,1104],[915,412]])for(const fr of ["0","1"]){
+    const ctx=await b.newContext({viewport:{width:w,height:h},hasTouch:true,isMobile:w<700});const p=await ctx.newPage();
+    await p.addInitScript(fr=>{localStorage.setItem("mushaf.last","1");localStorage.setItem("mushaf.hintN","9");localStorage.setItem("mushaf.easyQ","1");localStorage.setItem("mushaf.frame",fr)},fr);
+    await p.goto(`http://localhost:${port}/index.html`);await p.waitForTimeout(2200);
+    const r=await p.evaluate(()=>{const P=new Path2D("M21 110V99Q38 30 150 15Q262 30 279 99V110Z"),c=document.createElement("canvas").getContext("2d");let n=0;const bad=[];
+      document.querySelectorAll("#book .pg.opening").forEach(pg=>{const box=pg.querySelector(".box"),cs=getComputedStyle(box),B=box.getBoundingClientRect();
+        const L=B.left+(parseFloat(cs.borderLeftWidth)||0),T=B.top+(parseFloat(cs.borderTopWidth)||0),bw=box.clientWidth,bh=box.clientHeight,cap=parseFloat(cs.getPropertyValue("--capH"));
+        const inside=(x,y)=>{const X=(x-L)/bw*300,yy=y-T;if(X<22||X>278)return false;if(yy<cap)return c.isPointInPath(P,X,yy/cap*110);if(yy>bh-cap)return c.isPointInPath(P,X,(bh-yy)/cap*110);return true};
+        pg.querySelectorAll(".lines [data-a],.lines .sh").forEach(e=>{const q=e.getBoundingClientRect();if(!q.width)return;n++;
+          if(![[q.left,q.top+q.height*.2],[q.right,q.top+q.height*.2],[q.left,q.bottom-q.height*.15],[q.right,q.bottom-q.height*.15]].every(([x,y])=>inside(x,y)))bad.push(pg.dataset.p+":"+(e.textContent||"").slice(0,10))})});
+      return {n,bad}});
+    ok(r.n>100&&!r.bad.length,`opening pages ${w}x${h}${fr==="1"?" framed":""}: ${r.n} words inside the arch ${r.bad.join(", ")}`);await ctx.close()}
   await b.close();srv.close();fs.unlinkSync(path.join(WWW,"smoke.html"));
   if(fails.length){console.log(`\n${fails.length} check(s) failed`);process.exit(1)}console.log("\nall checks passed")})().catch(e=>{console.error(e);srv.close();process.exit(1)});
