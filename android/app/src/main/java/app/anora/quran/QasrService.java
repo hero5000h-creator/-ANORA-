@@ -42,7 +42,7 @@ public class QasrService extends Service {
     private static boolean failed = false;
     /** the vowel model (tajweed-v2), loaded on the first phrase heard with the vowel check on */
     private static HarakatAsr vowels;
-    private static boolean vowelsFailed = false;
+    private static volatile boolean vowelsFailed = false;
     private volatile boolean checkVowels = false;
     private int phraseSeq = 0;
     private final java.util.concurrent.ExecutorService vowelWork = java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
@@ -55,7 +55,7 @@ public class QasrService extends Service {
     private volatile boolean on = false;
     private volatile Messenger client;
     private volatile QuranListen listen;
-    private Thread thread;
+    private volatile Thread thread;
 
     private final Messenger inbox = new Messenger(new Handler(Looper.getMainLooper(), m -> {
         switch (m.what) {

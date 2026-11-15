@@ -1828,7 +1828,8 @@ html.thumb body #prefs.pOut{animation:dockOut .22s cubic-bezier(.5,0,.75,.4) for
 /* the bars' shadow fades with them instead of snapping off */
 #app.ovl>.bar,#app.ovl>.foot{transition:opacity .4s var(--ease),transform .4s var(--ease)}
 /* memorising on a phone: the five step buttons share one row (no lone "أخفِ" on a second line); the hint stays one line so the bar never changes height mid-test */
-@media (max-width:560px){#memo .mb.step{flex:1 1 0;min-width:0;padding:0 4px;font-size:12.5px;overflow:hidden;text-overflow:ellipsis}}
+/* a phone: the five tools in two rows (microphone and two, then three), each label whole */
+@media (max-width:560px){#memo .mb.step{flex:1 1 calc(33% - 8px);min-width:0;padding:0 4px;font-size:12.5px;overflow:hidden;text-overflow:ellipsis}}
 @media (max-width:370px){#memo .mb.step{font-size:12px;padding:0 2px}#memo{gap:4px}}
 /* Fold motion pass (2026-11-05): one motion language on the open Fold.
    1 no two texts are ever seen through each other: a change of layout dips through the paper instead of a crossfade
@@ -1966,6 +1967,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
       <div class="posture"><span>ألوان التجويد<small>المد والغنة والإخفاء والقلقلة</small></span><button class="tg" id="bTaj" role="switch" aria-checked="false" aria-label="ألوان التجويد"></button></div>
       <div class="tjk" id="tjKey" hidden><span style="--c:var(--tj-md)">مد لازم وواجب وجائز</span><span style="--c:var(--tj-gh)">غنة وإخفاء وإقلاب وإدغام بغنة</span><span style="--c:var(--tj-qa)">قلقلة</span><span style="--c:var(--tj-s)">ما لا يُلفظ</span></div>
       <div class="posture"><span>المتشابهات الملوّنة<small>تلوين العبارات التي تتكرر بلفظ قريب في موضع آخر، عوناً على ضبط الحفظ</small></span><button class="tg" id="bMut" role="switch" aria-checked="false" aria-label="المتشابهات الملوّنة"></button></div>
+      <div class="posture" id="vwRow" hidden><span>تنبيه الحركات بالمتابعة<small>إذا قرأت فتحة أو ضمّة أو كسرة بغير مكانها تصير الكلمة حمراء بعد الوقفة</small></span><button class="tg" id="bVw" role="switch" aria-checked="true" aria-label="تنبيه الحركات بالمتابعة"></button></div>
       <div class="tjk msk" id="msKey" hidden><span class="k1">اللون: عبارة لها نظيرة في موضع آخر</span><span class="k2">النقاط: الكلمة التي يختلف فيها اللفظ</span><span class="k3">المس الكلمة الملوّنة لترى نظيرتها</span></div>
       <div class="posture"><span>ألوان العلامات والتظليل<small>أضف ألوانك، وسمّها، واختر قوة ظهورها على الصفحة</small></span><button class="pbtn" id="bColEd">تخصيص</button></div>
       <div class="posture"><span>العلامات على الصفحة<small>خط ملوّن تحت الآيات المعلَّمة ونقطة عند الملاحظات</small></span><button class="tg" id="bMkShow" role="switch" aria-checked="true" aria-label="إظهار العلامات على الصفحة"></button></div>
@@ -4990,6 +4992,8 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
    heard in the Quran phonetic script; it is lined up with how the words lit in that phrase must sound (hph.json,
    tools/harakat_ref.py) and a fatha, damma or kasra heard clearly in the place of another turns its word red */
 const vowelsOn=()=>store.get("mushaf.vowels")!=="0";
+$("vwRow").hidden=PLAT!=="android";$("bVw").setAttribute("aria-checked",String(vowelsOn()));
+$("bVw").onclick=e=>{e.stopPropagation();const on=!vowelsOn();store.set("mushaf.vowels",on?"1":"0");$("bVw").setAttribute("aria-checked",String(on));toast(on?"تنبيه الحركات مفعّل، يشتغل من المتابعة الجاية":"تنبيه الحركات متوقف")};
 let HPH=null,hphP=null;const hphGet=()=>hphP||(hphP=fetch("hph.json").then(r=>r.json()).then(j=>HPH=j).catch(()=>{hphP=null;return null}));
 const VWL="\u064E\u064F\u0650";
 /* the symbols of one word as it must sound, or null (the ayah is not in the table) */
@@ -5016,8 +5020,10 @@ function vowelCheck(ws,sym,prob){
 natOn("Speech","phrase",d=>{if(!LS.on||!memo.follow)return;LS.ph.set(d.seq,LS.lit.splice(0));if(LS.ph.size>8)LS.ph.delete(LS.ph.keys().next().value)});
 natOn("Speech","vowels",d=>{if(!LS.on||!memo.follow)return;const ws=LS.ph.get(d.seq);LS.ph.delete(d.seq);if(!ws)return;
   hphGet().then(()=>{try{vowelCheck(ws,d.sym||[],d.prob||[])}catch(e){}})});
-natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===-2){micStop();toast("انقطع الاستماع، اضغط الميكروفون لتكمل")}else if(c===-3){LS.q=false;LS.done=0;$("mSub").textContent=micMsg();toast("محرّك القرآن ما اشتغل على هذا الجهاز، كمّلنا بمحرّك Google"+(d.why?" ("+String(d.why).slice(0,80)+")":""))}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
+natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===-2){micStop();toast("انقطع الاستماع، اضغط الميكروفون لتكمل")}else if(c===-3){LS.q=false;LS.done=0;$("mSub").textContent=micMsg();toast(d.again?"محرّك القرآن توقف لأن الجهاز احتاج الذاكرة، كمّلنا بمحرّك Google. المرة الجاية يرجع يشتغل":"محرّك القرآن ما اشتغل على هذا الجهاز، كمّلنا بمحرّك Google"+(d.why?" ("+String(d.why).slice(0,80)+")":""))}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
 function micStart(){LS.lit=[];LS.ph.clear();
+  /* the Quran word list for telling a slip from a garbled word: built while the reader starts, not at the first slip */
+  if(memo.follow&&!QLX)setTimeout(()=>window.requestIdleCallback?requestIdleCallback(qLex,{timeout:3000}):qLex(),400);
   const SR=PLAT==="electron"?null:window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
   if(PLAT==="android"&&NATIVE){LS.on=true;LS.nat=true;LS.done=0;LS.miss=0;$("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent=micMsg();

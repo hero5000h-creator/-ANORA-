@@ -55,8 +55,18 @@ public final class QuranListen {
         this.out = out;
     }
 
-    /** The reader starts over somewhere else (a tap on a word): forget what was heard. */
+    private volatile boolean resetAsked = false;
+
+    /**
+     * The reader starts over somewhere else (a tap on a word): forget what was heard. Safe from any thread: it is
+     * carried out on the feeding thread before the next samples, never in the middle of a decode.
+     */
     public void reset() {
+        resetAsked = true;
+    }
+
+    private void doReset() {
+        resetAsked = false;
         phraseFrom = -1;
         said.clear();
         pending = "";
@@ -66,6 +76,7 @@ public final class QuranListen {
 
     /** Feed samples in [-1, 1]. Decoding happens on the caller's thread. */
     public void feed(float[] x, int len) throws Exception {
+        if (resetAsked) doReset();
         for (int i = 0; i < len; i++) {
             ring[(int) (total % WIN)] = x[i];
             longRing[(int) (total % LONG)] = x[i];
