@@ -71,6 +71,88 @@ public class SpeechPlugin extends Plugin {
     private final Messenger inbox = new Messenger(new Handler(Looper.getMainLooper(), this::fromQasr));
     private final Runnable unbindLater = this::unbindQasr;
 
+    /* ---- the vowel check, in a process of its own (HarakatService): its failure never stops the word recogniser ---- */
+    private static boolean hFailed = false;
+    private Messenger hSvc;
+    private boolean hBound = false;
+    /** a phrase that came while the vowel check was connecting */
+    private Message hWaiting;
+
+    private final ServiceConnection hConn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder b) {
+            try {
+                b.linkToDeath(() -> main.post(SpeechPlugin.this::harakatDied), 0);
+            } catch (RemoteException e) {
+                harakatDied();
+                return;
+            }
+            hSvc = new Messenger(b);
+            Message w = hWaiting;
+            hWaiting = null;
+            if (w != null) hSend(w);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            hSvc = null;
+        }
+    };
+
+    /** Main thread: hand a phrase's audio to the vowel check. */
+    private void hearVowels(int seq, Bundle d) {
+        if (hFailed || d == null) return;
+        Message m = Message.obtain(null, HarakatService.HEAR, seq, 0);
+        m.setData(d);
+        m.replyTo = inbox;
+        if (hSvc != null) {
+            hSend(m);
+            return;
+        }
+        hWaiting = m;
+        if (hBound) return;
+        try {
+            hBound = getContext().bindService(new Intent(getContext(), HarakatService.class), hConn, Context.BIND_AUTO_CREATE);
+        } catch (Throwable e) {
+            hBound = false;
+        }
+        if (!hBound) hFailed = true;
+    }
+
+    private void hSend(Message m) {
+        try {
+            hSvc.send(m);
+        } catch (Throwable e) {
+            harakatDied();
+        }
+    }
+
+    /** The vowel check's process ended: if it crashed, it is not tried again with this app version. The word
+     *  recogniser carries on either way. */
+    private void harakatDied() {
+        hSvc = null;
+        hWaiting = null;
+        if (hBound) {
+            try { getContext().unbindService(hConn); } catch (Throwable ignored) {}
+            hBound = false;
+        }
+        if (hFailed) return;
+        hFailed = true;
+        main.postDelayed(() -> {
+            String why = exitReason(":harakat");
+            if (crashed(why)) prefs().edit().putLong("harakatDead", appVersion()).putString("harakatWhy", why).apply();
+            else hFailed = false;
+        }, 1200);
+    }
+
+    private void unbindHarakat() {
+        hWaiting = null;
+        if (!hBound) return;
+        hBound = false;
+        hSvc = null;
+        try { getContext().unbindService(hConn); } catch (Throwable ignored) {}
+    }
+
     private final ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder b) {
@@ -139,12 +221,16 @@ public class SpeechPlugin extends Plugin {
 
     /** Why the recogniser's process ended last (Android 11+), e.g. "crash_native SIGSEGV". */
     private String exitReason() {
+        return exitReason(":qasr");
+    }
+
+    private String exitReason(String proc) {
         reasonFound = false;
         if (Build.VERSION.SDK_INT < 30) return "";
         try {
             android.app.ActivityManager am = (android.app.ActivityManager) getContext().getSystemService(Context.ACTIVITY_SERVICE);
             for (android.app.ApplicationExitInfo e : am.getHistoricalProcessExitReasons(getContext().getPackageName(), 0, 16)) {
-                if (e.getProcessName() == null || !e.getProcessName().endsWith(":qasr")) continue;
+                if (e.getProcessName() == null || !e.getProcessName().endsWith(proc)) continue;
                 String r;
                 switch (e.getReason()) {
                     case android.app.ApplicationExitInfo.REASON_CRASH_NATIVE: r = "crash_native"; break;
@@ -180,6 +266,7 @@ public class SpeechPlugin extends Plugin {
     public void load() {
         // the recogniser failed on this phone with this app version: a new version tries again
         if (prefs().getLong("qasrDead", -1) == appVersion()) qasrFailed = true;
+        if (prefs().getLong("harakatDead", -1) == appVersion()) hFailed = true;
     }
 
     /** follow-along: check each phrase's vowels too (the page asks for it) */
@@ -238,6 +325,7 @@ public class SpeechPlugin extends Plugin {
                 JSObject o = new JSObject();
                 o.put("seq", m.arg1);
                 notifyListeners("phrase", o);
+                hearVowels(m.arg1, m.getData());
                 return true;
             }
             case QasrService.VOWELS: {
@@ -312,6 +400,7 @@ public class SpeechPlugin extends Plugin {
 
     private void unbindQasr() {
         main.removeCallbacks(unbindLater);
+        unbindHarakat();
         if (!bound) return;
         bound = false;
         svc = null;
