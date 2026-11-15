@@ -269,10 +269,22 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
           const sym=parts.flat();window.__L.Speechvowels({seq,sym,prob:sym.map(()=>1)});await W(200);
           return {sounds:parts.map(p=>p.length).join(","),red:four.map(el=>el.classList.contains("vw")?1:0).join("")}};
         const vOk=await vw(1,false),vBad=await vw(2,true);
-        return {lit,moved,back,gap,slipRed,after,red0,vOk,vBad,red:document.querySelectorAll("#book .pg .err").length,sample:bare(ws[i0+1].textContent)}});
+        /* the same four words read again with every vowel right: the red goes (a thin line stays) */
+        const vFix=await(async()=>{const i2=ws.indexOf(nx()),four=ws.slice(i2-4,i2);
+          window.__L.Speechheard({text:four.map(w=>bare(w.textContent)).join(" "),final:true,engine:"q"});await W(100);window.__L.Speechphrase({seq:3});
+          const sym=four.map(el=>window.__smk.wordSound(el)||[]).flat();window.__L.Speechvowels({seq:3,sym,prob:sym.map(()=>1)});await W(200);
+          return {moved:ws.indexOf(nx())-i2,red:four.map(el=>el.classList.contains("err")?1:0).join(""),fx:four.map(el=>el.classList.contains("fx")?1:0).join("")}})();
+        /* a wrong word alone: the word due turns red at once and the follow-along waits on it; said right, it goes on */
+        const hold=await(async()=>{const i3=ws.indexOf(nx()),swap=bare(ws[i3].textContent)==="السماء"?"الارض":"السماء";
+          window.__L.Speechheard({text:swap,final:true,engine:"q"});await W(150);const red=ws[i3].classList.contains("err"),wait=ws.indexOf(nx())-i3;
+          window.__L.Speechheard({text:bare(ws[i3].textContent),final:false,engine:"q"});await W(150);
+          return {red,wait,on:ws.indexOf(nx())-i3,cleared:!ws[i3].classList.contains("err"),fx:ws[i3].classList.contains("fx")}})();
+        return {lit,moved,back,gap,slipRed,after,red0,vOk,vBad,vFix,hold,red:document.querySelectorAll("#book .pg .err").length,sample:bare(ws[i0+1].textContent)}});
       ok(r.lit&&r.moved===5&&!r.red0,`${name}: the Quran recogniser's letters follow the page word by word ${JSON.stringify(r)}`);
       ok(r.slipRed&&r.after===4,`${name}: following along, a word said wrong turns red and the reading goes on ${JSON.stringify(r)}`);
       ok(r.vOk&&r.vOk.red==="0000"&&r.vBad&&r.vBad.red==="0100"&&!/(^|,)0(,|$)/.test(r.vOk.sounds),`${name}: following along, a vowel said wrong turns its word red and an exact reading nothing ${JSON.stringify({vOk:r.vOk,vBad:r.vBad})}`);
+      ok(r.vFix&&r.vFix.moved===0&&r.vFix.red==="0000"&&r.vFix.fx==="0100",`${name}: following along, a vowel said wrong and then read again right loses its red ${JSON.stringify(r.vFix)}`);
+      ok(r.hold&&r.hold.red&&r.hold.wait===0&&r.hold.on===1&&r.hold.cleared&&r.hold.fx,`${name}: following along, a word said wrong waits in red until it is said right ${JSON.stringify(r.hold)}`);
       ok(r.back===5&&r.gap===18,`${name}: following along, a repeated stretch moves nothing and a lost stretch is caught up ${JSON.stringify(r)}`);
       await p.keyboard.press("Escape");await p.waitForTimeout(400)}
     if(name==="phone"){/* prayer times are computed on the device: Baghdad, Ja'fari, a fixed day, in Baghdad time */

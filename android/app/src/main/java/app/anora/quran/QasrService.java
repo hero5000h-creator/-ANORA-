@@ -29,7 +29,8 @@ import java.util.Random;
  *
  * Messages from the app: START (replyTo = where to send), STOP, RESET.
  * Messages to the app: READY (arg1: 1 listening, 0 the model cannot run here, 2 no microphone),
- * HEARD (data: text, fin), ERROR (arg1: -2 the microphone stream ended).
+ * HEARD (data: text, fin), ERROR (arg1: -2 the microphone stream ended), PHRASE (arg1: number, data: path, n:
+ * the phrase's audio for the vowel check). VOWELS comes from HarakatService.
  */
 public class QasrService extends Service {
 
@@ -40,16 +41,9 @@ public class QasrService extends Service {
 
     private static QuranAsr asr;
     private static boolean failed = false;
-    /** the vowel model (tajweed-v2), loaded on the first phrase heard with the vowel check on */
-    private static HarakatAsr vowels;
-    private static volatile boolean vowelsFailed = false;
+    /** follow-along: each phrase's audio is handed on for the vowel check (HarakatService, a process of its own) */
     private volatile boolean checkVowels = false;
     private int phraseSeq = 0;
-    private final java.util.concurrent.ExecutorService vowelWork = java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "anora-vowels");
-        t.setPriority(Thread.NORM_PRIORITY - 1);
-        return t;
-    });
     private static String why = "";
 
     private volatile boolean on = false;
@@ -88,7 +82,6 @@ public class QasrService extends Service {
 
     @Override
     public void onDestroy() {
-        vowelWork.shutdownNow();
         end();
         super.onDestroy();
     }
@@ -140,17 +133,6 @@ public class QasrService extends Service {
         return asr;
     }
 
-    static synchronized HarakatAsr vowelModel(Context ctx) {
-        if (vowels != null || vowelsFailed) return vowels;
-        try {
-            vowels = new HarakatAsr(copied(ctx, "qasr/harakat.onnx", "harakat-1.onnx"), 1);
-        } catch (Throwable e) {
-            Log.e(TAG, "vowel model failed", e);
-            vowelsFailed = true;
-        }
-        return vowels;
-    }
-
     /** An asset copied once to app storage (ONNX Runtime reads a file, so the model is not held twice in memory). */
     static File copiedFile(Context ctx, String asset, String name) throws Exception {
         File f = new File(ctx.getFilesDir(), name);
@@ -171,27 +153,30 @@ public class QasrService extends Service {
         return copiedFile(ctx, asset, name).getAbsolutePath();
     }
 
-    /** A phrase ended: tell the page now (it notes which words it lit), check its vowels in the background. */
+    /**
+     * A phrase ended: its audio is written (16-bit) to a file, and the app is told; the app hands the file to the
+     * vowel check, in its own process. Of the files, the last four are kept at most (each is deleted once heard).
+     */
     private void phrase(float[] a, int n, Thread me) {
-        if (!checkVowels || vowelsFailed || thread != me) return;
+        if (!checkVowels || thread != me) return;
         int seq = ++phraseSeq;
-        send(PHRASE, seq, null);
-        float[] copy = java.util.Arrays.copyOf(a, n);
-        try {
-            vowelWork.execute(() -> {
-                HarakatAsr h = vowelModel(this);
-                if (h == null || !on) return;
-                try {
-                    HarakatAsr.Heard r = h.hear(copy, copy.length);
-                    Bundle b = new Bundle();
-                    b.putStringArray("sym", r.sym);
-                    b.putFloatArray("prob", r.prob);
-                    send(VOWELS, seq, b);
-                } catch (Throwable e) {
-                    Log.e(TAG, "vowels failed", e);
-                }
-            });
-        } catch (Throwable ignored) {}
+        File f = new File(getCacheDir(), "phrase-" + (seq % 4) + ".pcm");
+        byte[] buf = new byte[n * 2];
+        for (int i = 0; i < n; i++) {
+            int v = Math.max(-32768, Math.min(32767, Math.round(a[i] * 32767f)));
+            buf[2 * i] = (byte) v;
+            buf[2 * i + 1] = (byte) (v >> 8);
+        }
+        try (OutputStream out = new FileOutputStream(f)) {
+            out.write(buf);
+        } catch (Throwable e) {
+            Log.e(TAG, "phrase audio", e);
+            return;
+        }
+        Bundle b = new Bundle();
+        b.putString("path", f.getAbsolutePath());
+        b.putInt("n", n);
+        send(PHRASE, seq, b);
     }
 
     private void send(int what, int arg1, Bundle data) {

@@ -32,6 +32,12 @@
             android:process=":qasr"
             android:exported="false" />
 
+        <!-- the vowel check apart again: if it fails, the word recogniser keeps listening -->
+        <service
+            android:name=".HarakatService"
+            android:process=":harakat"
+            android:exported="false" />
+
         <service
             android:name=".PlaybackService"
             android:exported="false"

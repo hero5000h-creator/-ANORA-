@@ -783,6 +783,11 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #app.memo.follow #book .lb [data-a].hid *{color:inherit}
 #app.memo.follow #book .lb [data-a]:not(.hid):not(.sp):not(.err):not(.serr),#app.memo.follow #book .lb [data-a]:not(.hid):not(.err):not(.serr) *{color:var(--fl)}
 #app.memo.follow #book .lb [data-a].hid.nx{color:var(--ink);background:none}
+/* a word said wrong waits in red, the follow-along holding there until it is said right; then it takes the reading
+   colour with a thin red line under it, so the slip can be revised later */
+#app.memo.follow #book .lb [data-a].err,#app.memo.follow #book .lb [data-a].err *{color:var(--tj-md)}
+#app.memo.follow #book .lb [data-a].err.hid{background:color-mix(in srgb,var(--tj-md) 14%,transparent);border-radius:4px}
+#app.memo.follow #book .lb [data-a].fx:not(.err){background:linear-gradient(color-mix(in srgb,var(--tj-md) 70%,transparent),color-mix(in srgb,var(--tj-md) 70%,transparent)) left 82%/100% 1.5px no-repeat}
 #flPill{position:absolute;left:0;top:0;border-radius:999px;background:var(--flp);pointer-events:none;z-index:2;transition:transform .26s cubic-bezier(.25,.8,.25,1),width .26s cubic-bezier(.25,.8,.25,1),height .2s ease}
 #flPill.jump{transition:none}
 #flPill[hidden],#app:not(.follow) #flPill{display:none}
@@ -4815,14 +4820,16 @@ const memo={on:false,rev:new Map(),range:null,last:null,hint:store.get("mushaf.m
   save(d){store.set("mushaf.memo",JSON.stringify(d))}};
 const pageWords=p=>{const el=cache.get(p),R=memo.range;return el?[...el.querySelectorAll(".lb [data-a]:not(.sp)")].filter(w=>w.textContent.indexOf("۝")<0&&(!R||(+w.dataset.a>=R.from&&+w.dataset.a<=R.to))):[]};
 /* words missed while reciting this session, shown in red; kept by key so a re-laid page keeps them */
-const LS={rec:null,on:false,used:0,miss:0,se:new Set(),lit:[],ph:new Map()};
+const LS={rec:null,on:false,used:0,miss:0,se:new Set(),fx:new Set(),hold:null,lit:[],ph:new Map()};
+/* a word said wrong, now said right: the red goes, a thin line stays */
+function sFix(w){const k=mKey(w);LS.se.delete(k);LS.fx.add(k);w.classList.remove("err","vw");w.classList.add("fx")}
 function sErr(w){LS.se.add(mKey(w));w.classList.add("err")}
 const mKey=w=>w.dataset.a+":"+(w.dataset.w||"");
 const mErrs=()=>{try{return new Set(JSON.parse(store.get("mushaf.memoErr")||"[]"))}catch(e){return new Set()}};
 function applyMemo(p){
   if(memo.range)cache.get(p).querySelectorAll(".lb [data-a].hid").forEach(w=>{const a=+w.dataset.a;if(a<memo.range.from||a>memo.range.to)w.classList.remove("hid","nx")});
   const ws=pageWords(p),n=memo.rev.get(p)||0;
-  const E=mErrs();ws.forEach((w,i)=>{w.classList.toggle("hid",i>=n);w.classList.toggle("nx",i===n);w.classList.toggle("serr",E.has(mKey(w)));w.classList.toggle("err",LS.se.has(mKey(w)));if(i===n-1)memo.last=w;if(memo.hint&&!w.dataset.f){const m=w.textContent.match(/^(?:\u0671[\u064B-\u065F\u0670\u06D6-\u06ED]*(?:\u0644[\u064B-\u065F\u0670\u06D6-\u06ED]*)?)?[\u0621-\u064A\u0671-\u06D3][\u064B-\u065F\u0670\u06D6-\u06ED]*/);if(m){let f=m[0];if(/\u0621[^\u0621-\u064A]*$/.test(f)){const r=w.textContent.slice(f.length).match(/^[\u0627\u0670][\u064B-\u065F\u0670\u06D6-\u06ED]*/);if(r)f+=r[0]}w.dataset.f=f}}});
+  const E=mErrs();ws.forEach((w,i)=>{w.classList.toggle("hid",i>=n);w.classList.toggle("nx",i===n);w.classList.toggle("serr",E.has(mKey(w)));w.classList.toggle("err",LS.se.has(mKey(w)));w.classList.toggle("fx",LS.fx.has(mKey(w)));if(i===n-1)memo.last=w;if(memo.hint&&!w.dataset.f){const m=w.textContent.match(/^(?:\u0671[\u064B-\u065F\u0670\u06D6-\u06ED]*(?:\u0644[\u064B-\u065F\u0670\u06D6-\u06ED]*)?)?[\u0621-\u064A\u0671-\u06D3][\u064B-\u065F\u0670\u06D6-\u06ED]*/);if(m){let f=m[0];if(/\u0621[^\u0621-\u064A]*$/.test(f)){const r=w.textContent.slice(f.length).match(/^[\u0627\u0670][\u064B-\u065F\u0670\u06D6-\u06ED]*/);if(r)f+=r[0]}w.dataset.f=f}}});
   /* spaces follow the word after them */
   cache.get(p).querySelectorAll(".lb .sp").forEach(sp=>{const nxt=sp.nextElementSibling;sp.classList.toggle("hid",!!nxt&&nxt.classList.contains("hid"))});
   return Math.max(0,ws.length-n);
@@ -4846,7 +4853,7 @@ function revealAyah(id){
 }
 function setMemo(on){if(on)contHide();
   if(!on&&LS.on)micStop();
-  memo.on=on;memo.rev.clear();memo.last=null;LS.se.clear();if(!on){memo.range=null;memo.follow=false}
+  memo.on=on;memo.rev.clear();memo.last=null;LS.se.clear();LS.fx.clear();LS.hold=null;if(!on){memo.range=null;memo.follow=false}
   if(on){stopPlay();closeAyah();hideHint();setCalm(false)}
   if(!on)footOut($("memo"));$("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint&&!memo.follow);$("app").classList.toggle("follow",on&&!!memo.follow);$("bFollow").setAttribute("aria-pressed",String(on&&!!memo.follow));$("mExit").setAttribute("aria-label",memo.follow?"إنهاء تتبّع التلاوة":"إنهاء وضع الحفظ");$("mReset").textContent=memo.follow?"من البداية":"أخفِ";$("mReset").setAttribute("aria-label",memo.follow?"ابدأ الصفحة من أولها":"أخفِ الصفحة من جديد");$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
   $("bMemo").setAttribute("aria-pressed",String(on&&!memo.follow));
@@ -4882,7 +4889,7 @@ addEventListener("resize",()=>{if(memo.follow)setTimeout(flPill,120)});
 /* a tap on a word: start (again) from that word */
 function followFrom(x,y){const el=document.elementFromPoint(x,y),w=el&&el.closest&&el.closest(".lb [data-a]");if(!w)return;
   const ps=deckPages();let seen=false;for(const p of ps){const ws=pageWords(p),i=ws.indexOf(w);if(i>=0){memo.rev.set(p,i);seen=true}else memo.rev.set(p,seen?0:ws.length)}
-  if(!seen)return;LS.miss=0;LS.done=0;LS.lit=[];LS.se.clear();if(LS.nat)nat("Speech","reset").catch(()=>{});document.querySelectorAll("#book .err").forEach(x=>x.classList.remove("err"));skipMarks();paintMemo();rasterDirtyLazy();
+  if(!seen)return;LS.miss=0;LS.done=0;LS.lit=[];LS.se.clear();LS.fx.clear();LS.hold=null;if(LS.nat)nat("Speech","reset").catch(()=>{});document.querySelectorAll("#book .err").forEach(x=>x.classList.remove("err"));skipMarks();paintMemo();rasterDirtyLazy();
   if(LS.nat)nat("Speech","bias",{words:biasWords()}).catch(()=>{})}
 /* the page (or both pages) recited: turn on, after a breath so the last word is seen coloured */
 function followNext(){if(followNext.t)return;const ps=deckPages(),last=ps[ps.length-1];
@@ -4897,7 +4904,7 @@ $("mErr").onclick=()=>{const nx=deckPages().map(p=>cache.has(p)&&pageWords(p)[me
   const w=memo.last;if(!w||w.classList.contains("hid")){toast("اكشف الكلمة أولاً ثم سجّلها");return}const E=mErrs(),k=mKey(w),had=E.has(k);had?E.delete(k):E.add(k);store.set("mushaf.memoErr",JSON.stringify([...E]));paintMemo();rasterDirtyLazy();toast(had?"شلت العلامة عن الكلمة":"سُجّلت الكلمة، وستظهر مظلَّلة في المراجعة")};
 $("mHint").onclick=()=>{memo.hint=!memo.hint;store.set("mushaf.memoHint",memo.hint?"1":"0");$("app").classList.toggle("mhint",memo.hint);$("mHint").setAttribute("aria-pressed",String(memo.hint));paintMemo();rasterDirtyLazy()};
 $("mAll").onclick=()=>{deckPages().forEach(p=>memo.rev.set(p,pageWords(p).length));paintMemo()};
-$("mReset").onclick=()=>{deckPages().forEach(p=>memo.rev.delete(p));LS.se.clear();document.querySelectorAll("#book .err").forEach(w=>w.classList.remove("err"));paintMemo()};
+$("mReset").onclick=()=>{deckPages().forEach(p=>memo.rev.delete(p));LS.se.clear();LS.fx.clear();LS.hold=null;document.querySelectorAll("#book .err").forEach(w=>w.classList.remove("err"));paintMemo()};
 /* ---------- recitation check: read from memory and the page listens ----------
    Each word heard is matched to the next hidden word by its letters; a match shows it, a wrong word
    flashes, and a word missed twice is shown in red so it can be revised. Uses the browser's speech
@@ -4936,7 +4943,9 @@ function heardWords(words,fin,q){const key=q?mk:sk;
      - a reader going back over what they just read (often, while memorising) moves nothing;
      - a short word (لا، ما، من) found further on is taken only when the next heard word follows it there;
      - a two-letter scrap counts only when it is exactly the word */
-  if(q&&memo.follow){if(fin&&(W.length>1?repeated(W,st):!st.length&&shownBefore(12).some(w=>mk(w.textContent)===W[0])))return;
+  if(q&&memo.follow){if(fin&&(W.length>1?repeated(W,st):!st.length&&shownBefore(12).some(w=>mk(w.textContent)===W[0]))){
+      /* read again over a vowel said wrong: those words are in this phrase's vowel check, which clears the red when it is right now */
+      const R=W.length>1&&repeated.els;if(R&&R.some(w=>w.classList.contains("vw")))LS.lit.push(...R);return}
     const ok=[];let kk=0;for(let j=0;j<st.length;j++){const [,,at,n]=st[j],nb=st[j+1];
       if(at>kk&&T[at].length<=3&&!(nb&&nb[2]===at+n))break;if(W[st[j][0]].length<=2&&W[st[j][0]]!==T[at])break;ok.push(st[j]);kk=at+n}st=ok}
   let hp=0;
@@ -4948,11 +4957,19 @@ function heardWords(words,fin,q){const key=q?mk:sk;
        heard clearly and unlike it) is a slip in the recitation, shown in red */
     else if(q&&memo.follow&&at-k===1&&hi-hp===1&&slip(W[hp],T[k])&&!recent().some(r=>near(W[hp],r)))sErr(nx[k][1]);
     hp=hi+hu;
-    for(let q=k;q<at+n;q++){revealNext(nx[q][0]);if(memo.follow)LS.lit.push(nx[q][1])}k=at+n;skipMarks()}
+    for(let q=k;q<at+n;q++){const el=nx[q][1];
+      /* the word held in red: said right now (it is this match's own word), or passed over by the reader going on */
+      if(el===LS.hold){LS.hold=null;if(q>=at)sFix(el)}
+      revealNext(nx[q][0]);if(memo.follow)LS.lit.push(el)}k=at+n;skipMarks()}
   if(st.length){LS.miss=0;return}
   /* following along: the recogniser lost a stretch (or the reader skipped one) and the words heard lie further
      on than the usual look-ahead: find them on the page when two or more run on there, and carry on from them */
   if(memo.follow&&fin&&resync(W,key))return;
+  /* following with the Quran recogniser: a real Quran word heard where the word due should be, unlike it, turns
+     that word red at once; the follow-along waits on it until it is said right (or the reader reads on) */
+  if(q&&memo.follow&&fin){const el=nx[0][1];
+    if(W.some(w=>slip(w,T[0])&&!recent().some(r=>near(w,r)))){if(LS.hold!==el){sErr(el);LS.hold=el}LS.miss=0;return}
+    if(LS.hold===el)return}
   /* nothing in the final text of a phrase fits: flash the word due, and after two such phrases show it in red */
   if(!fin||W.every(w=>w.length<=2))return;
   const el=nx[0][1];el.classList.remove("miss");void el.offsetWidth;el.classList.add("miss");
@@ -4975,15 +4992,15 @@ function resync(W,key){const nx=hiddenNext(60),T=nx.map(x=>key(x[1].textContent)
 /* the words already shown before the cursor, the last k of them in reading order */
 function shownBefore(k){const out=[];for(const p of deckPages()){const ws=pageWords(p),n=memo.rev.get(p)||0;for(let i=0;i<n&&i<ws.length;i++)if(!isMk(ws[i]))out.push(ws[i])}return out.slice(-k)}
 /* heard words that run on in what was just read (two or more in a row) and fit it better than what comes next */
-function repeated(W,st){const B=shownBefore(30).map(w=>mk(w.textContent));if(B.length<2)return false;
-  let best=0;for(let i=0;i<W.length;i++)for(let j=0;j<B.length;j++){let r=0;while(i+r<W.length&&j+r<B.length&&W[i+r]===B[j+r])r++;if(r>best)best=r}
-  const fwd=st.reduce((s,x)=>s+x[1],0);return best>=2&&best>fwd}
+function repeated(W,st){const E=shownBefore(30),B=E.map(w=>mk(w.textContent));repeated.els=null;if(B.length<2)return false;
+  let best=0,bj=0;for(let i=0;i<W.length;i++)for(let j=0;j<B.length;j++){let r=0;while(i+r<W.length&&j+r<B.length&&W[i+r]===B[j+r])r++;if(r>best){best=r;bj=j}}
+  const fwd=st.reduce((s,x)=>s+x[1],0);if(best>=2&&best>fwd){repeated.els=E.slice(bj,bj+best);return true}return false}
 /* of the recogniser's guesses for a phrase, the one that follows the mushaf furthest */
 function bestAlt(alts){if(alts.length<2)return alts[0]||"";const T=hiddenNext(60).map(x=>sk(x[1].textContent));
   let best=alts[0],bs=-1;for(const a of alts){const st=align(String(a).trim().split(/\s+/).map(sk).filter(Boolean),T),sc=st.reduce((s,x)=>s+x[3],0);if(sc>bs){bs=sc;best=a}}return String(best)}
 /* the next hidden words in plain spelling, handed to the recogniser so it leans towards them (Android 13+) */
 function biasWords(){return [...new Set(hiddenNext(40).map(x=>x[1].textContent.replace(/[ً-ٟۖ-ࣰۭ-ࣲـ]/g,"").replace(/ٰ/g,"ا").replace(/ٱ/g,"ا")).filter(w=>w.length>1))]}
-function micStop(){const was=LS.on;LS.on=false;$("mMic").classList.remove("on");$("mMic").setAttribute("aria-pressed","false");try{LS.rec&&LS.rec.stop()}catch(e){}if(was&&LS.nat)nat("Speech","stop").catch(()=>{});LS.nat=false;paintMemo()}
+function micStop(){const was=LS.on;LS.on=false;LS.hw=[];LS.hp="";$("mMic").classList.remove("on");$("mMic").setAttribute("aria-pressed","false");try{LS.rec&&LS.rec.stop()}catch(e){}if(was&&LS.nat)nat("Speech","stop").catch(()=>{});LS.nat=false;paintMemo()}
 /* Android: the WebView has no speech recognition, so the app's own plugin listens (Speech: heard {text,final}).
    Partial text arrives while the user is still reciting; its words are matched as they come, except the last
    one, which can still change; the final text of the phrase settles the rest. */
@@ -4992,6 +5009,8 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
   /* the app's own recogniser: each final is new whole words; a partial is the one word being said, lit at once
      when it is exactly the word due (then the final that carries it skips it) */
   if(d.engine==="q"){const ws=String(d.text).trim().split(/\s+/).filter(Boolean);
+    /* following along, the status line shows the last words heard, so the reader sees what the recogniser took them to say */
+    if(memo.follow&&ws.length){if(d.final)LS.hw=(LS.hw||[]).concat(ws.slice(LS.done)).slice(-4);LS.hp=d.final?"":ws[ws.length-1];$("mSub").textContent=micMsg()}
     if(d.final){if(ws.length>LS.done)heardWords(ws.slice(LS.done),true,true);LS.done=0}
     else{const nx=hiddenNext(1)[0],w=mk(ws[ws.length-1]||"");if(nx&&w.length>1&&w===mk(nx[1].textContent)){heardWords([ws[ws.length-1]],false,true);LS.done=1}}
     return}
@@ -5033,12 +5052,14 @@ function vowelCheck(ws,sym,prob){
       if(R[i-1]!==sym[j-1]&&VWL.includes(R[i-1])&&VWL.includes(sym[j-1])&&prob[j-1]>=.7&&O[i-1]<ws.length-1)bad.add(O[i-1]);i--;j--}
     else if(d===D[i-1][j]+1)i--;else j--}
   [...bad].slice(0,2).forEach(k=>{const el=ws[k];if(!el.classList.contains("err")){sErr(el);el.classList.add("vw")}});
+  /* a word red for a vowel, heard again with every vowel right: corrected */
+  ws.forEach((el,k)=>{if(el.classList.contains("vw")&&!bad.has(k)&&k<ws.length-1)sFix(el)});
 }
 natOn("Speech","phrase",d=>{if(!LS.on||!memo.follow)return;LS.ph.set(d.seq,LS.lit.splice(0));if(LS.ph.size>8)LS.ph.delete(LS.ph.keys().next().value)});
 natOn("Speech","vowels",d=>{if(!LS.on||!memo.follow)return;const ws=LS.ph.get(d.seq);LS.ph.delete(d.seq);if(!ws)return;
   hphGet().then(()=>{try{vowelCheck(ws,d.sym||[],d.prob||[])}catch(e){}})});
 natOn("Speech","error",d=>{if(!LS.on)return;const c=d&&d.code;if(c===9){micStop();toast("اسمح للتطبيق باستعمال الميكروفون من إعدادات الجهاز")}else if(c===-2){micStop();toast("انقطع الاستماع، اضغط الميكروفون لتكمل")}else if(c===-3){LS.q=false;LS.done=0;$("mSub").textContent=micMsg();toast(d.again?"محرّك القرآن توقف لأن الجهاز احتاج الذاكرة، كمّلنا بمحرّك Google. المرة الجاية يرجع يشتغل":"محرّك القرآن ما اشتغل على هذا الجهاز، كمّلنا بمحرّك Google"+(d.why?" ("+String(d.why).slice(0,80)+")":""))}else if(c===100)toast("ماكو إنترنت، أكمل أسمعك من الجهاز نفسه");else if(c===12||c===13)toast("للاستماع بدون إنترنت نزّل العربية من إعدادات Google ← التعرّف على الكلام بلا إنترنت");else if(c===2||c===4)toast("الاستماع يحتاج إنترنت أو حزمة العربية بدون إنترنت من Google")});
-function micStart(){LS.lit=[];LS.ph.clear();
+function micStart(){LS.lit=[];LS.ph.clear();LS.hw=[];LS.hp="";
   /* the Quran word list for telling a slip from a garbled word: built while the reader starts, not at the first slip */
   if(memo.follow&&!QLX)setTimeout(()=>window.requestIdleCallback?requestIdleCallback(qLex,{timeout:3000}):qLex(),400);
   const SR=PLAT==="electron"?null:window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -5054,7 +5075,9 @@ function micStart(){LS.lit=[];LS.ph.clear();
   try{r.start()}catch(e){no("تعذّر تشغيل الاستماع.");return}
   $("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent=micMsg();
 }
-const micMsg=()=>(memo.follow?"أتابعك… اقرأ والكلمات تتلوّن":"أسمعك… اقرأ من حفظك")+(LS.q?" · محرّك القرآن":LS.dev?" · Google على الجهاز":LS.nat?" · Google":"");
+const micMsg=()=>{const eng=LS.q?"محرّك القرآن":LS.dev?"Google على الجهاز":LS.nat?"Google":"",hw=memo.follow&&LS.hw?LS.hw.concat(LS.hp?[LS.hp]:[]).slice(-4):[];
+  if(hw.length)return (eng?eng+" · ":"")+"سمعت: "+hw.join(" ");
+  return (memo.follow?"أتابعك… اقرأ والكلمات تتلوّن":"أسمعك… اقرأ من حفظك")+(eng?" · "+eng:"")};
 $("mMic").onclick=()=>{LS.on?micStop():micStart()};
 $("mAyah").onclick=()=>{const p=deckPages().find(p=>(memo.rev.get(p)||0)<pageWords(p).length);if(!p)return;const w=pageWords(p)[memo.rev.get(p)||0];revealAyah(+w.dataset.a)};
 $("mGood").onclick=()=>rate(true);$("mAgain").onclick=()=>rate(false);
