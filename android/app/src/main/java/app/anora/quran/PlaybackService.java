@@ -157,6 +157,7 @@ public class PlaybackService extends Service {
 
     void update(String t, String x, boolean p, long[] st) {
         main.post(() -> {
+            if (inst != this) return;   // stopped meanwhile: no wakelock, session or notification after onDestroy
             title = t;
             text = x;
             playing = p;

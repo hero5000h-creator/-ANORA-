@@ -131,6 +131,11 @@ class AudioPlugin : Plugin() {
     /** ExoPlayer must be used from the main thread; plugin calls arrive on a background one. */
     private fun onMain(call: PluginCall, block: (ExoPlayer) -> Unit) {
         main.post {
+            // a call still queued when the plugin went away must not build a new player nobody releases
+            if (destroyed) {
+                call.reject("audio closed")
+                return@post
+            }
             try {
                 block(get())
                 call.resolve()
@@ -196,7 +201,11 @@ class AudioPlugin : Plugin() {
         p.clearMediaItems()
     }
 
+    @Volatile
+    private var destroyed = false
+
     override fun handleOnDestroy() {
+        destroyed = true
         if (inst === this) inst = null
         main.removeCallbacks(ticker)
         player?.release()

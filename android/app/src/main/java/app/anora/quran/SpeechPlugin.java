@@ -272,6 +272,20 @@ public class SpeechPlugin extends Plugin {
     /** follow-along: check each phrase's vowels too (the page asks for it) */
     private boolean qVowels = false;
 
+    private void qExpect() {
+        Messenger s = svc;
+        if (s == null) return;
+        Message m = Message.obtain(null, QasrService.EXPECT);
+        Bundle b = new Bundle();
+        b.putStringArray("words", expect);
+        m.setData(b);
+        try {
+            s.send(m);
+        } catch (RemoteException e) {
+            qasrDied();
+        }
+    }
+
     private void qSend(int what) {
         Messenger s = svc;
         if (s == null) return;
@@ -279,6 +293,7 @@ public class SpeechPlugin extends Plugin {
         m.replyTo = inbox;
         try {
             s.send(m);
+            if (what == QasrService.START) qExpect();
         } catch (RemoteException e) {
             qasrDied();
         }
@@ -413,7 +428,20 @@ public class SpeechPlugin extends Plugin {
         main.post(() -> qSend(QasrService.RESET));
         call.resolve();
     }
+    /** follow-along: the words due next on the page, in order, for the own Quran recogniser */
+    private String[] expect = new String[0];
+
     private void takeBias(PluginCall call) {
+        JSArray nx = call.getArray("next", null);
+        if (nx != null) {
+            ArrayList<String> e = new ArrayList<>();
+            for (int k = 0; k < nx.length() && e.size() < 60; k++) {
+                String w = nx.optString(k, "");
+                if (!w.isEmpty()) e.add(w);
+            }
+            expect = e.toArray(new String[0]);
+            main.post(this::qExpect);
+        }
         JSArray a = call.getArray("words", null);
         if (a == null) return;
         ArrayList<String> b = new ArrayList<>();
@@ -469,6 +497,7 @@ public class SpeechPlugin extends Plugin {
             return;
         }
         main.post(() -> {
+            main.removeCallbacks(listenR);
             running = true;
             pickDevice(() -> {
                 listen();
@@ -482,6 +511,7 @@ public class SpeechPlugin extends Plugin {
     @PluginMethod
     public void stop(PluginCall call) {
         main.post(() -> {
+            main.removeCallbacks(listenR);
             qStop();
             running = false;
             destroy();
@@ -491,6 +521,7 @@ public class SpeechPlugin extends Plugin {
 
     @Override
     protected void handleOnDestroy() {
+        main.removeCallbacks(listenR);
         qStop();
         unbindQasr();
         running = false;
@@ -596,8 +627,12 @@ public class SpeechPlugin extends Plugin {
         }
     }
 
+    /** one restart at a time; a stop (or a new start) takes back any still waiting, so it never lands on a new session */
+    private final Runnable listenR = this::listen;
+
     private void again(long ms) {
-        main.postDelayed(this::listen, ms);
+        main.removeCallbacks(listenR);
+        main.postDelayed(listenR, ms);
     }
 
     private void emit(Bundle b, boolean fin) {
