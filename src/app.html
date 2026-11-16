@@ -1841,7 +1841,10 @@ html.phoneM:not([data-frame="1"]) .pg.gL,html.phoneM:not([data-frame="1"]) .pg.g
 #noteBox:not([hidden]){animation:sdFade .2s ease-out}#noteBox.out{animation:sdFadeO .18s ease-in forwards;pointer-events:none}#noteBox.out .nb{animation:nbOut .18s cubic-bezier(.5,0,.75,.4) forwards}
 @keyframes nbOut{to{opacity:0;transform:translateY(-8px) scale(.98)}}
 /* writing with a pen: faint words over ruled lines, each written word back in full ink */
-.inkc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+/* the ink lies on the paper UNDER the words (between the paper and the text block), so a coloured stroke never covers
+   the letters: each written word comes back in full ink on top of what the pen drew */
+.inkc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:.8}
+#app.ink .pg .frame{z-index:2}
 #app.ink .pg:not(.pk) .ln:not(.sh){background:linear-gradient(to top,color-mix(in srgb,var(--ink) 16%,transparent) 1px,transparent 1px)}
 #app.ink .pg .inkw{transition:opacity .45s ease-out}
 #app.ink.ikF .pg .inkw:not(.inkd){opacity:.16}
