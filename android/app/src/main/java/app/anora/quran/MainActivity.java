@@ -162,15 +162,15 @@ public class MainActivity extends BridgeActivity {
     @Override
     public void onResume() {
         super.onResume();
-        fastestRefresh();
+        setFast(fastWanted);   // keeps the 60 Hz cap of the light performance setting
     }
 
     @Override
     public void onConfigurationChanged(Configuration c) {
         super.onConfigurationChanged(c);
         fixedTextZoom();
-        /* folding or unfolding switches to the other screen, which has its own display modes */
-        fastestRefresh();
+        /* folding or unfolding switches to the other screen, which has its own display modes (the 60 Hz cap stays) */
+        setFast(fastWanted);
     }
 
     @Override

@@ -27,14 +27,15 @@ import java.util.Random;
  * SpeechPlugin sees the process go (linkToDeath) and carries on with the phone's recogniser. It also keeps the
  * model's memory away from the page.
  *
- * Messages from the app: START (replyTo = where to send), STOP, RESET.
+ * Messages from the app: START (replyTo = where to send), STOP, RESET, EXPECT (data: words, the words due next on
+ * the page in order, for follow-along).
  * Messages to the app: READY (arg1: 1 listening, 0 the model cannot run here, 2 no microphone),
  * HEARD (data: text, fin), ERROR (arg1: -2 the microphone stream ended), PHRASE (arg1: number, data: path, n:
  * the phrase's audio for the vowel check). VOWELS comes from HarakatService.
  */
 public class QasrService extends Service {
 
-    static final int START = 1, STOP = 2, RESET = 3;
+    static final int START = 1, STOP = 2, RESET = 3, EXPECT = 4;
     static final int READY = 10, HEARD = 11, ERROR = 12, PHRASE = 13, VOWELS = 14;
     static final String TAG = "qasr";
     static final String SELFTEST = "app.anora.quran.QASR_SELFTEST";
@@ -49,6 +50,8 @@ public class QasrService extends Service {
     private volatile boolean on = false;
     private volatile Messenger client;
     private volatile QuranListen listen;
+    /** the words due next (follow-along); kept for a listener that starts after they came */
+    private volatile String[] expectWords = null;
     private volatile Thread thread;
 
     private final Messenger inbox = new Messenger(new Handler(Looper.getMainLooper(), m -> {
@@ -63,6 +66,12 @@ public class QasrService extends Service {
             case RESET:
                 QuranListen l = listen;
                 if (l != null) l.reset();
+                return true;
+            case EXPECT:
+                String[] w = m.getData().getStringArray("words");
+                expectWords = w;
+                QuranListen e = listen;
+                if (e != null) e.expect(w);
                 return true;
             default:
                 return false;
@@ -156,12 +165,14 @@ public class QasrService extends Service {
 
     /**
      * A phrase ended: its audio is written (16-bit) to a file, and the app is told; the app hands the file to the
-     * vowel check, in its own process. Of the files, the last four are kept at most (each is deleted once heard).
+     * vowel check, in its own process. Each file is deleted once heard.
      */
     private void phrase(float[] a, int n, Thread me) {
         if (!checkVowels || thread != me) return;
         int seq = ++phraseSeq;
-        File f = new File(getCacheDir(), "phrase-" + (seq % 4) + ".pcm");
+        // a file per phrase (64 names in turn): with only four, a vowel check four phrases behind read newer audio
+        // and marked the vowels of the wrong words
+        File f = new File(getCacheDir(), "phrase-" + (seq % 64) + ".pcm");
         byte[] buf = new byte[n * 2];
         for (int i = 0; i < n; i++) {
             int v = Math.max(-32768, Math.min(32767, Math.round(a[i] * 32767f)));
@@ -254,7 +265,11 @@ public class QasrService extends Service {
                 QasrService.this.phrase(x, n, me);
             }
         });
+        String[] ew = expectWords;
+        if (ew != null) l.expect(ew);
         listen = l;
+        // words that came in between are not lost
+        if (expectWords != ew && expectWords != null) l.expect(expectWords);
         short[] pcm = new short[rate / 10];
         float[] x = new float[pcm.length];
         try {

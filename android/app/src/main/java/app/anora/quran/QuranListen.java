@@ -52,6 +52,14 @@ public final class QuranListen {
     public long decodeMs = 0;
     public static boolean DEBUG = false;
 
+    // The words due next on the page (their bare consonants), so a word that is clearly the one due is given out
+    // the moment it is heard instead of waiting for a second decode to agree on it. Free decoding wavers on a long
+    // madd or a slow reading, and waiting for agreement then held words back for seconds before giving out a burst.
+    private volatile String[] expectNew = null;
+    private String[] expect = null;
+    private int ePos = 0;
+    public int byExpect = 0;                                // words given out early because they were the ones due
+
     public QuranListen(QuranAsr asr, Out out) {
         this.asr = asr;
         this.out = out;
@@ -65,6 +73,149 @@ public final class QuranListen {
      */
     public void reset() {
         resetAsked = true;
+    }
+
+    /**
+     * The words due next on the page, in order, from the next one due (any thread; taken before the next decode).
+     * The text given out is still what was heard, never these words: they only decide when a word is given out.
+     */
+    public void expect(String[] words) {
+        String[] k = new String[words == null ? 0 : words.length];
+        int n = 0;
+        for (int i = 0; i < k.length; i++) {
+            String s = bare(words[i]);
+            if (s.isEmpty()) continue;
+            k[n++] = s;
+        }
+        expectNew = Arrays.copyOf(k, n);
+    }
+
+    /** The letters a word is matched by: no vowels, no alif/hamza/waw/ya (how the page lines words up too). */
+    static String bare(String w) {
+        StringBuilder b = new StringBuilder(w.length());
+        for (int i = 0; i < w.length(); i++) {
+            char c = w.charAt(i);
+            if (c == '\u0629') c = '\u0647';                       // ة as ه
+            if (c < '\u0621' || c > '\u064A') continue;             // vowels, marks, tatweel, anything else
+            if ("\u0621\u0622\u0623\u0624\u0625\u0626\u0627\u0648\u0649\u064A\u0640".indexOf(c) >= 0) continue;
+            b.append(c);
+        }
+        return b.toString();
+    }
+
+    /**
+     * The decode h lined up against the page's words around the next one due (the dozen before it, already given
+     * out, and those after it). Returns null when h does not follow the page (the reader is elsewhere, or the
+     * decode is mostly noise): then the words are given out the free way. Otherwise {where the new words start in
+     * h, how many of them to give out now, the next word due after those}. A new word is given out when it is the
+     * word due (or close to it: a slip is still given out, as heard, so the page can mark it); never the last
+     * word heard, which may be unfinished. A word that fits nothing between two that do
+     * goes out too (the page decides what it was); two in a row stop it.
+     */
+    private int[] anchor(String[] h) {
+        if (expect == null || expect.length == 0 || h.length == 0) return null;
+        int base = Math.max(0, ePos - 12), top = Math.min(expect.length, ePos + 16), m = top - base, w = h.length;
+        int due = ePos - base;
+        if (due >= m) return null;
+        String[] hb = new String[w];
+        for (int i = 0; i < w; i++) hb[i] = bare(h[i]);
+        final double GAP_H = 0.7, GAP_E = 0.9;
+        double[][] d = new double[w + 1][m + 1];
+        byte[][] bt = new byte[w + 1][m + 1];                    // 0 match, 1 skip a heard word, 2 skip a page word
+        for (int j = 0; j <= m; j++) {
+            d[0][j] = j <= due ? 0 : (j - due) * GAP_E;          // it may start anywhere up to the word due
+            bt[0][j] = 2;
+        }
+        for (int i = 1; i <= w; i++) {
+            d[i][0] = d[i - 1][0] + GAP_H;
+            bt[i][0] = 1;
+            for (int j = 1; j <= m; j++) {
+                double c = hb[i - 1].isEmpty() ? 1 : sub(hb[i - 1], expect[base + j - 1]);
+                double best = d[i - 1][j - 1] + c;
+                byte b = 0;
+                if (d[i - 1][j] + GAP_H < best) { best = d[i - 1][j] + GAP_H; b = 1; }
+                if (d[i][j - 1] + GAP_E < best) { best = d[i][j - 1] + GAP_E; b = 2; }
+                d[i][j] = best;
+                bt[i][j] = b;
+            }
+        }
+        int jEnd = 0;
+        for (int j = 1; j <= m; j++) if (d[w][j] < d[w][jEnd]) jEnd = j;
+        int[] at = new int[w];                                   // the page word each heard word lines up with, or -1
+        double[] cost = new double[w];
+        Arrays.fill(at, -1);
+        for (int i = w, j = jEnd; i > 0; ) {
+            if (j > 0 && bt[i][j] == 0) {
+                at[i - 1] = j - 1;
+                cost[i - 1] = hb[i - 1].isEmpty() ? 1 : sub(hb[i - 1], expect[base + j - 1]);
+                i--;
+                j--;
+            } else if (j == 0 || bt[i][j] == 1) i--;
+            else j--;
+        }
+        int good = 0, any = -1, from = -1;
+        for (int i = 0; i < w; i++) {
+            if (at[i] >= 0 && cost[i] <= 0.35) {
+                good++;
+                if (from < 0 && at[i] >= due) from = i;
+            }
+            if (any < 0 && at[i] >= due) any = i;
+        }
+        // a poor fit on the word due (a slip) still goes out, so the page can mark it, but only with a word that
+        // fits after it: alone it may be the first half of the word due, which would then be given out twice
+        if (from >= 0 && any >= 0 && any < from && from < w - 1) from = any;
+        if (good < (w <= 2 ? 1 : Math.max(2, (w + 1) / 2))) return null;
+        if (from < 0) return null;                               // nothing due heard: the free way decides
+        int take = 0, next = ePos, miss = 0;
+        for (int i = from; i < w; i++) {
+            // the last word heard may be unfinished, and the model then guesses its ending from the Quran it knows
+            // (it heard -ون where the reader went on to say -ين): it waits for the next word or the pause
+            boolean fits = i < w - 1 && at[i] >= due && cost[i] <= 0.35;
+            if (fits) {
+                take = i - from + 1;
+                next = base + at[i] + 1;
+                miss = 0;
+            } else if (++miss >= 2) break;
+        }
+        return new int[] { from, take, next };
+    }
+
+    /**
+     * The page sends its list after it has taken in the words given out so far, so the list may still begin with
+     * a few words given out since: the longest start of the list that is the end of what was given out is passed
+     * over, or those words would be matched and given out a second time.
+     */
+    private int caughtUp() {
+        int best = 0, m = said.size();
+        for (int k = Math.min(Math.min(6, m), expect.length); k >= 1; k--) {
+            boolean all = true;
+            for (int i = 0; i < k && all; i++) {
+                String s = bare(said.get(m - k + i));
+                all = s.length() >= 2 && sub(s, expect[i]) <= 0.3;
+            }
+            if (all) {
+                best = k;
+                break;
+            }
+        }
+        return best;
+    }
+
+    /** Words were given out: move past them in the list of words due. */
+    private void passDue(String w) {
+        if (expect == null) return;
+        String s = bare(w);
+        if (s.length() < 2) return;
+        // only a close fit moves the place, and only a word or two on: a stray short word that looks like one
+        // further on must not carry it past words not yet read (they would never be given out)
+        for (int j = ePos; j < Math.min(expect.length, ePos + 3); j++) {
+            if (sub(s, expect[j]) <= 0.3) {
+                ePos = j + 1;
+                return;
+            }
+        }
+        // a word that fits none of the next few (noise, a word cut in half) does not move the place: the next
+        // decode lines up with the page again, and may move on by more than a word
     }
 
     private void doReset() {
@@ -130,6 +281,12 @@ public final class QuranListen {
         // a phone that needs longer than a step to decode decodes less often, so it never falls behind
         step = (int) Math.max(STEP, Math.min(RATE * 12 / 10, decodeMs * RATE / 1000 * 3 / 2));
         if (DEBUG) System.out.printf("   dec %.2f-%.2f%s: %s%n", start / (double) RATE, total / (double) RATE, pause ? " P" : "", text);
+        String[] ne = expectNew;
+        if (ne != null) {
+            expectNew = null;
+            expect = ne;
+            ePos = caughtUp();
+        }
         if (text.isEmpty()) return;
         String[] h = text.split(" ");
         // the window's first word is cut in half only when the reader was speaking right where the window starts
@@ -140,7 +297,9 @@ public final class QuranListen {
             for (int i = 0; i < k; i++) e += win[i] * win[i];
             cut = Math.sqrt(e / Math.max(1, k)) > Math.max(floor * 2.5, 0.003);
         }
-        int from = newFrom(h, cut);
+        int[] an = pause ? null : anchor(h);
+        if (DEBUG) System.out.println("      ePos " + ePos + (expect != null && ePos < expect.length ? " " + expect[ePos] : "") + " an " + (an == null ? "-" : an[0] + "," + an[1] + "," + an[2]));
+        int from = an != null ? an[0] : newFrom(h, cut);
         String[] now = Arrays.copyOfRange(h, Math.min(from, h.length), h.length);
         // a word is given out once two decodes in a row agree on it and it is not the last word heard (that one
         // may still be unfinished); at a pause everything heard is given out
@@ -158,6 +317,7 @@ public final class QuranListen {
                             if (done.length() > 0) done.append(' ');
                             done.append(prevNew[k]);
                             said.add(prevNew[k]);
+                            passDue(prevNew[k]);
                         }
                         prevNew = Arrays.copyOfRange(prevNew, o, prevNew.length);
                         break;
@@ -171,12 +331,18 @@ public final class QuranListen {
             else sameLast = 0;
             int last = quiet >= PAUSE || sameLast >= 2 ? now.length : now.length - 1;
             while (agree < last && agree < prevNew.length && now[agree].equals(prevNew[agree])) agree++;
+            if (an != null && an[1] > agree) {
+                byExpect += an[1] - agree;
+                agree = an[1];
+            }
         }
         for (int k = 0; k < agree; k++) {
             if (done.length() > 0) done.append(' ');
             done.append(now[k]);
             said.add(now[k]);
+            if (an == null || k >= an[1]) passDue(now[k]);
         }
+        if (an != null && agree >= an[1] && an[1] > 0) ePos = Math.max(ePos, an[2]);
         while (said.size() > 24) said.remove(0);
         if (agree > 0) sameLast = 0;
         prevNew = Arrays.copyOfRange(now, agree, now.length);

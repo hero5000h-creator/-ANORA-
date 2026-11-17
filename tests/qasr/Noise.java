@@ -14,6 +14,8 @@ public class Noise {
             Random r = new Random(7);
             StringBuilder heard = new StringBuilder();
             QuranListen l = new QuranListen(q, (t, fin) -> heard.append(fin ? "F:" : "p:").append(t).append(' '));
+            // follow-along: the words due next on the page (with their vowels, as the page sends them; one has none)
+            l.expect(new String[] { "إِنَّ", "ٱلَّذِينَ", "كَفَرُواْ", "سَوَآءٌ", "عَلَيۡهِمۡ", "ءَأَنذَرۡتَهُمۡ", "ۖ", "" });
             float[] x = new float[1600];
             long t0 = System.nanoTime();
             for (int c = 0; c < 80; c++) {
@@ -23,6 +25,7 @@ public class Noise {
                 l.feed(x, x.length);
             }
             l.flush();
+            l.expect(null);
             float[] w = new float[16000 * 6];
             for (int i = 0; i < w.length; i++) w[i] = (float) (r.nextGaussian() * 0.2);
             String s1 = q.decode(w, w.length), s2 = qb.decode(w, w.length), s3 = q.decode(w, 300), s4 = q.decode(w, 401);

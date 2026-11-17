@@ -1277,7 +1277,7 @@ html[data-theme="dark"] .dnb .dn-m{transform:none;opacity:1}
 .mart svg{width:200px;height:150px;overflow:visible}
 .mn h3{font-family:var(--f-display);font-size:21px;margin:2px 0 4px}
 .mlead{margin:0 0 8px;font-size:15px;line-height:1.85;color:var(--bar-ink)}
-.mn ol{margin:0;padding-inline-start:22px;display:grid;gap:6px;font-size:14.5px;line-height:1.8;color:var(--muted)}
+.mn ol{margin:0;list-style-type:arabic-indic;padding-inline-start:22px;display:grid;gap:6px;font-size:14.5px;line-height:1.8;color:var(--muted)}
 .mn ol li::marker{color:var(--orn);font-weight:700}
 .mtry{margin-top:12px;height:40px;padding:0 20px;border-radius:20px;background:var(--sel);color:var(--orn);font-weight:600;font-size:14.5px}
 .mend{display:flex;gap:10px;justify-content:center;padding:6px 0 4px}
@@ -1841,7 +1841,10 @@ html.phoneM:not([data-frame="1"]) .pg.gL,html.phoneM:not([data-frame="1"]) .pg.g
 #noteBox:not([hidden]){animation:sdFade .2s ease-out}#noteBox.out{animation:sdFadeO .18s ease-in forwards;pointer-events:none}#noteBox.out .nb{animation:nbOut .18s cubic-bezier(.5,0,.75,.4) forwards}
 @keyframes nbOut{to{opacity:0;transform:translateY(-8px) scale(.98)}}
 /* writing with a pen: faint words over ruled lines, each written word back in full ink */
-.inkc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:6}
+/* the ink lies on the paper UNDER the words (between the paper and the text block), so a coloured stroke never covers
+   the letters: each written word comes back in full ink on top of what the pen drew */
+.inkc{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:.8}
+#app.ink .pg .frame{z-index:2}
 #app.ink .pg:not(.pk) .ln:not(.sh){background:linear-gradient(to top,color-mix(in srgb,var(--ink) 16%,transparent) 1px,transparent 1px)}
 #app.ink .pg .inkw{transition:opacity .45s ease-out}
 #app.ink.ikF .pg .inkw:not(.inkd){opacity:.16}
@@ -1975,6 +1978,36 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
 @media (max-width:420px){html.uzL .acts{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:10px}html.uzL .anv button span{display:none}}
 
 /*SKIN*/
+
+/* ---- design review 2026-11-16 (round 31) ---- */
+/* player bar: the surah and ayah are what the reader needs; the reciter's name gives way first */
+@media (max-width:620px){#player .pinfo{grid-template-columns:minmax(0,1fr) minmax(0,auto)}#player .pinfo b{min-width:0}#player .pinfo small{max-width:min(30vw,130px);min-width:0;overflow:hidden;text-overflow:ellipsis}html.uzL #player .pinfo small{max-width:min(22vw,90px)}html.uzL #player .cap{font-size:10px}}
+@media (max-width:380px){#player .cap{font-size:10.5px;letter-spacing:-.1px}}
+/* Fold docked sheet: the ayah medallion sat half under the sheet's header */
+#sheet.dock .acard{margin-top:30px}
+/* pen bar on phones: full-size 40px buttons; when they do not fit in one row the second row is centred too */
+@media (max-width:560px){.ik{width:40px;height:40px;margin-block:0}.ik svg{width:21px;height:21px}
+  #inkBar{max-width:calc(100vw - 16px);justify-content:center;align-content:center}#inkBar>*{margin-inline:0}}
+/* the "sky" paper swatch picked up the .sk layout class and stood taller than the others */
+.sw i.sk{display:grid;padding:0;gap:0;width:34px;height:24px}
+#prefs .seg.c5 .sw i.sk{width:30px}
+/* big interface text on narrow phones */
+html.uzL .bar .ib,html.uzL .bar #bPrefs,html.uzL .bar .btn-index{width:34px;min-width:0;height:34px;padding:0}html.uzL .bar .btn-index span{display:none}
+html.uzL .sht b{padding:0 34px;font-size:16px}
+html.uzL .tabs{display:flex;overflow-x:auto;scrollbar-width:none}html.uzL .tabs::-webkit-scrollbar{display:none}
+html.uzL .tabs [role=tab]{flex:1 1 auto;padding-inline:6px;min-width:0}
+/* index > memorisation: the quiz row's line wraps */
+#qzOpen .rn small{white-space:normal}
+/* adhkar on the Fold: room for four cards, progress bars on one line */
+@media (min-width:900px){.az-in{max-width:780px}}
+.az-cat{grid-template-rows:auto 1fr auto}.az-cat .pb{align-self:end}
+/* settings tabs on the Fold as easy to hit as on the phone */
+.ptabs button{height:40px;font-size:14px}
+/* small buttons: a 44px touch area without moving anything */
+#bClose,#manX,#rpX,#mExit,#mMic{position:relative}
+#bClose::after,#manX::after,#rpX::after,#mExit::after,#mMic::after{content:"";position:absolute;inset:-4px -4px}
+#lpBar .lpDots button{width:40px;height:40px}
+#memo .mb{min-height:40px}
 </style>
 
 
@@ -2277,7 +2310,7 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
   <div class="sbb"><button class="ctb solid" id="sbShare">مشاركة الصورة</button><button class="ctb" id="sbSave">حفظ</button><button class="ctb" id="sbText">نص فقط</button></div>
 </div></div>
 
-<section id="az" hidden aria-label="الأذكار" dir="rtl">
+<section id="az" hidden role="dialog" aria-modal="true" aria-label="الأذكار" dir="rtl">
   <canvas id="azSky" aria-hidden="true"></canvas>
   <div class="az-in">
     <header class="az-top">
@@ -3184,7 +3217,7 @@ function vt(fn,lay){if(reduce||LITE.on||!document.startViewTransition)return fn(
   /* the cross-fade already carries the change: the buttons' own colour transitions (about 180 of them at a paper or
      night switch) would keep changing inside the new picture after the fade, so the screen settled in two steps */
   root.classList.add("vtN");const done=()=>root.classList.remove("vtL","vtN");
-  try{const t=document.startViewTransition(fn);t.finished.finally(done)}catch(e){done();fn()}}
+  try{const t=document.startViewTransition(fn);t.ready.catch(()=>{});t.finished.catch(()=>{}).finally(done)}catch(e){done();fn()}}
 function setFlow(on){flowOn=on;store.set("mushaf.flow",on?"1":"0");flowShown=false;renderFlow();if(!on)layoutIdle()}
 function flowPage(step){
   const n=mode==="spread"?2:1,t=cur+step*n;
@@ -3675,7 +3708,9 @@ let toastT;function toast(m){const t=$("toast"),a=$("app"),f=document.querySelec
   t.classList.add("on");$("app").classList.add("toasting");clearTimeout(toastT);toastT=setTimeout(()=>{t.classList.remove("on");$("app").classList.remove("toasting")},1800)}
 const colRd=(key,def)=>{try{const v=JSON.parse(store.get(key)||"null");if(Array.isArray(v)&&v.length&&v.every(x=>x&&/^[\w-]{1,16}$/.test(x.k)&&typeof x.n==="string"&&/^#[0-9a-f]{6}$/i.test(x.c)))return v}catch(e){}return def.map(x=>({...x}))};
 const HLC0=[{k:"y",c:"#e2b93b",n:"رحمة وبشارة"},{k:"g",c:"#5fae7d",n:"دعاء"},{k:"b",c:"#4f8fd0",n:"قصص"},{k:"v",c:"#9a72c9",n:"تدبّر"},{k:"o",c:"#e0874a",n:"أوامر"},{k:"r",c:"#d0596b",n:"تحذير"}],HLC=colRd("mushaf.hlSet",HLC0);
-const hl={get(){const d=jget("mushaf.hl",{});for(const k in d)if(!d[k]||typeof d[k].k!=="string")delete d[k];return d},of(id){return this.get()[id]||""},
+/* a stored ayah key must be an ayah number (an edited backup with "abc" or "1.5" broke the index tabs) */
+const okA=k=>{const n=+k;return Number.isInteger(n)&&n>=1&&n<=NA};
+const hl={get(){const d=jget("mushaf.hl",{});for(const k in d)if(!okA(k)||!d[k]||typeof d[k].k!=="string")delete d[k];return d},of(id){return this.get()[id]||""},
   set(id,k){const d=this.get();if(k)d[id]={k,at:Date.now()};else delete d[id];store.set("mushaf.hl",JSON.stringify(d))},
   names(){let n=jget("mushaf.hlNames",{});return Object.fromEntries(HLC.map(c=>[c.k,n[c.k]||c.n]))},
   rename(k,v){let n=jget("mushaf.hlNames",{});n[k]=v.trim().slice(0,24);if(!n[k])delete n[k];store.set("mushaf.hlNames",JSON.stringify(n))}};
@@ -3811,8 +3846,10 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("lpBar").hidden)
 addEventListener("resize",()=>popClose(),{passive:true});
 function stepAyah(n,dir){if(n<1||n>NA)return;openAyah(n);showAyahPage(n);const b=$("sheet").querySelector(".shbody");b.classList.remove("sw");
   b.animate([{transform:`translateX(${dir>0?-48:48}px)`,opacity:0},{transform:"none",opacity:1}],{duration:reduce?0:280,easing:"cubic-bezier(.2,.8,.2,1)"})}
-$("shPrev").onclick=()=>stepAyah(selA-1,-1);
-$("shNext").onclick=()=>stepAyah(selA+1,1);
+/* the sheet fades out for a moment after it closes (selA is already 0): taps on it then do nothing */
+$("sheet").addEventListener("click",e=>{if(!$("sheet").classList.contains("on")){e.stopPropagation();e.preventDefault()}},true);
+$("shPrev").onclick=()=>{if(selA)stepAyah(selA-1,-1)};
+$("shNext").onclick=()=>{if(selA)stepAyah(selA+1,1)};
 $("aCopy").onclick=()=>{
   const t=ayahQ(selA);
   const ok=()=>toast("نُسخت الآية"),fail=()=>{
@@ -3949,13 +3986,18 @@ async function saveBlob(name,blob,ok){if(natShareOK()){await natShare({title:nam
   try{const u=URL.createObjectURL(blob),a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast(ok)}catch(e){toast("الحفظ غير متاح هنا")}}
 function backupData(){const d={};try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith("mushaf."))d[k]=localStorage.getItem(k)}}catch(e){}
   return {app:"mushaf",v:1,at:new Date().toISOString(),data:d}}
-$("bkOut").onclick=e=>{e.stopPropagation();const b=backupData(),n=Object.keys(b.data).length;
+$("bkOut").onclick=async e=>{e.stopPropagation();const b=backupData();
+  /* the pen's handwriting lives in its own store (IndexedDB), so it is added to the file too */
+  try{const ink=await inkDB.all();if(Object.keys(ink).length)b.ink=ink}catch(x){}
+  const n=Object.keys(b.data).length+(b.ink?Object.keys(b.ink).length:0);
   saveBlob(`mushaf-backup-${new Date().toISOString().slice(0,10)}.json`,new Blob([JSON.stringify(b)],{type:"application/json"}),`حُفظت النسخة (${ar(n)} عنصر)`)};
 $("bkIn").onclick=e=>{e.stopPropagation();$("bkFile").value="";$("bkFile").click()};
 $("bkFile").onchange=async()=>{const f=$("bkFile").files[0];if(!f)return;
   try{const j=JSON.parse(await f.text());if(!j||j.app!=="mushaf"||typeof j.data!=="object")throw 0;
     const ks=Object.keys(j.data).filter(k=>k.startsWith("mushaf.")&&typeof j.data[k]==="string");if(!ks.length)throw 0;
-    ks.forEach(k=>store.set(k,j.data[k]));toast(`استُرجعت ${ar(ks.length)} عنصر · يُعاد التحميل`);setTimeout(()=>location.reload(),1200)}
+    ks.forEach(k=>store.set(k,j.data[k]));
+    if(j.ink&&typeof j.ink==="object")for(const k in j.ink){const p=+k,v=j.ink[k];if(Number.isInteger(p)&&p>=1&&p<=NP&&v&&Array.isArray(v.s)&&Array.isArray(v.w))await inkDB.put(p,{s:v.s.filter(st=>st&&Array.isArray(st.pts)),w:v.w})}
+    toast(`استُرجعت ${ar(ks.length)} عنصر · يُعاد التحميل`);setTimeout(()=>location.reload(),1200)}
   catch(x){toast("هذا الملف ليس نسخة احتياطية من المصحف")}};
 $("sbSave").onclick=async()=>{if(!sbBlob)return;if(natShareOK()){await natShare({text:`[${SUR[sOf(sbId)][0]}: ${ar(aOf(sbId))}]\n${APP_CR}`},sbName(),sbBlob);return}let dl=null;try{dl=window.claude&&claude.use?await claude.use("downloads"):null}catch(e){}
   if(dl){try{await dl.save({filename:sbName(),data:sbBlob});toast("حُفظت الصورة")}catch(e){if(e&&e.code==="declined")return;toast(e&&e.code==="rate_limited"?"لحظة وحاول مرة أخرى":"الحفظ غير متاح هنا")}return}
@@ -3988,7 +4030,7 @@ function noteFit(){const bx=$("noteBox"),t=$("nbT");if(!bx||bx.hidden||!t)return
   t.style.height=Math.max(96,Math.min(innerHeight*.26,vh-top-74))/z+"px"}
 function noteClose(save){const bx=$("noteBox");if(!bx||bx.hidden||bx.classList.contains("out"))return;clearTimeout(ntTimer);if(save)notes.set(bx._id,$("nbT").value);$("nbT").blur();if(reduce)bx.hidden=true;else{bx.classList.add("out");setTimeout(()=>{if(bx.classList.contains("out")){bx.hidden=true;bx.classList.remove("out")}},200)}if(selA===bx._id&&shK==="nt")shBody(bx._id)}
 $("aGrp").addEventListener("click",e=>{if(e.target.closest("#mgEd")){ceOpen("mg");return}const b=e.target.closest("[data-mg]");if(!b||!selA)return;mgrp.set(selA,b.dataset.mg);aGrpUI();paintHL();rasterDirtyLazy();toast(`في مجموعة «${MG.find(g=>g.k===b.dataset.mg).n}»`);if(indexOpen)renderList()});
-$("aMark").onclick=()=>{const prevG=mgrp.get()[selA]||"";const on=marks.toggle(selA);if(!on)mgrp.set(selA,"");$("aMark").setAttribute("aria-pressed",String(on));aGrpUI();paintHL();rasterDirtyLazy();(on?toast("أُضيفت إلى العلامات"):(()=>{const id=selA,g=prevG;toastU("أُزيلت من العلامات",()=>{if(!marks.has(id))marks.toggle(id);if(g)mgrp.set(id,g);if(selA===id){$("aMark").setAttribute("aria-pressed","true");aGrpUI()}paintHL();rasterDirtyLazy()})})());if(indexOpen)renderList()};
+$("aMark").onclick=()=>{if(!selA)return;const prevG=mgrp.get()[selA]||"";const on=marks.toggle(selA);if(!on)mgrp.set(selA,"");$("aMark").setAttribute("aria-pressed",String(on));aGrpUI();paintHL();rasterDirtyLazy();(on?toast("أُضيفت إلى العلامات"):(()=>{const id=selA,g=prevG;toastU("أُزيلت من العلامات",()=>{if(!marks.has(id))marks.toggle(id);if(g)mgrp.set(id,g);if(selA===id){$("aMark").setAttribute("aria-pressed","true");aGrpUI()}paintHL();rasterDirtyLazy()})})());if(indexOpen)renderList()};
 
 /* ---------- the reader's own colours (Mn 2026-11-04: add colours, personalise marks and highlights) ----------
    mushaf.hlSet / mushaf.mgSet hold the reader's lists [{k,c,n}] once changed; until then the defaults.
@@ -4144,7 +4186,7 @@ function wxClick(e){
 /* tadabbur journal: a short reflection on any ayah, kept on this device */
 let ntTimer;
 /* each note is {t:text, at:day}: anything else (an old or hand-edited backup) is dropped, or the list of notes broke */
-const notes={get(){const n=jget("mushaf.notes",{});for(const k in n){const v=n[k];if(!v||typeof v.t!=="string"||!v.t)delete n[k];else if(typeof v.at!=="number")v.at=0}return n},
+const notes={get(){const n=jget("mushaf.notes",{});for(const k in n){const v=n[k];if(!okA(k)||!v||typeof v.t!=="string"||!v.t)delete n[k];else if(typeof v.at!=="number")v.at=0}return n},
   set(id,t){const n=this.get();t=(t||"").trim();if(t)n[id]={t,at:today()};else delete n[id];const had=!!this.get()[id];store.set("mushaf.notes",JSON.stringify(n));if(selA===id)$("aNote").setAttribute("aria-pressed",String(!!t));if(had!==!!t){paintHL();rasterDirtyLazy()}}};
 const dayLabel=d=>{const x=today()-d;return x<=0?"اليوم":x===1?"أمس":`قبل ${ar(x)} ${x<=10?"أيام":"يوماً"}`};
 
@@ -4811,7 +4853,7 @@ $("dlDel").onclick=e=>{e.stopPropagation();const b=$("dlDel");if(!b.dataset.sure
   delete b.dataset.sure;b.textContent="احذف تحميل هذا القارئ";const r=reciter;
   nat("Filesystem","rmdir",{path:`audio/${r}`,directory:"DATA",recursive:true}).catch(()=>{}).then(()=>{DL[r].clear();dlSave(r);store.set("mushaf.dlb."+r,"0");if(auSrc&&!/^https?:\/\/cdn/.test(auSrc))auSrc="";dlUI();toast("حُذف التحميل")})};
 dlUI();
-$("aPlay").onclick=()=>playFrom(selA);
+$("aPlay").onclick=()=>{if(selA)playFrom(selA)};
 /* a toast with "تراجع": the last removal can be put back for 5 seconds */
 function toastU(m,undo){toast(m);const t=$("toast"),b=document.createElement("button");b.className="tundo";b.textContent="تراجع";
   b.onclick=e=>{e.stopPropagation();try{undo()}catch(x){}clearTimeout(toastT);t.classList.remove("on");$("app").classList.remove("toasting")};
@@ -4920,7 +4962,7 @@ function paintMemo(){
   $("mTitle").textContent=memo.range?`${repRef(memo.range.from)}–${ar(aOf(memo.range.to))}`:(ps.length>1?`الصفحتان ${ar(ps[0])}–${ar(ps[1])}`:`صفحة ${ar(ps[0])}`);
   if(memo.follow){$("memo").classList.remove("done");$("mSub").textContent=LS.on?micMsg():"اضغط الميكروفون واقرأ، أو المس كلمة لتبدأ منها";flPill();if(left===0)followNext();return}
   $("memo").classList.toggle("done",left===0);
-  $("mSub").textContent=left===0?"كيف كان حفظك لهذه الصفحة؟":LS.on?"أسمعك… اقرأ من حفظك":r?`المراجعة رقم ${ar(r.n+1)} · المس الصفحة لتظهر الكلمة التالية`:"المس الصفحة لتظهر الكلمة التالية، واضغط مطوّلاً لتظهر الآية";
+  $("mSub").textContent=left===0?"كيف كان حفظك لهذه الصفحة؟":LS.on?"أسمعك… اقرأ من حفظك":r?`المراجعة رقم ${ar(r.n+1)} · المس للكلمة التالية`:"المس للكلمة التالية، ومطوّلاً للآية";
 }
 function revealNext(p){const ws=pageWords(p),n=memo.rev.get(p)||0;if(n<ws.length){memo.rev.set(p,n+1);paintMemo();rasterDirtyLazy()}}
 function revealAyah(id){
@@ -4966,12 +5008,12 @@ addEventListener("resize",()=>{if(memo.follow)setTimeout(flPill,120)});
 function followFrom(x,y){const el=document.elementFromPoint(x,y),w=el&&el.closest&&el.closest(".lb [data-a]");if(!w)return;
   const ps=deckPages();let seen=false;for(const p of ps){const ws=pageWords(p),i=ws.indexOf(w);if(i>=0){memo.rev.set(p,i);seen=true}else memo.rev.set(p,seen?0:ws.length)}
   if(!seen)return;LS.miss=0;LS.done=0;LS.lit=[];LS.se.clear();LS.fx.clear();LS.hold=null;if(LS.nat)nat("Speech","reset").catch(()=>{});document.querySelectorAll("#book .err").forEach(x=>x.classList.remove("err"));skipMarks();paintMemo();rasterDirtyLazy();
-  if(LS.nat)nat("Speech","bias",{words:biasWords()}).catch(()=>{})}
+  if(LS.nat)nat("Speech","bias",{words:biasWords(),next:nextWords()}).catch(()=>{})}
 /* the page (or both pages) recited: turn on, after a breath so the last word is seen coloured */
 function followNext(){if(followNext.t)return;const ps=deckPages(),last=ps[ps.length-1];
   if(last>=NP){toast("صدق الله العظيم، ختمت القراءة");return}
   followNext.t=setTimeout(()=>{followNext.t=0;if(!memo.on||!memo.follow||deckPages()[0]!==ps[0])return;goTo(last+1);
-    setTimeout(()=>{if(memo.on&&memo.follow){paintMemo();if(LS.nat)nat("Speech","bias",{words:biasWords()}).catch(()=>{})}},reduce?60:900)},reduce?200:650)}
+    setTimeout(()=>{if(memo.on&&memo.follow){paintMemo();if(LS.nat)nat("Speech","bias",{words:biasWords(),next:nextWords()}).catch(()=>{})}},reduce?60:900)},reduce?200:650)}
 $("mExit").onclick=()=>setMemo(false);
 $("mErr").onclick=()=>{const nx=deckPages().map(p=>cache.has(p)&&pageWords(p)[memo.rev.get(p)||0]).find(Boolean);
   if(nx){const E=mErrs();E.add(mKey(nx));store.set("mushaf.memoErr",JSON.stringify([...E]));
@@ -5087,6 +5129,8 @@ function repeated(W,st){const E=shownBefore(30),B=E.map(w=>mk(w.textContent));re
 function bestAlt(alts){if(alts.length<2)return alts[0]||"";const T=hiddenNext(60).map(x=>sk(x[1].textContent));
   let best=alts[0],bs=-1;for(const a of alts){const st=align(String(a).trim().split(/\s+/).map(sk).filter(Boolean),T),sc=st.reduce((s,x)=>s+x[3],0);if(sc>bs){bs=sc;best=a}}return String(best)}
 /* the next hidden words in plain spelling, handed to the recogniser so it leans towards them (Android 13+) */
+/* the words due next, in page order (the own Quran recogniser gives out a word as soon as it is clearly the one due) */
+function nextWords(){return !memo.follow?[]:hiddenNext(40).map(x=>x[1].textContent)}
 function biasWords(){return [...new Set(hiddenNext(40).map(x=>x[1].textContent.replace(/[ً-ٟۖ-ࣰۭ-ࣲـ]/g,"").replace(/ٰ/g,"ا").replace(/ٱ/g,"ا")).filter(w=>w.length>1))]}
 function micStop(){const was=LS.on;LS.on=false;LS.hw=[];LS.hp="";$("mMic").classList.remove("on");$("mMic").setAttribute("aria-pressed","false");try{LS.rec&&LS.rec.stop()}catch(e){}if(was&&LS.nat)nat("Speech","stop").catch(()=>{});LS.nat=false;paintMemo()}
 /* Android: the WebView has no speech recognition, so the app's own plugin listens (Speech: heard {text,final}).
@@ -5117,7 +5161,7 @@ natOn("Speech","heard",d=>{if(!LS.on||!d||!d.text)return;
      recogniser may still change a word it is unsure of, so anything else waits for the next word) */
   if(memo.follow&&!d.final&&ws.length>LS.done){const last=sk(ws[ws.length-1]),nx=hiddenNext(1)[0];
     if(nx&&last.length>1&&(last===sk(nx[1].textContent)||(last.length>=5&&near(last,sk(nx[1].textContent))))){heardWords([ws[ws.length-1]],false);LS.done=ws.length}}
-  if(d.final)nat("Speech","bias",{words:biasWords()}).catch(()=>{})});
+  if(d.final)nat("Speech","bias",{words:biasWords(),next:nextWords()}).catch(()=>{})});
 /* ---------- vowels said wrong (follow-along, Android): after each phrase the vowel model (tajweed-v2) writes what it
    heard in the Quran phonetic script; it is lined up with how the words lit in that phrase must sound (hph.json,
    tools/harakat_ref.py) and a fatha, damma or kasra heard clearly in the place of another turns its word red */
@@ -5159,7 +5203,7 @@ function micStart(){LS.lit=[];LS.ph.clear();LS.hw=[];LS.hp="";
   const SR=PLAT==="electron"?null:window.SpeechRecognition||window.webkitSpeechRecognition;
   const no=m=>{micStop();$("mSub").textContent=m;toast(m)};
   if(PLAT==="android"&&NATIVE){LS.on=true;LS.nat=true;LS.done=0;LS.miss=0;$("mMic").classList.add("on");$("mMic").setAttribute("aria-pressed","true");$("mSub").textContent=micMsg();
-    nat("Speech","start",{words:biasWords(),offline:navigator.onLine===false,quick:!!memo.follow,vowels:!!memo.follow&&vowelsOn()&&(hphGet(),true)}).then(r=>{LS.dev=!!(r&&r.device);LS.q=!!(r&&r.quran);if(LS.on)$("mSub").textContent=micMsg()}).catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
+    nat("Speech","start",{words:biasWords(),next:nextWords(),offline:navigator.onLine===false,quick:!!memo.follow,vowels:!!memo.follow&&vowelsOn()&&(hphGet(),true)}).then(r=>{LS.dev=!!(r&&r.device);LS.q=!!(r&&r.quran);if(LS.on)$("mSub").textContent=micMsg()}).catch(e=>{const m=String(e&&e.message||e);LS.nat=false;no(/denied/.test(m)?"لم يُسمح باستعمال الميكروفون. اسمح به من إعدادات الجهاز ثم أعد المحاولة.":/unavailable/.test(m)?"لم نجد خدمة التعرّف على الكلام في الجهاز. ثبّت تطبيق Google أو فعّل الكتابة بالصوت.":"تعذّر تشغيل الاستماع.")});return}
   if(!SR){no(PLAT==="electron"?"التسميع بالصوت متاح بتطبيق الهاتف، وما زال غير متاح بنسخة الويندوز. تقدر تسمّع بإظهار الكلمات واحدة واحدة.":"التسميع بالصوت غير متاح في هذا المتصفح. جرّبه في Chrome، وسيكون مدمجاً في التطبيق.");return}
   const r=new SR();r.lang="ar-SA";r.continuous=true;r.interimResults=false;r.maxAlternatives=5;
   LS.rec=r;LS.on=true;LS.used=0;LS.miss=0;
@@ -5173,6 +5217,16 @@ const micMsg=()=>{const eng=LS.q?"محرّك القرآن":LS.dev?"Google على
   if(hw.length)return (eng?eng+" · ":"")+"سمعت: "+hw.join(" ");
   return (memo.follow?"أتابعك… اقرأ والكلمات تتلوّن":"أسمعك… اقرأ من حفظك")+(eng?" · "+eng:"")};
 $("mMic").onclick=()=>{LS.on?micStop():micStart()};
+/* keyboard (and switch access): Tab stays inside the panel on top, and never reaches the buttons behind it */
+document.addEventListener("keydown",e=>{if(e.key!=="Tab")return;
+  const vis=x=>x&&!x.hidden&&getComputedStyle(x).display!=="none"&&x.getBoundingClientRect().width>0;
+  const box=["manBox","az","prefs","srcBox","repBox","sheet"].map(id=>$(id)).find(x=>vis(x)&&(x.id!=="sheet"||(x.classList.contains("on")&&!x.classList.contains("dock"))));if(!box)return;
+  const f=[...box.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')].filter(x=>!x.disabled&&!x.closest("[hidden],[inert]")&&x.getClientRects().length);if(!f.length)return;
+  const a=document.activeElement,i=f.indexOf(a);
+  if(i<0||(!e.shiftKey&&i===f.length-1)||(e.shiftKey&&i===0)){e.preventDefault();(i<0?f[0]:e.shiftKey?f[f.length-1]:f[0]).focus()}},true);
+/* the app went to the background: the microphone stops (battery, and the mic light stays off), and comes back on
+   by itself when the reader returns to the same page */
+document.addEventListener("visibilitychange",()=>{if(document.hidden){if(LS.on){micStop();LS.bgMic=cur}}else if(LS.bgMic!=null){const p=LS.bgMic;LS.bgMic=null;if(memo.on&&!LS.on&&p===cur)micStart()}});
 $("mAyah").onclick=()=>{const p=deckPages().find(p=>(memo.rev.get(p)||0)<pageWords(p).length);if(!p)return;const w=pageWords(p)[memo.rev.get(p)||0];revealAyah(+w.dataset.a)};
 $("mGood").onclick=()=>rate(true);$("mAgain").onclick=()=>rate(false);
 ["pointerdown","click"].forEach(t=>$("memo").addEventListener(t,e=>e.stopPropagation()));
@@ -5276,22 +5330,23 @@ function gkHTML(){
   const create=`<div class="kh-row"><input class="gk-in" id="gkName" maxlength="40" placeholder="اسم الختمة، مثلاً: ختمة العائلة"><button class="kh-go" id="gkNew"${GK.ro?" disabled":""}>ابدأ ختمة جماعية</button></div>`;
   if(!g)return `<div class="kh-t"><b>ختمة جماعية</b><small>يقرأ كل واحد جزءاً</small></div><div class="kh-p">ابدأ ختمة يشترك فيها كل من يفتح هذا المصحف: يختار كل شخص جزءاً أو أكثر، ويعلّمه حين يتمّه، فتُختم القرآن معاً.</div>`+(GK.ro?`<div class="kh-p">لا يمكنك إنشاء ختمة من هذا الحساب، لكن ستظهر هنا أي ختمة يبدؤها صاحب المصحف.</div>`:create);
   const J=GK.juz,done=Object.values(J).filter(v=>v.done).length,taken=Object.keys(J).length,mine=Object.keys(J).filter(n=>J[n].by===GK.uid).map(Number);
-  const col=id=>GK.names[id]?GK.names[id].color:"var(--gold)";
+  /* ids and colours come from the shared database: anything another member wrote is escaped, a colour must be a colour */
+  const E=v=>escH(String(v==null?"":v)),col=id=>{const c=GK.names[id]&&GK.names[id].color;return typeof c==="string"&&/^#[0-9a-f]{3,8}$/i.test(c)?c:"var(--gold)"};
   let h=`<div class="kh-t"><b></b><small>${ar(done)} من ${ar(30)} جزءاً تمّت</small></div>`;
-  if(GK.groups.length>1)h+=`<div class="kh-row" style="justify-content:space-between"><span class="kh-p">الختمة</span><select class="gk-sel" id="gkPick">${GK.groups.map(x=>`<option value="${x.id}"${x.id===GK.gid?" selected":""}></option>`).join("")}</select></div>`;
+  if(GK.groups.length>1)h+=`<div class="kh-row" style="justify-content:space-between"><span class="kh-p">الختمة</span><select class="gk-sel" id="gkPick">${GK.groups.map(x=>`<option value="${E(x.id)}"${x.id===GK.gid?" selected":""}></option>`).join("")}</select></div>`;
   h+=`<div class="kh-bar" role="progressbar" aria-valuenow="${Math.round(done/30*100)}" aria-valuemin="0" aria-valuemax="100" aria-label="تقدم الختمة الجماعية"><i style="transform:scaleX(${done/30})"></i></div>`;
   if(done===30)h+=`<div class="kh-w">تمّت الختمة، تقبّل الله منكم</div>`;
   h+=`<div class="gk-grid">${Array.from({length:30},(_,i)=>{const n=i+1,v=J[n],me=v&&v.by===GK.uid;
     const cl=!v?"":v.done?"dn":me?"me":"tk";
-    return `<button data-gj="${n}" class="${cl}${GK.open===n?" sel":""}" style="${v?`--c:${col(v.by)}`:""}" aria-label="الجزء ${JNAMES[i]}${v?(v.done?"، تمّ":"، محجوز"):"، متاح"}" data-who="${v?v.by:""}">${ar(n)}</button>`}).join("")}</div>`;
+    return `<button data-gj="${n}" class="${cl}${GK.open===n?" sel":""}" style="${v?`--c:${col(v.by)}`:""}" aria-label="الجزء ${JNAMES[i]}${v?(v.done?"، تمّ":"، محجوز"):"، متاح"}" data-who="${v?E(v.by):""}">${ar(n)}</button>`}).join("")}</div>`;
   if(GK.open){const n=GK.open,v=J[n],me=v&&v.by===GK.uid;
     h+=`<div class="gk-act"><div class="kh-t"><b>الجزء ${JNAMES[n-1]}</b><small>من صفحة ${ar(pOf(JUZ[n-1]))}</small></div>`;
     if(!v)h+=`<div class="kh-p">الجزء متاح. خذه لتقرأه في هذه الختمة.</div><div class="kh-row"><button class="kh-go" id="gkTake"${GK.ro?" disabled":""}>آخذ هذا الجزء</button><button class="kh-x" id="gkRead">اقرأه فقط</button></div>`;
     else if(me)h+=`<div class="kh-row"><button class="kh-go" id="gkRead">اقرأ الجزء</button>${v.done?`<button class="kh-x" id="gkUndo">لم أتمّه بعد</button>`:`<button class="kh-go" id="gkDone">أتممته</button><button class="kh-x" id="gkDrop">أتركه لغيري</button>`}</div>`;
-    else h+=`<div class="kh-p">${v.done?"قرأه":"يقرؤه"} <b data-uid="${v.by}"></b>.</div><div class="kh-row"><button class="kh-x" id="gkRead">افتح الجزء</button></div>`;
+    else h+=`<div class="kh-p">${v.done?"قرأه":"يقرؤه"} <b data-uid="${E(v.by)}"></b>.</div><div class="kh-row"><button class="kh-x" id="gkRead">افتح الجزء</button></div>`;
     h+=`</div>`}
   const ppl=[...new Set(Object.values(J).map(v=>v.by))];
-  if(ppl.length)h+=`<div class="gk-ppl">${ppl.map(id=>{const n=Object.values(J).filter(v=>v.by===id).length;return `<span style="--c:${col(id)}"><i></i><b data-uid="${id}"></b> · ${ar(n)}</span>`}).join("")}</div>`;
+  if(ppl.length)h+=`<div class="gk-ppl">${ppl.map(id=>{const n=Object.values(J).filter(v=>v.by===id).length;return `<span style="--c:${col(id)}"><i></i><b data-uid="${E(id)}"></b> · ${ar(n)}</span>`}).join("")}</div>`;
   h+=`<div class="kh-row" style="justify-content:space-between"><span class="kh-p">${mine.length?`أجزاؤك: ${mine.map(ar).join("، ")}`:taken<30?"اضغط جزءاً متاحاً لتأخذه":""}</span>${GK.ro?"":`<button class="kh-x" id="gkMore">ختمة جديدة</button>`}</div>`;
   if(GK.more)h+=create;
   return h;
@@ -6175,6 +6230,7 @@ const INK_COL={red:"#d64545",gold:"#c79b3b",blue:"#3d7be0",green:"#3e9b5f"};
 const INK_W=[0,1.5,2.5,4];
 const inkDB=(()=>{let dbp=null;const open=()=>dbp||(dbp=new Promise((res,rej)=>{try{const r=indexedDB.open("anora-ink",1);r.onupgradeneeded=()=>r.result.createObjectStore("pages");r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}}));
   return {get:p=>open().then(db=>new Promise(res=>{try{const q=db.transaction("pages").objectStore("pages").get(p);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)}catch(e){res(null)}})).catch(()=>null),
+    all:()=>open().then(db=>new Promise(res=>{const out={};try{const q=db.transaction("pages").objectStore("pages").openCursor();q.onsuccess=()=>{const c=q.result;if(!c)return res(out);out[c.key]=c.value;c.continue()};q.onerror=()=>res(out)}catch(e){res(out)}})).catch(()=>({})),
     put:(p,v)=>open().then(db=>new Promise(res=>{try{const t=db.transaction("pages","readwrite"),o=t.objectStore("pages");v&&(v.s.length||v.w.length)?o.put(v,p):o.delete(p);t.oncomplete=res;t.onerror=res}catch(e){res()}})).catch(()=>{})}})();
 function inkData(p){if(INK.pages.has(p))return Promise.resolve(INK.pages.get(p));
   return inkDB.get(p).then(v=>{if(INK.pages.has(p))return INK.pages.get(p);const d={s:Array.isArray(v&&v.s)?v.s:[],w:Array.isArray(v&&v.w)?v.w:[]};d.ws=new Set(d.w);INK.pages.set(p,d);return d})}
