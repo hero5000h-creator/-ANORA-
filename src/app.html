@@ -622,7 +622,7 @@ html.uzL .tfg{color:var(--orn)}
 html.uzL .bar>*,html.uzL .foot>*,html.uzL #drawer,html.uzL #sheet .shh,html.uzL #sheet .shbody,html.uzL #toast,html.uzL #cont,html.uzL .si,html.uzL .sbx,html.uzL #repBox{zoom:var(--uz,1)}
 html.uzL #prefs{zoom:var(--uz,1);width:min(320px,calc((100vw - 24px) / var(--uz,1)));max-height:calc((100dvh - var(--bh,56px) - var(--cutT,0px) - 20px) / var(--uz,1))}
 html.uzL.thumb #prefs{max-height:calc((100dvh - var(--fh,56px) - 90px) / var(--uz,1))}
-html.uzL .si,html.uzL .sbx{width:min(400px,calc(100% / var(--uz,1)));max-height:calc((100dvh - 32px) / var(--uz,1))}
+html.uzL .si,html.uzL .sbx{width:min(400px,calc((100vw - 32px) / var(--uz,1)));max-height:calc((100dvh - 32px) / var(--uz,1))}
 /* open Fold: settings are a full-height side panel between the bars, scrolling inside, not a floating card */
 html.thumb body #prefs{top:calc(var(--bh,56px) / var(--uz,1));bottom:calc((var(--fh,56px) + env(safe-area-inset-bottom,0px)) / var(--uz,1));left:0;max-height:none;width:50vw;border-radius:0;border:0;border-inline-start:1px solid var(--line);padding:18px max(18px,calc((50vw - 520px) / 2));box-shadow:14px 0 40px -18px var(--shadow);transform-origin:left center;animation:dockIn .34s var(--ease)}
 .pclose{display:flex;position:sticky;bottom:-18px;order:99;margin:4px 0 -18px;padding:10px 0 calc(12px + env(safe-area-inset-bottom,0px));border-radius:0;align-items:center;justify-content:center;gap:8px;min-height:56px;background:var(--bar);color:var(--bar-ink);font-size:16px;font-weight:600;border-top:1px solid var(--line);box-shadow:0 -14px 18px -8px var(--bar)}
@@ -2008,6 +2008,45 @@ html.uzL .tabs [role=tab]{flex:1 1 auto;padding-inline:6px;min-width:0}
 #bClose::after,#manX::after,#rpX::after,#mExit::after,#mMic::after{content:"";position:absolute;inset:-4px -4px}
 #lpBar .lpDots button{width:40px;height:40px}
 #memo .mb{min-height:40px}
+/* r32 menu: four tools as tiles of one size, the rest as slim pills two to a row (an odd last one takes the row).
+   Nothing may spill into a neighbour: words wrap inside their tile, icons never shrink away */
+:root #prefs .qa.q4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+:root #prefs .qa.q4>.qt{min-width:0;width:auto;flex:none;margin:0;box-sizing:border-box;letter-spacing:0}
+:root #prefs .qa.q4>.qt:not(.qp){display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:78px;padding:10px 3px;font-size:13px}
+:root #prefs .qa.q4>.qt span{display:block;min-width:0;max-width:100%;white-space:normal;line-height:1.25;text-align:center;margin:0}
+:root #prefs .qa.q4>.qt svg{flex:none;width:22px;height:22px;margin:0}
+:root #prefs .qa.q4>.qt.qp{grid-column:span 2;display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:10px;min-height:48px;padding:8px 12px;font-size:13px}
+:root #prefs .qa.q4>.qt.qp span{text-align:start}
+:root #prefs .qa.q4>.qt.qp svg{width:20px;height:20px}
+:root #prefs .qa.q4.qn>.qt.qt{grid-column:span 2;flex-direction:row;justify-content:flex-start;gap:8px;min-height:50px;padding:8px 10px}
+:root #prefs .qa.q4.qn>.qt.qt span{text-align:start}
+:root #prefs .qa.q4.qn>.qt svg{width:20px;height:20px}
+:root #prefs .qa.q4>.qt.qp.qw,:root #prefs .qa.q4.qn>.qt.qw{grid-column:1 / -1;justify-content:center}
+:root #prefs .qa.q4>[hidden]{display:none}
+:root.phoneM #prefs .qa.q4>.qt.qt{font-size:14px}
+:root.phoneM #prefs .qa.q4>.qt.qt:not(.qp){min-height:84px}
+/* a wider menu on a narrow screen that is not a tall phone (split screen, pop-up window, phones set to a small display size) */
+@media (max-width:599px){html:not(.phoneM):not(.thumb) #prefs{width:calc(100vw - 24px)}html.uzL:not(.phoneM):not(.thumb) #prefs{width:calc((100vw - 24px) / var(--uz,1))}}
+/* while the menu is open the bottom bar steps aside, so the menu has the whole height and nothing lies half behind it */
+html.pOpn #app>.foot.foot.foot{opacity:0;transform:translateY(calc(100% + 6px));pointer-events:none}
+:root:root #prefs .qa.q4.qn>.qt.qt{min-height:50px}
+/* the close bar fades the rows that scroll under it instead of a hard cut through them */
+#prefsX{box-shadow:0 -18px 16px -6px var(--bar)}
+html[data-skin="clean"] #prefsX{box-shadow:0 -18px 16px -6px var(--k-sf,var(--bar))}
+/* adhkar due: a small badge in the button's corner, inside the circle, not stuck to its rim */
+.ib.azb.due::after{top:5px;left:auto;right:5px;width:9px;height:9px;background:#e0703a;box-shadow:0 0 0 2px var(--bar)}
+html[data-skin="clean"] .ib.azb.due::after{box-shadow:0 0 0 2px var(--k-sf,var(--bar))}
+/* today card: the date keeps its lines whole; on a narrow card with big text it drops under the greeting instead of squeezing it */
+#cont .ch{flex-wrap:wrap;row-gap:6px}#cont .ch>div{flex:1 1 150px;min-width:0}#cont .ch .cd{white-space:nowrap}
+/* player buttons on phones: the caption gets the button's whole width (its side padding pushed «السابقة» into «التالية») */
+@media (max-width:620px){:root #player .ib{padding-inline:0;min-width:0}html.phoneM #player .cap{font-size:12.5px;letter-spacing:-.02em}html.uzL.phoneM #player .cap{font-size:11px}}
+/* index tabs with big text scroll sideways: each tab keeps its own room instead of words running together */
+:root.uzL .tabs>button[role=tab]{flex:none;padding-inline:12px}
+/* settings tabs never grow past the menu: «الشاشة والصوت» may take two lines at big text on a small screen */
+.ptabs{grid-template-columns:repeat(3,minmax(0,1fr))}.ptabs button{min-width:0}
+:root .ptabs button[role=tab]{white-space:normal;line-height:1.15;padding-inline:4px}
+/* auto page turn: its small bar takes the bottom bar's place instead of lying over the listen button and page number */
+html.atOn #app>.foot.foot:not(.playing):not(.memo-on){opacity:0;transform:translateY(calc(100% + 6px));pointer-events:none}
 </style>
 
 
@@ -2020,12 +2059,12 @@ html.uzL .tabs [role=tab]{flex:1 1 auto;padding-inline:6px;min-width:0}
         <button class="qt" id="bFlow" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 5.5h16M4 10h16M4 14.5h16M4 19h9"/><path d="M17.5 17v4M15.5 19h4"/></svg><span>خط كبير</span></button>
         <button class="qt" id="bMemo" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6c1.6 0 3 .5 4.2 1.2M21 12s-3.5 6-9 6c-1.6 0-3-.5-4.2-1.2M4 20L20 4"/></svg><span>وضع الحفظ</span></button>
         <button class="qt" id="bFollow" aria-pressed="false"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="10.5" rx="3"/><path d="M5.8 10.8a6.2 6.2 0 0 0 12.4 0M12 17v2"/><path d="M3.5 21.2h7" opacity=".45"/><path d="M13.5 21.2h7"/></svg><span>تتبّع التلاوة</span></button>
-        <button class="qt" id="bInk" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><path d="M5 19l1.1-4.4L16 4.7a2 2 0 0 1 2.8 0l.5.5a2 2 0 0 1 0 2.8l-9.9 9.9z"/><path d="M14 6.7l3.3 3.3M4 21h9"/></svg><span>الكتابة بالقلم</span></button>
-        <button class="qt" id="bAdhkar"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg><span>الأذكار</span></button>
-        <button class="qt adv" id="bAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6.5 4.5h8l3 3v12h-11z"/><path d="M14.5 4.5v3h3"/><path d="M10 11.5l4 2.5-4 2.5z"/></svg><span>تقليب تلقائي</span></button>
-        <button class="qt adv" id="bFull"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>قراءة هادئة</span></button>
-        <button class="qt" id="bToday"><svg viewBox="0 0 24 24"><path d="M12 6.5c-2-1.6-4.6-2-7.5-1.6v12.6c2.9-.4 5.5 0 7.5 1.6 2-1.6 4.6-2 7.5-1.6V4.9c-2.9-.4-5.5 0-7.5 1.6zM12 6.5v12.6"/></svg><span>ورد اليوم</span></button>
-        <button class="qt adv" id="bStudy" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M12 4.5v15M6 9h3.5M6 12h3.5M6 15h2"/></svg><span>وضع الدراسة</span></button>
+        <button class="qt qp" id="bInk" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><path d="M5 19l1.1-4.4L16 4.7a2 2 0 0 1 2.8 0l.5.5a2 2 0 0 1 0 2.8l-9.9 9.9z"/><path d="M14 6.7l3.3 3.3M4 21h9"/></svg><span>الكتابة بالقلم</span></button>
+        <button class="qt qp" id="bAdhkar"><svg viewBox="0 0 24 24"><circle cx="12.0" cy="14.5" r="1.25"/><circle cx="8.5" cy="13.4" r="1.25"/><circle cx="6.4" cy="10.4" r="1.25"/><circle cx="6.4" cy="6.8" r="1.25"/><circle cx="8.5" cy="3.8" r="1.25"/><circle cx="12.0" cy="2.7" r="1.25"/><circle cx="15.5" cy="3.8" r="1.25"/><circle cx="17.6" cy="6.8" r="1.25"/><circle cx="17.6" cy="10.4" r="1.25"/><circle cx="15.5" cy="13.4" r="1.25"/><path d="M12 15.8v1.4M12 19.6l-1.8 2.4M12 19.6v2.6M12 19.6l1.8 2.4"/><circle cx="12" cy="18.4" r="1.1"/></svg><span>الأذكار</span></button>
+        <button class="qt adv qp" id="bAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6.5 4.5h8l3 3v12h-11z"/><path d="M14.5 4.5v3h3"/><path d="M10 11.5l4 2.5-4 2.5z"/></svg><span>تقليب تلقائي</span></button>
+        <button class="qt adv qp" id="bFull"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>قراءة هادئة</span></button>
+        <button class="qt qp" id="bToday"><svg viewBox="0 0 24 24"><path d="M12 6.5c-2-1.6-4.6-2-7.5-1.6v12.6c2.9-.4 5.5 0 7.5 1.6 2-1.6 4.6-2 7.5-1.6V4.9c-2.9-.4-5.5 0-7.5 1.6zM12 6.5v12.6"/></svg><span>ورد اليوم</span></button>
+        <button class="qt adv qp" id="bStudy" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M12 4.5v15M6 9h3.5M6 12h3.5M6 15h2"/></svg><span>وضع الدراسة</span></button>
       </div>
       <h3 class="qh">الإعدادات</h3>
       <div class="ptabs" role="tablist" aria-label="الإعدادات"><button role="tab" data-pg="look" aria-selected="true">المظهر</button><button role="tab" data-pg="read" aria-selected="false">القراءة</button><button role="tab" data-pg="dev" aria-selected="false">الشاشة والصوت</button></div>
@@ -2104,7 +2143,7 @@ html.uzL .tabs [role=tab]{flex:1 1 auto;padding-inline:6px;min-width:0}
     <div class="tools">
       <button class="ib dnb" id="bDN" title="نهار / ليل" aria-label="التبديل بين النهار والليل"><svg class="dn-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><svg class="dn-m" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg><span class="tcap">ليل/نهار</span></button>
       <button class="ib" id="bSrch" title="البحث" aria-label="البحث في القرآن"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><span class="tcap">بحث</span></button>
-      <button class="ib azb" id="bAz" title="الأذكار" aria-label="الأذكار"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg><span class="tcap">الأذكار</span></button>
+      <button class="ib azb" id="bAz" title="الأذكار" aria-label="الأذكار"><svg viewBox="0 0 24 24"><circle cx="12.0" cy="14.5" r="1.25"/><circle cx="8.5" cy="13.4" r="1.25"/><circle cx="6.4" cy="10.4" r="1.25"/><circle cx="6.4" cy="6.8" r="1.25"/><circle cx="8.5" cy="3.8" r="1.25"/><circle cx="12.0" cy="2.7" r="1.25"/><circle cx="15.5" cy="3.8" r="1.25"/><circle cx="17.6" cy="6.8" r="1.25"/><circle cx="17.6" cy="10.4" r="1.25"/><circle cx="15.5" cy="13.4" r="1.25"/><path d="M12 15.8v1.4M12 19.6l-1.8 2.4M12 19.6v2.6M12 19.6l1.8 2.4"/><circle cx="12" cy="18.4" r="1.1"/></svg><span class="tcap">الأذكار</span></button>
       <button class="ib" id="bPrefs" title="المزيد" aria-label="المزيد: الأدوات والإعدادات" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg><span class="tcap">المزيد</span></button>
     </div>
   </header>
@@ -2125,7 +2164,7 @@ html.uzL .tabs [role=tab]{flex:1 1 auto;padding-inline:6px;min-width:0}
       <svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><g class="rose"><rect x="30" y="30" width="60" height="60" rx="2"/><rect x="30" y="30" width="60" height="60" rx="2" transform="rotate(45 60 60)"/><circle cx="60" cy="60" r="20"/></g><circle class="ring" cx="60" cy="60" r="52" opacity=".55"/><circle cx="60" cy="60" r="12" opacity=".5"/></g><circle class="core" cx="60" cy="60" r="4" fill="currentColor"/></svg>
       <b>أنورا</b><small>مصحف المدينة · برواية حفص عن عاصم</small><i></i></div></div>
     <section id="flow" hidden aria-label="قراءة بخط كبير"><div class="flbar"><button class="ib" id="flBack" aria-label="العودة إلى صفحة المصحف"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg></button><span id="flInfo"></span><button class="ib fz" id="flMinus" aria-label="تصغير الخط"><span class="aa">أ</span><sub>−</sub><span class="fzw">تصغير</span></button><button class="ib fz" id="flPlus" aria-label="تكبير الخط"><span class="aa">أ</span><sub>+</sub><span class="fzw">تكبير</span></button></div><div id="flBody"></div></section>
-    <button id="azNudge" hidden><i><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg></i><span id="azNudgeT"></span><b aria-hidden="true">‹</b></button>
+    <button id="azNudge" hidden><i><svg viewBox="0 0 24 24"><circle cx="12.0" cy="14.5" r="1.25"/><circle cx="8.5" cy="13.4" r="1.25"/><circle cx="6.4" cy="10.4" r="1.25"/><circle cx="6.4" cy="6.8" r="1.25"/><circle cx="8.5" cy="3.8" r="1.25"/><circle cx="12.0" cy="2.7" r="1.25"/><circle cx="15.5" cy="3.8" r="1.25"/><circle cx="17.6" cy="6.8" r="1.25"/><circle cx="17.6" cy="10.4" r="1.25"/><circle cx="15.5" cy="13.4" r="1.25"/><path d="M12 15.8v1.4M12 19.6l-1.8 2.4M12 19.6v2.6M12 19.6l1.8 2.4"/><circle cx="12" cy="18.4" r="1.1"/></svg></i><span id="azNudgeT"></span><b aria-hidden="true">‹</b></button>
     <div id="scrubBig" aria-hidden="true" hidden><small id="sbgS"></small><b id="sbgJ"></b><span id="sbgH"></span></div>
     <div id="autoBar" hidden role="group" aria-label="التقليب التلقائي">
       <button id="atPlay" aria-label="إيقاف مؤقت"><svg class="ring" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17"/><circle id="atRing" cx="20" cy="20" r="17"/></svg><svg class="ic pa" viewBox="0 0 24 24"><path d="M9 6.5v11M15 6.5v11"/></svg><svg class="ic pl" viewBox="0 0 24 24"><path d="M8.5 6v12l9.5-6z"/></svg></button>
@@ -2145,7 +2184,7 @@ html.uzL .tabs [role=tab]{flex:1 1 auto;padding-inline:6px;min-width:0}
     <span class="pnum" id="pnum">١ / ٦٠٤</span>
     <button class="ib fthumb dnb" id="fDN" aria-label="التبديل بين النهار والليل"><svg class="dn-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><svg class="dn-m" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg></button>
     <button class="ib fthumb" id="fSrch" aria-label="البحث في القرآن"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></button>
-    <button class="ib fthumb azb" id="fAz" aria-label="الأذكار"><svg viewBox="0 0 24 24"><circle cx="12" cy="4.6" r="1.7"/><circle cx="7" cy="7.6" r="1.7"/><circle cx="17" cy="7.6" r="1.7"/><circle cx="5.8" cy="13" r="1.7"/><circle cx="18.2" cy="13" r="1.7"/><path d="M12 6.4v9.8M10.2 20.5h3.6L12 16.2z"/></svg></button>
+    <button class="ib fthumb azb" id="fAz" aria-label="الأذكار"><svg viewBox="0 0 24 24"><circle cx="12.0" cy="14.5" r="1.25"/><circle cx="8.5" cy="13.4" r="1.25"/><circle cx="6.4" cy="10.4" r="1.25"/><circle cx="6.4" cy="6.8" r="1.25"/><circle cx="8.5" cy="3.8" r="1.25"/><circle cx="12.0" cy="2.7" r="1.25"/><circle cx="15.5" cy="3.8" r="1.25"/><circle cx="17.6" cy="6.8" r="1.25"/><circle cx="17.6" cy="10.4" r="1.25"/><circle cx="15.5" cy="13.4" r="1.25"/><path d="M12 15.8v1.4M12 19.6l-1.8 2.4M12 19.6v2.6M12 19.6l1.8 2.4"/><circle cx="12" cy="18.4" r="1.1"/></svg></button>
     <button class="ib fthumb" id="fPrefs" aria-label="المزيد: الأدوات والإعدادات"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg></button>
     <div id="memo" hidden>
       <button class="ib" id="mExit" aria-label="إنهاء وضع الحفظ"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -3586,12 +3625,19 @@ function rebuild(){cancelFlip();cache.forEach(e=>e.remove());cache.clear();pgSta
   document.querySelectorAll(".posture").forEach(e=>{if(e.querySelector(":scope>.tg"))e.classList.add("ptg")})})();
 function prefsOut(){const p=$("prefs");if(reduce||p.hidden)return;const g=p.cloneNode(true);g.classList.add("pOut");g.setAttribute("aria-hidden","true");g.inert=true;
   g.querySelectorAll("[id]").forEach(e=>e.removeAttribute("id"));p.after(g);g.scrollTop=p.scrollTop;const rm=()=>g.remove();g.addEventListener("animationend",rm);setTimeout(rm,450)}
-function showPrefs(on){if(on)contHide();if(on)try{dlUI()}catch(e){}$("fPrefs").setAttribute("aria-expanded",String(on));if(on){clearTimeout(calmT);$("app").classList.remove("calm");try{azNudgeHide()}catch(e){}requestAnimationFrame(()=>pillTo(document.querySelector(".ptabs")))}if(!on)prefsOut();$("prefs").hidden=!on;$("bPrefs").setAttribute("aria-expanded",String(on));if(on)prefsFit()}
+function showPrefs(on){if(on)contHide();if(on)try{dlUI()}catch(e){}$("fPrefs").setAttribute("aria-expanded",String(on));if(on){clearTimeout(calmT);$("app").classList.remove("calm");try{azNudgeHide()}catch(e){}requestAnimationFrame(()=>pillTo(document.querySelector(".ptabs")))}if(!on)prefsOut();root.classList.toggle("pOpn",on&&!inTable&&!root.classList.contains("thumb"));$("prefs").hidden=!on;$("bPrefs").setAttribute("aria-expanded",String(on));if(on)prefsFit()}
 /* half open, the menu drops from a bar half way down: measure where it really starts (status bar, cut-outs and the
    fold's hinge all move it) and end it a little above the screen bottom so its close button is always in view */
-function prefsFit(){const x=$("prefs");x.style.maxHeight="";if(!inTable)return;const uz=root.classList.contains("uzL")?(parseFloat(root.style.getPropertyValue("--uz"))||1):1,
-  cb=parseFloat(getComputedStyle($("app")).getPropertyValue("--cutB"))||0,top=x.getBoundingClientRect().top,room=innerHeight-top-cb-14;
-  if(room>120)x.style.maxHeight=(room/uz)+"px"}
+function prefsFit(){const x=$("prefs");x.style.maxHeight="";qaPairs();if(root.classList.contains("thumb")&&!inTable)return;const uz=root.classList.contains("uzL")?(parseFloat(root.style.getPropertyValue("--uz"))||1):1,
+  cb=parseFloat(getComputedStyle($("app")).getPropertyValue("--cutB"))||0,top=x.getBoundingClientRect().top;let end=innerHeight-cb;
+  /* the menu ends above the screen edge (the bottom bar steps aside while it is open; half open it ends above the bar) */
+  const f=root.classList.contains("pOpn")?null:document.querySelector(".foot"),fr=f&&f.getBoundingClientRect();if(fr&&fr.height&&getComputedStyle(f).visibility!=="hidden"&&fr.top>top+200)end=Math.min(end,fr.top);
+  const room=end-top-10;if(room>120)x.style.maxHeight=(room/uz)+"px"}
+/* the slim tool pills sit two to a row; an odd last one takes the whole row so no row is left half empty */
+function qaPairs(){const q=document.querySelector("#prefs .qa.q4");if(!q)return;const v=[...q.children].filter(b=>!b.hidden&&getComputedStyle(b).display!=="none");
+  const pills=v.filter(b=>b.classList.contains("qp"));
+  const narrow=q.clientWidth<290;q.classList.toggle("qn",narrow);/* big text on a small phone: four tiles would break words; every tool becomes a pill */
+  const all=narrow?v:pills;v.forEach(b=>b.classList.remove("qw"));all.forEach((b,i)=>b.classList.toggle("qw",i===all.length-1&&all.length%2===1))}
 let study=store.get("mushaf.study")==="1",inStudy=false;
 function applyStudy(){
   const ok=innerWidth>=600&&!inTable,on=study&&ok,b=$("bStudy");b.hidden=!ok;b.setAttribute("aria-pressed",String(on));
@@ -4569,7 +4615,8 @@ function uzSet(v){v=["1","1.15","1.3"].includes(v)?v:"1";root.style.setProperty(
   if(store.get("mushaf.wt")===null&&(root.dataset.wt||"0")!==(v==="1"?"0":"1")){setLook("wt",v==="1"?"0":"1",false);if(typeof rasterDirty==="function")rasterDirty()}
   document.querySelectorAll("#uzSeg [data-uz]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.uz===v)))}
 uzSet(store.get("mushaf.uz")||"1");
-$("uzSeg").addEventListener("click",e=>{const b=e.target.closest("[data-uz]");if(!b)return;e.stopPropagation();store.set("mushaf.uz",b.dataset.uz);uzSet(b.dataset.uz);setTimeout(resize,50)});
+$("uzSeg").addEventListener("click",e=>{const b=e.target.closest("[data-uz]");if(!b)return;e.stopPropagation();store.set("mushaf.uz",b.dataset.uz);uzSet(b.dataset.uz);setTimeout(()=>{resize();if(!$("prefs").hidden)prefsFit()},50)});
+addEventListener("resize",()=>{if(!$("prefs").hidden)requestAnimationFrame(prefsFit)});
 let simpleOn=store.get("mushaf.simple")==="1";root.classList.toggle("simple",simpleOn);$("bSimple").setAttribute("aria-checked",String(simpleOn));
 $("bSimple").onclick=e=>{e.stopPropagation();simpleOn=!simpleOn;store.set("mushaf.simple",simpleOn?"1":"0");root.classList.toggle("simple",simpleOn);$("bSimple").setAttribute("aria-checked",String(simpleOn));toast(simpleOn?"الوضع البسيط مفعّل":"عادت كل الأدوات")};
 /* first run: one big question for people who need larger writing, instead of hunting through settings */
@@ -5746,7 +5793,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("sInfo").hidden)
    or a jump restarts the count, the sheet or the index pause it, and the veil dims the screen at night */
 const AT={on:false,paused:false,sec:+store.get("mushaf.autoSec")||60,left:0,last:0,raf:0};
 const atLabel=()=>{$("atSec").textContent=AT.sec<60?`${ar(AT.sec)} ث`:`${ar(Math.floor(AT.sec/60))}:${ar(String(AT.sec%60).padStart(2,"0"))} د`};
-function atStart(){AT.on=true;AT.paused=false;AT.left=AT.sec*1000;AT.last=performance.now();$("autoBar").hidden=false;$("autoBar").classList.remove("paused","out");$("bAuto").setAttribute("aria-pressed","true");atLabel();azNudgeHide();hideHint();
+function atStart(){AT.on=true;AT.paused=false;AT.left=AT.sec*1000;AT.last=performance.now();$("autoBar").hidden=false;root.classList.add("atOn");$("autoBar").classList.remove("paused","out");$("bAuto").setAttribute("aria-pressed","true");atLabel();azNudgeHide();hideHint();
   /* a few checks a second (the ring eases between them); it used to run every screen frame for as long as the
      auto turn was on, which kept the phone busy through a long reading */
   clearTimeout(AT.raf);const tick=()=>{if(!AT.on)return;AT.raf=setTimeout(tick,document.hidden?1000:Math.max(40,Math.min(250,AT.left-10)));const now=performance.now(),dt=now-AT.last;AT.last=now;
@@ -5754,7 +5801,7 @@ function atStart(){AT.on=true;AT.paused=false;AT.left=AT.sec*1000;AT.last=perfor
     if(!hold)AT.left-=dt;$("atRing").style.strokeDashoffset=(106.8*Math.max(0,AT.left)/(AT.sec*1000)).toFixed(1);
     if(AT.left<=0){if(!canGo("fwd")){atStop();toast("وصلت إلى آخر المصحف");return}AT.left=AT.sec*1000;autoFlip("fwd")}};
   AT.raf=setTimeout(tick,250);toast("التقليب التلقائي يعمل")}
-function atStop(){AT.on=false;clearTimeout(AT.raf);const b=$("autoBar");softHide(b);$("bAuto").setAttribute("aria-pressed","false");root.classList.remove("dimmed");$("atDim").setAttribute("aria-pressed","false")}
+function atStop(){AT.on=false;root.classList.remove("atOn");clearTimeout(AT.raf);const b=$("autoBar");softHide(b);$("bAuto").setAttribute("aria-pressed","false");root.classList.remove("dimmed");$("atDim").setAttribute("aria-pressed","false")}
 function atRestart(){if(AT.on)AT.left=AT.sec*1000}
 $("bAuto").onclick=()=>{showPrefs(false);AT.on?atStop():atStart()};
 $("atX").onclick=e=>{e.stopPropagation();atStop()};
@@ -5893,7 +5940,7 @@ const AZ_CATS=[
    {q:[112],n:3,s:"يجمع كفيه وينفث فيهما · رواه البخاري"},{q:[113],n:3,s:"الفلق"},{q:[114],n:3,s:"الناس"},
    {t:"اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ",n:3,s:"رواه أبو داود"},
    {t:"سُبْحَانَ اللَّهِ",n:33,s:"متفق عليه"},{t:"الْحَمْدُ لِلَّهِ",n:33,s:"متفق عليه"},{t:"اللَّهُ أَكْبَرُ",n:34,s:"متفق عليه",f:"خير لكما من خادم"}]},
- {k:"free",name:"التسبيح الحر",sub:"سبحتك في كل وقت",ic:'<circle cx="12" cy="5" r="2"/><circle cx="6.5" cy="8.5" r="2"/><circle cx="17.5" cy="8.5" r="2"/><circle cx="5.5" cy="14.5" r="2"/><circle cx="18.5" cy="14.5" r="2"/><path d="M12 7v10M10 21h4l-2-4z"/>',glow:"#ff7a45",list:()=>[]}
+ {k:"free",name:"التسبيح الحر",sub:"سبحتك في كل وقت",ic:'<circle cx="12.0" cy="14.5" r="1.25"/><circle cx="8.5" cy="13.4" r="1.25"/><circle cx="6.4" cy="10.4" r="1.25"/><circle cx="6.4" cy="6.8" r="1.25"/><circle cx="8.5" cy="3.8" r="1.25"/><circle cx="12.0" cy="2.7" r="1.25"/><circle cx="15.5" cy="3.8" r="1.25"/><circle cx="17.6" cy="6.8" r="1.25"/><circle cx="17.6" cy="10.4" r="1.25"/><circle cx="15.5" cy="13.4" r="1.25"/><path d="M12 15.8v1.4M12 19.6l-1.8 2.4M12 19.6v2.6M12 19.6l1.8 2.4"/><circle cx="12" cy="18.4" r="1.1"/>',glow:"#ff7a45",list:()=>[]}
 ];
 const AZ_FREE=["سُبْحَانَ اللَّهِ","الْحَمْدُ لِلَّهِ","اللَّهُ أَكْبَرُ","لَا إِلَٰهَ إِلَّا اللَّهُ","أَسْتَغْفِرُ اللَّهَ","سُبْحَانَ اللَّهِ وَبِحَمْدِهِ، سُبْحَانَ اللَّهِ الْعَظِيمِ","لَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ","اللَّهُمَّ صَلِّ عَلَىٰ مُحَمَّدٍ"];
 /* Hisn al-Muslim: everyday moments. Most are said once, so the ring simply moves on */
