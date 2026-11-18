@@ -179,11 +179,11 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
         ok(await p.evaluate(()=>document.getElementById("lpBar").hidden&&!document.getElementById("sheet").hidden),`${name}: المزيد opens the ayah sheet`);
         await p.keyboard.press("Escape");await p.waitForTimeout(600)}}
     /* opening an ayah that is not on screen turns to its page */
-    {const r=await p.evaluate(async()=>{__smk.openAyah(__smk.SST[2]+40);await new Promise(z=>setTimeout(z,1200));return document.getElementById("wMeta").textContent});
+    {const r=await p.evaluate(async()=>{__smk.openAyah(__smk.SST[2]+40);await new Promise(z=>setTimeout(z,1200));return document.getElementById("wMeta").textContent+" "+document.getElementById("pnum").textContent});
       ok(/٥٥/.test(r),`${name}: ayah off screen turns to its page (${r})`);await p.keyboard.press("Escape");await p.waitForTimeout(500);
       await p.evaluate(()=>__smk.openAyah(__smk.SST[2]+3));await p.waitForTimeout(900);await p.keyboard.press("Escape");await p.waitForTimeout(600)}
-    const pg0=await p.evaluate(()=>document.getElementById("wMeta").textContent);await p.keyboard.press("ArrowLeft");await p.waitForTimeout(1400);
-    ok(await p.evaluate(()=>document.getElementById("wMeta").textContent)!==pg0,`${name}: page turns`);
+    const pgT=()=>document.getElementById("wMeta").textContent+" "+document.getElementById("pnum").textContent;const pg0=await p.evaluate(pgT);await p.keyboard.press("ArrowLeft");await p.waitForTimeout(1400);
+    ok(await p.evaluate(pgT)!==pg0,`${name}: page turns`);
     
     await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(500);
     for(const z of ["1","1.3"]){await p.evaluate(z=>document.querySelector(`[data-uz="${z}"]`).click(),z);await p.waitForTimeout(400);
@@ -337,7 +337,15 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       await p.keyboard.press("Escape");await p.waitForTimeout(500);
       const c=await p.evaluate(()=>({hid:document.getElementById("wb").hidden,app:document.getElementById("app").hasAttribute("aria-hidden")}));
       const pl=await p.evaluate(()=>document.getElementById("player").hidden);
-      ok(c.hid&&!c.app&&pl&&errs.length===e0,`${name}: word by word closes cleanly and stops its recitation ${errs.slice(e0).join(" | ")}`)}
+      ok(c.hid&&!c.app&&pl&&errs.length===e0,`${name}: word by word closes cleanly and stops its recitation ${errs.slice(e0).join(" | ")}`);
+      /* its own button on the bar, like the adhkar one; a word change fades (the card goes out, then the meaning comes in word by word) */
+      const bt=await p.evaluate(()=>{const az=[document.getElementById("bAz"),document.getElementById("fAz")].find(e=>e.offsetParent),b=[document.getElementById("bWbH"),document.getElementById("fWbH")].find(e=>e.offsetParent);/* where the adhkar button shows, this one shows beside it; where neither fits (big text on a phone) the menu tile opens it */
+        if(!b){if(az)return "";document.getElementById("bWbw").click();return "tile "+document.documentElement.className.match(/uzL|phoneM/g)}b.click();return b.id});
+      await p.waitForFunction(()=>document.querySelector("#wbAy .wbw.on"),null,{timeout:20000}).catch(()=>{});await p.waitForTimeout(900);
+      const fd=await p.evaluate(async()=>{const W=t=>new Promise(r=>setTimeout(r,t)),c=document.getElementById("wbCard");document.getElementById("wbNext").click();await W(60);const out=c.classList.contains("wbout");
+        await W(400);return {open:!document.getElementById("wb").hidden,out,words:c.querySelectorAll(".wb-m b span.wbf").length,moved:[...c.querySelectorAll(".wbf")].some(e=>getComputedStyle(e).transform!=="none")}});
+      ok(!!bt&&fd.open&&fd.out&&fd.words>0&&!fd.moved,`${name}: the bar button opens word by word, and a word change fades without moving (${bt} ${JSON.stringify(fd)})`);
+      await p.keyboard.press("Escape");await p.waitForTimeout(500)}
     await ctx.close()}
   /* saved data from an old version or an edited backup file (wrong shapes, a name with markup in it) must not
      break the page or run as code */
@@ -368,7 +376,7 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     const r=await p.evaluate(()=>({sw:document.documentElement.scrollWidth,w:innerWidth,table:document.getElementById("app").classList.contains("table"),deck:document.querySelectorAll("#deckList .dk").length}));
     ok(r.table&&r.deck>0&&r.sw<=412&&r.w===412,`phone half open: page and tafsir fit the screen (${JSON.stringify(r)})`);
     /* the page takes the full width there, and a finger drawn up shows its lower half; a swipe turns and starts at the top */
-    {const pr=()=>p.evaluate(()=>{const q=document.getElementById("book").getBoundingClientRect();return {w:Math.round(q.width),top:Math.round(q.top),meta:document.getElementById("wMeta").textContent}});
+    {const pr=()=>p.evaluate(()=>{const q=document.getElementById("book").getBoundingClientRect();return {w:Math.round(q.width),top:Math.round(q.top),meta:document.getElementById("wMeta").textContent+" "+document.getElementById("pnum").textContent}});
       const st=await p.locator("#stage").boundingBox(),drag=async(x0,y0,x1,y1)=>{await p.mouse.move(x0,y0);await p.mouse.down();for(let k=1;k<=10;k++){await p.mouse.move(x0+(x1-x0)*k/10,y0+(y1-y0)*k/10);await p.waitForTimeout(16)}await p.mouse.up();await p.waitForTimeout(800)};
       const a=await pr();await drag(200,st.y+st.height*.8,204,st.y+st.height*.1);const b2=await pr();await drag(80,st.y+st.height*.5,330,st.y+st.height*.52);await p.waitForTimeout(600);const c=await pr();
       ok(a.w>=380&&b2.top<a.top-100&&c.top===a.top&&c.meta!==a.meta,`phone half open: full-width page slides up to show the rest, a swipe turns to the next page's top (${JSON.stringify([a,b2,c])})`)}
