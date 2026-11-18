@@ -2047,6 +2047,121 @@ html[data-skin="clean"] .ib.azb.due::after{box-shadow:0 0 0 2px var(--k-sf,var(-
 :root .ptabs button[role=tab]{white-space:normal;line-height:1.15;padding-inline:4px}
 /* auto page turn: its small bar takes the bottom bar's place instead of lying over the listen button and page number */
 html.atOn #app>.foot.foot:not(.playing):not(.memo-on){opacity:0;transform:translateY(calc(100% + 6px));pointer-events:none}
+/* ---------- كلمة بكلمة: its own dark screen, like the adhkar ---------- */
+#wb{position:fixed;inset:0;z-index:71;background-color:#080b10;color:#ece6d8;font-family:var(--f-ui);overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+/* the colour of each word lies on its own layer: changing it repaints one flat colour, never the words over it */
+.wb-tint{position:absolute;inset:0;transform:translateZ(0);background-color:#080b10;transition:background-color 1s var(--ease)}
+#wb[hidden]{display:none}
+.wb-tint{background-image:radial-gradient(130% 60% at 50% 112%,rgba(255,255,255,.07),transparent 62%),radial-gradient(90% 40% at 50% -8%,rgba(255,255,255,.045),transparent 70%)}
+#wb.in{animation:azIn .5s var(--ease)}
+#wb.out{animation:azOut .22s cubic-bezier(.5,0,.75,.4) forwards;pointer-events:none}
+.wb-in{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;max-width:980px;margin:0 auto;padding:env(safe-area-inset-top,0px) 18px env(safe-area-inset-bottom,0px);box-sizing:border-box}
+.wb-top{display:flex;align-items:center;gap:10px;padding:12px 0 2px;transition:opacity .4s}
+.wb-tt{flex:1;min-width:0;text-align:center}
+.wb-tt b{display:block;font-size:calc(15px * var(--uz,1));font-weight:600;color:#efe7d4}
+.wb-tt small{display:block;font-size:calc(12px * var(--uz,1));color:rgba(236,230,216,.55)}
+.wb-pl{flex:none;display:flex;align-items:center;gap:7px;height:42px;padding:0 14px 0 12px;border-radius:21px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#e9e2d2;font:inherit;font-size:calc(13.5px * var(--uz,1));font-weight:500;transition:transform .16s var(--ease),background-color .25s,color .25s,border-color .25s}
+.wb-pl:active{transform:scale(.94)}
+.wb-pl svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.wb-pl i{display:none;align-items:flex-end;gap:2px;height:14px}
+.wb-pl i b{width:2.5px;height:100%;border-radius:2px;background:currentColor;transform-origin:50% 100%;animation:wbEq .9s ease-in-out infinite}
+.wb-pl i b:nth-child(2){animation-delay:-.3s}.wb-pl i b:nth-child(3){animation-delay:-.6s}
+@keyframes wbEq{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+#wbPlay[aria-pressed="true"]{background:rgba(244,207,131,.16);border-color:rgba(244,207,131,.45);color:#f4cf83}
+#wbPlay[aria-pressed="true"] i{display:flex}
+/* while the reciter reads, the word being said breathes under its bracket */
+#wb.play .wbw.on u{animation:wbBr 1.1s ease-in-out infinite}
+@keyframes wbBr{50%{opacity:.45}}
+html.lite #wb.play .wbw.on u{animation:none}
+.wb-hd{position:relative;transition:transform .9s cubic-bezier(.2,.8,.2,1);transform-origin:50% 50%}
+.wb-step{display:flex;align-items:center;gap:8px;margin:8px 2px 2px;min-height:1.4em;font-size:calc(11.5px * var(--uz,1));letter-spacing:.04em;color:rgba(236,230,216,.62);transition:opacity .4s}
+.wb-step::before{content:"";width:18px;height:1px;background:currentColor;opacity:.7}
+.wb-ref{position:absolute;inset:auto 0 100%;margin:0 0 6px;text-align:center;font-size:calc(14px * var(--uz,1));font-weight:600;color:#efe7d4;opacity:0;transform:translateY(6px);transition:opacity .45s,transform .45s var(--ease);pointer-events:none}
+.wb-ay{position:relative;display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-start;gap:2px 12px;padding:4px 2px 8px;max-height:34vh;overflow-y:auto;scrollbar-width:none;overscroll-behavior:contain}
+.wb-ay::-webkit-scrollbar{display:none}
+.wb-ay.scr{-webkit-mask-image:linear-gradient(transparent,#000 16px,#000 calc(100% - 22px),transparent);mask-image:linear-gradient(transparent,#000 16px,#000 calc(100% - 22px),transparent)}
+.wbw{display:flex;flex-direction:column;align-items:stretch;cursor:pointer;opacity:.5;transition:opacity .45s}
+.wbw q{quotes:none;font-family:var(--f-quran);font-size:calc(29px * var(--uz,1));line-height:1.65;color:#f3ecdc;text-align:center;padding:0 1px;transition:color .45s,text-shadow .45s}
+.wbw i{position:relative;height:5px;margin:0 3px;border-top:1px solid rgba(236,230,216,.4)}
+.wbw i::before,.wbw i::after{content:"";position:absolute;top:-1px;width:1px;height:5px;background:rgba(236,230,216,.4)}
+.wbw i::before{right:0}.wbw i::after{left:0}
+.wbw u{position:absolute;inset:-1.5px 0 auto;height:2px;border-radius:1px;background:linear-gradient(270deg,#f6d38c,#e7ae55);transform:scaleX(0);transform-origin:100% 50%;transition:transform .55s var(--ease)}
+.wbw small{min-height:1.3em;margin-top:2px;font-size:calc(10.5px * var(--uz,1));letter-spacing:.04em;color:rgba(236,230,216,.55);text-align:center;white-space:nowrap;transition:color .45s}
+.wbw.dn{opacity:.72}
+.wbw.on{opacity:1}
+.wbw.on q{color:#f4cf83;text-shadow:0 0 20px rgba(244,207,131,.42)}
+.wbw.on u{transform:none}
+.wbw.on small{color:#f4cf83}
+.wb-an{align-self:center;display:grid;place-items:center;min-width:30px;height:30px;padding:0 3px;border-radius:50%;border:1px solid rgba(236,230,216,.45);font-size:13px;color:#e9e1cf;margin-bottom:12px}
+#wb.intro .wb-ref{opacity:1;transform:none}
+#wb.intro .wbw{opacity:1}
+#wb.intro .wbw q{animation:wbIn .8s var(--ease) both;animation-delay:calc(var(--j) * 85ms)}
+#wb.intro .wbw small,#wb.intro .wb-step,#wb.intro .wb-top{opacity:0}
+#wb.fill .wbw u{transform:none;transition-delay:calc(var(--j) * 110ms)}
+#wb.fill .wbw q{color:#f6dca0}
+#wb.intro .wb-card,#wb.intro .wb-nav{opacity:0;pointer-events:none}
+@keyframes wbIn{from{opacity:0;transform:translateY(12px)}}
+.wb-card{display:grid;gap:8px 18px;padding:10px 2px 0;transition:opacity .4s}
+.wb-m b{display:block;font-family:var(--f-display);font-size:calc(29px * var(--uz,1));font-weight:400;line-height:1.4;color:#fbf6ea}
+.wb-m.long b{font-size:calc(21px * var(--uz,1));line-height:1.55}
+.wb-m small{display:block;margin-bottom:2px;font-size:calc(12px * var(--uz,1));color:rgba(236,230,216,.55)}
+.wb-d{display:grid;gap:5px;font-size:calc(13.5px * var(--uz,1));line-height:1.55;color:rgba(236,230,216,.8)}
+.wb-d p{margin:0}
+.wb-r{display:flex;align-items:baseline;gap:10px}
+.wb-r small{font-size:calc(11.5px * var(--uz,1));color:rgba(236,230,216,.5)}
+.wb-r b{font-family:var(--f-quran);font-size:calc(22px * var(--uz,1));font-weight:400;color:#f4cf83;word-spacing:.15em}
+.wb-s{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px}
+.wb-s span{display:inline-flex;align-items:baseline;gap:5px}
+.wb-s q{quotes:none;font-family:var(--f-quran);font-size:calc(19px * var(--uz,1));color:#efe6d0}
+.wb-s i{font-style:normal;color:rgba(236,230,216,.4)}
+.wb-c{color:rgba(236,230,216,.6)}
+.wb-card.sw>*{animation:wbRise .55s var(--ease) both}
+.wb-card.sw>:nth-child(2){animation-delay:.09s}
+@keyframes wbRise{from{opacity:0;transform:translateY(12px)}}
+@media (min-width:700px){.wb-card{grid-template-columns:1.25fr 1fr;align-items:start}.wbw q{font-size:calc(34px * var(--uz,1))}.wb-m b{font-size:calc(34px * var(--uz,1))}}
+.wb-vis{position:relative;flex:1;min-height:110px;margin:0 -18px}
+#wbCv{position:absolute;inset:0;width:100%;height:100%}
+.wb-nav{display:flex;align-items:center;gap:14px;padding:6px 0 14px;transition:opacity .4s}
+.wb-nb{flex:none;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#ece6d8;transition:transform .16s var(--ease),background-color .2s,opacity .2s}
+.wb-nb:active{transform:scale(.92)}
+.wb-nb:disabled{opacity:.3}
+.wb-nb svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#wbNext{background:rgba(244,207,131,.16);border-color:rgba(244,207,131,.4);color:#f4cf83}
+.wb-pg{flex:1;display:grid;gap:6px;justify-items:center}
+.wb-pg small{font-size:calc(12px * var(--uz,1));color:rgba(236,230,216,.6)}
+.wb-bar{position:relative;width:100%;height:3px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+.wb-bar b{position:absolute;inset:0;background:linear-gradient(270deg,#f6d38c,#e7ae55);transform:scaleX(0);transform-origin:100% 50%;transition:transform .5s var(--ease)}
+.wb-sum{flex:1;overflow-y:auto;padding:10px 0 16px;overscroll-behavior:contain}
+.wb-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+.wbt{display:grid;gap:3px;align-content:start;padding:7px 7px 9px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:inherit;text-align:center;animation:wbRise .5s var(--ease) both;animation-delay:calc(var(--j) * 55ms);transition:transform .16s var(--ease)}
+.wbt:active{transform:scale(.95)}
+.wbt canvas{width:100%;aspect-ratio:4/3;border-radius:9px;background:rgba(0,0,0,.28)}
+.wbt q{quotes:none;font-family:var(--f-quran);font-size:calc(21px * var(--uz,1));line-height:1.5;color:#f4cf83}
+.wbt small{font-size:calc(11.5px * var(--uz,1));line-height:1.45;color:rgba(236,230,216,.72)}
+.wb-h{margin:20px 2px 4px;font-size:calc(12px * var(--uz,1));font-weight:600;letter-spacing:.04em;color:rgba(236,230,216,.6);display:flex;align-items:center;gap:8px}
+.wb-h::before{content:"";width:18px;height:1px;background:currentColor;opacity:.7}
+.wb-full{margin:0 2px 6px;font-family:var(--f-display);font-size:calc(21px * var(--uz,1));line-height:1.75;color:#fbf6ea;animation:wbRise .6s var(--ease) both}
+.wb-src{margin:0 2px;font-size:calc(11.5px * var(--uz,1));color:rgba(236,230,216,.5)}
+.wb-btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.wb-btn{flex:1 1 30%;min-height:48px;padding:0 12px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);color:#ece6d8;font:inherit;font-size:calc(14px * var(--uz,1));font-weight:500;transition:transform .16s var(--ease)}
+.wb-btn:active{transform:scale(.95)}
+.wb-btn.solid{background:#e9c27a;border-color:#e9c27a;color:#1a1408}
+.wb-btn:disabled{opacity:.35}
+#wb.sumOn .wb-vis,#wb.sumOn .wb-card,#wb.sumOn .wb-nav{display:none}
+#wb.sumOn .wbw{opacity:1}
+#wb.sumOn .wbw q{color:#f4cf83}
+#wb.sumOn .wbw u{transform:none;opacity:.55}
+#wb.sumOn .wb-ay{max-height:26vh}
+#wb.intro .wb-ay{-webkit-mask-image:none;mask-image:none}
+html.lite .wbw.on q{text-shadow:none}
+@media (prefers-reduced-motion:reduce){#wb *,#wb{animation:none!important;transition:none!important}}
+/* the way in, from the ayah sheet */
+.wbGo{display:flex;align-items:center;gap:10px;width:100%;box-sizing:border-box;margin:-4px 0 16px;padding:10px 14px;border-radius:14px;border:1px solid color-mix(in srgb,var(--gold) 30%,transparent);background:linear-gradient(270deg,color-mix(in srgb,var(--gold) 14%,transparent),transparent 80%);color:var(--ink);font:inherit;font-size:14px;text-align:start;transition:transform .16s var(--ease)}
+.wbGo:active{transform:scale(.97)}
+.wbGo svg{flex:none;width:22px;height:22px;fill:none;stroke:var(--gold);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.wbGo span{flex:1;min-width:0}.wbGo span small{display:block;font-size:12px;color:var(--muted)}
+.wbGo b{color:var(--gold);font-weight:400}
+.dk:not(.on) .wbGo{display:none}
 </style>
 
 
@@ -2063,6 +2178,7 @@ html.atOn #app>.foot.foot:not(.playing):not(.memo-on){opacity:0;transform:transl
         <button class="qt qp" id="bAdhkar"><svg viewBox="0 0 24 24"><circle cx="12.0" cy="14.5" r="1.25"/><circle cx="8.5" cy="13.4" r="1.25"/><circle cx="6.4" cy="10.4" r="1.25"/><circle cx="6.4" cy="6.8" r="1.25"/><circle cx="8.5" cy="3.8" r="1.25"/><circle cx="12.0" cy="2.7" r="1.25"/><circle cx="15.5" cy="3.8" r="1.25"/><circle cx="17.6" cy="6.8" r="1.25"/><circle cx="17.6" cy="10.4" r="1.25"/><circle cx="15.5" cy="13.4" r="1.25"/><path d="M12 15.8v1.4M12 19.6l-1.8 2.4M12 19.6v2.6M12 19.6l1.8 2.4"/><circle cx="12" cy="18.4" r="1.1"/></svg><span>الأذكار</span></button>
         <button class="qt adv qp" id="bAuto" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M6.5 4.5h8l3 3v12h-11z"/><path d="M14.5 4.5v3h3"/><path d="M10 11.5l4 2.5-4 2.5z"/></svg><span>تقليب تلقائي</span></button>
         <button class="qt adv qp" id="bFull"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg><span>قراءة هادئة</span></button>
+        <button class="qt qp" id="bWbw"><svg viewBox="0 0 24 24"><path d="M3.5 7h8M3.5 12h6M3.5 17h8"/><path d="M17.5 3.5l1.3 3 3 1.3-3 1.3-1.3 3-1.3-3-3-1.3 3-1.3z"/></svg><span>كلمة بكلمة</span></button>
         <button class="qt qp" id="bToday"><svg viewBox="0 0 24 24"><path d="M12 6.5c-2-1.6-4.6-2-7.5-1.6v12.6c2.9-.4 5.5 0 7.5 1.6 2-1.6 4.6-2 7.5-1.6V4.9c-2.9-.4-5.5 0-7.5 1.6zM12 6.5v12.6"/></svg><span>ورد اليوم</span></button>
         <button class="qt adv qp" id="bStudy" aria-pressed="false" hidden><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M12 4.5v15M6 9h3.5M6 12h3.5M6 15h2"/></svg><span>وضع الدراسة</span></button>
       </div>
@@ -2320,6 +2436,7 @@ html.atOn #app>.foot.foot:not(.playing):not(.memo-on){opacity:0;transform:transl
       <button id="aNote" aria-pressed="false"><i><svg viewBox="0 0 24 24"><path d="M5 19.5l1-4.2L15.8 5.5a2 2 0 0 1 2.8 0l-.1-.1a2 2 0 0 1 0 2.8L8.7 18l-3.7 1.5z"/><path d="M13.8 7.5l2.8 2.8"/></svg></i><span>ملاحظة</span></button>
       <button id="aHl" aria-pressed="false" aria-expanded="false"><i><svg viewBox="0 0 24 24"><path d="M14.5 4.5l5 5-8.2 8.2-5-5z"/><path d="M6.3 12.7l-1.8 5 1.8 1.8 5-1.8"/><path d="M4 21h7"/></svg></i><span>تظليل</span></button>
     </div>
+    <button class="wbGo" id="aWbw"><svg viewBox="0 0 24 24"><path d="M3.5 7h8M3.5 12h6M3.5 17h8"/><path d="M17.5 3.5l1.3 3 3 1.3-3 1.3-1.3 3-1.3-3-3-1.3 3-1.3z"/><path d="M17.5 15v5.5M14.8 17.8h5.4" opacity=".55"/></svg><span>كلمة بكلمة<small>معنى كل كلمة وجذرها، بصورة تتحرك</small></span><b>‹</b></button>
     <div class="hlpal" id="hlPal" hidden></div>
     <div class="mgrp" id="aGrp" hidden></div>
     <div class="shtabs" role="tablist" aria-label="تدبّر الآية">
@@ -2391,6 +2508,29 @@ html.atOn #app>.foot.foot:not(.playing):not(.memo-on){opacity:0;transform:transl
     <div class="az-list" id="azList" hidden><div class="lh"><b id="azListT"></b><button class="az-ib" id="azListX" aria-label="إغلاق القائمة"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><ol id="azListO"></ol></div>
     <div class="az-list az-ps" id="azPS" hidden><div class="lh"><b>إعدادات مواقيت الصلاة</b><button class="az-ib" id="azPSX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><ol id="azPSO"></ol></div>
     <div class="az-done" id="azDone" hidden><div class="az-dc"><svg viewBox="0 0 80 80" aria-hidden="true"><path class="st" d="M40 6l7 20 21-1-17 13 7 20-18-12-18 12 7-20L12 25l21 1z"/></svg><h3 id="azDoneT">تقبّل الله منك</h3><p id="azDoneS"></p><div class="az-db"><button class="az-btn solid" id="azDHome">أذكار أخرى</button><button class="az-btn" id="azDBook">إلى المصحف</button></div></div></div>
+  </div>
+</section>
+<section id="wb" hidden role="dialog" aria-modal="true" aria-label="كلمة بكلمة" dir="rtl">
+  <div class="wb-tint" id="wbTint"></div>
+  <div class="wb-in">
+    <header class="wb-top">
+      <button class="az-ib" id="wbX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="wb-tt"><b id="wbTitle">كلمة بكلمة</b><small id="wbSub"></small></div>
+      <button class="wb-pl" id="wbPlay" aria-pressed="false" aria-label="استمع للآية والكلمات تمشي مع القارئ"><svg viewBox="0 0 24 24"></svg><span>استماع</span><i aria-hidden="true"><b></b><b></b><b></b></i></button>
+    </header>
+    <div class="wb-hd" id="wbHd">
+      <p class="wb-ref" id="wbRef"></p>
+      <p class="wb-step" id="wbStep" aria-live="polite"></p>
+      <div class="wb-ay" id="wbAy"></div>
+    </div>
+    <div class="wb-card" id="wbCard"></div>
+    <div class="wb-vis" id="wbVis"><canvas id="wbCv" aria-hidden="true"></canvas></div>
+    <div class="wb-sum" id="wbSum" hidden></div>
+    <nav class="wb-nav">
+      <button class="wb-nb" id="wbPrev" aria-label="الكلمة السابقة"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="wb-pg"><div class="wb-bar"><b id="wbBar"></b></div><small id="wbCnt"></small></div>
+      <button class="wb-nb" id="wbNext" aria-label="الكلمة التالية"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+    </nav>
   </div>
 </section>
 <div id="toast" role="status" aria-live="polite"></div>
@@ -4744,7 +4884,7 @@ function pStop(){cancelAnimationFrame(player.raf);clearTimeout(player.tT)}
 function pNext(f,ms){pStop();if(ms>120)player.tT=setTimeout(f,Math.min(250,ms-80));else player.raf=requestAnimationFrame(f)}
 function pBarTo(f){f=Math.min(1,Math.max(0,f||0));const b=$("pBar"),v=Math.round(f*500)/500;if(b._f===v)return;
   b.classList.toggle("jmp",!(v>(b._f||0))||v-(b._f||0)>.25);b._f=v;b.style.transform=`scaleX(${v})`}
-function ayahDone(){const id=player.id,n=nextPlay();if(!n){stopPlay();return}
+function ayahDone(){if(wbPlay&&wbOpen&&!wbAuto&&player.id===wbA){wbAyahEnd();return}const id=player.id,n=nextPlay();if(!n){stopPlay();return}
   /* repeating to memorise: a silence as long as the ayah, for the student to say it back */
   if(rep.on&&rep.gap&&player.on){const g=seg(id),d=Math.min(30000,Math.max(1500,g?g.end-g.start:ayahDur(id)));
     player.seg=null;pStop();AU.pause();clearTimeout(player.gapT);$("pTitle").textContent="دورك: ردّدها…";
@@ -6386,8 +6526,222 @@ $("bInk").onclick=()=>{showPrefs(false);setInk(!inkOn)};
 function inkTile(){$("bInk").hidden=!(store.get("mushaf.pen")==="1"||/[?&]pen\b/.test(location.search))}
 inkTile();
 addEventListener("pointerdown",e=>{if(e.pointerType!=="pen"||store.get("mushaf.pen")==="1")return;store.set("mushaf.pen","1");inkTile();setTimeout(()=>toast("وجدنا قلماً: «الكتابة بالقلم» صارت في القائمة"),300)},true);
+/* ---------- كلمة بكلمة: one ayah, one word at a time ----------
+   A screen of its own, like the adhkar: the ayah comes in, its words light up one by one, then it rises to the top
+   and each word in turn shows its meaning, its root and parts, and a moving picture of its own. It ends on all the
+   words together and the meaning of the whole ayah.
+   - meanings: الميسّر في غريب القرآن (only the words it explains; other words show their origin and parts)
+   - root, origin, parts and how often the root occurs: the Quranic Arabic Corpus (words.json, as in «الكلمة»)
+   - the whole ayah: التفسير الميسّر
+   Each root always gets the same picture and colour, so a root met again looks familiar. The pictures are drawn
+   on one canvas, only while this screen shows a word; light mode draws them at 30 fps and 1x, reduced motion one
+   still frame. Nothing here keeps a layer when the screen is closed (display:none). */
+let wbOpen=false,wbA=0,wbI=-1,wbN=0,wbGen=0,wbRaf=0,wbIntroT=0,wbAutoT=0,wbSwap=0,wbLast=0,wbCur=null,wbPrev=null,wbCx=null,wbDpr=1,wbW=0,wbH=0;
+let wbSwiped=0,wbAuto=false,wbPlay=false,wbSyncT=0,wbTm=null,WB_QF="serif";
+const WB_UF='"IBM Plex Sans Arabic",Tahoma,sans-serif';
+const WB_COL=[[236,196,118],[104,208,194],[238,146,170],[124,170,255],[184,160,255],[255,170,92]];
+const wbE=x=>{x=Math.min(1,Math.max(0,x));return 1-Math.pow(1-x,3)};
+const wbC=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${a<0?0:a})`;
+const wbHs=i=>{const x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)};
+function wbGlow(X,x,y,r,c,a){if(a<=0||r<=0)return;const g=X.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(255,255,255,${a})`);g.addColorStop(.16,wbC(c,a*.9));g.addColorStop(.45,wbC(c,a*.25));g.addColorStop(1,wbC(c,0));X.fillStyle=g;X.beginPath();X.arc(x,y,r,0,7);X.fill()}
+function wbTag(X,x,y,s,a,al){if(!s||a<=0)return;X.font=`500 11.5px ${WB_UF}`;X.direction="rtl";X.textAlign=al||"right";X.fillStyle=`rgba(236,230,216,${.78*a})`;X.fillText(s,x,y)}
+/* 0: a word made of parts — a stream of light from the first part (a letter like لِ، بِ، وَ) to the word it joins */
+function wbBridge(X,W,H,t,o,L){const k=wbE(t/1.3),s=Math.min(W,H*1.6),ax=W*.83,bx=W*.17,y=H*.42,n=LITE.on?150:Math.round(Math.min(620,Math.max(260,W*H/900))),big=Math.round(Math.max(18,Math.min(s*.13,70)));
+  for(let i=0;i<n;i++){const a=wbHs(i),b=wbHs(i+500),c=wbHs(i+900),u=(a+t*(.05+.06*b))%1,th=Math.PI*u,
+      rx=(ax-bx)/2*(.5+.5*c),ry=H*.5*(.35+.65*c),x=(ax+bx)/2+Math.cos(th)*rx,yy=y+H*.06+Math.sin(th)*ry*k;
+    X.fillStyle=wbC(i%7?o.c:[255,236,200],Math.sin(th)*(.35+.55*b)*k);const z=i%9?1.3:2.2;X.fillRect(x,yy,z,z)}
+  wbGlow(X,ax,y,big*1.1,o.c,.35*k);wbGlow(X,bx,y,big*1.3,o.c,.45*k);
+  X.font=`${big}px ${WB_QF}`;X.textAlign="center";X.direction="rtl";X.textBaseline="middle";X.fillStyle=`rgba(255,248,232,${.96*k})`;
+  X.fillText(o.a,ax,y);X.fillText(o.b,bx,y);X.textBaseline="alphabetic";
+  const x0=ax-big*.75,x1=bx+big*1.05,ln=x0-(x0-x1)*wbE((t-.3)/1.1);
+  if(ln<x0){X.strokeStyle=`rgba(255,255,255,${.55*k})`;X.lineWidth=1;X.beginPath();X.moveTo(x0,y);X.lineTo(ln,y);X.stroke();
+    if(ln<=x1+1){X.beginPath();X.moveTo(x1+7,y-4);X.lineTo(x1,y);X.lineTo(x1+7,y+4);X.stroke()}}
+  if(L){wbTag(X,ax,y+big*.95,o.da,k,"center");wbTag(X,bx,y+big*1.05,o.db,k,"center")}}
+/* 1: hills of light lines, two lights resting over them */
+function wbDunes(X,W,H,t,o,L){const k=wbE(t/1.8),rows=LITE.on?12:18,cx=W*(.5+.14*Math.sin(o.seed*3)),sw=W*.27,top=H*.34,st=Math.max(5,W/80);X.lineWidth=1;
+  for(let i=0;i<rows;i++){const f=i/(rows-1),y0=top+f*H*.6,A=H*.3*(1-f*.55)*k;X.beginPath();
+    for(let x=0;x<=W+st;x+=st){const d=(x-cx)/sw,y=y0-A*Math.exp(-d*d)-Math.sin(x*.013+t*.7+i*.45+o.seed)*6*(1-f*.5)*k-Math.sin(x*.031-t*.45+i)*2.2;x?X.lineTo(x,y):X.moveTo(x,y)}
+    X.strokeStyle=wbC(i%4?o.c:[255,255,255],(.14+.5*(1-f))*k);X.stroke()}
+  const p=[[W*.2+Math.sin(t*.5+o.seed)*10,H*.24+Math.cos(t*.6)*7],[W*.8+Math.cos(t*.45)*10,H*.34+Math.sin(t*.55+1)*7]];
+  wbGlow(X,p[0][0],p[0][1],Math.min(30,W*.07),o.c2,.95*k);wbGlow(X,p[1][0],p[1][1],Math.min(30,W*.07),o.c,.95*k);
+  if(L&&o.tags){wbTag(X,p[0][0]+22,p[0][1]+4,o.tags[1],k,"left");wbTag(X,p[1][0]-22,p[1][1]+4,o.tags[0],k,"right")}}
+/* 2: rings that grow like a tree's */
+function wbRings(X,W,H,t,o,L){const n=LITE.on?13:22,cx=W*.6,cy=H*1.04,gap=Math.min(W*.85,H*1.5)/n*.62;
+  for(let i=0;i<n;i++){const g=wbE(t/1.9-i*.035);if(g<=0)break;const r=(i+1)*gap*g;X.beginPath();
+    for(let a=0;a<=60;a++){const th=Math.PI+a/60*Math.PI,rr=r*(1+.05*Math.sin(th*3+o.seed+i*.3)+.022*Math.sin(th*7-t*.6+i));const x=cx+Math.cos(th)*rr*1.3,y=cy+Math.sin(th)*rr;a?X.lineTo(x,y):X.moveTo(x,y)}
+    X.strokeStyle=wbC(o.c,(.8-i/n*.55)*g);X.lineWidth=i%5===4?1.7:1;X.stroke()}
+  if(L&&o.tags){const k=wbE(t/1.4);o.tags.forEach((s,i)=>{const y=H*(.2+i*.15),x0=W-16,x1=x0-(W*.3+i*W*.06)*k;
+    X.strokeStyle=`rgba(236,230,216,${.4*k})`;X.lineWidth=1;X.beginPath();X.moveTo(x0,y);X.lineTo(x1,y);X.lineTo(x1-6,y+6);X.stroke();wbTag(X,x0,y-7,s,k,"right")})}}
+/* 3: a light with worlds turning round it */
+function wbOrbit(X,W,H,t,o,L){const k=wbE(t/1.8),cx=W*.5,cy=H*.6,n=6,u=Math.min(W*.08,H*.13);
+  wbGlow(X,cx,cy,(u*1.5)*k+3,o.c,.95);
+  for(let i=1;i<=n;i++){const rx=(i*u+u*.5)*(.3+.7*k),ry=rx*.3;X.beginPath();X.ellipse(cx,cy,rx,ry,0,0,7);X.strokeStyle=wbC(o.c,(.18+.4*(1-i/n))*k);X.lineWidth=1;X.stroke();
+    const an=t*(1.1/i)+i*1.7+o.seed,px=cx+Math.cos(an)*rx,py=cy+Math.sin(an)*ry;X.fillStyle=`rgba(255,255,255,${.9*k})`;X.beginPath();X.arc(px,py,i===4?3.2:1.8,0,7);X.fill();
+    if(L&&i===4&&o.tags){const tx=Math.max(80,Math.min(W-16,px+70)),ty=H*.16;X.strokeStyle=`rgba(236,230,216,${.4*k})`;X.beginPath();X.moveTo(px,py);X.lineTo(tx-40,ty+8);X.lineTo(tx,ty+8);X.stroke();wbTag(X,tx,ty,o.tags[0],k,"right")}}
+  if(L&&o.tags&&o.tags[1])wbTag(X,16,H*.94,o.tags[1],k,"left")}
+/* 4: beams of light rising, sparks going up */
+function wbRays(X,W,H,t,o,L){const k=wbE(t/1.6),cx=W*.5,cy=H*1.04,n=LITE.on?26:46,R=Math.hypot(W,H)*.95;
+  for(let i=0;i<n;i++){const a=Math.PI*(1.06+.88*i/(n-1))+Math.sin(t*.25+i)*.012,f=.5+.5*Math.sin(t*1.2+i*2.1+o.seed),len=R*(.4+.55*wbHs(i+o.seed))*k;
+    X.strokeStyle=wbC(o.c,.05+.15*f);X.lineWidth=1+(i%3);X.beginPath();X.moveTo(cx,cy);X.lineTo(cx+Math.cos(a)*len,cy+Math.sin(a)*len);X.stroke()}
+  const m=LITE.on?28:60;for(let i=0;i<m;i++){const s=wbHs(i+40),u=(t*.11+s)%1,x=cx+(wbHs(i+80)-.5)*W*1.1*u,y=cy-u*H*1.05;X.fillStyle=wbC(i%5?o.c:[255,255,255],(1-u)*.85*k);X.fillRect(x,y,1.7,1.7)}
+  wbGlow(X,cx,cy,Math.min(W,H)*.45*k,o.c,.55);
+  if(L&&o.tags){wbTag(X,W-16,H*.18,o.tags[0],k,"right");wbTag(X,16,H*.18,o.tags[1],k,"left")}}
+/* 5: a veil of threads swaying */
+function wbVeil(X,W,H,t,o,L){const k=wbE(t/1.6),n=LITE.on?18:30;X.lineWidth=1;
+  for(let i=0;i<n;i++){const x0=W*(i+.5)/n,amp=12+10*Math.sin(i*1.3+o.seed),g=wbE(t/1.4-i*.02);if(g<=0)continue;X.beginPath();let first=true;
+    for(let y=H;y>=H*(1-.92*g);y-=9){const x=x0+Math.sin(y*.013+t*.8+i*.5)*amp*(1.1-y/H*.7);if(first){X.moveTo(x,y);first=false}else X.lineTo(x,y)}
+    X.strokeStyle=wbC(i%6?o.c:[255,255,255],.12+.45*Math.abs(Math.sin(i*.7+t*.35)));X.stroke()}
+  if(L&&o.tags)o.tags.forEach((s,i)=>wbTag(X,i?16:W-16,H*.14,s,k,i?"left":"right"))}
+const WB_DRAW=[wbBridge,wbDunes,wbRings,wbOrbit,wbRays,wbVeil];
+function wbMean(id,w){if(!GH||!GH[id-1])return null;const k=bareA(w);if(k.length<2)return null;
+  for(const l of GH[id-1].split(/\n+/)){const m=l.match(/^﴿([^﴾]*)﴾\s*:?\s*(.*)$/);if(m&&m[1].split(/\s+/).some(x=>bareA(x)===k))return {ph:m[1].split(/\s+/).length>1?m[1]:"",tx:m[2].trim().replace(/\.$/,"")}}
+  return null}
+const wbShort=t=>{const w=t.replace(/[،,.:؛(].*$/,"").trim().split(/\s+/);return w.slice(0,5).join(" ")+(w.length>5?"…":"")};
+const wbNum=j=>ar(j+1);
+function wbWord(id,j){const t=qY(AW[id][j]),W0=WD&&WD.W[id-1]&&WD.W[id-1][j];
+  if(!W0)return {t,k:1,c:WB_COL[0],c2:WB_COL[3],seed:j+1,sg:[],desc:"",root:"",r:-1,rootN:0,lem:"",mean:null,short:"",tags:[]};
+  const sg=W0.s.map(x=>WD.s[x].split("|")).map(([a,d])=>[a,WD.d[+d]||""]),m=Math.min(W0.m,sg.length-1),last=sg.length-1;
+  const br=sg.length>1&&(/^(حرف|لام|واو|فاء|أداة استفهام|همزة)/.test(sg[0][1])||/^ضمير/.test(sg[last][1]));
+  const key=W0.r>=0?W0.r:W0.l>=0?W0.l+7:j,ci=br?5:key%5,lem=W0.l>=0?WD.l[W0.l]:"";
+  const rootN=W0.r>=0?WD.byR[W0.r].length:0,root=W0.r>=0?[...WD.r[W0.r]].join(" "):"",mean=wbMean(id,AW[id][j]),desc=sg[m][1];
+  /* the two ends of the stream: the first part and the word it joins (its dictionary form when that part carries it) */
+  const bi=m>0?m:last,a=m===0&&lem?lem:sg[0][0],b=bi===m&&lem?lem:sg[bi][0];
+  return {t,k:br?0:1+key%5,c:WB_COL[ci],c2:WB_COL[(ci+3)%6],seed:key*.731+1.3,sg,desc,root,r:W0.r,rootN,lem,mean,
+    short:mean?wbShort(mean.tx):lem||desc,tags:[root?`الجذر  ${root}`:desc.split(" · ")[0],rootN?nPl(rootN):lem].filter(Boolean),
+    a,b,da:sg[0][1].split(" · ")[0],db:sg[bi][1].split(" · ")[0]}}
+function wbCardHTML(o){
+  const big=o.mean?o.mean.tx:o.lem||o.t,lbl=o.mean?(o.mean.ph?`معنى ﴿${escH(o.mean.ph)}﴾`:"معناها"):o.lem?"أصل الكلمة":"";
+  let h=`<div class="wb-m${big.length>46?" long":""}">${lbl?`<small>${lbl}</small>`:""}<b>${escH(big)}</b></div><div class="wb-d">`;
+  if(o.root){const su=new Set(WD.byR[o.r].map(l=>sOf(l>>8))).size;h+=`<p class="wb-r"><small>الجذر</small><b>${escH(o.root)}</b></p>`;
+    h+=`<p class="wb-c">ورد الجذر في ${nPl(o.rootN)} من ${numW(su,"سورة واحدة","سورتين","سور","سورة")}</p>`}
+  if(o.sg.length)h+=`<p class="wb-s">${o.sg.map(([t,d])=>`<span><q>${escH(t)}</q>${escH(d)}</span>`).join("<i>+</i>")}</p>`;
+  if(o.mean&&o.lem)h+=`<p class="wb-c">أصل الكلمة: ${escH(o.lem)}</p>`;
+  return h+"</div>"}
+function wbSize(){const cv=$("wbCv"),r=cv.getBoundingClientRect();wbDpr=LITE.on?1:Math.min(1.75,devicePixelRatio||1);wbW=r.width;wbH=r.height;
+  cv.width=Math.max(1,Math.round(r.width*wbDpr));cv.height=Math.max(1,Math.round(r.height*wbDpr));wbCx=cv.getContext("2d");wbDraw(performance.now())}
+function wbDraw(now){const X=wbCx;if(!X)return;X.setTransform(wbDpr,0,0,wbDpr,0,0);X.clearRect(0,0,wbW,wbH);if(!wbCur||wbW<2||wbH<2)return;
+  const f=reduce?1:Math.min(1,(now-wbSwap)/650);
+  try{if(wbPrev&&f<1){X.globalAlpha=1-f;WB_DRAW[wbPrev.o.k](X,wbW,wbH,(now-wbPrev.t0)/1000,wbPrev.o,true)}
+    X.globalAlpha=f;WB_DRAW[wbCur.o.k](X,wbW,wbH,reduce?6:(now-wbCur.t0)/1000,wbCur.o,true)}catch(e){}
+  X.globalAlpha=1;if(f>=1)wbPrev=null}
+function wbFrame(now){wbRaf=0;if(!wbOpen||!wbCur||wbI<0||wbI>=wbN)return;
+  if(LITE.on&&now-wbLast<30){wbRaf=requestAnimationFrame(wbFrame);return}wbLast=now;wbDraw(now);wbRaf=requestAnimationFrame(wbFrame)}
+function wbKick(){if(reduce){wbDraw(performance.now());return}if(!wbRaf)wbRaf=requestAnimationFrame(wbFrame)}
+function wbProg(){const i=Math.max(0,Math.min(wbN,wbI+1));$("wbBar").style.transform=`scaleX(${wbN?(i/wbN).toFixed(4):0})`;$("wbCnt").textContent=wbI<0?"":`${ar(i)} / ${ar(wbN)}`;
+  $("wbPrev").disabled=wbI<=0}
+function wbOpenUI(id){id=+id||1;if(id<1||id>NA)id=1;WB_QF=getComputedStyle(root).getPropertyValue("--f-quran").trim()||"serif";
+  if(!wbOpen){wbOpen=true;try{showPrefs(false)}catch(e){}const z=$("wb");clearTimeout(wbClose.t);z.classList.remove("out","in");z.hidden=false;void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true")}
+  wdData().catch(()=>{});wbStart(id)}
+function wbStart(id){if(wbPlay)wbListenStop(true);wbPlayUI();const g=++wbGen,z=$("wb"),hd=$("wbHd");wbA=id;wbI=-1;wbN=AW[id].length;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;wbCur=wbPrev=null;
+  const s=SUR[sOf(id)][0];$("wbTitle").textContent="سورة "+s;$("wbSub").textContent=`الآية ${ar(aOf(id))} · ${numW(wbN,"كلمة واحدة","كلمتان","كلمات","كلمة")}`;$("wbRef").textContent=`${s} · ${ar(aOf(id))}`;
+  $("wbAy").innerHTML=AW[id].map((w,j)=>`<span class="wbw" data-j="${j}" style="--j:${Math.min(j,22)}"><q>${escH(qY(w))}</q><i><u></u></i><small>${wbNum(j)}</small></span>`).join("")+`<span class="wb-an" aria-hidden="true">${ar(aOf(id))}</span>`;
+  z.classList.remove("sumOn","fill");$("wbTint").style.backgroundColor="";$("wbSum").hidden=true;$("wbSum").innerHTML="";$("wbCard").innerHTML="";$("wbStep").textContent="";$("wbAy").scrollTop=0;wbProg();
+  if(wbCx)wbDraw(0);
+  hd.style.transition="none";hd.style.transform="";
+  if(reduce){z.classList.remove("intro");wbReady(g);return}
+  z.classList.add("intro");
+  requestAnimationFrame(()=>{if(g!==wbGen)return;const r=hd.getBoundingClientRect(),dy=innerHeight*.42-(r.top+r.height/2);
+    hd.style.transform=`translateY(${dy.toFixed(1)}px) scale(${innerWidth<600?1.06:1.12})`;void hd.offsetWidth;hd.style.transition="";
+    const n=Math.min(wbN,22);wbIntroT=setTimeout(()=>{if(g!==wbGen)return;z.classList.add("fill");wbIntroT=setTimeout(()=>wbIntroEnd(g),n*110+950)},n*85+550)})}
+function wbIntroEnd(g){const z=$("wb");if(g!==wbGen||!z.classList.contains("intro"))return;clearTimeout(wbIntroT);z.classList.remove("intro","fill");$("wbHd").style.transform="";
+  wbIntroT=setTimeout(()=>wbReady(g),reduce?0:480)}
+function wbReady(g){wdData().then(()=>{if(g===wbGen&&wbOpen&&wbI<0)wbGo(0)},()=>{if(g===wbGen&&wbOpen)toast("تعذّر تحميل معاني الكلمات")})}
+function wbGo(i,fromAudio){if(!wbOpen)return;const z=$("wb");if(z.classList.contains("intro")){wbIntroEnd(wbGen);return}if(!WD)return;
+  if(i<0)return;
+  /* a word chosen by hand while the reciter reads: the recitation jumps to it */
+  if(wbPlay&&!fromAudio){if(i>=wbN){wbListenStop(true)}else if(wbTm){auSeek(wbTm.s+wbTm.cum[i]*(wbTm.e-wbTm.s)+20);if(!player.on)setPlaying(true)}}
+  if(i>=wbN){wbSummary();return}
+  wbI=i;z.classList.remove("sumOn");$("wbSum").hidden=true;
+  const o=wbWord(wbA,i),ay=$("wbAy");
+  ay.querySelectorAll(".wbw").forEach((e,j)=>{e.classList.toggle("on",j===i);e.classList.toggle("dn",j<i);e.querySelector("small").textContent=j===i?(o.desc.split(" · ")[0]||wbNum(j)):wbNum(j)});
+  $("wbStep").textContent=`الكلمة ${ar(i+1)} من ${ar(wbN)}`;
+  const c=$("wbCard");c.innerHTML=wbCardHTML(o);c.classList.remove("sw");void c.offsetWidth;c.classList.add("sw");
+  $("wbTint").style.backgroundColor=`rgb(${o.c.map(v=>Math.round(6+v*.05)).join(",")})`;
+  const now=performance.now();wbPrev=wbCur&&!reduce?wbCur:null;wbCur={o,t0:now};wbSwap=now;
+  if(!wbCx||!wbW)requestAnimationFrame(wbSize);wbKick();wbProg();
+  ay.classList.toggle("scr",ay.scrollHeight>ay.clientHeight+2);
+  const w=ay.children[i];if(w&&ay.scrollHeight>ay.clientHeight+2)ay.scrollTo({top:w.offsetTop-ay.clientHeight/2+w.offsetHeight/2,behavior:reduce?"auto":"smooth"});
+  wbAutoNext()}
+function wbAutoNext(){clearTimeout(wbAutoT);if(!wbAuto||wbI<0||wbI>=wbN)return;const o=wbCur&&wbCur.o,n=o&&o.mean?o.mean.tx.length:10;
+  wbAutoT=setTimeout(()=>{if(!wbOpen||!wbAuto)return;if(wbI+1>=wbN){wbListenStop(false);wbSummary()}else wbGo(wbI+1,true)},Math.min(9000,3600+n*45))}
+function wbSummary(){const z=$("wb");clearTimeout(wbAutoT);cancelAnimationFrame(wbRaf);wbRaf=0;wbI=wbN;z.classList.add("sumOn");$("wbTint").style.backgroundColor="";wbProg();
+  $("wbAy").querySelectorAll(".wbw").forEach((e,j)=>{e.classList.remove("on","dn");e.querySelector("small").textContent=wbNum(j)});
+  $("wbStep").textContent="الآية كلمةً كلمة";
+  const os=AW[wbA].map((_,j)=>wbWord(wbA,j)),S=$("wbSum");
+  S.innerHTML=`<div class="wb-tiles">${os.map((o,j)=>`<button class="wbt" data-j="${j}" style="--j:${Math.min(j,14)}"><canvas width="240" height="180" aria-hidden="true"></canvas><q>${escH(o.t)}</q><small>${escH(o.short)}</small></button>`).join("")}</div>`+
+    `<h3 class="wb-h">معنى الآية</h3><p class="wb-full" id="wbFull">…</p><p class="wb-src">التفسير الميسّر · مجمع الملك فهد لطباعة المصحف الشريف</p>`+
+    `<div class="wb-btns"><button class="wb-btn" id="wbAgain">من جديد</button><button class="wb-btn solid" id="wbNextA">الآية التالية</button><button class="wb-btn" id="wbToPage">إلى المصحف</button></div>`;
+  S.hidden=false;S.scrollTop=0;$("wbNextA").disabled=wbA>=NA;
+  /* the small pictures are drawn once each (still), a few at a time so a long ayah never holds the screen */
+  const cs=[...S.querySelectorAll(".wbt canvas")],g=wbGen;let k=0;
+  const step=()=>{if(g!==wbGen||wbI!==wbN)return;const t0=performance.now();for(;k<cs.length&&performance.now()-t0<8;k++){const X=cs[k].getContext("2d");X.setTransform(1.5,0,0,1.5,0,0);try{WB_DRAW[os[k].k](X,160,120,6,os[k],false)}catch(e){}}if(k<cs.length)setTimeout(step,16)};
+  setTimeout(step,reduce?0:120);
+  const id=wbA;tafsir().then(()=>{const f=$("wbFull");if(f&&wbA===id&&wbI===wbN)f.textContent=TF[id-1]||""},()=>{const f=$("wbFull");if(f)f.textContent="تعذّر تحميل التفسير."})}
+function wbClose(){if(!wbOpen)return;if(wbPlay)wbListenStop(true);wbOpen=false;wbGen++;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;wbCur=wbPrev=null;
+  const z=$("wb");if(reduce)z.hidden=true;else{z.classList.remove("in");z.classList.add("out");clearTimeout(wbClose.t);wbClose.t=setTimeout(()=>{if(!wbOpen){z.hidden=true;z.classList.remove("out")}},240)}
+  if(!azOpen)$("app").removeAttribute("aria-hidden")}
+$("wbX").onclick=wbClose;
+$("wbNext").onclick=()=>wbGo(wbI+1);$("wbPrev").onclick=()=>wbGo(wbI-1);
+/* ---- listening: the reciter reads the ayah and the words move with him ----
+   The ayah's own place in the surah recording comes from the reciter's timings; inside the ayah each word gets
+   a share of the time as long as it sounds (its letters in the Quran phonetic script, hph.json, long vowels
+   counted twice), so the words follow the voice closely without word-by-word timings. The app's own player
+   plays it (the notification and lock-screen controls work as always) and stops at the ayah's end, which then
+   opens the summary. */
+function wbTimes(id){if(!aud)return null;const s=sOf(id)+1,a=aOf(id),rows=aud.surahs[s];if(!rows)return null;const r=rows.find(x=>x[0]===a);if(!r||!(r[2]>r[1]))return null;
+  const n=AW[id].length,e=HPH&&HPH[s+":"+a];let L=null;if(e){const l=String(e).split("|")[1];const v=l?l.split(",").map(Number):[];if(v.length===n&&v.every(x=>x>0))L=v}
+  if(!L)L=AW[id].map(w=>bareA(w).length||1);
+  const wt=L.map(x=>x+2),tot=wt.reduce((p,q)=>p+q,0),cum=[0];wt.forEach((w,i)=>cum.push(cum[i]+w/tot));return {s:r[1],e:r[2],cum}}
+function wbPlayUI(){const b=$("wbPlay"),on=wbPlay&&(player.on||wbAuto);if(b._on===on)return;b._on=on;b.setAttribute("aria-pressed",String(on));
+  b.querySelector("span").textContent=on?"إيقاف":"استماع";
+  b.querySelector("svg").innerHTML=on?'<path d="M8.5 5.5v13M15.5 5.5v13"/>':'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3.5" y="14" width="4" height="6.5" rx="1.6"/><rect x="16.5" y="14" width="4" height="6.5" rx="1.6"/>';
+  $("wb").classList.toggle("play",on)}
+function wbListen(){
+  if(wbPlay){if(!wbAuto&&!$("player").hidden&&player.id===wbA){setPlaying(!player.on);wbPlayUI();if(player.on)wbSync()}else wbListenStop(true);return}
+  const z=$("wb"),g=wbGen;if(z.classList.contains("intro"))wbIntroEnd(g);
+  wbPlay=true;wbPlayUI();
+  Promise.all([wdData(),aud?aud:audData(reciter).then(d=>{if(d&&!aud)aud=d;return d}),hphGet()]).then(()=>{
+    if(!wbPlay||g!==wbGen||!wbOpen)return;wbTm=wbTimes(wbA);
+    const from=wbI>0&&wbI<wbN?wbI:0;if(wbI!==from)wbGo(from,true);
+    if(!wbTm||!seg(wbA)){wbAuto=true;wbPlayUI();toast("صوت هذه الآية غير متاح الآن، فتتقدّم الكلمات وحدها");wbAutoNext();return}
+    $("wbSub").textContent="بصوت "+RECS[reciter].split(" · ")[0];
+    playFrom(wbA);if(from>0)auSeek(wbTm.s+wbTm.cum[from]*(wbTm.e-wbTm.s)+20);wbPlayUI();wbSync()},()=>{if(g===wbGen){wbListenStop(false);toast("تعذّر تشغيل الصوت، تأكد من الإنترنت")}})}
+function wbSync(){clearTimeout(wbSyncT);if(!wbPlay||wbAuto||!wbOpen)return;
+  if($("player").hidden){wbListenStop(false);return}
+  /* at a surah's last ayah the player goes straight on to the next file: stop there all the same */
+  if(player.id!==wbA){if(player.id===wbA+1){stopPlay();wbListenStop(false);wbSummary()}else wbListenStop(false);return}
+  if(player.on&&wbTm&&AU.readyState>=1){const t=AU.currentTime*1000,f=(t-wbTm.s)/(wbTm.e-wbTm.s);
+    if(f>=0&&f<=1.02){let i=0;while(i<wbN-1&&f>=wbTm.cum[i+1])i++;if(i!==wbI&&wbI<wbN)wbGo(i,true);$("wbBar").style.transform=`scaleX(${Math.min(1,f).toFixed(3)})`}}
+  wbPlayUI();if(!document.hidden)wbSyncT=setTimeout(wbSync,90)}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wbPlay)wbSync()});
+function wbListenStop(stopAudio){const was=wbPlay;wbPlay=false;wbAuto=false;clearTimeout(wbSyncT);clearTimeout(wbAutoT);
+  if(was&&stopAudio&&!$("player").hidden&&player.id===wbA)stopPlay();wbPlayUI();
+  if(wbOpen&&wbA)$("wbSub").textContent=`الآية ${ar(aOf(wbA))} · ${numW(wbN,"كلمة واحدة","كلمتان","كلمات","كلمة")}`}
+/* the reciter reached the ayah's end: stop there and show the whole ayah */
+function wbAyahEnd(){wbListenStop(true);wbSummary()}
+$("wbPlay").onclick=wbListen;
+$("wb").addEventListener("click",e=>{if(!wbOpen||performance.now()-wbSwiped<450)return;const z=$("wb");
+  if(z.classList.contains("intro")&&!e.target.closest("#wbX")){wbIntroEnd(wbGen);return}
+  const w=e.target.closest(".wbw,.wbt");if(w){wbGo(+w.dataset.j);if(w.classList.contains("wbt"))$("wbAy").scrollTop=0;return}
+  if(e.target.closest("#wbAgain")){wbGo(0);return}
+  if(e.target.closest("#wbNextA")){if(wbA<NA)wbStart(wbA+1);return}
+  if(e.target.closest("#wbToPage")){const id=wbA;wbClose();if($("sheet").classList.contains("on"))openAyah(id);else showAyahPage(id);return}
+  if(e.target.closest("#wbVis"))wbGo(wbI+1)});
+{let pd=null;const el=$("wb");
+  el.addEventListener("pointerdown",e=>{pd=e.target.closest("button,.wb-sum")?null:{x:e.clientX,y:e.clientY}});
+  el.addEventListener("pointerup",e=>{if(!pd)return;const dx=e.clientX-pd.x,dy=e.clientY-pd.y;pd=null;
+    if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5&&wbI>=0&&wbI<wbN){wbSwiped=performance.now();wbGo(wbI+(dx>0?1:-1))}});
+  el.addEventListener("pointercancel",()=>{pd=null})}
+document.addEventListener("keydown",e=>{if(!wbOpen)return;e.stopPropagation();
+  if(e.key==="Escape"){wbClose();return}
+  if(e.key===" "||e.key==="Enter"){if(e.target.closest&&e.target.closest("button"))return;e.preventDefault();wbGo(wbI+1)}
+  else if(e.key==="ArrowLeft")wbGo(wbI+1);else if(e.key==="ArrowRight")wbGo(wbI-1)},true);
+try{new ResizeObserver(()=>{if(wbOpen)wbSize()}).observe($("wbVis"))}catch(e){addEventListener("resize",()=>{if(wbOpen)wbSize()})}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wbOpen)wbKick()});
+$("aWbw").onclick=()=>{if(selA)wbOpenUI(selA)};
+$("bWbw").onclick=()=>wbOpenUI(selA||pStart(Math.max(1,Math.min(NP,cur))));
 const backSig=()=>[azOpen,azCat,indexOpen,memo.on,inkOn,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
-  $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","manBox","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")&&(i!=="quiz"||e.classList.contains("on"))})].join();
+  $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","manBox","cont","azPS","azList","repBox","easyBox","quiz","wb"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")&&(i!=="quiz"||e.classList.contains("on"))})].join();
 /* Android back, one step at a time:
    1 a panel opened from another one (sources or the guide from settings, the quiz or a reflection from the index)
      closes and the one it came from comes back
