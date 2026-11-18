@@ -339,8 +339,10 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       ok(seen.has("3")&&seen.size>=4&&!!nx,`${name}: word by word listening moves the words with the recitation and reads on to the next ayah (${[...seen].join(",")} → ${nx})`);
       /* while the reciter reads only the word is followed: no meaning card, no picture, nothing drawn; paused, the meaning comes back */
       const lq=await p.evaluate(async()=>{const W=t=>new Promise(r=>setTimeout(r,t)),z=document.getElementById("wb"),m=document.querySelector(".wb-mid");const a={lst:z.classList.contains("lst"),mid:getComputedStyle(m).display,small:(document.querySelector("#wbAy .wbw.on small")||{}).textContent||""};
-        document.getElementById("wbPlay").click();await W(1300);a.back=!z.classList.contains("lst")&&getComputedStyle(m).display!=="none"&&!!document.querySelector("#wbCard .wb-m b");document.getElementById("wbPlay").click();await W(900);a.again=z.classList.contains("lst");return a});
-      ok(lq.lst&&lq.mid==="none"&&/^[٠-٩]+$/.test(lq.small)&&lq.back&&lq.again,`${name}: listening shows only the words being read, pausing brings the meaning back (${JSON.stringify(lq)})`);
+        document.getElementById("wbPlay").click();await W(1300);a.back=!z.classList.contains("lst")&&getComputedStyle(m).display!=="none"&&!!document.querySelector("#wbCard .wb-m b");
+        /* paused, a tapped word only shows its meaning; the sound waits for «استماع» */
+        const ws=document.querySelectorAll("#wbAy .wbw"),tj=ws.length>1?1:0;ws[tj].click();await W(900);a.tap=(document.querySelector("#wbAy .wbw.on")||{dataset:{}}).dataset.j===String(tj)&&!window.__smk.P().on&&!z.classList.contains("lst")&&!!document.querySelector("#wbCard .wb-m b");document.getElementById("wbPlay").click();await W(900);a.again=z.classList.contains("lst");return a});
+      ok(lq.lst&&lq.mid==="none"&&/^[٠-٩]+$/.test(lq.small)&&lq.back&&lq.tap&&lq.again,`${name}: listening shows only the words being read, pausing brings the meaning back, a tapped word stays quiet (${JSON.stringify(lq)})`);
       await p.keyboard.press("Escape");await p.waitForTimeout(500);
       const c=await p.evaluate(()=>({hid:document.getElementById("wb").hidden,app:document.getElementById("app").hasAttribute("aria-hidden")}));
       const pl=await p.evaluate(()=>document.getElementById("player").hidden);

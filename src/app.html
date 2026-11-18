@@ -6829,7 +6829,8 @@ function wbReady(g){wdData().then(()=>{if(g===wbGen&&wbOpen&&wbI<0)wbGo(0,true,t
 function wbGo(i,fromAudio,still){if(!wbOpen)return;const z=$("wb");if(z.classList.contains("intro")){wbIntroEnd(wbGen);return}if(!WD)return;
   if(i<0)return;
   /* a word chosen by hand while the reciter reads: the recitation jumps to it */
-  if(wbPlay&&!fromAudio){if(i>=wbN){wbListenStop(true)}else if(wbTm){auSeek(wbTm.s+wbTm.cum[i]*(wbTm.e-wbTm.s)+20);if(!player.on)setPlaying(true)}}
+  /* paused, the word only shows its meaning: the place moves with it, and the sound comes back only from «استماع» (Mn) */
+  if(wbPlay&&!fromAudio){if(i>=wbN){wbListenStop(true)}else if(wbTm)auSeek(wbTm.s+wbTm.cum[i]*(wbTm.e-wbTm.s)+20)}
   if(i>=wbN){wbSummary();return}
   wbI=i;z.classList.remove("sumOn");$("wbSum").hidden=true;
   const o=wbWord(wbA,i),ay=$("wbAy");
