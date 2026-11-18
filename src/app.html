@@ -2113,9 +2113,9 @@ html.lite #wb.play .wbw.on u{animation:none}
 #wb.intro .wb-card,#wb.intro .wb-nav{opacity:0;pointer-events:none}
 @keyframes wbIn{from{opacity:0;transform:translateY(12px)}}
 .wb-card{display:grid;gap:8px 18px;padding:10px 2px 0;transition:opacity .4s}
-.wb-m b{display:block;font-family:var(--f-display);font-size:calc(29px * var(--uz,1));font-weight:400;line-height:1.4;color:#fbf6ea}
+.wb-m b{display:block;font-family:var(--f-display);font-size:calc(29px * var(--uz,1));font-weight:400;line-height:1.6;color:#fbf6ea}
 .wb-m.long b{font-size:calc(21px * var(--uz,1));line-height:1.55}
-.wb-m small{display:block;margin-bottom:2px;font-size:calc(12px * var(--uz,1));color:rgba(236,230,216,.55)}
+.wb-m small{display:block;margin-bottom:6px;font-size:calc(12px * var(--uz,1));color:rgba(236,230,216,.55)}
 .wb-d{display:grid;gap:5px;font-size:calc(13.5px * var(--uz,1));line-height:1.55;color:rgba(236,230,216,.8)}
 .wb-d p{margin:0}
 .wb-r{display:flex;align-items:baseline;gap:10px}
@@ -2126,8 +2126,8 @@ html.lite #wb.play .wbw.on u{animation:none}
 .wb-s q{quotes:none;font-family:var(--f-quran);font-size:calc(19px * var(--uz,1));color:#efe6d0}
 .wb-s i{font-style:normal;color:rgba(236,230,216,.4)}
 .wb-c{color:rgba(236,230,216,.6)}
-.wb-card.sw>*{animation:wbRise .55s var(--ease) both}
-.wb-card.sw>:nth-child(2){animation-delay:.09s}
+.wb-card.wbsw>*{animation:wbRise .55s var(--ease) both}
+.wb-card.wbsw>:nth-child(2){animation-delay:.09s}
 @keyframes wbRise{from{opacity:0;transform:translateY(12px)}}
 .wb-mid{flex:1;min-height:0;display:flex;flex-direction:column}
 /* wide screens (the Fold open, tablets): the card on one side and the picture beside it, full height */
@@ -2135,7 +2135,7 @@ html.lite #wb.play .wbw.on u{animation:none}
   .wbw q{font-size:calc(34px * var(--uz,1))}.wb-m b{font-size:calc(34px * var(--uz,1))}.wb-w{font-size:calc(34px * var(--uz,1))}}
 /* big text on a small phone: the ayah box and card give the picture room */
 @media (max-width:440px){html.uzL .wb-ay{max-height:24vh}html.uzL .wb-card .wb-c{display:none}html.uzL .wb-vis{min-height:150px}}
-.wb-w{display:block;quotes:none;font-family:var(--f-quran);font-size:calc(25px * var(--uz,1));line-height:1.5;padding-bottom:6px;color:#f4cf83}
+.wb-w{display:block;justify-self:start;width:max-content;max-width:100%;quotes:none;font-family:var(--f-quran);font-size:calc(25px * var(--uz,1));line-height:1.9;padding-bottom:2px;color:#f4cf83}
 .wb-sr{margin:6px 0 0;font-size:calc(11px * var(--uz,1));color:rgba(236,230,216,.45)}
 .wb-fly{position:fixed;z-index:5;margin:0;pointer-events:none;quotes:none;font-family:var(--f-quran);font-size:calc(29px * var(--uz,1));line-height:1.65;text-align:center;color:#f4cf83;white-space:nowrap;transform-origin:50% 50%}
 @media (min-width:700px){.wb-fly{font-size:calc(34px * var(--uz,1))}}
@@ -6775,15 +6775,15 @@ function wbProg(){const i=Math.max(0,Math.min(wbN,wbI+1));$("wbBar").style.trans
 function wbOpenUI(id){id=+id||1;if(id<1||id>NA)id=1;WB_UZ=Math.min(1.4,Math.max(1,parseFloat(getComputedStyle(root).getPropertyValue("--uz"))||1));WB_QF=getComputedStyle(root).getPropertyValue("--f-quran").trim()||"serif";
   if(!wbOpen){wbOpen=true;try{showPrefs(false)}catch(e){}const z=$("wb");clearTimeout(wbClose.t);z.classList.remove("out","in");z.hidden=false;void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true")}
   wdData().catch(()=>{});wbStart(id)}
-function wbStart(id,cont){if(wbPlay&&!cont)wbListenStop(true);wbPlayUI();const g=++wbGen,z=$("wb"),hd=$("wbHd");wbA=id;wbI=-1;wbN=AW[id].length;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;wbCur=wbPrev=null;
+function wbStart(id,cont){if(wbPlay&&!cont)wbListenStop(true);wbPlayUI();const g=++wbGen,z=$("wb"),hd=$("wbHd");wbA=id;wbI=-1;wbN=AW[id].length;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;if(!cont)wbCur=wbPrev=null;
   const s=SUR[sOf(id)][0];$("wbTitle").textContent="سورة "+s;$("wbSub").textContent=`الآية ${ar(aOf(id))} · ${numW(wbN,"كلمة واحدة","كلمتان","كلمات","كلمة")}`;$("wbRef").textContent=`${s} · ${ar(aOf(id))}`;
   $("wbAy").innerHTML=AW[id].map((w,j)=>`<span class="wbw" data-j="${j}" style="--j:${Math.min(j,22)}"><q>${escH(qY(w))}</q><i><u></u></i><small>${wbNum(j)}</small></span>`).join("")+`<span class="wb-an" aria-hidden="true">${ar(aOf(id))}</span>`;
   z.classList.remove("sumOn","fill");$("wbTint").style.backgroundColor="";$("wbSum").hidden=true;$("wbSum").innerHTML="";$("wbCard").innerHTML="";$("wbStep").textContent="";$("wbAy").scrollTop=0;wbProg();
-  if(wbCx)wbDraw(0);
+  if(wbCx&&!cont)wbDraw(0);
   hd.style.transition="none";hd.style.transform="";
   /* reading on: the next ayah comes in quickly, no centred intro, and the words follow the voice at once */
   if(cont){z.classList.remove("intro");if(!reduce){z.classList.remove("nxt");void z.offsetWidth;z.classList.add("nxt");clearTimeout(wbStart.t);wbStart.t=setTimeout(()=>z.classList.remove("nxt"),900)}
-    if(wbPlay&&!wbAuto)wbTm=wbTimes(id);if(WD)wbGo(0,true);else wbReady(g);
+    if(wbPlay&&!wbAuto)wbTm=wbTimes(id);if(WD)wbGo(0,true,true);else wbReady(g);
     if(wbPlay&&!wbAuto)$("wbSub").textContent=wbSubL();return}
   if(reduce){z.classList.remove("intro");wbReady(g);return}
   z.classList.add("intro");
@@ -6791,9 +6791,9 @@ function wbStart(id,cont){if(wbPlay&&!cont)wbListenStop(true);wbPlayUI();const g
     hd.style.transform=`translateY(${dy.toFixed(1)}px) scale(${innerWidth<600?1.06:1.12})`;void hd.offsetWidth;hd.style.transition="";
     const n=Math.min(wbN,22);wbIntroT=setTimeout(()=>{if(g!==wbGen)return;z.classList.add("fill");wbIntroT=setTimeout(()=>wbIntroEnd(g),n*110+950)},n*85+550)})}
 function wbIntroEnd(g){const z=$("wb");if(g!==wbGen||!z.classList.contains("intro"))return;clearTimeout(wbIntroT);z.classList.remove("intro","fill");$("wbHd").style.transform="";
-  wbIntroT=setTimeout(()=>wbReady(g),reduce?0:480)}
-function wbReady(g){wdData().then(()=>{if(g===wbGen&&wbOpen&&wbI<0)wbGo(0,true)},()=>{if(g===wbGen&&wbOpen)toast("تعذّر تحميل معاني الكلمات")})}
-function wbGo(i,fromAudio){if(!wbOpen)return;const z=$("wb");if(z.classList.contains("intro")){wbIntroEnd(wbGen);return}if(!WD)return;
+  wbIntroT=setTimeout(()=>wbReady(g),reduce?0:620)}
+function wbReady(g){wdData().then(()=>{if(g===wbGen&&wbOpen&&wbI<0)wbGo(0,true,true)},()=>{if(g===wbGen&&wbOpen)toast("تعذّر تحميل معاني الكلمات")})}
+function wbGo(i,fromAudio,still){if(!wbOpen)return;const z=$("wb");if(z.classList.contains("intro")){wbIntroEnd(wbGen);return}if(!WD)return;
   if(i<0)return;
   /* a word chosen by hand while the reciter reads: the recitation jumps to it */
   if(wbPlay&&!fromAudio){if(i>=wbN){wbListenStop(true)}else if(wbTm){auSeek(wbTm.s+wbTm.cum[i]*(wbTm.e-wbTm.s)+20);if(!player.on)setPlaying(true)}}
@@ -6802,11 +6802,12 @@ function wbGo(i,fromAudio){if(!wbOpen)return;const z=$("wb");if(z.classList.cont
   const o=wbWord(wbA,i),ay=$("wbAy");
   ay.querySelectorAll(".wbw").forEach((e,j)=>{e.classList.toggle("on",j===i);e.classList.toggle("dn",j<i);e.querySelector("small").textContent=j===i?(o.desc.split(" · ")[0]||wbNum(j)):wbNum(j)});
   $("wbStep").textContent=`الكلمة ${ar(i+1)} من ${ar(wbN)}`;
-  const c=$("wbCard");c.innerHTML=wbCardHTML(o);c.classList.remove("sw");void c.offsetWidth;c.classList.add("sw");
-  wbFly(ay.children[i],c.querySelector(".wb-w"));
+  const c=$("wbCard");c.innerHTML=wbCardHTML(o);c.classList.remove("wbsw");void c.offsetWidth;c.classList.add("wbsw");
+  if(!still)wbFly(ay.children[i],c.querySelector(".wb-w"));
   if(fromAudio&&wbPlay&&!wbAuto)try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(4)}catch(e){}
   $("wbTint").style.backgroundColor=`rgb(${o.c.map(v=>Math.round(6+v*.05)).join(",")})`;
-  const now=performance.now();wbPrev=wbCur&&!reduce?wbCur:null;wbCur={o,t0:now};wbSwap=now;
+  /* the same picture (same root, or a word of the same family and seed) carries on instead of starting again */
+  const now=performance.now();if(wbCur&&!reduce&&wbCur.o.k===o.k&&wbCur.o.seed===o.seed&&String(wbCur.o.c)===String(o.c))wbCur={o,t0:wbCur.t0};else{wbPrev=wbCur&&!reduce?wbCur:null;wbCur={o,t0:now};wbSwap=now}
   if(!wbCx||!wbW)requestAnimationFrame(wbSize);wbKick();wbProg();
   ay.classList.toggle("scr",ay.scrollHeight>ay.clientHeight+2);
   const w=ay.children[i];if(w&&ay.scrollHeight>ay.clientHeight+2)ay.scrollTo({top:w.offsetTop-ay.clientHeight/2+w.offsetHeight/2,behavior:reduce?"auto":"smooth"});
