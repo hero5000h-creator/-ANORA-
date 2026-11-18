@@ -2160,6 +2160,7 @@ html.lite .wbf,html.lite #wb .wbw q{animation-name:wbRise}
 #wb.lst .wbw,#wb.lst .wbw q,#wb.lst .wbw small{transition-duration:.15s}
 #wb.lst .wbw u{transition:none}
 #wb.lst .wbw.on u{animation:none}
+#wb.lst .wbw q{animation:none}
 .wb-chip{display:flex;align-items:center;gap:6px;min-height:36px;padding:0 13px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(236,230,216,.8);font:inherit;font-size:calc(12.5px * var(--uz,1));transition:background-color .2s,color .2s,border-color .2s,transform .16s var(--ease)}
 .wb-chip:active{transform:scale(.94)}
 .wb-chip svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -6814,7 +6815,7 @@ function wbStart(id,cont){if(wbPlay&&!cont)wbListenStop(true);wbPlayUI();const g
   if(wbCx&&!cont)wbDraw(0);
   hd.style.transition="none";hd.style.transform="";
   /* reading on: the next ayah comes in quickly, no centred intro, and the words follow the voice at once */
-  if(cont){z.classList.remove("intro");if(!reduce){z.classList.remove("nxt");void z.offsetWidth;z.classList.add("nxt");clearTimeout(wbStart.t);wbStart.t=setTimeout(()=>z.classList.remove("nxt"),900)}
+  if(cont){z.classList.remove("intro");if(!reduce&&!wbLs()){z.classList.remove("nxt");void z.offsetWidth;z.classList.add("nxt");clearTimeout(wbStart.t);wbStart.t=setTimeout(()=>z.classList.remove("nxt"),900)}
     if(wbPlay&&!wbAuto)wbTm=wbTimes(id);if(WD)wbGo(0,true,true);else wbReady(g);
     if(wbPlay&&!wbAuto)$("wbSub").textContent=wbSubL();return}
   if(reduce){z.classList.remove("intro");wbReady(g);return}
