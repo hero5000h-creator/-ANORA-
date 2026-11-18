@@ -66,6 +66,11 @@ jobs:
       - name: Build debug APK
         working-directory: android
         run: chmod +x gradlew && ./gradlew assembleDebug --no-daemon
+      # the store build (release type, lint checks) is built unsigned on every run too, so a problem that only
+      # shows in the Play bundle is caught here and not on launch day; the signed one comes from release.yml
+      - name: Check the Play Store bundle builds
+        working-directory: android
+        run: ./gradlew bundleRelease --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: anora-debug-apk
