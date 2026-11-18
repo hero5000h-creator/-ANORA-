@@ -354,6 +354,9 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       const fd=await p.evaluate(async()=>{const W=t=>new Promise(r=>setTimeout(r,t)),c=document.getElementById("wbCard");document.getElementById("wbNext").click();await W(60);const out=c.classList.contains("wbout");
         await W(400);return {open:!document.getElementById("wb").hidden,out,words:c.querySelectorAll(".wb-m b span.wbf").length,moved:[...c.querySelectorAll(".wbf")].some(e=>getComputedStyle(e).transform!=="none")}});
       ok(!!bt&&fd.open&&fd.out&&fd.words>0&&!fd.moved,`${name}: the bar button opens word by word, and a word change fades without moving (${bt} ${JSON.stringify(fd)})`);
+      /* heat: a word left open stops drawing its picture after a few seconds (the canvas stays the same) */
+      if(!/tile/.test(bt)){await p.waitForTimeout(9800);const st=await p.evaluate(async()=>{const cv=document.getElementById("wbCv"),h=()=>{const d=cv.getContext("2d").getImageData(0,0,cv.width,cv.height).data;let x=0;for(let k=0;k<d.length;k+=97)x=(x*31+d[k])|0;return x};const a=h();await new Promise(r=>setTimeout(r,700));return {w:cv.width,same:a===h()}});
+        ok(st.w>1&&st.same,`${name}: word by word picture rests after a few seconds, nothing keeps drawing (${JSON.stringify(st)})`)}
       await p.keyboard.press("Escape");await p.waitForTimeout(500)}
     await ctx.close()}
   /* saved data from an old version or an edited backup file (wrong shapes, a name with markup in it) must not
