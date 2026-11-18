@@ -184,6 +184,9 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       await p.evaluate(()=>__smk.openAyah(__smk.SST[2]+3));await p.waitForTimeout(900);await p.keyboard.press("Escape");await p.waitForTimeout(600)}
     const pgT=()=>document.getElementById("wMeta").textContent+" "+document.getElementById("pnum").textContent;const pg0=await p.evaluate(pgT);await p.keyboard.press("ArrowLeft");await p.waitForTimeout(1400);
     ok(await p.evaluate(pgT)!==pg0,`${name}: page turns`);
+    /* the surah name in the top bar is never cut, whatever the screen and the row of buttons */
+    {const t=await p.evaluate(()=>{const b=document.getElementById("wSurah").parentNode;return {n:document.getElementById("wSurah").textContent,sw:b.scrollWidth,cw:b.clientWidth,vis:!!b.offsetParent}});
+      ok(!t.vis||t.sw<=t.cw+1,`${name}: the surah name in the bar fits (${JSON.stringify(t)})`)}
     
     await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(500);
     for(const z of ["1","1.3"]){await p.evaluate(z=>document.querySelector(`[data-uz="${z}"]`).click(),z);await p.waitForTimeout(400);
