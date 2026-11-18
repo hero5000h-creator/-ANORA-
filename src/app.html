@@ -793,6 +793,17 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #flPill{position:absolute;left:0;top:0;border-radius:999px;background:var(--flp);pointer-events:none;z-index:2;transition:transform .26s cubic-bezier(.25,.8,.25,1),width .26s cubic-bezier(.25,.8,.25,1),height .2s ease}
 #flPill.jump{transition:none}
 #flPill[hidden],#app:not(.follow) #flPill{display:none}
+#flHear{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:2px;padding:4px;border-radius:24px;background:var(--bar);color:var(--ink);border:1px solid color-mix(in srgb,#c0392b 40%,transparent);box-shadow:0 8px 22px var(--shadow);max-width:calc(100vw - 32px)}
+#flHear[hidden],#app:not(.follow) #flHear{display:none}
+#flHear.in{animation:fhIn .32s var(--ease)}
+@keyframes fhIn{from{opacity:0;transform:translateX(-50%) translateY(10px)}}
+#flHear button{display:flex;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-radius:20px;background:none;color:inherit;font:inherit;font-size:calc(14px * var(--uz,1));white-space:nowrap}
+#flHear .fh-x{padding:0 8px;color:var(--muted)}
+#flHear svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#flHear .fh-go svg{color:#c0392b}
+#flHear.on{border-color:color-mix(in srgb,var(--orn) 55%,transparent)}#flHear.on .fh-go svg{color:var(--orn)}
+/* the ayah being heard shows on the page, its hidden words too, on the recitation colour */
+#app.memo.follow #book .lb [data-a].hear{transition:color .25s,opacity .25s;color:var(--ink)!important;opacity:1!important;-webkit-text-fill-color:currentColor}
 @media (prefers-reduced-motion:reduce){#flPill{transition:none}}
 #app.memo.follow #book .lb [data-a].hid.nx *{color:var(--ink)}
 :root:is([data-paper="night"],[data-paper="black"]) #app.memo.follow{--flp:color-mix(in srgb,#5b8cff 30%,transparent)}
@@ -2059,7 +2070,7 @@ html.atOn #app>.foot.foot:not(.playing):not(.memo-on){opacity:0;transform:transl
 .wb-top{display:flex;align-items:center;gap:10px;padding:12px 0 2px;transition:opacity .4s}
 .wb-tt{flex:1;min-width:0;text-align:center}
 .wb-tt b{display:block;font-size:calc(15px * var(--uz,1));font-weight:600;color:#efe7d4}
-.wb-tt small{display:block;font-size:calc(12px * var(--uz,1));color:rgba(236,230,216,.55)}
+.wb-tt small{display:block;font-size:calc(12px * var(--uz,1));color:rgba(236,230,216,.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wb-pl{flex:none;display:flex;align-items:center;gap:7px;height:42px;padding:0 14px 0 12px;border-radius:21px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#e9e2d2;font:inherit;font-size:calc(13.5px * var(--uz,1));font-weight:500;transition:transform .16s var(--ease),background-color .25s,color .25s,border-color .25s}
 .wb-pl:active{transform:scale(.94)}
 .wb-pl svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -2118,7 +2129,34 @@ html.lite #wb.play .wbw.on u{animation:none}
 .wb-card.sw>*{animation:wbRise .55s var(--ease) both}
 .wb-card.sw>:nth-child(2){animation-delay:.09s}
 @keyframes wbRise{from{opacity:0;transform:translateY(12px)}}
-@media (min-width:700px){.wb-card{grid-template-columns:1.25fr 1fr;align-items:start}.wbw q{font-size:calc(34px * var(--uz,1))}.wb-m b{font-size:calc(34px * var(--uz,1))}}
+.wb-mid{flex:1;min-height:0;display:flex;flex-direction:column}
+/* wide screens (the Fold open, tablets): the card on one side and the picture beside it, full height */
+@media (min-width:700px){.wb-mid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:22px}.wb-card{align-content:start;padding-top:26px}.wb-vis{margin:0 0 0 -18px;min-height:240px}
+  .wbw q{font-size:calc(34px * var(--uz,1))}.wb-m b{font-size:calc(34px * var(--uz,1))}.wb-w{font-size:calc(34px * var(--uz,1))}}
+/* big text on a small phone: the ayah box and card give the picture room */
+@media (max-width:440px){html.uzL .wb-ay{max-height:24vh}html.uzL .wb-card .wb-c{display:none}html.uzL .wb-vis{min-height:150px}}
+.wb-w{display:block;quotes:none;font-family:var(--f-quran);font-size:calc(25px * var(--uz,1));line-height:1.5;padding-bottom:6px;color:#f4cf83}
+.wb-sr{margin:6px 0 0;font-size:calc(11px * var(--uz,1));color:rgba(236,230,216,.45)}
+.wb-fly{position:fixed;z-index:5;margin:0;pointer-events:none;quotes:none;font-family:var(--f-quran);font-size:calc(29px * var(--uz,1));line-height:1.65;text-align:center;color:#f4cf83;white-space:nowrap;transform-origin:50% 50%}
+@media (min-width:700px){.wb-fly{font-size:calc(34px * var(--uz,1))}}
+#wb.nxt .wbw q{animation:wbIn .5s var(--ease) both;animation-delay:calc(var(--j) * 28ms)}
+.wb-opts{display:none;justify-content:center;gap:8px;padding:4px 0 0}
+#wb.lst:not(.sumOn) .wb-opts{display:flex}
+.wb-chip{display:flex;align-items:center;gap:6px;min-height:36px;padding:0 13px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(236,230,216,.8);font:inherit;font-size:calc(12.5px * var(--uz,1));transition:background-color .2s,color .2s,border-color .2s,transform .16s var(--ease)}
+.wb-chip:active{transform:scale(.94)}
+.wb-chip svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.wb-chip[aria-pressed="true"]{background:rgba(244,207,131,.15);border-color:rgba(244,207,131,.45);color:#f4cf83}
+.wbq{display:grid;gap:10px;padding:8px 0}
+.wbq-h{font-size:calc(12px * var(--uz,1));color:rgba(236,230,216,.6)}
+.wbq-w{text-align:center;quotes:none;font-family:var(--f-quran);font-size:calc(40px * var(--uz,1));line-height:1.6;color:#f4cf83;animation:wbRise .5s var(--ease) both}
+.wbq-a{text-align:center;font-size:calc(15px * var(--uz,1));color:rgba(236,230,216,.85)}
+.wbq-o{min-height:52px;padding:8px 14px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#f3ecdc;font-family:var(--f-display);font-size:calc(19px * var(--uz,1));line-height:1.45;text-align:center;animation:wbRise .45s var(--ease) both;transition:background-color .25s,border-color .25s,transform .16s var(--ease)}
+.wbq-o.root{font-family:var(--f-quran);font-size:calc(24px * var(--uz,1));word-spacing:.2em}
+.wbq-o:nth-child(2){animation-delay:.06s}.wbq-o:nth-child(3){animation-delay:.12s}
+.wbq-o:active{transform:scale(.97)}
+.wbq-o.ok{background:rgba(110,200,150,.22);border-color:rgba(110,200,150,.7)}
+.wbq-o.no{background:rgba(230,110,110,.2);border-color:rgba(230,110,110,.6)}
+.wbq-s{text-align:center;font-family:var(--f-display);font-size:calc(30px * var(--uz,1));color:#f4cf83;margin:14px 0 4px}
 .wb-vis{position:relative;flex:1;min-height:110px;margin:0 -18px}
 #wbCv{position:absolute;inset:0;width:100%;height:100%}
 .wb-nav{display:flex;align-items:center;gap:14px;padding:6px 0 14px;transition:opacity .4s}
@@ -2147,7 +2185,7 @@ html.lite #wb.play .wbw.on u{animation:none}
 .wb-btn:active{transform:scale(.95)}
 .wb-btn.solid{background:#e9c27a;border-color:#e9c27a;color:#1a1408}
 .wb-btn:disabled{opacity:.35}
-#wb.sumOn .wb-vis,#wb.sumOn .wb-card,#wb.sumOn .wb-nav{display:none}
+#wb.sumOn .wb-mid,#wb.sumOn .wb-nav{display:none}
 #wb.sumOn .wbw{opacity:1}
 #wb.sumOn .wbw q{color:#f4cf83}
 #wb.sumOn .wbw u{transform:none;opacity:.55}
@@ -2523,9 +2561,12 @@ html.lite .wbw.on q{text-shadow:none}
       <p class="wb-step" id="wbStep" aria-live="polite"></p>
       <div class="wb-ay" id="wbAy"></div>
     </div>
-    <div class="wb-card" id="wbCard"></div>
-    <div class="wb-vis" id="wbVis"><canvas id="wbCv" aria-hidden="true"></canvas></div>
+    <div class="wb-mid">
+      <div class="wb-card" id="wbCard"></div>
+      <div class="wb-vis" id="wbVis"><canvas id="wbCv" aria-hidden="true"></canvas></div>
+    </div>
     <div class="wb-sum" id="wbSum" hidden></div>
+    <div class="wb-opts"><button class="wb-chip" id="wbRep" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3"/><path d="M4 11.5v-1a4 4 0 0 1 4-4h12"/><path d="M7 20.5l-3-3 3-3"/><path d="M20 12.5v1a4 4 0 0 1-4 4H4"/></svg>تكرار الآية</button><button class="wb-chip" id="wbSlow" aria-pressed="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 1.5M10 3.5h4"/></svg>أبطأ</button></div>
     <nav class="wb-nav">
       <button class="wb-nb" id="wbPrev" aria-label="الكلمة السابقة"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
       <div class="wb-pg"><div class="wb-bar"><b id="wbBar"></b></div><small id="wbCnt"></small></div>
@@ -4884,7 +4925,7 @@ function pStop(){cancelAnimationFrame(player.raf);clearTimeout(player.tT)}
 function pNext(f,ms){pStop();if(ms>120)player.tT=setTimeout(f,Math.min(250,ms-80));else player.raf=requestAnimationFrame(f)}
 function pBarTo(f){f=Math.min(1,Math.max(0,f||0));const b=$("pBar"),v=Math.round(f*500)/500;if(b._f===v)return;
   b.classList.toggle("jmp",!(v>(b._f||0))||v-(b._f||0)>.25);b._f=v;b.style.transform=`scaleX(${v})`}
-function ayahDone(){if(wbPlay&&wbOpen&&!wbAuto&&player.id===wbA){wbAyahEnd();return}const id=player.id,n=nextPlay();if(!n){stopPlay();return}
+function ayahDone(){if(wbPlay&&wbRep&&wbOpen&&!wbAuto&&player.id===wbA){wbAyahEnd();return}const id=player.id,n=nextPlay();if(!n){stopPlay();return}
   /* repeating to memorise: a silence as long as the ayah, for the student to say it back */
   if(rep.on&&rep.gap&&player.on){const g=seg(id),d=Math.min(30000,Math.max(1500,g?g.end-g.start:ayahDur(id)));
     player.seg=null;pStop();AU.pause();clearTimeout(player.gapT);$("pTitle").textContent="دورك: ردّدها…";
@@ -5135,7 +5176,7 @@ const pageWords=p=>{const el=cache.get(p),R=memo.range;return el?[...el.querySel
 const LS={rec:null,on:false,used:0,miss:0,se:new Set(),fx:new Set(),hold:null,lit:[],ph:new Map()};
 /* a word said wrong, now said right: the red goes, a thin line stays */
 function sFix(w){const k=mKey(w);LS.se.delete(k);LS.fx.add(k);w.classList.remove("err","vw");w.classList.add("fx")}
-function sErr(w){LS.se.add(mKey(w));w.classList.add("err")}
+function sErr(w){LS.se.add(mKey(w));w.classList.add("err");if(memo.follow)flHearShow(+w.dataset.a)}
 const mKey=w=>w.dataset.a+":"+(w.dataset.w||"");
 const mErrs=()=>{try{return new Set(JSON.parse(store.get("mushaf.memoErr")||"[]"))}catch(e){return new Set()}};
 function applyMemo(p){
@@ -5165,7 +5206,7 @@ function revealAyah(id){
 }
 function setMemo(on){if(on)contHide();
   if(!on&&LS.on)micStop();
-  memo.on=on;memo.rev.clear();memo.last=null;LS.se.clear();LS.fx.clear();LS.hold=null;if(!on){memo.range=null;memo.follow=false}
+  memo.on=on;memo.rev.clear();memo.last=null;LS.se.clear();LS.fx.clear();LS.hold=null;if(!on){memo.range=null;memo.follow=false;flHearHide()}
   if(on){stopPlay();closeAyah();hideHint();setCalm(false)}
   if(!on)footOut($("memo"));$("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint&&!memo.follow);$("app").classList.toggle("follow",on&&!!memo.follow);$("bFollow").setAttribute("aria-pressed",String(on&&!!memo.follow));$("mExit").setAttribute("aria-label",memo.follow?"إنهاء تتبّع التلاوة":"إنهاء وضع الحفظ");$("mReset").textContent=memo.follow?"من البداية":"أخفِ";$("mReset").setAttribute("aria-label",memo.follow?"ابدأ الصفحة من أولها":"أخفِ الصفحة من جديد");$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
   $("bMemo").setAttribute("aria-pressed",String(on&&!memo.follow));
@@ -5182,6 +5223,38 @@ $("bMemo").onclick=()=>{showPrefs(false);memo.range=null;const was=memo.on&&!mem
 /* ---------- follow-along recitation ----------
    The reader recites with the page in front of them (no hiding): the same listening as the recitation check,
    but the words stay on the page, faint until recited, and the page turns by itself at its end. */
+/* ---- follow-along: hear the ayah of a word said wrong ----
+   When a word turns red a small bar offers «اسمع الآية» : the microphone pauses (so the recogniser does not take the
+   reciter for the reader), the chosen reciter reads that one ayah while its words show on the page, and then the
+   microphone listens again from the same place. */
+const flH={id:0,au:null,was:false,t:0};
+function flHearEl(){let c=$("flHear");if(c)return c;c=document.createElement("div");c.id="flHear";c.hidden=true;c.setAttribute("role","group");
+  c.innerHTML='<button type="button" class="fh-go"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 9.5v5h3.5l4.5 4V5.5l-4.5 4z"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11"/></svg><span></span></button><button type="button" class="fh-x" aria-label="إخفاء"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button>';
+  ["pointerdown","click"].forEach(t=>c.addEventListener(t,e=>e.stopPropagation()));
+  c.querySelector(".fh-go").onclick=()=>flHearPlay();c.querySelector(".fh-x").onclick=()=>flHearHide();$("app").append(c);return c}
+function flHearPlace(){const c=$("flHear");if(!c||c.hidden)return;const f=document.querySelector("#app>.foot"),r=f&&f.getBoundingClientRect();c.style.bottom=Math.max(12,r&&r.height?innerHeight-r.top+10:12)+"px"}
+function flHearShow(id){if(!id||!memo.follow)return;const c=flHearEl();if(flH.au&&flH.id!==id)return;flH.id=id;
+  c.querySelector("span").textContent=flH.au?"إيقاف الاستماع":`اسمع الآية ${ar(aOf(id))} من القارئ`;c.classList.toggle("on",!!flH.au);
+  if(c.hidden){c.hidden=false;c.classList.remove("in");void c.offsetWidth;c.classList.add("in")}flHearPlace()}
+function flHearHide(){flHearDone(true);const c=$("flHear");if(c)c.hidden=true;flH.id=0}
+function flHearPlay(){const id=flH.id;if(!id)return;if(flH.au){flHearDone();return}
+  flH.was=LS.on;if(LS.on)micStop();if(player.on)setPlaying(false);
+  const fail=m=>{toast(m);flHearDone()};
+  const go=()=>{const g=seg(id);if(!g){fail("صوت هذه الآية غير متاح الآن");return}
+    const rows=aud.surahs[sOf(id)+1],r=rows&&rows.find(x=>x[0]===aOf(id)),st=r?r[1]:g.start,en=g.end;
+    const a=new Audio();flH.au=a;a.preload="auto";try{a.playbackRate=+store.get("mushaf.rate")||1}catch(e){}
+    a.addEventListener("loadedmetadata",()=>{if(flH.au!==a)return;try{a.currentTime=st/1000}catch(e){}a.play().catch(()=>{if(flH.au===a)fail("تعذّر تشغيل الصوت، تأكد من الإنترنت")})},{once:true});
+    a.addEventListener("error",()=>{if(flH.au===a)fail("تعذّر تشغيل الصوت، تأكد من الإنترنت")});
+    a.src=g.src;
+    const tick=()=>{if(flH.au!==a)return;if(a.ended||(a.currentTime*1000>=en-30&&a.currentTime*1000>st)){flHearDone();return}flH.t=setTimeout(tick,60)};flH.t=setTimeout(tick,300);
+    document.querySelectorAll(`#book .lb [data-a="${id}"]`).forEach(w=>w.classList.add("hear"));flHearShow(id)};
+  flHearShow(id);$("flHear").querySelector("span").textContent="جارٍ التحميل…";
+  if(aud)go();else audData(reciter).then(d=>{if(d&&!aud)aud=d;if(d)go();else fail("تعذّر تحميل توقيت القارئ. تحقق من الاتصال")},()=>fail("تعذّر تحميل توقيت القارئ. تحقق من الاتصال"))}
+function flHearDone(quiet){clearTimeout(flH.t);const a=flH.au;flH.au=null;if(a){try{a.pause();a.removeAttribute("src");a.load()}catch(e){}}
+  document.querySelectorAll("#book .hear").forEach(w=>w.classList.remove("hear"));
+  if(!quiet&&flH.id)flHearShow(flH.id);
+  if(flH.was&&memo.on&&memo.follow&&!LS.on)micStart();flH.was=false}
+addEventListener("resize",flHearPlace);
 function setFollow(on){if(memo.on)setMemo(false);{const el=$("flPill");if(el)el.hidden=true}if(!on)return;memo.range=null;memo.follow=true;setMemo(true);micStart()}
 $("bFollow").onclick=()=>{showPrefs(false);setFollow(!(memo.on&&memo.follow))};
 /* Windows has no speech recogniser for the page: the tile would only say so */
@@ -6537,14 +6610,14 @@ addEventListener("pointerdown",e=>{if(e.pointerType!=="pen"||store.get("mushaf.p
    on one canvas, only while this screen shows a word; light mode draws them at 30 fps and 1x, reduced motion one
    still frame. Nothing here keeps a layer when the screen is closed (display:none). */
 let wbOpen=false,wbA=0,wbI=-1,wbN=0,wbGen=0,wbRaf=0,wbIntroT=0,wbAutoT=0,wbSwap=0,wbLast=0,wbCur=null,wbPrev=null,wbCx=null,wbDpr=1,wbW=0,wbH=0;
-let wbSwiped=0,wbAuto=false,wbPlay=false,wbSyncT=0,wbTm=null,WB_QF="serif";
+let WB_UZ=1,wbRep=false,wbSlow=store.get("mushaf.wbSlow")==="1",wbSwiped=0,wbAuto=false,wbPlay=false,wbSyncT=0,wbTm=null,WB_QF="serif";
 const WB_UF='"IBM Plex Sans Arabic",Tahoma,sans-serif';
 const WB_COL=[[236,196,118],[104,208,194],[238,146,170],[124,170,255],[184,160,255],[255,170,92]];
 const wbE=x=>{x=Math.min(1,Math.max(0,x));return 1-Math.pow(1-x,3)};
 const wbC=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${a<0?0:a})`;
 const wbHs=i=>{const x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)};
 function wbGlow(X,x,y,r,c,a){if(a<=0||r<=0)return;const g=X.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(255,255,255,${a})`);g.addColorStop(.16,wbC(c,a*.9));g.addColorStop(.45,wbC(c,a*.25));g.addColorStop(1,wbC(c,0));X.fillStyle=g;X.beginPath();X.arc(x,y,r,0,7);X.fill()}
-function wbTag(X,x,y,s,a,al){if(!s||a<=0)return;X.font=`500 11.5px ${WB_UF}`;X.direction="rtl";X.textAlign=al||"right";X.fillStyle=`rgba(236,230,216,${.78*a})`;X.fillText(s,x,y)}
+function wbTag(X,x,y,s,a,al){if(!s||a<=0)return;X.font=`500 ${(11.5*WB_UZ).toFixed(1)}px ${WB_UF}`;X.direction="rtl";X.textAlign=al||"right";X.fillStyle=`rgba(236,230,216,${.78*a})`;X.fillText(s,x,y)}
 /* 0: a word made of parts — a stream of light from the first part (a letter like لِ، بِ، وَ) to the word it joins */
 function wbBridge(X,W,H,t,o,L){const k=wbE(t/1.3),s=Math.min(W,H*1.6),ax=W*.83,bx=W*.17,y=H*.42,n=LITE.on?150:Math.round(Math.min(620,Math.max(260,W*H/900))),big=Math.round(Math.max(18,Math.min(s*.13,70)));
   for(let i=0;i<n;i++){const a=wbHs(i),b=wbHs(i+500),c=wbHs(i+900),u=(a+t*(.05+.06*b))%1,th=Math.PI*u,
@@ -6578,7 +6651,7 @@ function wbOrbit(X,W,H,t,o,L){const k=wbE(t/1.8),cx=W*.5,cy=H*.6,n=6,u=Math.min(
   for(let i=1;i<=n;i++){const rx=(i*u+u*.5)*(.3+.7*k),ry=rx*.3;X.beginPath();X.ellipse(cx,cy,rx,ry,0,0,7);X.strokeStyle=wbC(o.c,(.18+.4*(1-i/n))*k);X.lineWidth=1;X.stroke();
     const an=t*(1.1/i)+i*1.7+o.seed,px=cx+Math.cos(an)*rx,py=cy+Math.sin(an)*ry;X.fillStyle=`rgba(255,255,255,${.9*k})`;X.beginPath();X.arc(px,py,i===4?3.2:1.8,0,7);X.fill();
     if(L&&i===4&&o.tags){const tx=Math.max(80,Math.min(W-16,px+70)),ty=H*.16;X.strokeStyle=`rgba(236,230,216,${.4*k})`;X.beginPath();X.moveTo(px,py);X.lineTo(tx-40,ty+8);X.lineTo(tx,ty+8);X.stroke();wbTag(X,tx,ty,o.tags[0],k,"right")}}
-  if(L&&o.tags&&o.tags[1])wbTag(X,16,H*.94,o.tags[1],k,"left")}
+  if(L&&o.tags&&o.tags[1])wbTag(X,cx,Math.min(H-8,cy+(n*u+u*.5)*.3*(.3+.7*k)+22),o.tags[1],k,"center")}
 /* 4: beams of light rising, sparks going up */
 function wbRays(X,W,H,t,o,L){const k=wbE(t/1.6),cx=W*.5,cy=H*1.04,n=LITE.on?26:46,R=Math.hypot(W,H)*.95;
   for(let i=0;i<n;i++){const a=Math.PI*(1.06+.88*i/(n-1))+Math.sin(t*.25+i)*.012,f=.5+.5*Math.sin(t*1.2+i*2.1+o.seed),len=R*(.4+.55*wbHs(i+o.seed))*k;
@@ -6592,7 +6665,71 @@ function wbVeil(X,W,H,t,o,L){const k=wbE(t/1.6),n=LITE.on?18:30;X.lineWidth=1;
     for(let y=H;y>=H*(1-.92*g);y-=9){const x=x0+Math.sin(y*.013+t*.8+i*.5)*amp*(1.1-y/H*.7);if(first){X.moveTo(x,y);first=false}else X.lineTo(x,y)}
     X.strokeStyle=wbC(i%6?o.c:[255,255,255],.12+.45*Math.abs(Math.sin(i*.7+t*.35)));X.stroke()}
   if(L&&o.tags)o.tags.forEach((s,i)=>wbTag(X,i?16:W-16,H*.14,s,k,i?"left":"right"))}
-const WB_DRAW=[wbBridge,wbDunes,wbRings,wbOrbit,wbRays,wbVeil];
+/* 6: drops of water falling, rings where they land */
+function wbDrops(X,W,H,t,o,L){const k=wbE(t/1.4),n=LITE.on?26:48,base=H*.82;X.lineWidth=1.2;
+  for(let i=0;i<n;i++){const s=wbHs(i+3),sp=.32+.3*wbHs(i+60),u=(t*sp+s)%1,x=W*(.06+.88*wbHs(i+120)),y=-20+u*(base+20),len=10+16*wbHs(i+7);
+    X.strokeStyle=wbC(i%5?o.c:[255,255,255],(.25+.5*wbHs(i+9))*k);X.beginPath();X.moveTo(x,y-len);X.lineTo(x,y);X.stroke();
+    const rp=(t*sp+s+.04)%1;if(rp<.18){const r=(rp/.18)*26;X.strokeStyle=wbC(o.c,(1-rp/.18)*.6*k);X.beginPath();X.ellipse(x,base,r,r*.28,0,0,7);X.stroke()}}
+  for(let j=0;j<5;j++){const y=base+6+j*9;X.strokeStyle=wbC(o.c,(.22-j*.035)*k);X.beginPath();for(let x=0;x<=W;x+=10){const yy=y+Math.sin(x*.03+t*1.2+j)*2;x?X.lineTo(x,yy):X.moveTo(x,yy)}X.stroke()}
+  if(L&&o.tags){wbTag(X,W-16,H*.12,o.tags[0],k,"right");wbTag(X,16,H*.12,o.tags[1],k,"left")}}
+/* 7: layers of earth, drifting slowly */
+function wbStrata(X,W,H,t,o,L){const k=wbE(t/1.6),n=7;
+  for(let i=0;i<n;i++){const f=i/(n-1),y0=H*(.36+f*.6)+(1-k)*40,st=Math.max(6,W/60);X.beginPath();X.moveTo(0,H);
+    for(let x=0;x<=W+st;x+=st){const y=y0-Math.sin(x*.008+i*1.7+o.seed+t*.08*(i%2?1:-1))*H*.05-Math.sin(x*.023+i)*H*.015;X.lineTo(x,y)}
+    X.lineTo(W,H);X.closePath();X.fillStyle=wbC(o.c,(.05+.05*f)*k);X.fill();X.strokeStyle=wbC(i%3?o.c:[255,240,220],(.25+.4*(1-f))*k);X.lineWidth=1;X.stroke()}
+  if(L&&o.tags){wbTag(X,W-16,H*.2,o.tags[0],k,"right");wbTag(X,16,H*.28,o.tags[1],k,"left")}}
+/* 8: a soft flower of light circles, breathing */
+function wbBloom(X,W,H,t,o,L){const k=wbE(t/1.8),cx=W*.5,cy=H*.56,R=Math.min(W,H)*.2,n=LITE.on?8:12;
+  wbGlow(X,cx,cy,R*1.6*k+2,o.c,.5);X.lineWidth=1;
+  for(let ring=0;ring<2;ring++)for(let i=0;i<n;i++){const a=i/n*Math.PI*2+t*.12*(ring?-1:1)+ring*.26,b=1+.06*Math.sin(t*1.1+i),r=R*(ring?1.35:.8)*k*b;
+    X.strokeStyle=wbC(ring?o.c2:o.c,(ring?.28:.5)*k);X.beginPath();X.arc(cx+Math.cos(a)*r*.62,cy+Math.sin(a)*r*.62,r*.62,0,7);X.stroke()}
+  if(L&&o.tags){wbTag(X,W-16,H*.14,o.tags[0],k,"right");wbTag(X,16,H*.94,o.tags[1],k,"left")}}
+/* 9: embers rising, a flame swaying */
+function wbFlame(X,W,H,t,o,L){const k=wbE(t/1.4),cx=W*.5,n=LITE.on?40:80;
+  for(let j=0;j<6;j++){X.beginPath();const w=W*(.1+j*.05);for(let y=H;y>=H*(.35+j*.05);y-=8){const f=(H-y)/H,x=cx+Math.sin(y*.03-t*3+j)*w*(1-f)*.35+(j-2.5)*w*.12*(1-f);y===H?X.moveTo(x,y):X.lineTo(x,y)}
+    X.strokeStyle=wbC(j%2?o.c:[255,120,60],(.18+.08*j)*k);X.lineWidth=1.4;X.stroke()}
+  for(let i=0;i<n;i++){const s=wbHs(i+11),u=(t*(.18+.2*wbHs(i+40))+s)%1,x=cx+(wbHs(i+70)-.5)*W*.5*(1+u)+Math.sin(t*2+i)*6,y=H-u*H*.95;
+    X.fillStyle=wbC(u<.4?[255,220,140]:o.c,(1-u)*.9*k);X.fillRect(x,y,1.8,1.8)}
+  wbGlow(X,cx,H,Math.min(W,H)*.5*k,[255,120,60],.5);
+  if(L&&o.tags){wbTag(X,W-16,H*.12,o.tags[0],k,"right");wbTag(X,16,H*.12,o.tags[1],k,"left")}}
+/* 10: a road of light to the horizon */
+function wbPath(X,W,H,t,o,L){const k=wbE(t/1.5),hx=W*.5,hy=H*.22,bw=W*.9;X.lineWidth=1;
+  wbGlow(X,hx,hy,Math.min(W,H)*.32*k,o.c,.7);
+  for(const s of [-1,1]){X.strokeStyle=wbC(o.c,.55*k);X.beginPath();X.moveTo(hx+s*4,hy);X.lineTo(hx+s*bw/2,H);X.stroke()}
+  for(let i=0;i<14;i++){const u=((i/14)+t*.12)%1,p=u*u,y=hy+(H-hy)*p,hw=(4+(bw/2-4)*p)*.08;X.strokeStyle=wbC([255,255,255],.7*p*k);X.lineWidth=1+2*p;X.beginPath();X.moveTo(hx-hw,y);X.lineTo(hx+hw,y);X.stroke()}
+  X.lineWidth=1;for(let i=1;i<8;i++){const y=hy+(H-hy)*Math.pow(i/8,1.6);X.strokeStyle=wbC(o.c,.08*k);X.beginPath();X.moveTo(0,y);X.lineTo(W,y);X.stroke()}
+  if(L&&o.tags){wbTag(X,W-16,H*.12,o.tags[0],k,"right");wbTag(X,16,H*.12,o.tags[1],k,"left")}}
+/* 11: pages fanning open, lines of writing coming onto them */
+function wbPages(X,W,H,t,o,L){const k=wbE(t/1.6),cx=W*.5,cy=H*.62,pw=Math.min(W*.3,H*.5),ph=pw*1.25,n=5;X.lineWidth=1;
+  for(let i=0;i<n;i++){const a=((i-(n-1)/2)*.16+Math.sin(t*.5+i)*.02)*k;X.save();X.translate(cx,cy+ph*.45);X.rotate(a);
+    X.fillStyle=wbC(o.c,.05+.03*i);X.strokeStyle=wbC(o.c,.35+.1*(i===n-1));X.beginPath();X.rect(-pw/2,-ph,pw,ph);X.fill();X.stroke();
+    if(i===n-1){const lines=9,sh=Math.min(lines,(t*3)%(lines+4));for(let j=0;j<lines&&j<sh;j++){const ww=pw*(.55+.3*wbHs(j+i*9));X.strokeStyle=wbC([255,250,235],.55*k);X.beginPath();X.moveTo(pw/2-12,-ph+18+j*(ph-30)/lines);X.lineTo(pw/2-12-ww,-ph+18+j*(ph-30)/lines);X.stroke()}}
+    X.restore()}
+  if(L&&o.tags){wbTag(X,W-16,H*.12,o.tags[0],k,"right");wbTag(X,16,H*.12,o.tags[1],k,"left")}}
+/* 12: a heartbeat line and the rings it sends out */
+function wbHeart(X,W,H,t,o,L){const k=wbE(t/1.4),cy=H*.55,beat=(t*.9)%1;X.lineWidth=1.6;
+  for(let i=0;i<4;i++){const u=((t*.45)+i/4)%1;X.strokeStyle=wbC(o.c,(1-u)*.45*k);X.beginPath();X.arc(W*.5,cy,u*Math.min(W,H)*.55,0,7);X.stroke()}
+  X.beginPath();const st=4;for(let x=0;x<=W;x+=st){const p=((x/W)-beat+1)%1;let y=0;if(p>.42&&p<.58){const q=(p-.42)/.16;y=q<.3?-q/.3*H*.18:q<.55?-H*.18+(q-.3)/.25*H*.3:q<.8?H*.12-(q-.55)/.25*H*.16:-H*.04*(1-(q-.8)/.2)}
+    x?X.lineTo(x,cy+y*k):X.moveTo(x,cy+y*k)}X.strokeStyle=wbC([255,255,255],.75*k);X.stroke();
+  if(L&&o.tags){wbTag(X,W-16,H*.12,o.tags[0],k,"right");wbTag(X,16,H*.12,o.tags[1],k,"left")}}
+/* what a root is about, for the picture: the roots met most in the Quran, sorted into a few families of meaning.
+   Any other root keeps the picture its number gives it */
+const WB_FAM={
+  light:{k:4,c:[246,206,120],r:"أله نور صبح شمس قمر ضوأ نجم سرج حقق صدق بين شهد برق"},
+  praise:{k:1,c:[236,196,118],r:"حمد سبح شكر عظم كبر عزز علو قدر قوي جلل مجد"},
+  dominion:{k:3,c:[124,170,255],r:"ربب ملك خلق سمو علم عرش كرس فطر بدع"},
+  word:{k:11,c:[236,224,200],r:"قول كلم كتب قرأ أيي نزل وحي تلو نبأ ذكر رسل بلغ خبر حدث"},
+  path:{k:10,c:[104,208,194],r:"هدي سبل صرط تبع ضلل رجع توب سير طرق سعي"},
+  water:{k:6,c:[110,180,255],r:"موه نهر بحر مطر جري سقي غيث سحب ودق"},
+  earth:{k:7,c:[214,170,110],r:"أرض جبل ترب دنو بيت سكن قري بلد زرع نبت"},
+  mercy:{k:8,c:[240,150,172],r:"رحم حبب ودد غفر عفو نعم خير حسن فضل رزق رضو طيب كرم سلم بشر أجر برك يسر"},
+  fire:{k:9,c:[255,140,80],r:"عذب هلك جحم سعر حرق خسر بأس ضرر سوأ فسد أثم جرم غضب"},
+  soul:{k:12,c:[238,146,170],r:"قلب نفس أمن وقي خوف خشي صبر روح صدر عقل فكر أنس قوم أهل أمم بني أخو زوج ولد رجل"},
+  time:{k:2,c:[104,208,194],r:"يوم حيي موت خلد بعث أجل دهر عمر سنو وقت سمع بصر رأي نظر"},
+  unseen:{k:5,c:[184,160,255],r:"غيب ليل ظلم كفر شرك نفق خفي سرر ستر ظنن ريب شطن سحر"},
+  worship:{k:4,c:[150,215,200],r:"عبد سجد صلو دعو ركع زكو صوم حجج"}};
+const WB_RF=new Map();for(const f in WB_FAM)for(const r of WB_FAM[f].r.split(" "))if(!WB_RF.has(r))WB_RF.set(r,WB_FAM[f]);
+const WB_DRAW=[wbBridge,wbDunes,wbRings,wbOrbit,wbRays,wbVeil,wbDrops,wbStrata,wbBloom,wbFlame,wbPath,wbPages,wbHeart];
 function wbMean(id,w){if(!GH||!GH[id-1])return null;const k=bareA(w);if(k.length<2)return null;
   for(const l of GH[id-1].split(/\n+/)){const m=l.match(/^﴿([^﴾]*)﴾\s*:?\s*(.*)$/);if(m&&m[1].split(/\s+/).some(x=>bareA(x)===k))return {ph:m[1].split(/\s+/).length>1?m[1]:"",tx:m[2].trim().replace(/\.$/,"")}}
   return null}
@@ -6601,17 +6738,21 @@ const wbNum=j=>ar(j+1);
 function wbWord(id,j){const t=qY(AW[id][j]),W0=WD&&WD.W[id-1]&&WD.W[id-1][j];
   if(!W0)return {t,k:1,c:WB_COL[0],c2:WB_COL[3],seed:j+1,sg:[],desc:"",root:"",r:-1,rootN:0,lem:"",mean:null,short:"",tags:[]};
   const sg=W0.s.map(x=>WD.s[x].split("|")).map(([a,d])=>[a,WD.d[+d]||""]),m=Math.min(W0.m,sg.length-1),last=sg.length-1;
-  const br=sg.length>1&&(/^(حرف|لام|واو|فاء|أداة استفهام|همزة)/.test(sg[0][1])||/^ضمير/.test(sg[last][1]));
+  /* a root of a known family of meaning gets that family's picture; a word built of parts (لِ + اللّه) with no such
+     root shows the stream between its parts; any other root the picture its number gives it */
+  const fam=W0.r>=0?WB_RF.get(WD.r[W0.r]):null;
+  const br=!fam&&sg.length>1&&(/^(حرف|لام|واو|فاء|أداة استفهام|همزة)/.test(sg[0][1])||/^ضمير/.test(sg[last][1]));
   const key=W0.r>=0?W0.r:W0.l>=0?W0.l+7:j,ci=br?5:key%5,lem=W0.l>=0?WD.l[W0.l]:"";
   const rootN=W0.r>=0?WD.byR[W0.r].length:0,root=W0.r>=0?[...WD.r[W0.r]].join(" "):"",mean=wbMean(id,AW[id][j]),desc=sg[m][1];
   /* the two ends of the stream: the first part and the word it joins (its dictionary form when that part carries it) */
   const bi=m>0?m:last,a=m===0&&lem?lem:sg[0][0],b=bi===m&&lem?lem:sg[bi][0];
-  return {t,k:br?0:1+key%5,c:WB_COL[ci],c2:WB_COL[(ci+3)%6],seed:key*.731+1.3,sg,desc,root,r:W0.r,rootN,lem,mean,
+  return {t,k:fam?fam.k:br?0:1+key%5,c:fam?fam.c:WB_COL[ci],c2:WB_COL[(ci+3)%6],seed:key*.731+1.3,sg,desc,root,r:W0.r,rootN,lem,mean,
     short:mean?wbShort(mean.tx):lem||desc,tags:[root?`الجذر  ${root}`:desc.split(" · ")[0],rootN?nPl(rootN):lem].filter(Boolean),
     a,b,da:sg[0][1].split(" · ")[0],db:sg[bi][1].split(" · ")[0]}}
 function wbCardHTML(o){
   const big=o.mean?o.mean.tx:o.lem||o.t,lbl=o.mean?(o.mean.ph?`معنى ﴿${escH(o.mean.ph)}﴾`:"معناها"):o.lem?"أصل الكلمة":"";
-  let h=`<div class="wb-m${big.length>46?" long":""}">${lbl?`<small>${lbl}</small>`:""}<b>${escH(big)}</b></div><div class="wb-d">`;
+  let h=`<div class="wb-m${big.length>46?" long":""}"><q class="wb-w">${escH(o.t)}</q>${lbl?`<small>${lbl}</small>`:""}<b>${escH(big)}</b>`+
+    `<p class="wb-sr">${o.mean?"المعنى من «الميسّر في غريب القرآن» · مجمع الملك فهد":o.sg.length?"الأصل والجذر من مدوّنة القرآن الكريم اللغوية":""}</p></div><div class="wb-d">`;
   if(o.root){const su=new Set(WD.byR[o.r].map(l=>sOf(l>>8))).size;h+=`<p class="wb-r"><small>الجذر</small><b>${escH(o.root)}</b></p>`;
     h+=`<p class="wb-c">ورد الجذر في ${nPl(o.rootN)} من ${numW(su,"سورة واحدة","سورتين","سور","سورة")}</p>`}
   if(o.sg.length)h+=`<p class="wb-s">${o.sg.map(([t,d])=>`<span><q>${escH(t)}</q>${escH(d)}</span>`).join("<i>+</i>")}</p>`;
@@ -6621,23 +6762,29 @@ function wbSize(){const cv=$("wbCv"),r=cv.getBoundingClientRect();wbDpr=LITE.on?
   cv.width=Math.max(1,Math.round(r.width*wbDpr));cv.height=Math.max(1,Math.round(r.height*wbDpr));wbCx=cv.getContext("2d");wbDraw(performance.now())}
 function wbDraw(now){const X=wbCx;if(!X)return;X.setTransform(wbDpr,0,0,wbDpr,0,0);X.clearRect(0,0,wbW,wbH);if(!wbCur||wbW<2||wbH<2)return;
   const f=reduce?1:Math.min(1,(now-wbSwap)/650);
-  try{if(wbPrev&&f<1){X.globalAlpha=1-f;WB_DRAW[wbPrev.o.k](X,wbW,wbH,(now-wbPrev.t0)/1000,wbPrev.o,true)}
+  try{if(wbPrev&&f<1){X.globalAlpha=1-f;WB_DRAW[wbPrev.o.k](X,wbW,wbH,(now-wbPrev.t0)/1000,wbPrev.o,false)}
     X.globalAlpha=f;WB_DRAW[wbCur.o.k](X,wbW,wbH,reduce?6:(now-wbCur.t0)/1000,wbCur.o,true)}catch(e){}
-  X.globalAlpha=1;if(f>=1)wbPrev=null}
+  X.globalAlpha=1;if(f>=1)wbPrev=null;
+  /* beside the card (wide screens) the picture fades out at its inner edge instead of being cut straight */
+  if(innerWidth>=700){X.globalCompositeOperation="destination-out";const g=X.createLinearGradient(wbW-70,0,wbW,0);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,1)");X.fillStyle=g;X.fillRect(wbW-70,0,70,wbH);X.globalCompositeOperation="source-over"}}
 function wbFrame(now){wbRaf=0;if(!wbOpen||!wbCur||wbI<0||wbI>=wbN)return;
   if(LITE.on&&now-wbLast<30){wbRaf=requestAnimationFrame(wbFrame);return}wbLast=now;wbDraw(now);wbRaf=requestAnimationFrame(wbFrame)}
 function wbKick(){if(reduce){wbDraw(performance.now());return}if(!wbRaf)wbRaf=requestAnimationFrame(wbFrame)}
 function wbProg(){const i=Math.max(0,Math.min(wbN,wbI+1));$("wbBar").style.transform=`scaleX(${wbN?(i/wbN).toFixed(4):0})`;$("wbCnt").textContent=wbI<0?"":`${ar(i)} / ${ar(wbN)}`;
   $("wbPrev").disabled=wbI<=0}
-function wbOpenUI(id){id=+id||1;if(id<1||id>NA)id=1;WB_QF=getComputedStyle(root).getPropertyValue("--f-quran").trim()||"serif";
+function wbOpenUI(id){id=+id||1;if(id<1||id>NA)id=1;WB_UZ=Math.min(1.4,Math.max(1,parseFloat(getComputedStyle(root).getPropertyValue("--uz"))||1));WB_QF=getComputedStyle(root).getPropertyValue("--f-quran").trim()||"serif";
   if(!wbOpen){wbOpen=true;try{showPrefs(false)}catch(e){}const z=$("wb");clearTimeout(wbClose.t);z.classList.remove("out","in");z.hidden=false;void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true")}
   wdData().catch(()=>{});wbStart(id)}
-function wbStart(id){if(wbPlay)wbListenStop(true);wbPlayUI();const g=++wbGen,z=$("wb"),hd=$("wbHd");wbA=id;wbI=-1;wbN=AW[id].length;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;wbCur=wbPrev=null;
+function wbStart(id,cont){if(wbPlay&&!cont)wbListenStop(true);wbPlayUI();const g=++wbGen,z=$("wb"),hd=$("wbHd");wbA=id;wbI=-1;wbN=AW[id].length;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;wbCur=wbPrev=null;
   const s=SUR[sOf(id)][0];$("wbTitle").textContent="سورة "+s;$("wbSub").textContent=`الآية ${ar(aOf(id))} · ${numW(wbN,"كلمة واحدة","كلمتان","كلمات","كلمة")}`;$("wbRef").textContent=`${s} · ${ar(aOf(id))}`;
   $("wbAy").innerHTML=AW[id].map((w,j)=>`<span class="wbw" data-j="${j}" style="--j:${Math.min(j,22)}"><q>${escH(qY(w))}</q><i><u></u></i><small>${wbNum(j)}</small></span>`).join("")+`<span class="wb-an" aria-hidden="true">${ar(aOf(id))}</span>`;
   z.classList.remove("sumOn","fill");$("wbTint").style.backgroundColor="";$("wbSum").hidden=true;$("wbSum").innerHTML="";$("wbCard").innerHTML="";$("wbStep").textContent="";$("wbAy").scrollTop=0;wbProg();
   if(wbCx)wbDraw(0);
   hd.style.transition="none";hd.style.transform="";
+  /* reading on: the next ayah comes in quickly, no centred intro, and the words follow the voice at once */
+  if(cont){z.classList.remove("intro");if(!reduce){z.classList.remove("nxt");void z.offsetWidth;z.classList.add("nxt");clearTimeout(wbStart.t);wbStart.t=setTimeout(()=>z.classList.remove("nxt"),900)}
+    if(wbPlay&&!wbAuto)wbTm=wbTimes(id);if(WD)wbGo(0,true);else wbReady(g);
+    if(wbPlay&&!wbAuto)$("wbSub").textContent=wbSubL();return}
   if(reduce){z.classList.remove("intro");wbReady(g);return}
   z.classList.add("intro");
   requestAnimationFrame(()=>{if(g!==wbGen)return;const r=hd.getBoundingClientRect(),dy=innerHeight*.42-(r.top+r.height/2);
@@ -6645,7 +6792,7 @@ function wbStart(id){if(wbPlay)wbListenStop(true);wbPlayUI();const g=++wbGen,z=$
     const n=Math.min(wbN,22);wbIntroT=setTimeout(()=>{if(g!==wbGen)return;z.classList.add("fill");wbIntroT=setTimeout(()=>wbIntroEnd(g),n*110+950)},n*85+550)})}
 function wbIntroEnd(g){const z=$("wb");if(g!==wbGen||!z.classList.contains("intro"))return;clearTimeout(wbIntroT);z.classList.remove("intro","fill");$("wbHd").style.transform="";
   wbIntroT=setTimeout(()=>wbReady(g),reduce?0:480)}
-function wbReady(g){wdData().then(()=>{if(g===wbGen&&wbOpen&&wbI<0)wbGo(0)},()=>{if(g===wbGen&&wbOpen)toast("تعذّر تحميل معاني الكلمات")})}
+function wbReady(g){wdData().then(()=>{if(g===wbGen&&wbOpen&&wbI<0)wbGo(0,true)},()=>{if(g===wbGen&&wbOpen)toast("تعذّر تحميل معاني الكلمات")})}
 function wbGo(i,fromAudio){if(!wbOpen)return;const z=$("wb");if(z.classList.contains("intro")){wbIntroEnd(wbGen);return}if(!WD)return;
   if(i<0)return;
   /* a word chosen by hand while the reciter reads: the recitation jumps to it */
@@ -6656,6 +6803,8 @@ function wbGo(i,fromAudio){if(!wbOpen)return;const z=$("wb");if(z.classList.cont
   ay.querySelectorAll(".wbw").forEach((e,j)=>{e.classList.toggle("on",j===i);e.classList.toggle("dn",j<i);e.querySelector("small").textContent=j===i?(o.desc.split(" · ")[0]||wbNum(j)):wbNum(j)});
   $("wbStep").textContent=`الكلمة ${ar(i+1)} من ${ar(wbN)}`;
   const c=$("wbCard");c.innerHTML=wbCardHTML(o);c.classList.remove("sw");void c.offsetWidth;c.classList.add("sw");
+  wbFly(ay.children[i],c.querySelector(".wb-w"));
+  if(fromAudio&&wbPlay&&!wbAuto)try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(4)}catch(e){}
   $("wbTint").style.backgroundColor=`rgb(${o.c.map(v=>Math.round(6+v*.05)).join(",")})`;
   const now=performance.now();wbPrev=wbCur&&!reduce?wbCur:null;wbCur={o,t0:now};wbSwap=now;
   if(!wbCx||!wbW)requestAnimationFrame(wbSize);wbKick();wbProg();
@@ -6663,14 +6812,22 @@ function wbGo(i,fromAudio){if(!wbOpen)return;const z=$("wb");if(z.classList.cont
   const w=ay.children[i];if(w&&ay.scrollHeight>ay.clientHeight+2)ay.scrollTo({top:w.offsetTop-ay.clientHeight/2+w.offsetHeight/2,behavior:reduce?"auto":"smooth"});
   wbAutoNext()}
 function wbAutoNext(){clearTimeout(wbAutoT);if(!wbAuto||wbI<0||wbI>=wbN)return;const o=wbCur&&wbCur.o,n=o&&o.mean?o.mean.tx.length:10;
-  wbAutoT=setTimeout(()=>{if(!wbOpen||!wbAuto)return;if(wbI+1>=wbN){wbListenStop(false);wbSummary()}else wbGo(wbI+1,true)},Math.min(9000,3600+n*45))}
+  wbAutoT=setTimeout(()=>{if(!wbOpen||!wbAuto)return;if(wbI+1<wbN)wbGo(wbI+1,true);else if(wbA<NA)wbStart(wbA+1,true);else{wbListenStop(false);wbSummary()}},Math.min(9000,3600+n*45))}
+/* the word lifts out of the ayah and settles in the card (a copy of it moves; the card's own word fades in under it) */
+function wbFly(w,dst){if(reduce||LITE.on||!w||!dst)return;const src=w.querySelector("q");if(!src)return;const a=src.getBoundingClientRect(),b=dst.getBoundingClientRect();
+  if(!a.width||!b.width||a.bottom<0||a.top>innerHeight)return;const g=document.createElement("q");g.className="wb-fly";g.textContent=src.textContent;g.setAttribute("aria-hidden","true");
+  Object.assign(g.style,{left:a.left+"px",top:a.top+"px",width:a.width+"px",height:a.height+"px"});$("wb").append(g);
+  const sx=Math.max(.6,Math.min(1.6,b.height/a.height)),dx=(b.left+b.width/2)-(a.left+a.width/2),dy=(b.top+b.height/2)-(a.top+a.height/2);
+  try{g.animate([{transform:"none",opacity:.95},{transform:`translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${sx.toFixed(3)})`,opacity:1}],{duration:480,easing:"cubic-bezier(.2,.8,.2,1)",fill:"forwards"});
+    dst.animate([{opacity:0},{opacity:0,offset:.8},{opacity:1}],{duration:520})}catch(e){}
+  setTimeout(()=>g.remove(),520)}
 function wbSummary(){const z=$("wb");clearTimeout(wbAutoT);cancelAnimationFrame(wbRaf);wbRaf=0;wbI=wbN;z.classList.add("sumOn");$("wbTint").style.backgroundColor="";wbProg();
   $("wbAy").querySelectorAll(".wbw").forEach((e,j)=>{e.classList.remove("on","dn");e.querySelector("small").textContent=wbNum(j)});
   $("wbStep").textContent="الآية كلمةً كلمة";
   const os=AW[wbA].map((_,j)=>wbWord(wbA,j)),S=$("wbSum");
   S.innerHTML=`<div class="wb-tiles">${os.map((o,j)=>`<button class="wbt" data-j="${j}" style="--j:${Math.min(j,14)}"><canvas width="240" height="180" aria-hidden="true"></canvas><q>${escH(o.t)}</q><small>${escH(o.short)}</small></button>`).join("")}</div>`+
     `<h3 class="wb-h">معنى الآية</h3><p class="wb-full" id="wbFull">…</p><p class="wb-src">التفسير الميسّر · مجمع الملك فهد لطباعة المصحف الشريف</p>`+
-    `<div class="wb-btns"><button class="wb-btn" id="wbAgain">من جديد</button><button class="wb-btn solid" id="wbNextA">الآية التالية</button><button class="wb-btn" id="wbToPage">إلى المصحف</button></div>`;
+    `<div class="wb-btns"><button class="wb-btn" id="wbAgain">من جديد</button><button class="wb-btn solid" id="wbNextA">الآية التالية</button><button class="wb-btn" id="wbToPage">إلى المصحف</button><button class="wb-btn" id="wbQuiz">اختبرني بالمعاني</button></div>`;
   S.hidden=false;S.scrollTop=0;$("wbNextA").disabled=wbA>=NA;
   /* the small pictures are drawn once each (still), a few at a time so a long ayah never holds the screen */
   const cs=[...S.querySelectorAll(".wbt canvas")],g=wbGen;let k=0;
@@ -6686,13 +6843,13 @@ $("wbNext").onclick=()=>wbGo(wbI+1);$("wbPrev").onclick=()=>wbGo(wbI-1);
    The ayah's own place in the surah recording comes from the reciter's timings; inside the ayah each word gets
    a share of the time as long as it sounds (its letters in the Quran phonetic script, hph.json, long vowels
    counted twice), so the words follow the voice closely without word-by-word timings. The app's own player
-   plays it (the notification and lock-screen controls work as always) and stops at the ayah's end, which then
-   opens the summary. */
+   plays it (the notification and lock-screen controls work as always) and reads on from ayah to ayah, the screen
+   following; «تكرار الآية» repeats the one ayah instead, «أبطأ» reads at 0.75. */
 function wbTimes(id){if(!aud)return null;const s=sOf(id)+1,a=aOf(id),rows=aud.surahs[s];if(!rows)return null;const r=rows.find(x=>x[0]===a);if(!r||!(r[2]>r[1]))return null;
   const n=AW[id].length,e=HPH&&HPH[s+":"+a];let L=null;if(e){const l=String(e).split("|")[1];const v=l?l.split(",").map(Number):[];if(v.length===n&&v.every(x=>x>0))L=v}
   if(!L)L=AW[id].map(w=>bareA(w).length||1);
   const wt=L.map(x=>x+2),tot=wt.reduce((p,q)=>p+q,0),cum=[0];wt.forEach((w,i)=>cum.push(cum[i]+w/tot));return {s:r[1],e:r[2],cum}}
-function wbPlayUI(){const b=$("wbPlay"),on=wbPlay&&(player.on||wbAuto);if(b._on===on)return;b._on=on;b.setAttribute("aria-pressed",String(on));
+function wbPlayUI(){const b=$("wbPlay"),on=wbPlay&&(player.on||wbAuto);$("wb").classList.toggle("lst",wbPlay&&!wbAuto);if(b._on===on)return;b._on=on;b.setAttribute("aria-pressed",String(on));
   b.querySelector("span").textContent=on?"إيقاف":"استماع";
   b.querySelector("svg").innerHTML=on?'<path d="M8.5 5.5v13M15.5 5.5v13"/>':'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3.5" y="14" width="4" height="6.5" rx="1.6"/><rect x="16.5" y="14" width="4" height="6.5" rx="1.6"/>';
   $("wb").classList.toggle("play",on)}
@@ -6704,26 +6861,54 @@ function wbListen(){
     if(!wbPlay||g!==wbGen||!wbOpen)return;wbTm=wbTimes(wbA);
     const from=wbI>0&&wbI<wbN?wbI:0;if(wbI!==from)wbGo(from,true);
     if(!wbTm||!seg(wbA)){wbAuto=true;wbPlayUI();toast("صوت هذه الآية غير متاح الآن، فتتقدّم الكلمات وحدها");wbAutoNext();return}
-    $("wbSub").textContent="بصوت "+RECS[reciter].split(" · ")[0];
+    $("wbSub").textContent=wbSubL();setRate(wbSlow?.75:(+store.get("mushaf.rate")||1));
     playFrom(wbA);if(from>0)auSeek(wbTm.s+wbTm.cum[from]*(wbTm.e-wbTm.s)+20);wbPlayUI();wbSync()},()=>{if(g===wbGen){wbListenStop(false);toast("تعذّر تشغيل الصوت، تأكد من الإنترنت")}})}
 function wbSync(){clearTimeout(wbSyncT);if(!wbPlay||wbAuto||!wbOpen)return;
   if($("player").hidden){wbListenStop(false);return}
-  /* at a surah's last ayah the player goes straight on to the next file: stop there all the same */
-  if(player.id!==wbA){if(player.id===wbA+1){stopPlay();wbListenStop(false);wbSummary()}else wbListenStop(false);return}
+  /* the reciter went on to another ayah (the next one, or one picked from the notification): the words go with him */
+  if(player.id!==wbA){if(player.id>=1&&player.id<=NA){wbStart(player.id,true);wbSyncT=setTimeout(wbSync,90)}else wbListenStop(false);return}
   if(player.on&&wbTm&&AU.readyState>=1){const t=AU.currentTime*1000,f=(t-wbTm.s)/(wbTm.e-wbTm.s);
     if(f>=0&&f<=1.02){let i=0;while(i<wbN-1&&f>=wbTm.cum[i+1])i++;if(i!==wbI&&wbI<wbN)wbGo(i,true);$("wbBar").style.transform=`scaleX(${Math.min(1,f).toFixed(3)})`}}
   wbPlayUI();if(!document.hidden)wbSyncT=setTimeout(wbSync,90)}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wbPlay)wbSync()});
 function wbListenStop(stopAudio){const was=wbPlay;wbPlay=false;wbAuto=false;clearTimeout(wbSyncT);clearTimeout(wbAutoT);
-  if(was&&stopAudio&&!$("player").hidden&&player.id===wbA)stopPlay();wbPlayUI();
+  if(was&&stopAudio&&!$("player").hidden&&player.id===wbA)stopPlay();if(was)setRate(+store.get("mushaf.rate")||1);wbPlayUI();
   if(wbOpen&&wbA)$("wbSub").textContent=`الآية ${ar(aOf(wbA))} · ${numW(wbN,"كلمة واحدة","كلمتان","كلمات","كلمة")}`}
-/* the reciter reached the ayah's end: stop there and show the whole ayah */
-function wbAyahEnd(){wbListenStop(true);wbSummary()}
+const wbSubL=()=>`${RECS[reciter].split(" · ")[0]} · التوقيت تقريبي`;
+/* «تكرار الآية»: at the ayah's end the reciter starts it again instead of reading on */
+function wbAyahEnd(){startAyah(false)}
+function wbOptsUI(){$("wbRep").setAttribute("aria-pressed",String(wbRep));$("wbSlow").setAttribute("aria-pressed",String(wbSlow))}
+$("wbRep").onclick=()=>{wbRep=!wbRep;wbOptsUI();toast(wbRep?"تتكرر الآية حتى توقفها":"يكمل القارئ للآيات التالية")};
+$("wbSlow").onclick=()=>{wbSlow=!wbSlow;store.set("mushaf.wbSlow",wbSlow?"1":"");wbOptsUI();if(wbPlay&&!wbAuto)setRate(wbSlow?.75:(+store.get("mushaf.rate")||1));toast(wbSlow?"تلاوة أبطأ":"سرعة التلاوة عادية")};
+wbOptsUI();
+/* ---- «اختبرني بالمعاني»: the ayah's words one by one, pick the meaning (or the root, for a word غريب القرآن does not
+   explain) out of three; the wrong choices come from the ayat around it */
+let wbQz=null;
+function wbQuizStart(){if(!WD)return;const id=wbA,pool={m:new Set(),r:new Set()},qs=[];
+  for(let a=Math.max(1,id-15);a<=Math.min(NA,id+15);a++){if(!WD.W[a-1])continue;for(let j=0;j<AW[a].length;j++){const o=wbWord(a,j);if(o.mean)pool.m.add(wbShort(o.mean.tx));if(o.root)pool.r.add(o.root)}}
+  AW[id].forEach((_,j)=>{const o=wbWord(id,j);if(o.mean)qs.push({j,t:o.t,ty:"m",ans:wbShort(o.mean.tx)});else if(o.root)qs.push({j,t:o.t,ty:"r",ans:o.root})});
+  const mk=q=>{const others=[...pool[q.ty]].filter(x=>x!==q.ans).sort(()=>Math.random()-.5).slice(0,2);if(others.length<2)return null;q.opts=[q.ans,...others].sort(()=>Math.random()-.5);return q};
+  const list=[...qs.filter(q=>q.ty==="m"),...qs.filter(q=>q.ty==="r")].map(mk).filter(Boolean).slice(0,6);
+  if(!list.length){toast("لا كلمات كافية في هذه الآية للاختبار");return}
+  wbQz={list,i:0,ok:0,lock:false};wbQuizShow()}
+function wbQuizShow(){const S=$("wbSum"),Q=wbQz;if(!Q)return;
+  if(Q.i>=Q.list.length){S.innerHTML=`<div class="wbq"><p class="wbq-s">${ar(Q.ok)} من ${ar(Q.list.length)}</p><p class="wbq-a">${Q.ok===Q.list.length?"أحسنت، كلها صحيحة":Q.ok>=Q.list.length/2?"أحسنت، راجع ما أخطأت فيه":"راجع معاني الكلمات وأعد المحاولة"}</p>`+
+    `<div class="wb-btns"><button class="wb-btn solid" id="wbQzAgain">اختبار جديد</button><button class="wb-btn" id="wbQzBack">رجوع للآية</button></div></div>`;S.scrollTop=0;return}
+  const q=Q.list[Q.i];Q.lock=false;
+  S.innerHTML=`<div class="wbq"><p class="wbq-h">اختبرني · ${ar(Q.i+1)} من ${ar(Q.list.length)}</p><q class="wbq-w">${escH(q.t)}</q><p class="wbq-a">${q.ty==="m"?"ما معنى هذه الكلمة؟":"ما جذر هذه الكلمة؟"}</p>`+
+    q.opts.map((x,k)=>`<button class="wbq-o${q.ty==="r"?" root":""}" data-k="${k}">${escH(x)}</button>`).join("")+`</div>`;S.scrollTop=0}
+function wbQuizPick(b){const Q=wbQz;if(!Q||Q.lock)return;Q.lock=true;const q=Q.list[Q.i],ok=q.opts[+b.dataset.k]===q.ans;if(ok)Q.ok++;
+  b.classList.add(ok?"ok":"no");if(!ok)$("wbSum").querySelectorAll(".wbq-o").forEach(x=>{if(q.opts[+x.dataset.k]===q.ans)x.classList.add("ok")});
+  try{navigator.vibrate&&navigator.vibrate(ok?6:[10,40,10])}catch(e){}
+  setTimeout(()=>{if(wbQz===Q&&wbOpen){Q.i++;wbQuizShow()}},ok?700:1400)}
 $("wbPlay").onclick=wbListen;
 $("wb").addEventListener("click",e=>{if(!wbOpen||performance.now()-wbSwiped<450)return;const z=$("wb");
   if(z.classList.contains("intro")&&!e.target.closest("#wbX")){wbIntroEnd(wbGen);return}
   const w=e.target.closest(".wbw,.wbt");if(w){wbGo(+w.dataset.j);if(w.classList.contains("wbt"))$("wbAy").scrollTop=0;return}
   if(e.target.closest("#wbAgain")){wbGo(0);return}
+  if(e.target.closest("#wbQuiz,#wbQzAgain")){wbQuizStart();return}
+  if(e.target.closest("#wbQzBack")){wbQz=null;wbSummary();return}
+  {const q=e.target.closest(".wbq-o");if(q){wbQuizPick(q);return}}
   if(e.target.closest("#wbNextA")){if(wbA<NA)wbStart(wbA+1);return}
   if(e.target.closest("#wbToPage")){const id=wbA;wbClose();if($("sheet").classList.contains("on"))openAyah(id);else showAyahPage(id);return}
   if(e.target.closest("#wbVis"))wbGo(wbI+1)});
