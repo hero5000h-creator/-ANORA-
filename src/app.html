@@ -2060,7 +2060,19 @@ html.atOn #app>.foot.foot:not(.playing):not(.memo-on){opacity:0;transform:transl
 .wb-tt{flex:1;min-width:0;text-align:center}
 .wb-tt b{display:block;font-size:calc(15px * var(--uz,1));font-weight:600;color:#efe7d4}
 .wb-tt small{display:block;font-size:calc(12px * var(--uz,1));color:rgba(236,230,216,.55)}
-#wbAuto[aria-pressed="true"]{background:rgba(244,207,131,.18);border-color:rgba(244,207,131,.45);color:#f4cf83}
+.wb-pl{flex:none;display:flex;align-items:center;gap:7px;height:42px;padding:0 14px 0 12px;border-radius:21px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:#e9e2d2;font:inherit;font-size:calc(13.5px * var(--uz,1));font-weight:500;transition:transform .16s var(--ease),background-color .25s,color .25s,border-color .25s}
+.wb-pl:active{transform:scale(.94)}
+.wb-pl svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.wb-pl i{display:none;align-items:flex-end;gap:2px;height:14px}
+.wb-pl i b{width:2.5px;height:100%;border-radius:2px;background:currentColor;transform-origin:50% 100%;animation:wbEq .9s ease-in-out infinite}
+.wb-pl i b:nth-child(2){animation-delay:-.3s}.wb-pl i b:nth-child(3){animation-delay:-.6s}
+@keyframes wbEq{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+#wbPlay[aria-pressed="true"]{background:rgba(244,207,131,.16);border-color:rgba(244,207,131,.45);color:#f4cf83}
+#wbPlay[aria-pressed="true"] i{display:flex}
+/* while the reciter reads, the word being said breathes under its bracket */
+#wb.play .wbw.on u{animation:wbBr 1.1s ease-in-out infinite}
+@keyframes wbBr{50%{opacity:.45}}
+html.lite #wb.play .wbw.on u{animation:none}
 .wb-hd{position:relative;transition:transform .9s cubic-bezier(.2,.8,.2,1);transform-origin:50% 50%}
 .wb-step{display:flex;align-items:center;gap:8px;margin:8px 2px 2px;min-height:1.4em;font-size:calc(11.5px * var(--uz,1));letter-spacing:.04em;color:rgba(236,230,216,.62);transition:opacity .4s}
 .wb-step::before{content:"";width:18px;height:1px;background:currentColor;opacity:.7}
@@ -2504,7 +2516,7 @@ html.lite .wbw.on q{text-shadow:none}
     <header class="wb-top">
       <button class="az-ib" id="wbX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
       <div class="wb-tt"><b id="wbTitle">كلمة بكلمة</b><small id="wbSub"></small></div>
-      <button class="az-ib" id="wbAuto" aria-pressed="false" aria-label="تقليب الكلمات تلقائياً"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z"/></svg></button>
+      <button class="wb-pl" id="wbPlay" aria-pressed="false" aria-label="استمع للآية والكلمات تمشي مع القارئ"><svg viewBox="0 0 24 24"></svg><span>استماع</span><i aria-hidden="true"><b></b><b></b><b></b></i></button>
     </header>
     <div class="wb-hd" id="wbHd">
       <p class="wb-ref" id="wbRef"></p>
@@ -4872,7 +4884,7 @@ function pStop(){cancelAnimationFrame(player.raf);clearTimeout(player.tT)}
 function pNext(f,ms){pStop();if(ms>120)player.tT=setTimeout(f,Math.min(250,ms-80));else player.raf=requestAnimationFrame(f)}
 function pBarTo(f){f=Math.min(1,Math.max(0,f||0));const b=$("pBar"),v=Math.round(f*500)/500;if(b._f===v)return;
   b.classList.toggle("jmp",!(v>(b._f||0))||v-(b._f||0)>.25);b._f=v;b.style.transform=`scaleX(${v})`}
-function ayahDone(){const id=player.id,n=nextPlay();if(!n){stopPlay();return}
+function ayahDone(){if(wbPlay&&wbOpen&&!wbAuto&&player.id===wbA){wbAyahEnd();return}const id=player.id,n=nextPlay();if(!n){stopPlay();return}
   /* repeating to memorise: a silence as long as the ayah, for the student to say it back */
   if(rep.on&&rep.gap&&player.on){const g=seg(id),d=Math.min(30000,Math.max(1500,g?g.end-g.start:ayahDur(id)));
     player.seg=null;pStop();AU.pause();clearTimeout(player.gapT);$("pTitle").textContent="دورك: ردّدها…";
@@ -6525,7 +6537,7 @@ addEventListener("pointerdown",e=>{if(e.pointerType!=="pen"||store.get("mushaf.p
    on one canvas, only while this screen shows a word; light mode draws them at 30 fps and 1x, reduced motion one
    still frame. Nothing here keeps a layer when the screen is closed (display:none). */
 let wbOpen=false,wbA=0,wbI=-1,wbN=0,wbGen=0,wbRaf=0,wbIntroT=0,wbAutoT=0,wbSwap=0,wbLast=0,wbCur=null,wbPrev=null,wbCx=null,wbDpr=1,wbW=0,wbH=0;
-let wbSwiped=0,wbAuto=store.get("mushaf.wbAuto")==="1",WB_QF="serif";
+let wbSwiped=0,wbAuto=false,wbPlay=false,wbSyncT=0,wbTm=null,WB_QF="serif";
 const WB_UF='"IBM Plex Sans Arabic",Tahoma,sans-serif';
 const WB_COL=[[236,196,118],[104,208,194],[238,146,170],[124,170,255],[184,160,255],[255,170,92]];
 const wbE=x=>{x=Math.min(1,Math.max(0,x));return 1-Math.pow(1-x,3)};
@@ -6619,8 +6631,8 @@ function wbProg(){const i=Math.max(0,Math.min(wbN,wbI+1));$("wbBar").style.trans
   $("wbPrev").disabled=wbI<=0}
 function wbOpenUI(id){id=+id||1;if(id<1||id>NA)id=1;WB_QF=getComputedStyle(root).getPropertyValue("--f-quran").trim()||"serif";
   if(!wbOpen){wbOpen=true;try{showPrefs(false)}catch(e){}const z=$("wb");clearTimeout(wbClose.t);z.classList.remove("out","in");z.hidden=false;void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true")}
-  $("wbAuto").setAttribute("aria-pressed",String(wbAuto));wdData().catch(()=>{});wbStart(id)}
-function wbStart(id){const g=++wbGen,z=$("wb"),hd=$("wbHd");wbA=id;wbI=-1;wbN=AW[id].length;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;wbCur=wbPrev=null;
+  wdData().catch(()=>{});wbStart(id)}
+function wbStart(id){if(wbPlay)wbListenStop(true);wbPlayUI();const g=++wbGen,z=$("wb"),hd=$("wbHd");wbA=id;wbI=-1;wbN=AW[id].length;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;wbCur=wbPrev=null;
   const s=SUR[sOf(id)][0];$("wbTitle").textContent="سورة "+s;$("wbSub").textContent=`الآية ${ar(aOf(id))} · ${numW(wbN,"كلمة واحدة","كلمتان","كلمات","كلمة")}`;$("wbRef").textContent=`${s} · ${ar(aOf(id))}`;
   $("wbAy").innerHTML=AW[id].map((w,j)=>`<span class="wbw" data-j="${j}" style="--j:${Math.min(j,22)}"><q>${escH(qY(w))}</q><i><u></u></i><small>${wbNum(j)}</small></span>`).join("")+`<span class="wb-an" aria-hidden="true">${ar(aOf(id))}</span>`;
   z.classList.remove("sumOn","fill");$("wbTint").style.backgroundColor="";$("wbSum").hidden=true;$("wbSum").innerHTML="";$("wbCard").innerHTML="";$("wbStep").textContent="";$("wbAy").scrollTop=0;wbProg();
@@ -6634,8 +6646,11 @@ function wbStart(id){const g=++wbGen,z=$("wb"),hd=$("wbHd");wbA=id;wbI=-1;wbN=AW
 function wbIntroEnd(g){const z=$("wb");if(g!==wbGen||!z.classList.contains("intro"))return;clearTimeout(wbIntroT);z.classList.remove("intro","fill");$("wbHd").style.transform="";
   wbIntroT=setTimeout(()=>wbReady(g),reduce?0:480)}
 function wbReady(g){wdData().then(()=>{if(g===wbGen&&wbOpen&&wbI<0)wbGo(0)},()=>{if(g===wbGen&&wbOpen)toast("تعذّر تحميل معاني الكلمات")})}
-function wbGo(i){if(!wbOpen)return;const z=$("wb");if(z.classList.contains("intro")){wbIntroEnd(wbGen);return}if(!WD)return;
-  if(i<0)return;if(i>=wbN){wbSummary();return}
+function wbGo(i,fromAudio){if(!wbOpen)return;const z=$("wb");if(z.classList.contains("intro")){wbIntroEnd(wbGen);return}if(!WD)return;
+  if(i<0)return;
+  /* a word chosen by hand while the reciter reads: the recitation jumps to it */
+  if(wbPlay&&!fromAudio){if(i>=wbN){wbListenStop(true)}else if(wbTm){auSeek(wbTm.s+wbTm.cum[i]*(wbTm.e-wbTm.s)+20);if(!player.on)setPlaying(true)}}
+  if(i>=wbN){wbSummary();return}
   wbI=i;z.classList.remove("sumOn");$("wbSum").hidden=true;
   const o=wbWord(wbA,i),ay=$("wbAy");
   ay.querySelectorAll(".wbw").forEach((e,j)=>{e.classList.toggle("on",j===i);e.classList.toggle("dn",j<i);e.querySelector("small").textContent=j===i?(o.desc.split(" · ")[0]||wbNum(j)):wbNum(j)});
@@ -6648,7 +6663,7 @@ function wbGo(i){if(!wbOpen)return;const z=$("wb");if(z.classList.contains("intr
   const w=ay.children[i];if(w&&ay.scrollHeight>ay.clientHeight+2)ay.scrollTo({top:w.offsetTop-ay.clientHeight/2+w.offsetHeight/2,behavior:reduce?"auto":"smooth"});
   wbAutoNext()}
 function wbAutoNext(){clearTimeout(wbAutoT);if(!wbAuto||wbI<0||wbI>=wbN)return;const o=wbCur&&wbCur.o,n=o&&o.mean?o.mean.tx.length:10;
-  wbAutoT=setTimeout(()=>{if(wbOpen&&wbAuto)wbGo(wbI+1)},Math.min(9000,3600+n*45))}
+  wbAutoT=setTimeout(()=>{if(!wbOpen||!wbAuto)return;if(wbI+1>=wbN){wbListenStop(false);wbSummary()}else wbGo(wbI+1,true)},Math.min(9000,3600+n*45))}
 function wbSummary(){const z=$("wb");clearTimeout(wbAutoT);cancelAnimationFrame(wbRaf);wbRaf=0;wbI=wbN;z.classList.add("sumOn");$("wbTint").style.backgroundColor="";wbProg();
   $("wbAy").querySelectorAll(".wbw").forEach((e,j)=>{e.classList.remove("on","dn");e.querySelector("small").textContent=wbNum(j)});
   $("wbStep").textContent="الآية كلمةً كلمة";
@@ -6662,13 +6677,49 @@ function wbSummary(){const z=$("wb");clearTimeout(wbAutoT);cancelAnimationFrame(
   const step=()=>{if(g!==wbGen||wbI!==wbN)return;const t0=performance.now();for(;k<cs.length&&performance.now()-t0<8;k++){const X=cs[k].getContext("2d");X.setTransform(1.5,0,0,1.5,0,0);try{WB_DRAW[os[k].k](X,160,120,6,os[k],false)}catch(e){}}if(k<cs.length)setTimeout(step,16)};
   setTimeout(step,reduce?0:120);
   const id=wbA;tafsir().then(()=>{const f=$("wbFull");if(f&&wbA===id&&wbI===wbN)f.textContent=TF[id-1]||""},()=>{const f=$("wbFull");if(f)f.textContent="تعذّر تحميل التفسير."})}
-function wbClose(){if(!wbOpen)return;wbOpen=false;wbGen++;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;wbCur=wbPrev=null;
+function wbClose(){if(!wbOpen)return;if(wbPlay)wbListenStop(true);wbOpen=false;wbGen++;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;wbCur=wbPrev=null;
   const z=$("wb");if(reduce)z.hidden=true;else{z.classList.remove("in");z.classList.add("out");clearTimeout(wbClose.t);wbClose.t=setTimeout(()=>{if(!wbOpen){z.hidden=true;z.classList.remove("out")}},240)}
   if(!azOpen)$("app").removeAttribute("aria-hidden")}
 $("wbX").onclick=wbClose;
 $("wbNext").onclick=()=>wbGo(wbI+1);$("wbPrev").onclick=()=>wbGo(wbI-1);
-$("wbAuto").onclick=()=>{wbAuto=!wbAuto;store.set("mushaf.wbAuto",wbAuto?"1":"");$("wbAuto").setAttribute("aria-pressed",String(wbAuto));
-  if(wbAuto){toast("تتقدّم الكلمات وحدها");if(wbI>=0&&wbI<wbN)wbAutoNext()}else clearTimeout(wbAutoT)};
+/* ---- listening: the reciter reads the ayah and the words move with him ----
+   The ayah's own place in the surah recording comes from the reciter's timings; inside the ayah each word gets
+   a share of the time as long as it sounds (its letters in the Quran phonetic script, hph.json, long vowels
+   counted twice), so the words follow the voice closely without word-by-word timings. The app's own player
+   plays it (the notification and lock-screen controls work as always) and stops at the ayah's end, which then
+   opens the summary. */
+function wbTimes(id){if(!aud)return null;const s=sOf(id)+1,a=aOf(id),rows=aud.surahs[s];if(!rows)return null;const r=rows.find(x=>x[0]===a);if(!r||!(r[2]>r[1]))return null;
+  const n=AW[id].length,e=HPH&&HPH[s+":"+a];let L=null;if(e){const l=String(e).split("|")[1];const v=l?l.split(",").map(Number):[];if(v.length===n&&v.every(x=>x>0))L=v}
+  if(!L)L=AW[id].map(w=>bareA(w).length||1);
+  const wt=L.map(x=>x+2),tot=wt.reduce((p,q)=>p+q,0),cum=[0];wt.forEach((w,i)=>cum.push(cum[i]+w/tot));return {s:r[1],e:r[2],cum}}
+function wbPlayUI(){const b=$("wbPlay"),on=wbPlay&&(player.on||wbAuto);if(b._on===on)return;b._on=on;b.setAttribute("aria-pressed",String(on));
+  b.querySelector("span").textContent=on?"إيقاف":"استماع";
+  b.querySelector("svg").innerHTML=on?'<path d="M8.5 5.5v13M15.5 5.5v13"/>':'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3.5" y="14" width="4" height="6.5" rx="1.6"/><rect x="16.5" y="14" width="4" height="6.5" rx="1.6"/>';
+  $("wb").classList.toggle("play",on)}
+function wbListen(){
+  if(wbPlay){if(!wbAuto&&!$("player").hidden&&player.id===wbA){setPlaying(!player.on);wbPlayUI();if(player.on)wbSync()}else wbListenStop(true);return}
+  const z=$("wb"),g=wbGen;if(z.classList.contains("intro"))wbIntroEnd(g);
+  wbPlay=true;wbPlayUI();
+  Promise.all([wdData(),aud?aud:audData(reciter).then(d=>{if(d&&!aud)aud=d;return d}),hphGet()]).then(()=>{
+    if(!wbPlay||g!==wbGen||!wbOpen)return;wbTm=wbTimes(wbA);
+    const from=wbI>0&&wbI<wbN?wbI:0;if(wbI!==from)wbGo(from,true);
+    if(!wbTm||!seg(wbA)){wbAuto=true;wbPlayUI();toast("صوت هذه الآية غير متاح الآن، فتتقدّم الكلمات وحدها");wbAutoNext();return}
+    $("wbSub").textContent="بصوت "+RECS[reciter].split(" · ")[0];
+    playFrom(wbA);if(from>0)auSeek(wbTm.s+wbTm.cum[from]*(wbTm.e-wbTm.s)+20);wbPlayUI();wbSync()},()=>{if(g===wbGen){wbListenStop(false);toast("تعذّر تشغيل الصوت، تأكد من الإنترنت")}})}
+function wbSync(){clearTimeout(wbSyncT);if(!wbPlay||wbAuto||!wbOpen)return;
+  if($("player").hidden){wbListenStop(false);return}
+  /* at a surah's last ayah the player goes straight on to the next file: stop there all the same */
+  if(player.id!==wbA){if(player.id===wbA+1){stopPlay();wbListenStop(false);wbSummary()}else wbListenStop(false);return}
+  if(player.on&&wbTm&&AU.readyState>=1){const t=AU.currentTime*1000,f=(t-wbTm.s)/(wbTm.e-wbTm.s);
+    if(f>=0&&f<=1.02){let i=0;while(i<wbN-1&&f>=wbTm.cum[i+1])i++;if(i!==wbI&&wbI<wbN)wbGo(i,true);$("wbBar").style.transform=`scaleX(${Math.min(1,f).toFixed(3)})`}}
+  wbPlayUI();if(!document.hidden)wbSyncT=setTimeout(wbSync,90)}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wbPlay)wbSync()});
+function wbListenStop(stopAudio){const was=wbPlay;wbPlay=false;wbAuto=false;clearTimeout(wbSyncT);clearTimeout(wbAutoT);
+  if(was&&stopAudio&&!$("player").hidden&&player.id===wbA)stopPlay();wbPlayUI();
+  if(wbOpen&&wbA)$("wbSub").textContent=`الآية ${ar(aOf(wbA))} · ${numW(wbN,"كلمة واحدة","كلمتان","كلمات","كلمة")}`}
+/* the reciter reached the ayah's end: stop there and show the whole ayah */
+function wbAyahEnd(){wbListenStop(true);wbSummary()}
+$("wbPlay").onclick=wbListen;
 $("wb").addEventListener("click",e=>{if(!wbOpen||performance.now()-wbSwiped<450)return;const z=$("wb");
   if(z.classList.contains("intro")&&!e.target.closest("#wbX")){wbIntroEnd(wbGen);return}
   const w=e.target.closest(".wbw,.wbt");if(w){wbGo(+w.dataset.j);if(w.classList.contains("wbt"))$("wbAy").scrollTop=0;return}

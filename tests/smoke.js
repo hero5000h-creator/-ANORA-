@@ -319,6 +319,11 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       await p.waitForFunction(()=>(document.getElementById("wbFull")?.textContent||"").length>40,null,{timeout:15000}).catch(()=>{});
       const s=await p.evaluate(()=>({tiles:document.querySelectorAll("#wbSum .wbt").length,full:document.getElementById("wbFull")?.textContent||""}));
       ok(s.tiles===4&&s.full.length>40,`${name}: word by word ends on the summary (${s.tiles} words, ayah meaning ${s.full.length} letters)`);
+      /* listening: the reciter reads the ayah, the words move with him, and it stops at the ayah's end on the summary */
+      await p.evaluate(()=>document.getElementById("wbAgain").click());await p.waitForTimeout(400);await p.evaluate(()=>document.getElementById("wbPlay").click());
+      const seen=new Set();for(let k=0;k<60;k++){const j=await p.evaluate(()=>document.getElementById("wb").classList.contains("sumOn")?"end":(document.querySelector("#wbAy .wbw.on")||{dataset:{}}).dataset.j);seen.add(j);if(j==="end")break;await p.waitForTimeout(200)}
+      const pl=await p.evaluate(()=>document.getElementById("player").hidden);
+      ok(seen.has("end")&&seen.has("3")&&seen.size>=4&&pl,`${name}: word by word listening moves the words with the recitation and stops at the ayah's end (${[...seen].join(",")}; player ${pl?"stopped":"still on"})`);
       await p.keyboard.press("Escape");await p.waitForTimeout(500);
       const c=await p.evaluate(()=>({hid:document.getElementById("wb").hidden,app:document.getElementById("app").hasAttribute("aria-hidden")}));
       ok(c.hid&&!c.app&&errs.length===e0,`${name}: word by word closes cleanly ${errs.slice(e0).join(" | ")}`)}
