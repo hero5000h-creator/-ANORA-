@@ -305,6 +305,23 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       await p.evaluate(()=>document.getElementById("bMut").click());await p.waitForTimeout(800);
       const off=await p.evaluate(()=>document.querySelectorAll(".pg .ms,.pg .md,#flBody .ms,#flBody .md").length);
       ok(on.length>=2&&!off,`${name}: similar phrases coloured on the page and cleared when switched off (ayat ${on.join(",")}; ${off} left)`)}
+    {/* كلمة بكلمة: from the ayah sheet, the intro, every word with its meaning card and picture, the summary with the
+        whole ayah's meaning, and closing it leaves nothing drawing */
+      for(let i=0;i<3;i++){await p.keyboard.press("Escape");await p.waitForTimeout(350)}
+      await p.evaluate(()=>{if(document.getElementById("app").classList.contains("memo"))document.getElementById("bMemo").click()});await p.waitForTimeout(500);
+      const e0=errs.length;await p.evaluate(()=>{__smk.openAyah(2)});await p.waitForTimeout(600);await p.evaluate(()=>document.getElementById("aWbw").click());await p.waitForTimeout(700);
+      await p.evaluate(()=>document.getElementById("wbVis").click());
+      await p.waitForFunction(()=>document.querySelector("#wbAy .wbw.on"),null,{timeout:20000}).catch(()=>{});await p.waitForTimeout(1200);
+      const w=await p.evaluate(()=>({on:document.querySelector("#wbAy .wbw.on q")?.textContent||"",card:document.getElementById("wbCard").textContent,
+        cv:(()=>{const c=document.getElementById("wbCv"),X=c.getContext("2d"),d=X.getImageData(0,0,c.width,c.height).data;let n=0;for(let i=3;i<d.length;i+=16)if(d[i])n++;return n})()}));
+      ok(w.on.includes("حَم")&&w.card.includes("على الله")&&w.card.includes("ح م د")&&w.cv>50,`${name}: word by word shows the first word with its meaning, root and picture (${w.on}; ${w.cv} lit)`);
+      for(let i=0;i<4;i++){await p.evaluate(()=>document.getElementById("wbNext").click());await p.waitForTimeout(250)}
+      await p.waitForFunction(()=>(document.getElementById("wbFull")?.textContent||"").length>40,null,{timeout:15000}).catch(()=>{});
+      const s=await p.evaluate(()=>({tiles:document.querySelectorAll("#wbSum .wbt").length,full:document.getElementById("wbFull")?.textContent||""}));
+      ok(s.tiles===4&&s.full.length>40,`${name}: word by word ends on the summary (${s.tiles} words, ayah meaning ${s.full.length} letters)`);
+      await p.keyboard.press("Escape");await p.waitForTimeout(500);
+      const c=await p.evaluate(()=>({hid:document.getElementById("wb").hidden,app:document.getElementById("app").hasAttribute("aria-hidden")}));
+      ok(c.hid&&!c.app&&errs.length===e0,`${name}: word by word closes cleanly ${errs.slice(e0).join(" | ")}`)}
     await ctx.close()}
   /* saved data from an old version or an edited backup file (wrong shapes, a name with markup in it) must not
      break the page or run as code */
