@@ -737,7 +737,7 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 .cepk button:active{transform:scale(.88)}
 .ceadd,.ceres,.pbtn,.rsel{transition:transform .16s var(--ease),background-color .2s,border-color .2s}
 .ceadd:active,.pbtn:active{transform:scale(.97)}
-#pRec.bump{animation:fadeUp .3s var(--ease)}
+#pRec.bump{animation:fadeUp .3s var(--ease)}#pRec.bump2{animation:fadeUp2 .3s var(--ease)}
 .mutgo{transition:transform .16s var(--ease),background-color .2s}
 .mutgo:active{transform:scale(.98)}
 .tjk{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--muted);margin-top:4px}
@@ -907,7 +907,7 @@ html.electron :focus-visible{outline:2px solid var(--orn);outline-offset:2px}
 @media (prefers-reduced-motion:reduce){.gart *{animation:none!important}}
 /* ---------- motion across the interface: calm, short, never in the way ---------- */
 :root{--ease:cubic-bezier(.2,.8,.2,1);--spring:cubic-bezier(.34,1.36,.64,1);--tfz:1}
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}}@keyframes fadeUp2{from{opacity:0;transform:translateY(8px)}}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}}
 @keyframes menuIn{from{opacity:0;transform:translateY(-6px) scale(.97)}}
 @keyframes pop{0%{transform:scale(.4);opacity:0}60%{transform:scale(1.18);opacity:1}100%{transform:scale(1)}}
@@ -1081,11 +1081,11 @@ html.thumb #fPrefs[aria-expanded="true"]{background:var(--orn);color:var(--bar)}
 
 /* v41: motion for everything that still changed without any */
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.42s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
-.where b.bump{animation:fadeUp .4s var(--ease)}
-.pnum.bump b{display:inline-block;animation:tick .32s var(--ease)}
+.where b.bump{animation:fadeUp .4s var(--ease)}.where b.bump2{animation:fadeUp2 .4s var(--ease)}
+.pnum.bump b,.pnum.bump2 b{display:inline-block;animation:tick .32s var(--ease)}
 @keyframes tick{from{opacity:.2;transform:translateY(5px)}}
-#kh.bump>*{animation:fadeUp .32s var(--ease) both}
-#kh.bump>:nth-child(2){animation-delay:.04s}#kh.bump>:nth-child(3){animation-delay:.08s}#kh.bump>:nth-child(4){animation-delay:.12s}#kh.bump>:nth-child(5){animation-delay:.16s}
+#kh.bump>*{animation:fadeUp .32s var(--ease) both}#kh.bump2>*{animation:fadeUp2 .32s var(--ease) both}
+:is(#kh.bump,#kh.bump2)>:nth-child(2){animation-delay:.04s}:is(#kh.bump,#kh.bump2)>:nth-child(3){animation-delay:.08s}:is(#kh.bump,#kh.bump2)>:nth-child(4){animation-delay:.12s}:is(#kh.bump,#kh.bump2)>:nth-child(5){animation-delay:.16s}
 .kh-bar i{transition:transform .7s var(--ease)}
 /* memorisation: a revealed word fades in like ink, not a blink */
 #app.memo #book .lb [data-a]:not(.hid){transition:color .35s ease,background-size .3s ease}
@@ -1713,9 +1713,11 @@ html.phoneM .bar .ib.azb{color:var(--gold)}
 html.phoneM .bar .ib:active,html.phoneM .btn-index:active,html.phoneM #bPrefs[aria-expanded="true"]{background:var(--orn);color:var(--bar);border-color:var(--orn)}
 html.phoneM .tools{gap:3px}
 /* six buttons on a narrow phone: a little smaller so the surah name keeps its room */
-@media (max-width:389px){html.phoneM:not(.simple) .tools{gap:1px}html.phoneM:not(.simple) .bar .tools .ib,html.phoneM:not(.simple) .bar #bPrefs{width:40px;height:40px}}
+@media (max-width:430px){html.phoneM:not(.simple) .tools{gap:1px}html.phoneM:not(.simple) .bar .tools .ib,html.phoneM:not(.simple) .bar #bPrefs{width:40px;height:40px}}
 /* the simple look has a label under each button: on a phone the menu tile opens كلمة بكلمة instead, so the surah name keeps its room */
 @media (max-width:439px){html.phoneM.simple #bWbH{display:none}}
+/* a small phone (360 and under, the Fold cover screen): six buttons left the surah name no room; كلمة بكلمة opens from its menu tile there */
+@media (max-width:380px){html.phoneM #bWbH{display:none}}
 /* the search button joined the top row: keep room for "الجزء · صفحة" under the surah name */
 html.phoneM .bar .where{min-width:0;padding-inline:2px}
 html.phoneM .bar .btn-index{flex:none}
@@ -1818,6 +1820,7 @@ html.phoneM .pf span{font-size:.8em}
 html.phoneM #cont .ch .cd,html.phoneM .cay>span{font-size:13px}html.phoneM .cay>small{font-size:13.5px}
 html.phoneM #player .ib{min-height:48px}
 @media (max-width:390px){html.phoneM #app>.bar{padding-inline:10px}html.phoneM .where b::before,html.phoneM .where b::after{display:none}}
+html .where b.t1::before,html .where b.t1::after{display:none}html .bar .where b.t2{font-size:15.5px!important}
 /* menu: four main tools as tiles, the rest as a slim row under them */
 .qa.q4>#bAdhkar,.qa.q4>#bToday,.qa.q4>#bFull,.qa.q4>#bAuto,.qa.q4>#bStudy{display:flex;align-items:center;justify-content:center;flex:1 0 calc((100% - 18px) / 4);min-height:44px;flex-direction:row;gap:6px;padding:6px 8px;font-size:12.5px}
 .qa.q4>#bAdhkar svg,.qa.q4>#bToday svg,.qa.q4>#bFull svg,.qa.q4>#bAuto svg,.qa.q4>#bStudy svg{width:18px;height:18px;margin:0}
@@ -1887,6 +1890,8 @@ html.phoneM:not([data-frame="1"]) .pg.gL,html.phoneM:not([data-frame="1"]) .pg.g
 #inkTxt[data-m="hide"] svg{opacity:.45}#inkTxt[data-m="show"] svg circle{fill:currentColor}
 #inkProg{flex:none;font-size:12.5px;color:var(--muted);padding-inline:8px 4px;white-space:nowrap;font-variant-numeric:tabular-nums}
 html.uzL #inkBar{zoom:var(--uz,1)}
+/* a zoomed bar measures 100vw in its own zoomed pixels: divide, or with big text it ran off both sides of the screen */
+html.uzL #inkBar{max-width:calc((100vw - 16px) / var(--uz,1))}
 @media (max-width:560px){#inkProg,#inkRedo{display:none}#inkSz [data-isz]:not(.cur){display:none}.ik{width:31px;height:31px;margin-block:3px}.ik.ic i{--d:15px}.ik svg{width:19px;height:19px}#inkBar{padding:3px 5px;gap:1px}.ikG{gap:1px;padding-inline-start:2px;margin-inline-start:1px}}
 @media (prefers-reduced-motion:reduce){#inkBar,#inkBar.out,#app.ink .pg .inkw.inkd,#app.ink .pg.inkDone .lines{animation:none!important}}
 /* a bar leaving the footer sinks away (a copy, footOut); the footer's own row rises back in under it */
@@ -2002,7 +2007,8 @@ html.thumb #srcBox.on .si.src{transform:none;transition:transform .34s cubic-bez
 #sheet.dock .acard{margin-top:30px}
 /* pen bar on phones: full-size 40px buttons; when they do not fit in one row the second row is centred too */
 @media (max-width:560px){.ik{width:40px;height:40px;margin-block:0}.ik svg{width:21px;height:21px}
-  #inkBar{max-width:calc(100vw - 16px);justify-content:center;align-content:center}#inkBar>*{margin-inline:0}}
+  #inkBar{max-width:calc(100vw - 16px);justify-content:center;align-content:center}#inkBar>*{margin-inline:0}
+  html.uzL #inkBar{max-width:calc((100vw - 16px) / var(--uz,1))}}
 /* the "sky" paper swatch picked up the .sk layout class and stood taller than the others */
 .sw i.sk{display:grid;padding:0;gap:0;width:34px;height:24px}
 #prefs .seg.c5 .sw i.sk{width:30px}
@@ -3367,7 +3373,10 @@ let wheelT=0;
 stage.addEventListener("wheel",e=>{e.preventDefault();const n=performance.now();if(n-wheelT<500||Math.abs(e.deltaY)<12)return;wheelT=n;autoFlip(e.deltaY>0?"fwd":"back")},{passive:false});
 
 /* ---------- top bar, scrubber, bookmark, theme ---------- */
-function bump(el){if(reduce||!el)return;el.classList.remove("bump");void el.offsetWidth;el.classList.add("bump")}
+/* restart the little "bump" without reading the layout: the old offsetWidth read forced the whole page to be laid out in
+   the middle of every page turn (about a third of the turn's work on a slow phone). Two classes with twin keyframes
+   take turns, so each change of class starts the animation again by itself */
+function bump(el){if(reduce||!el)return;const two=el.classList.contains("bump");el.classList.toggle("bump",!two);el.classList.toggle("bump2",two)}
 /* A last check on every device, whatever the cause (font size or display size settings, a web view's own text scaling,
    a font drawn wider than the print data): once a page is on show, nothing on it may run past its frame or off the screen.
    A line that does is narrowed to fit; a page that does not fit the screen is laid out again for the screen as it is. */
@@ -3389,13 +3398,20 @@ function ui(){fitGuard();
   const id=pStart(cur), q=qOf(id), s=SUR[sOf(id)];
   {const ws=$("wSurah"),s2=mode==="spread"&&cur<NP?SUR[sOf((cur+2<=NP?pStart(cur+2):NA+1)-1)]:s,nt="سورة "+s[0]+(s2!==s?" · "+s2[0]:"");if(ws.textContent!==nt&&ws.textContent){ws.textContent=nt;bump(ws.parentNode)}else ws.textContent=nt
     /* a narrow phone with the search button in the row: drop the word "سورة" before a long name rather than cut the name */
-    const wb=ws.parentNode;if(wb.scrollWidth>wb.clientWidth&&s2===s)ws.textContent=s[0]}
+    ui.ws=s2===s?s[0]:""}
   const pages=mode==="spread"?`الصفحتان ${ar(cur)}–${ar(Math.min(cur+1,NP))}`:`صفحة ${ar(cur)}`;
   /* a new hizb that starts on the pages in view shows as a range, as the ayah sheet does */
   const h1=(q>>2)+1,h2=(qOf(pEnd(mode==="spread"?Math.min(cur+1,NP):cur))>>2)+1;
   const wm=$("wMeta");wm.textContent=`الجزء ${ar(jOf(id))} · الحزب ${h2>h1?ar(h1)+"–"+ar(h2):ar(h1)} · ${pages}`;
   /* on a narrow screen the page number already shows in the footer */
-  if(wm.scrollWidth>wm.clientWidth+1){wm.textContent=`الجزء ${ar(jOf(id))} · ${pages}`;if(wm.scrollWidth>wm.clientWidth+1)wm.textContent=mode==="spread"?pages:`الجزء ${ar(jOf(id))}`}
+  /* the widths are read at the start of the next frame, where the layout is due anyway: read here they forced the whole
+     page to be laid out in the middle of every turn */
+  {const short=`الجزء ${ar(jOf(id))} · ${pages}`,least=mode==="spread"?pages:`الجزء ${ar(jOf(id))}`,sn=ui.ws;cancelAnimationFrame(ui.raf);
+    ui.raf=requestAnimationFrame(()=>{const ws=$("wSurah"),wb=ws.parentNode,over=()=>wb.scrollWidth>wb.clientWidth+.5;
+      /* a long name in a full row of buttons: first the little diamonds go, then the word "سورة", then the name gets a size
+         smaller; it is never cut */
+      wb.classList.remove("t1","t2");if(over()){wb.classList.add("t1");if(sn&&over())ws.textContent=sn;if(over())wb.classList.add("t2")}
+      if(wm.scrollWidth>wm.clientWidth+1){wm.textContent=short;if(wm.scrollWidth>wm.clientWidth+1)wm.textContent=least}})}
   {const j=jOf(id),a=pOf(JUZ[j-1]),b=j<30?pOf(JUZ[j])-1:NP,last=mode==="spread"?Math.min(cur+1,NP):cur;$("jprog").style.transform="scaleX("+Math.max(.04,Math.min(1,(last-a+1)/(b-a+1))).toFixed(3)+")"}
   $("range").value=cur;trkFill(cur);bump($("pnum"));$("pnum").innerHTML=`<b>${mode==="spread"&&cur<NP?ar(cur)+"–"+ar(cur+1):ar(cur)}</b><small>من ${ar(NP)}</small>`;
   khTrack();
@@ -4824,7 +4840,11 @@ setTimeout(easyAsk,1600);
 /* the bars change height with text size, simple mode, the player and the memo bar; keep the layout in step */
 if(window.ResizeObserver){let rq=0;const bb=document.querySelector("#app>.bar")||document.querySelector(".bar"),ff=document.querySelector("#app>.foot")||document.querySelector(".foot");
   const ro=new ResizeObserver(()=>{const bh=bb.offsetHeight+"px",fh=ff.offsetHeight+"px",cs=getComputedStyle(root);
-    if(cs.getPropertyValue("--bh").trim()===bh&&cs.getPropertyValue("--fh").trim()===fh)return;cancelAnimationFrame(rq);rq=requestAnimationFrame(()=>resize())});
+    if(cs.getPropertyValue("--bh").trim()===bh&&cs.getPropertyValue("--fh").trim()===fh)return;
+    /* a pixel or two (the player's title filling in a moment after it opens) only moves the bars' variables: laying every
+       page out again for it cost a quarter of a second on a slow phone right as the recitation started */
+    if(Math.abs(parseFloat(cs.getPropertyValue("--bh"))-parseFloat(bh))<=2&&Math.abs(parseFloat(cs.getPropertyValue("--fh"))-parseFloat(fh))<=2){root.style.setProperty("--bh",bh);root.style.setProperty("--fh",fh);return}
+    cancelAnimationFrame(rq);rq=requestAnimationFrame(()=>resize())});
   ro.observe(bb);ro.observe(ff)}
 /* ---------- Quran text lock: the text shown must match the reviewed release (checked at build time and here) ---------- */
 const QLOCK=/*QLOCK*/null;
