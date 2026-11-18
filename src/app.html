@@ -6416,8 +6416,9 @@ function azSky(start){
     [[.5,.05,.7,"rgba(217,180,108,.10)"],[.15,.6,.7,"rgba(60,70,80,.18)"],[.85,.75,.7,"rgba(70,60,45,.18)"]].forEach(([x,y,r,col])=>{const g=n.createRadialGradient(x*w,y*h,0,x*w,y*h,r*Math.max(w,h));g.addColorStop(0,col);g.addColorStop(1,"rgba(0,0,0,0)");n.fillStyle=g;n.fillRect(0,0,w,h)});
     AZS.neb=nb}
   const c=cv.getContext("2d");c.setTransform(dpr,0,0,dpr,0,0);
-    let last=0;
-  const frame=()=>{if(!azOpen)return;azSkyRaf=document.hidden?setTimeout(frame,1000):setTimeout(frame,66);if(document.hidden)return;const t=performance.now()/1000;
+    const t0=performance.now();
+  /* 15 a second while the screen opens, then 6: the stars breathe over seconds, and a long tasbih never keeps the phone warm */
+  const frame=()=>{if(!azOpen)return;azSkyRaf=document.hidden?setTimeout(frame,1000):setTimeout(frame,performance.now()-t0<10000?66:166);if(document.hidden)return;const t=performance.now()/1000;
     c.drawImage(AZS.neb,0,0,w,h);
     for(const s of AZS.stars){const a=.3+.45*Math.abs(Math.sin(t*s.s*.45+s.p));c.globalAlpha=a;c.fillStyle="#f3ead7";c.beginPath();c.arc(s.x,s.y,s.r,0,7);c.fill()}c.globalAlpha=1;
     /* only the night sky: nothing moves over the words of dhikr but the slow breathing of the stars */
@@ -6644,7 +6645,7 @@ addEventListener("pointerdown",e=>{if(e.pointerType!=="pen"||store.get("mushaf.p
    Each root always gets the same picture and colour, so a root met again looks familiar. The pictures are drawn
    on one canvas, only while this screen shows a word; light mode draws them at 30 fps and 1x, reduced motion one
    still frame. Nothing here keeps a layer when the screen is closed (display:none). */
-let wbOpen=false,wbA=0,wbI=-1,wbN=0,wbGen=0,wbRaf=0,wbIntroT=0,wbAutoT=0,wbSwap=0,wbLast=0,wbCur=null,wbPrev=null,wbCx=null,wbDpr=1,wbW=0,wbH=0;
+let wbOpen=false,wbA=0,wbI=-1,wbN=0,wbGen=0,wbRaf=0,wbFT=0,wbKickT=0,wbStopAt=0,wbIntroT=0,wbAutoT=0,wbSwap=0,wbLast=0,wbCur=null,wbPrev=null,wbCx=null,wbDpr=1,wbW=0,wbH=0;
 let WB_UZ=1,wbRep=false,wbSlow=store.get("mushaf.wbSlow")==="1",wbSwiped=0,wbAuto=false,wbPlay=false,wbSyncT=0,wbTm=null,WB_QF="serif";
 const WB_UF='"IBM Plex Sans Arabic",Tahoma,sans-serif';
 const WB_COL=[[236,196,118],[104,208,194],[238,146,170],[124,170,255],[184,160,255],[255,170,92]];
@@ -6794,21 +6795,29 @@ function wbCardHTML(o){
   if(o.mean&&o.lem)h+=`<p class="wb-c">أصل الكلمة: ${escH(o.lem)}</p>`;
   return h+"</div>"}
 function wbSize(){const cv=$("wbCv"),r=cv.getBoundingClientRect();wbDpr=LITE.on?1:Math.min(1.75,devicePixelRatio||1);wbW=r.width;wbH=r.height;
-  cv.width=Math.max(1,Math.round(r.width*wbDpr));cv.height=Math.max(1,Math.round(r.height*wbDpr));wbCx=cv.getContext("2d");wbDraw(performance.now())}
+  cv.width=Math.max(1,Math.round(r.width*wbDpr));cv.height=Math.max(1,Math.round(r.height*wbDpr));wbCx=cv.getContext("2d");wbDraw(wbStopAt||performance.now())}
 function wbDraw(now){const X=wbCx;if(!X)return;X.setTransform(wbDpr,0,0,wbDpr,0,0);X.clearRect(0,0,wbW,wbH);if(!wbCur||wbW<2||wbH<2)return;
   const e=now-wbSwap,fo=reduce?1:Math.min(1,e/320),f=reduce?1:Math.max(0,Math.min(1,(e-200)/600));
   try{if(wbPrev&&fo<1){X.globalAlpha=1-fo;WB_DRAW[wbPrev.o.k](X,wbW,wbH,(now-wbPrev.t0)/1000,wbPrev.o,false)}
     if(f>0){X.globalAlpha=f;WB_DRAW[wbCur.o.k](X,wbW,wbH,reduce?6:Math.max(0,now-wbCur.t0)/1000,wbCur.o,true)}}catch(e){}
   X.globalAlpha=1;if(fo>=1)wbPrev=null}
-function wbFrame(now){wbRaf=0;if(!wbOpen||!wbCur||wbI<0||wbI>=wbN)return;
-  if(LITE.on&&now-wbLast<30){wbRaf=requestAnimationFrame(wbFrame);return}wbLast=now;wbDraw(now);wbRaf=requestAnimationFrame(wbFrame)}
-function wbKick(){if(reduce){wbDraw(performance.now());return}if(!wbRaf)wbRaf=requestAnimationFrame(wbFrame)}
+/* the picture moves at the screen's rate only while it comes in (2.5 s), then at 30 a second, and it rests still after 9 s:
+   a word left open for minutes never keeps the phone drawing (heat). The next word, or a tap, wakes it again */
+function wbFrame(now){wbRaf=0;wbFT=0;now=now||performance.now();if(!wbOpen||!wbCur||wbI<0||wbI>=wbN)return;const age=now-wbKickT;
+  if(LITE.on&&age<2500&&now-wbLast<30){wbRaf=requestAnimationFrame(wbFrame);return}wbLast=now;wbDraw(now);
+  if(age>9000||document.hidden){wbStopAt=now;return}
+  if(age<2500&&!LITE.on)wbRaf=requestAnimationFrame(wbFrame);else wbFT=setTimeout(wbFrame,33)}
+function wbKick(){const now=performance.now();wbKickT=now;
+  /* a picture that carried on through the rest goes on from where it stopped, not with a jump */
+  if(wbStopAt){if(wbCur&&wbCur.t0<wbStopAt)wbCur.t0+=now-wbStopAt;wbStopAt=0}
+  if(reduce){wbDraw(now);return}if(!wbRaf&&!wbFT)wbRaf=requestAnimationFrame(wbFrame)}
+function wbHalt(){cancelAnimationFrame(wbRaf);clearTimeout(wbFT);wbRaf=wbFT=0}
 function wbProg(){const i=Math.max(0,Math.min(wbN,wbI+1));$("wbBar").style.transform=`scaleX(${wbN?(i/wbN).toFixed(4):0})`;$("wbCnt").textContent=wbI<0?"":`${ar(i)} / ${ar(wbN)}`;
   $("wbPrev").disabled=wbI<=0}
 function wbOpenUI(id){id=+id||1;if(id<1||id>NA)id=1;WB_UZ=Math.min(1.4,Math.max(1,parseFloat(getComputedStyle(root).getPropertyValue("--uz"))||1));WB_QF=getComputedStyle(root).getPropertyValue("--f-quran").trim()||"serif";
   if(!wbOpen){wbOpen=true;try{showPrefs(false)}catch(e){}const z=$("wb");clearTimeout(wbClose.t);z.classList.remove("out","in");z.hidden=false;void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true")}
   wdData().catch(()=>{});wbStart(id)}
-function wbStart(id,cont){if(wbPlay&&!cont)wbListenStop(true);wbPlayUI();const g=++wbGen,z=$("wb"),hd=$("wbHd");wbA=id;wbI=-1;wbN=AW[id].length;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;if(!cont)wbCur=wbPrev=null;
+function wbStart(id,cont){if(wbPlay&&!cont)wbListenStop(true);wbPlayUI();const g=++wbGen,z=$("wb"),hd=$("wbHd");wbA=id;wbI=-1;wbN=AW[id].length;clearTimeout(wbAutoT);clearTimeout(wbIntroT);wbHalt();if(!cont)wbCur=wbPrev=null;
   const s=SUR[sOf(id)][0];$("wbTitle").textContent="سورة "+s;$("wbSub").textContent=`الآية ${ar(aOf(id))} · ${numW(wbN,"كلمة واحدة","كلمتان","كلمات","كلمة")}`;$("wbRef").textContent=`${s} · ${ar(aOf(id))}`;
   $("wbAy").innerHTML=AW[id].map((w,j)=>`<span class="wbw" data-j="${j}" style="--j:${Math.min(j,22)}"><q>${escH(qY(w))}</q><i><u></u></i><small>${wbNum(j)}</small></span>`).join("")+`<span class="wb-an" aria-hidden="true">${ar(aOf(id))}</span>`;
   z.classList.remove("sumOn","fill");$("wbTint").style.backgroundColor="";$("wbSum").hidden=true;$("wbSum").innerHTML="";$("wbCard").innerHTML="";$("wbStep").textContent="";$("wbAy").scrollTop=0;wbProg();
@@ -6829,7 +6838,8 @@ function wbReady(g){wdData().then(()=>{if(g===wbGen&&wbOpen&&wbI<0)wbGo(0,true,t
 function wbGo(i,fromAudio,still){if(!wbOpen)return;const z=$("wb");if(z.classList.contains("intro")){wbIntroEnd(wbGen);return}if(!WD)return;
   if(i<0)return;
   /* a word chosen by hand while the reciter reads: the recitation jumps to it */
-  if(wbPlay&&!fromAudio){if(i>=wbN){wbListenStop(true)}else if(wbTm){auSeek(wbTm.s+wbTm.cum[i]*(wbTm.e-wbTm.s)+20);if(!player.on)setPlaying(true)}}
+  /* paused, the word only shows its meaning: the place moves with it, and the sound comes back only from «استماع» (Mn) */
+  if(wbPlay&&!fromAudio){if(i>=wbN){wbListenStop(true)}else if(wbTm)auSeek(wbTm.s+wbTm.cum[i]*(wbTm.e-wbTm.s)+20)}
   if(i>=wbN){wbSummary();return}
   wbI=i;z.classList.remove("sumOn");$("wbSum").hidden=true;
   const o=wbWord(wbA,i),ay=$("wbAy");
@@ -6837,7 +6847,7 @@ function wbGo(i,fromAudio,still){if(!wbOpen)return;const z=$("wb");if(z.classLis
   const ls=wbLs();
   ay.querySelectorAll(".wbw").forEach((e,j)=>{e.classList.toggle("on",j===i);e.classList.toggle("dn",j<i);e.querySelector("small").textContent=j===i&&!ls?(o.desc.split(" · ")[0]||wbNum(j)):wbNum(j)});
   $("wbStep").textContent=`الكلمة ${ar(i+1)} من ${ar(wbN)}`;
-  if(ls){clearTimeout(wbCardSwap.t);wbCardSwap.n++;wbCur=wbPrev=null;cancelAnimationFrame(wbRaf);wbRaf=0;$("wbTint").style.backgroundColor="";wbProg();
+  if(ls){clearTimeout(wbCardSwap.t);wbCardSwap.n++;wbCur=wbPrev=null;wbHalt();$("wbTint").style.backgroundColor="";wbProg();
     const w=ay.children[i];if(w&&ay.scrollHeight>ay.clientHeight+2){ay.classList.add("scr");ay.scrollTo({top:w.offsetTop-ay.clientHeight/2+w.offsetHeight/2,behavior:"auto"})}
     if(fromAudio)try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(4)}catch(e){}
     return}
@@ -6868,7 +6878,7 @@ function wbCardSwap(c,o,fresh){clearTimeout(wbCardSwap.t);const g=++wbCardSwap.n
   if(fresh||reduce||!c.firstChild){put();return}
   c.classList.add("wbout");wbCardSwap.t=setTimeout(put,190)}
 wbCardSwap.n=0;
-function wbSummary(){const z=$("wb");clearTimeout(wbAutoT);cancelAnimationFrame(wbRaf);wbRaf=0;wbI=wbN;z.classList.add("sumOn");$("wbTint").style.backgroundColor="";wbProg();
+function wbSummary(){const z=$("wb");clearTimeout(wbAutoT);wbHalt();wbI=wbN;z.classList.add("sumOn");$("wbTint").style.backgroundColor="";wbProg();
   $("wbAy").querySelectorAll(".wbw").forEach((e,j)=>{e.classList.remove("on","dn");e.querySelector("small").textContent=wbNum(j)});
   $("wbStep").textContent="الآية كلمةً كلمة";
   const os=AW[wbA].map((_,j)=>wbWord(wbA,j)),S=$("wbSum");
@@ -6881,7 +6891,7 @@ function wbSummary(){const z=$("wb");clearTimeout(wbAutoT);cancelAnimationFrame(
   const step=()=>{if(g!==wbGen||wbI!==wbN)return;const t0=performance.now();for(;k<cs.length&&performance.now()-t0<8;k++){const X=cs[k].getContext("2d");X.setTransform(1.5,0,0,1.5,0,0);try{WB_DRAW[os[k].k](X,160,120,6,os[k],false)}catch(e){}}if(k<cs.length)setTimeout(step,16)};
   setTimeout(step,reduce?0:120);
   const id=wbA;tafsir().then(()=>{const f=$("wbFull");if(f&&wbA===id&&wbI===wbN)f.textContent=TF[id-1]||""},()=>{const f=$("wbFull");if(f)f.textContent="تعذّر تحميل التفسير."})}
-function wbClose(){if(!wbOpen)return;if(wbPlay)wbListenStop(true);wbOpen=false;wbGen++;clearTimeout(wbAutoT);clearTimeout(wbIntroT);cancelAnimationFrame(wbRaf);wbRaf=0;wbCur=wbPrev=null;
+function wbClose(){if(!wbOpen)return;if(wbPlay)wbListenStop(true);wbOpen=false;wbGen++;clearTimeout(wbAutoT);clearTimeout(wbIntroT);wbHalt();wbCur=wbPrev=null;
   const z=$("wb");if(reduce)z.hidden=true;else{z.classList.remove("in");z.classList.add("out");clearTimeout(wbClose.t);wbClose.t=setTimeout(()=>{if(!wbOpen){z.hidden=true;z.classList.remove("out")}},240)}
   if(!azOpen)$("app").removeAttribute("aria-hidden")}
 $("wbX").onclick=wbClose;
@@ -6924,7 +6934,7 @@ function wbSync(){clearTimeout(wbSyncT);if(!wbPlay||wbAuto||!wbOpen)return;
   if(player.id!==wbA){if(player.id>=1&&player.id<=NA){wbStart(player.id,true);wbSyncT=setTimeout(wbSync,90)}else wbListenStop(false);return}
   if(player.on&&wbTm&&AU.readyState>=1){const t=AU.currentTime*1000,f=(t-wbTm.s)/(wbTm.e-wbTm.s);
     if(f>=0&&f<=1.02){let i=0;while(i<wbN-1&&f>=wbTm.cum[i+1])i++;if(i!==wbI&&wbI<wbN)wbGo(i,true);$("wbBar").style.transform=`scaleX(${Math.min(1,f).toFixed(3)})`}}
-  wbPlayUI();if(!document.hidden)wbSyncT=setTimeout(wbSync,90)}
+  wbPlayUI();if(!document.hidden)wbSyncT=setTimeout(wbSync,player.on?90:400)}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wbPlay)wbSync()});
 function wbListenStop(stopAudio){const was=wbPlay;wbPlay=false;wbAuto=false;clearTimeout(wbSyncT);clearTimeout(wbAutoT);
   if(was&&stopAudio&&!$("player").hidden&&player.id===wbA)stopPlay();if(was)setRate(+store.get("mushaf.rate")||1);wbPlayUI();

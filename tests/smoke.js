@@ -339,8 +339,10 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       ok(seen.has("3")&&seen.size>=4&&!!nx,`${name}: word by word listening moves the words with the recitation and reads on to the next ayah (${[...seen].join(",")} → ${nx})`);
       /* while the reciter reads only the word is followed: no meaning card, no picture, nothing drawn; paused, the meaning comes back */
       const lq=await p.evaluate(async()=>{const W=t=>new Promise(r=>setTimeout(r,t)),z=document.getElementById("wb"),m=document.querySelector(".wb-mid");const a={lst:z.classList.contains("lst"),mid:getComputedStyle(m).display,small:(document.querySelector("#wbAy .wbw.on small")||{}).textContent||""};
-        document.getElementById("wbPlay").click();await W(1300);a.back=!z.classList.contains("lst")&&getComputedStyle(m).display!=="none"&&!!document.querySelector("#wbCard .wb-m b");document.getElementById("wbPlay").click();await W(900);a.again=z.classList.contains("lst");return a});
-      ok(lq.lst&&lq.mid==="none"&&/^[٠-٩]+$/.test(lq.small)&&lq.back&&lq.again,`${name}: listening shows only the words being read, pausing brings the meaning back (${JSON.stringify(lq)})`);
+        document.getElementById("wbPlay").click();await W(1300);a.back=!z.classList.contains("lst")&&getComputedStyle(m).display!=="none"&&!!document.querySelector("#wbCard .wb-m b");
+        /* paused, a tapped word only shows its meaning; the sound waits for «استماع» */
+        const ws=document.querySelectorAll("#wbAy .wbw"),tj=ws.length>1?1:0;ws[tj].click();await W(900);a.tap=(document.querySelector("#wbAy .wbw.on")||{dataset:{}}).dataset.j===String(tj)&&!window.__smk.P().on&&!z.classList.contains("lst")&&!!document.querySelector("#wbCard .wb-m b");document.getElementById("wbPlay").click();await W(900);a.again=z.classList.contains("lst");return a});
+      ok(lq.lst&&lq.mid==="none"&&/^[٠-٩]+$/.test(lq.small)&&lq.back&&lq.tap&&lq.again,`${name}: listening shows only the words being read, pausing brings the meaning back, a tapped word stays quiet (${JSON.stringify(lq)})`);
       await p.keyboard.press("Escape");await p.waitForTimeout(500);
       const c=await p.evaluate(()=>({hid:document.getElementById("wb").hidden,app:document.getElementById("app").hasAttribute("aria-hidden")}));
       const pl=await p.evaluate(()=>document.getElementById("player").hidden);
@@ -352,6 +354,9 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       const fd=await p.evaluate(async()=>{const W=t=>new Promise(r=>setTimeout(r,t)),c=document.getElementById("wbCard");document.getElementById("wbNext").click();await W(60);const out=c.classList.contains("wbout");
         await W(400);return {open:!document.getElementById("wb").hidden,out,words:c.querySelectorAll(".wb-m b span.wbf").length,moved:[...c.querySelectorAll(".wbf")].some(e=>getComputedStyle(e).transform!=="none")}});
       ok(!!bt&&fd.open&&fd.out&&fd.words>0&&!fd.moved,`${name}: the bar button opens word by word, and a word change fades without moving (${bt} ${JSON.stringify(fd)})`);
+      /* heat: a word left open stops drawing its picture after a few seconds (the canvas stays the same) */
+      if(!/tile/.test(bt)){await p.waitForTimeout(9800);const st=await p.evaluate(async()=>{const cv=document.getElementById("wbCv"),h=()=>{const d=cv.getContext("2d").getImageData(0,0,cv.width,cv.height).data;let x=0;for(let k=0;k<d.length;k+=97)x=(x*31+d[k])|0;return x};const a=h();await new Promise(r=>setTimeout(r,700));return {w:cv.width,same:a===h()}});
+        ok(st.w>1&&st.same,`${name}: word by word picture rests after a few seconds, nothing keeps drawing (${JSON.stringify(st)})`)}
       await p.keyboard.press("Escape");await p.waitForTimeout(500)}
     await ctx.close()}
   /* saved data from an old version or an edited backup file (wrong shapes, a name with markup in it) must not
