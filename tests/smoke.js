@@ -292,6 +292,12 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       ok(r.vFix&&r.vFix.moved===0&&r.vFix.red==="0000"&&r.vFix.fx==="0100",`${name}: following along, a vowel said wrong and then read again right loses its red ${JSON.stringify(r.vFix)}`);
       ok(r.hold&&r.hold.red&&r.hold.wait===0&&r.hold.on===1&&r.hold.cleared&&r.hold.fx,`${name}: following along, a word said wrong waits in red until it is said right ${JSON.stringify(r.hold)}`);
       ok(r.back===5&&r.gap===18,`${name}: following along, a repeated stretch moves nothing and a lost stretch is caught up ${JSON.stringify(r)}`);
+      /* a word said wrong offers the reader's recitation of that ayah: it plays, the ayah's words stand out, and the chip goes */
+      {const h=await p.evaluate(async()=>{const W=t=>new Promise(r=>setTimeout(r,t)),c=document.getElementById("flHear");if(!c||c.hidden)return {shown:false};
+          const txt=c.textContent;c.querySelector(".fh-go").click();let lit=0,stop="";for(let i=0;i<30&&!lit;i++){await W(100);lit=document.querySelectorAll("#book .hear").length}
+          stop=c.textContent;c.querySelector(".fh-go").click();await W(100);const off=!document.querySelector("#book .hear");c.querySelector(".fh-x").click();
+          return {shown:true,txt,lit,stop,off,gone:c.hidden}});
+        ok(h.shown&&/اسمع الآية/.test(h.txt)&&h.lit>0&&/إيقاف/.test(h.stop)&&h.off&&h.gone,`${name}: following along, a word said wrong offers to hear that ayah from the reciter ${JSON.stringify(h)}`)}
       await p.keyboard.press("Escape");await p.waitForTimeout(400)}
     if(name==="phone"){/* prayer times are computed on the device: Baghdad, Ja'fari, a fixed day, in Baghdad time */
       const r=await p.evaluate(()=>{const c=new adhan.Coordinates(33.3152,44.3661),d=new Date(Date.UTC(2026,10,4,9));
@@ -319,14 +325,19 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       await p.waitForFunction(()=>(document.getElementById("wbFull")?.textContent||"").length>40,null,{timeout:15000}).catch(()=>{});
       const s=await p.evaluate(()=>({tiles:document.querySelectorAll("#wbSum .wbt").length,full:document.getElementById("wbFull")?.textContent||""}));
       ok(s.tiles===4&&s.full.length>40,`${name}: word by word ends on the summary (${s.tiles} words, ayah meaning ${s.full.length} letters)`);
-      /* listening: the reciter reads the ayah, the words move with him, and it stops at the ayah's end on the summary */
+      /* «اختبرني بالمعاني»: questions on the ayah's words, three choices each, a score at the end */
+      await p.evaluate(()=>document.getElementById("wbQuiz").click());await p.waitForTimeout(500);
+      const qz=await p.evaluate(async()=>{let n=0;for(let k=0;k<12;k++){const o=document.querySelectorAll(".wbq-o");if(!o.length)break;if(o.length!==3)return {bad:o.length};o[0].click();n++;await new Promise(r=>setTimeout(r,1500))}return {n,score:document.querySelector(".wbq-s")?.textContent||""}});
+      ok(qz.n>=2&&/من/.test(qz.score),`${name}: word by word quiz asks the ayah's words and gives a score (${JSON.stringify(qz)})`);
+      await p.evaluate(()=>document.getElementById("wbQzBack").click());await p.waitForTimeout(300);
+      /* listening: the reciter reads, the words move with him, and he reads on into the next ayah (the screen follows) */
       await p.evaluate(()=>document.getElementById("wbAgain").click());await p.waitForTimeout(400);await p.evaluate(()=>document.getElementById("wbPlay").click());
-      const seen=new Set();for(let k=0;k<60;k++){const j=await p.evaluate(()=>document.getElementById("wb").classList.contains("sumOn")?"end":(document.querySelector("#wbAy .wbw.on")||{dataset:{}}).dataset.j);seen.add(j);if(j==="end")break;await p.waitForTimeout(200)}
-      const pl=await p.evaluate(()=>document.getElementById("player").hidden);
-      ok(seen.has("end")&&seen.has("3")&&seen.size>=4&&pl,`${name}: word by word listening moves the words with the recitation and stops at the ayah's end (${[...seen].join(",")}; player ${pl?"stopped":"still on"})`);
+      const seen=new Set();let nx="";for(let k=0;k<70;k++){const r=await p.evaluate(()=>[document.getElementById("wbRef").textContent,(document.querySelector("#wbAy .wbw.on")||{dataset:{}}).dataset.j]);seen.add(r[1]);if(/٣$/.test(r[0])){nx=r[0];break}await p.waitForTimeout(200)}
+      ok(seen.has("3")&&seen.size>=4&&!!nx,`${name}: word by word listening moves the words with the recitation and reads on to the next ayah (${[...seen].join(",")} → ${nx})`);
       await p.keyboard.press("Escape");await p.waitForTimeout(500);
       const c=await p.evaluate(()=>({hid:document.getElementById("wb").hidden,app:document.getElementById("app").hasAttribute("aria-hidden")}));
-      ok(c.hid&&!c.app&&errs.length===e0,`${name}: word by word closes cleanly ${errs.slice(e0).join(" | ")}`)}
+      const pl=await p.evaluate(()=>document.getElementById("player").hidden);
+      ok(c.hid&&!c.app&&pl&&errs.length===e0,`${name}: word by word closes cleanly and stops its recitation ${errs.slice(e0).join(" | ")}`)}
     await ctx.close()}
   /* saved data from an old version or an edited backup file (wrong shapes, a name with markup in it) must not
      break the page or run as code */
