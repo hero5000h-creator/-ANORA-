@@ -2150,7 +2150,16 @@ html.lite .wbf,html.lite #wb .wbw q{animation-name:wbRise}
 .wb-sr{margin:6px 0 0;font-size:calc(11px * var(--uz,1));color:rgba(236,230,216,.45)}
 #wb.nxt .wbw q{animation:wbIn .55s ease both;animation-delay:calc(var(--j) * 28ms)}
 .wb-opts{display:none;justify-content:center;gap:8px;padding:4px 0 0}
-#wb.lst:not(.sumOn) .wb-opts{display:flex}
+#wb.lsn:not(.sumOn) .wb-opts{display:flex}
+/* listening: the ayah alone in the middle, the word being read in gold. No meaning card, no picture, no motion */
+#wb.lst:not(.sumOn) .wb-mid{display:none}
+#wb.lst:not(.sumOn) .wb-hd{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center}
+#wb.lst:not(.sumOn) .wb-ay{max-height:none;flex:0 1 auto;min-height:0;gap:6px 16px}
+#wb.lst:not(.sumOn) .wbw q{text-shadow:none;font-size:calc(32px * var(--uz,1))}
+@media (min-width:700px){#wb.lst:not(.sumOn) .wbw q{font-size:calc(40px * var(--uz,1))}}
+#wb.lst .wbw,#wb.lst .wbw q,#wb.lst .wbw small{transition-duration:.15s}
+#wb.lst .wbw u{transition:none}
+#wb.lst .wbw.on u{animation:none}
 .wb-chip{display:flex;align-items:center;gap:6px;min-height:36px;padding:0 13px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(236,230,216,.8);font:inherit;font-size:calc(12.5px * var(--uz,1));transition:background-color .2s,color .2s,border-color .2s,transform .16s var(--ease)}
 .wb-chip:active{transform:scale(.94)}
 .wb-chip svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -6823,8 +6832,14 @@ function wbGo(i,fromAudio,still){if(!wbOpen)return;const z=$("wb");if(z.classLis
   if(i>=wbN){wbSummary();return}
   wbI=i;z.classList.remove("sumOn");$("wbSum").hidden=true;
   const o=wbWord(wbA,i),ay=$("wbAy");
-  ay.querySelectorAll(".wbw").forEach((e,j)=>{e.classList.toggle("on",j===i);e.classList.toggle("dn",j<i);e.querySelector("small").textContent=j===i?(o.desc.split(" · ")[0]||wbNum(j)):wbNum(j)});
+  /* listening: only the word being read is followed, no meaning, no picture, nothing moving (Mn) */
+  const ls=wbLs();
+  ay.querySelectorAll(".wbw").forEach((e,j)=>{e.classList.toggle("on",j===i);e.classList.toggle("dn",j<i);e.querySelector("small").textContent=j===i&&!ls?(o.desc.split(" · ")[0]||wbNum(j)):wbNum(j)});
   $("wbStep").textContent=`الكلمة ${ar(i+1)} من ${ar(wbN)}`;
+  if(ls){clearTimeout(wbCardSwap.t);wbCardSwap.n++;wbCur=wbPrev=null;cancelAnimationFrame(wbRaf);wbRaf=0;$("wbTint").style.backgroundColor="";wbProg();
+    const w=ay.children[i];if(w&&ay.scrollHeight>ay.clientHeight+2){ay.classList.add("scr");ay.scrollTo({top:w.offsetTop-ay.clientHeight/2+w.offsetHeight/2,behavior:"auto"})}
+    if(fromAudio)try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(4)}catch(e){}
+    return}
   wbCardSwap($("wbCard"),o,still);
   if(fromAudio&&wbPlay&&!wbAuto)try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(4)}catch(e){}
   $("wbTint").style.backgroundColor=`rgb(${o.c.map(v=>Math.round(6+v*.05)).join(",")})`;
@@ -6880,7 +6895,15 @@ function wbTimes(id){if(!aud)return null;const s=sOf(id)+1,a=aOf(id),rows=aud.su
   const n=AW[id].length,e=HPH&&HPH[s+":"+a];let L=null;if(e){const l=String(e).split("|")[1];const v=l?l.split(",").map(Number):[];if(v.length===n&&v.every(x=>x>0))L=v}
   if(!L)L=AW[id].map(w=>bareA(w).length||1);
   const wt=L.map(x=>x+2),tot=wt.reduce((p,q)=>p+q,0),cum=[0];wt.forEach((w,i)=>cum.push(cum[i]+w/tot));return {s:r[1],e:r[2],cum}}
-function wbPlayUI(){const b=$("wbPlay"),on=wbPlay&&(player.on||wbAuto);$("wb").classList.toggle("lst",wbPlay&&!wbAuto);if(b._on===on)return;b._on=on;b.setAttribute("aria-pressed",String(on));
+/* listening = the reciter is reading now. Paused or stopped, the word shows its meaning and picture again */
+function wbLs(){return wbPlay&&!wbAuto&&player.on}
+function wbPlayUI(){const b=$("wbPlay"),on=wbPlay&&(player.on||wbAuto),z=$("wb"),ls=wbLs(),was=z.classList.contains("lst");
+  z.classList.toggle("lsn",wbPlay&&!wbAuto);
+  const back=()=>{wbPlayUI.t=0;if(wbLs()||!z.classList.contains("lst"))return;z.classList.remove("lst");
+    requestAnimationFrame(()=>{if(wbOpen&&!wbLs()&&wbI>=0&&wbI<wbN&&!z.classList.contains("intro")){wbCur=null;wbGo(wbI,true,true)}})};
+  if(ls){clearTimeout(wbPlayUI.t);wbPlayUI.t=0;z.classList.add("lst")}
+  /* a short gap (between two ayat, a seek) does not bring the card back; stopping does at once */
+  else if(was){if(!wbPlay){clearTimeout(wbPlayUI.t);back()}else if(!wbPlayUI.t)wbPlayUI.t=setTimeout(back,350)}if(b._on===on)return;b._on=on;b.setAttribute("aria-pressed",String(on));
   b.querySelector("span").textContent=on?"إيقاف":"استماع";
   b.querySelector("svg").innerHTML=on?'<path d="M8.5 5.5v13M15.5 5.5v13"/>':'<path d="M4 15v-3a8 8 0 0 1 16 0v3"/><rect x="3.5" y="14" width="4" height="6.5" rx="1.6"/><rect x="16.5" y="14" width="4" height="6.5" rx="1.6"/>';
   $("wb").classList.toggle("play",on)}
