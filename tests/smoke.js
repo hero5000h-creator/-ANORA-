@@ -248,6 +248,23 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       ok(r.to>r.from&&r.still,`${name}: reciting the whole page turns to the next and keeps following ${JSON.stringify(r)}`);
       await p.keyboard.press("Escape");await p.waitForTimeout(400);
       ok(await p.evaluate(()=>!document.getElementById("app").classList.contains("follow")&&!document.querySelector("#book .hid")),`${name}: leaving follow-along clears the page`)}
+    /* follow-along in large text: the words flow large, copy the page's state as they are recited, the lens sits on the
+       word due; back returns to the page still following, and the page is not drawn underneath meanwhile */
+    {await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(400);
+      await p.evaluate(()=>document.getElementById("bFollow").click());await p.waitForTimeout(900);
+      await p.evaluate(()=>document.getElementById("mBig").click());await p.waitForTimeout(900);
+      const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z)),plain=t=>t.replace(/[ً-ٟۖ-ࣰۭ-ࣲـ]/g,"").replace(/ٰ/g,"ا").replace(/ٱ/g,"ا");
+        const big=document.getElementById("rcBig"),on=!big.hidden&&big.getBoundingClientRect().height>0,under=getComputedStyle(document.getElementById("bookwrap")).visibility;
+        const ws=[...document.querySelectorAll("#rcTx .w.hid")].map(x=>plain(x.textContent));
+        window.__L.Speechheard({text:ws.slice(0,5).join(" "),final:true});await W(500);
+        const lit=document.querySelectorAll("#rcTx .w:not(.hid)").length,nx=document.querySelector("#rcTx .w.nx"),L=document.getElementById("rcLens");
+        const lr=L.getBoundingClientRect(),nr=nx&&nx.getBoundingClientRect(),lensOn=!!nr&&!L.classList.contains("off")&&Math.abs((lr.left+lr.width/2)-(nr.left+nr.width/2))<nr.width;
+        const big1=nx?parseFloat(getComputedStyle(nx).fontSize):0,pg1=parseFloat(getComputedStyle(document.querySelector("#book .pg .lb [data-w]")).fontSize),same=!!nx&&[...document.querySelectorAll("#book .pg .nx")].some(w=>w.textContent===nx.textContent);
+        document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true}));await W(800);
+        return {on,under,lit,same,lensOn,bigger:big1>pg1*1.3,back:big.hidden&&document.getElementById("app").classList.contains("follow"),seen:getComputedStyle(document.getElementById("bookwrap")).visibility}});
+      ok(r.on&&r.under==="hidden"&&r.lit>=4&&r.same&&r.lensOn&&r.bigger,`${name}: follow-along in large text copies the recited words and the lens sits on the word due ${JSON.stringify(r)}`);
+      ok(r.back&&r.seen==="visible",`${name}: back from the large text returns to the page, still following ${JSON.stringify(r)}`);
+      await p.evaluate(()=>localStorage.setItem("mushaf.rcBig","0"));await p.keyboard.press("Escape");await p.waitForTimeout(400)}
     /* the app's own Quran recogniser: bare Uthmani letters, a lit word from the partial, whole words in each final */
     {await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(400);
       await p.evaluate(()=>document.getElementById("bFollow").click());await p.waitForTimeout(900);

@@ -797,6 +797,43 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 #app.memo.follow #book .lb [data-a].hid.nx *{color:var(--ink)}
 :root:is([data-paper="night"],[data-paper="black"]) #app.memo.follow{--flp:color-mix(in srgb,#5b8cff 30%,transparent)}
 #app.follow #memo .mb.step:not(#mReset),#app.follow #memo .rate{display:none}
+/* follow-along in large text: the pages in view flow as one large text; the word due rides in a soft glass lens that
+   glides from word to word, recited words take the reading colour, words to come wait faint, and the text rolls up
+   so the reading line stays a little above the middle. Pinch out on the page to come in, pinch in to go back. */
+#rcBig{position:absolute;inset:0;z-index:6;overflow:hidden}
+#rcBig[hidden],#app:not(.follow) #rcBig{display:none}
+#app.ovl #rcBig{top:var(--bh,52px);bottom:var(--fh,56px)}
+#app.ovl.calm #rcBig{top:0;bottom:0}
+#rcBg{position:absolute;inset:0;background:var(--paper)}
+#rcSc{position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;scrollbar-width:none;-webkit-user-select:none;user-select:none}
+#rcSc::-webkit-scrollbar{display:none}
+#rcIn{position:relative;padding:40vh max(18px,5vw) 52vh;max-width:min(100%,calc(var(--rz,48px) * 15));margin:0 auto;box-sizing:border-box}
+#rcTx{position:relative;isolation:isolate;font-family:var(--f-mushaf);font-size:var(--rz,48px);line-height:2.05;text-align:center;color:var(--ink);direction:rtl;-webkit-text-stroke:.012em currentColor}
+#rcTx .w{display:inline-block;padding:0 .06em;color:var(--fl,#2f63d8);transition:color .5s ease,transform .32s cubic-bezier(.3,1.35,.5,1);transform-origin:50% 55%}
+#rcTx .w.hid{color:color-mix(in srgb,var(--ink) 30%,transparent)}
+#rcTx .w.nx{color:var(--ink);transform:scale(1.07)}
+#rcTx .w.err{color:var(--tj-md)}
+#rcTx .w.fx:not(.err){background:linear-gradient(color-mix(in srgb,var(--tj-md) 70%,transparent),color-mix(in srgb,var(--tj-md) 70%,transparent)) left 80%/100% .045em no-repeat}
+#rcTx .am{display:inline-grid;place-items:center;width:1.05em;height:1.05em;vertical-align:-.12em;margin:0 .1em;background:var(--o-num) center/contain no-repeat;color:var(--orn);-webkit-text-stroke:0}
+#rcTx .am b{font:700 .34em/1 var(--f-ui)}
+#rcTx .rh{display:flex;justify-content:center;align-items:center;height:1.3em;margin:.5em auto .1em;max-width:15em;background:var(--o-head) center/100% 100% no-repeat;font:700 .42em/1 var(--f-display);color:var(--orn);-webkit-text-stroke:0}
+#rcTx .rb{display:block;font-family:var(--f-quran);font-size:.62em;line-height:2;color:color-mix(in srgb,var(--ink) 70%,transparent);-webkit-text-stroke:0}
+#rcTx .rp{display:flex;align-items:center;gap:10px;margin:.3em 0;font:600 14px/1.6 var(--f-ui);color:var(--muted);-webkit-text-stroke:0}
+#rcTx .rp::before,#rcTx .rp::after{content:"";flex:1;height:1px;background:var(--rule)}
+#rcLens{position:absolute;left:0;top:0;z-index:-1;border-radius:999px;pointer-events:none;background:color-mix(in srgb,#fff 72%,var(--paper));
+  box-shadow:0 .16em .5em -.22em rgba(40,30,10,.42),0 0 0 1px rgba(255,255,255,.75) inset,0 -.05em .1em rgba(255,255,255,.9) inset,0 0 0 1px color-mix(in srgb,var(--ink) 7%,transparent);
+  transition:transform .44s cubic-bezier(.22,1,.36,1),width .44s cubic-bezier(.22,1,.36,1),height .3s ease,opacity .25s ease}
+#rcLens.jump{transition:none}
+#rcLens.off{opacity:0}
+:root:is([data-paper="night"],[data-paper="black"]) #rcLens{background:color-mix(in srgb,#fff 11%,var(--paper));box-shadow:0 .16em .5em -.2em rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.14) inset,0 -.05em .1em rgba(255,255,255,.1) inset}
+html.lite #rcTx .w{transition:color .3s ease}
+html.lite #rcTx .w.nx{transform:none}
+@media (prefers-reduced-motion:reduce){#rcLens,#rcTx .w{transition:none}#rcTx .w.nx{transform:none}}
+/* the page lies hidden under the large text (no layer kept for it) */
+#app.rcH #bookwrap{visibility:hidden}
+#mBig svg{width:22px;height:22px}
+#app:not(.follow) #mBig{display:none}
+#mBig[aria-pressed="true"]{background:var(--sel);color:var(--orn)}
 #app.memo #deckList{visibility:hidden}
 #app.memo .dk-h::after{content:"التفسير مخفي أثناء الحفظ";color:var(--muted)}
 #memo{flex:1;min-width:0;max-width:880px;margin-inline:auto;display:flex;align-items:center;gap:6px;padding-block:5px}
@@ -2164,6 +2201,7 @@ html.atOn #app>.foot.foot:not(.playing):not(.memo-on){opacity:0;transform:transl
       <svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.5"><g class="rose"><rect x="30" y="30" width="60" height="60" rx="2"/><rect x="30" y="30" width="60" height="60" rx="2" transform="rotate(45 60 60)"/><circle cx="60" cy="60" r="20"/></g><circle class="ring" cx="60" cy="60" r="52" opacity=".55"/><circle cx="60" cy="60" r="12" opacity=".5"/></g><circle class="core" cx="60" cy="60" r="4" fill="currentColor"/></svg>
       <b>أنورا</b><small>مصحف المدينة · برواية حفص عن عاصم</small><i></i></div></div>
     <section id="flow" hidden aria-label="قراءة بخط كبير"><div class="flbar"><button class="ib" id="flBack" aria-label="العودة إلى صفحة المصحف"><svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M8.5 8h7M8.5 11.5h7M8.5 15h4"/></svg></button><span id="flInfo"></span><button class="ib fz" id="flMinus" aria-label="تصغير الخط"><span class="aa">أ</span><sub>−</sub><span class="fzw">تصغير</span></button><button class="ib fz" id="flPlus" aria-label="تكبير الخط"><span class="aa">أ</span><sub>+</sub><span class="fzw">تكبير</span></button></div><div id="flBody"></div></section>
+    <section id="rcBig" hidden aria-label="تتبّع التلاوة بخط كبير"><div id="rcBg"></div><div id="rcSc"><div id="rcIn"><div id="rcTx"></div></div></div></section>
     <button id="azNudge" hidden><i><svg viewBox="0 0 24 24"><circle cx="12.0" cy="14.5" r="1.25"/><circle cx="8.5" cy="13.4" r="1.25"/><circle cx="6.4" cy="10.4" r="1.25"/><circle cx="6.4" cy="6.8" r="1.25"/><circle cx="8.5" cy="3.8" r="1.25"/><circle cx="12.0" cy="2.7" r="1.25"/><circle cx="15.5" cy="3.8" r="1.25"/><circle cx="17.6" cy="6.8" r="1.25"/><circle cx="17.6" cy="10.4" r="1.25"/><circle cx="15.5" cy="13.4" r="1.25"/><path d="M12 15.8v1.4M12 19.6l-1.8 2.4M12 19.6v2.6M12 19.6l1.8 2.4"/><circle cx="12" cy="18.4" r="1.1"/></svg></i><span id="azNudgeT"></span><b aria-hidden="true">‹</b></button>
     <div id="scrubBig" aria-hidden="true" hidden><small id="sbgS"></small><b id="sbgJ"></b><span id="sbgH"></span></div>
     <div id="autoBar" hidden role="group" aria-label="التقليب التلقائي">
@@ -2194,6 +2232,7 @@ html.atOn #app>.foot.foot:not(.playing):not(.memo-on){opacity:0;transform:transl
       <button class="mb step" id="mErr" title="لم أتذكّر الكلمة التالية: تُكشف وتُسجَّل خطأً">أخطأت</button>
       <button class="mb step" id="mAyah">أظهر الآية</button>
       <button class="mb step" id="mAll">أظهر الكل</button>
+      <button class="ib" id="mBig" aria-pressed="false" title="خط كبير" aria-label="خط كبير"><svg viewBox="0 0 24 24"><path d="M4 4h5M4 4v5M20 4h-5M20 4v5M4 20h5M4 20v-5M20 20h-5M20 20v-5"/><path d="M9.5 15.5l2.5-7 2.5 7M10.4 13h3.2"/></svg></button>
       <button class="mb step" id="mReset" aria-label="أخفِ الصفحة من جديد">أخفِ</button>
       <span class="rate"><button class="mb" id="mAgain">راجعها غداً</button><button class="mb solid" id="mGood">أتقنتها</button></span>
     </div>
@@ -2976,7 +3015,7 @@ let down=null;
 const bookPt=e=>{const r=book.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top]};
 let lastPT="mouse";
 stage.addEventListener("pointerdown",e=>{
-  if(e.target.closest("#flow"))return;
+  if(e.target.closest("#flow,#rcBig"))return;
   lastPT=e.pointerType;
   if(e.button!==0||busy) return;
   const b=bookPt(e);down={x:b[0],y:b[1],t:performance.now(),hist:[],peek:flip&&flip.peek?flip:null};
@@ -3092,14 +3131,15 @@ const rub=(v,m)=>Math.abs(v)<=m?v:Math.sign(v)*(m+(Math.abs(v)-m)*.32);
 function zoomClamp(soft){const [mx,my]=zLim(zoom.s);if(soft){zoom.x=rub(zoom.x,mx);zoom.y=rub(zoom.y,my)}else{zoom.x=Math.max(-mx,Math.min(mx,zoom.x));zoom.y=Math.max(-my,Math.min(my,zoom.y))}}
 function zoomReset(now){cancelAnimationFrame(zRaf);if(zoom.s===1&&!zoom.x&&!zoom.y)return;zoom.s=1;zoom.x=zoom.y=0;zoomApply(!now)}
 /* settle after a gesture: scale back inside 1..ZMAX around the same spot, then the page back inside its bounds */
-function zSettle(){if(zoom.s<1.08){zoomReset();return}
+function zSettle(){if(memo.on&&memo.follow&&!RC.on&&zoom.s>=1.45){store.set("mushaf.rcBig","1");rcSet(true,"zoom");return}
+  if(zoom.s<1.08){zoomReset();return}
   if(zoom.s>ZMAX){const k=ZMAX/zoom.s;zoom.x*=k;zoom.y*=k;zoom.s=ZMAX}zoomClamp(false);zoomApply(true)}
 $("zoomR").onclick=e=>{e.stopPropagation();zoomReset()};
 $("zoomR").addEventListener("pointerdown",e=>e.stopPropagation());
 const zMid=()=>{const v=[...zp.values()];return [(v[0][0]+v[1][0])/2,(v[0][1]+v[1][1])/2,Math.hypot(v[0][0]-v[1][0],v[0][1]-v[1][1])]};
 const zCenter=()=>{const r=stage.getBoundingClientRect();return [r.left+r.width/2,r.top+r.height/2]};
 stage.addEventListener("pointerdown",e=>{
-  if(e.target.closest("#flow,#zoomR,#azNudge")||e.pointerType==="mouse")return;
+  if(e.target.closest("#flow,#rcBig,#zoomR,#azNudge")||e.pointerType==="mouse")return;
   zp.set(e.pointerId,[e.clientX,e.clientY]);cancelAnimationFrame(zRaf);
   if(zp.size===2){ /* second finger: take over from the page turn unless a turn is already under way */
     if(busy||(down&&down.drag&&down.drag!=="none")){return}
@@ -3171,7 +3211,7 @@ document.addEventListener("keydown",e=>{
   if($("drawer").classList.contains("on")){if(e.key==="Escape")closeIndex();return}
   if(e.key==="Escape"&&!$("sheet").hidden){closeAyah();return}
   if(e.key==="Escape"&&!$("cont").hidden&&!$("cont").classList.contains("off")){contHide();return}
-  if(e.key==="Escape"){if(!$("prefs").hidden)showPrefs(false);else if(!$("repBox").hidden)softHide($("repBox"));else if(memo.on)setMemo(false);else if(inkOn)setInk(false);else if($("app").classList.contains("imm"))toggleFull();return}
+  if(e.key==="Escape"){if(!$("prefs").hidden)showPrefs(false);else if(!$("repBox").hidden)softHide($("repBox"));else if(RC.on){store.set("mushaf.rcBig","0");rcSet(false,"zoom")}else if(memo.on)setMemo(false);else if(inkOn)setInk(false);else if($("app").classList.contains("imm"))toggleFull();return}
   if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA") return;
   if(e.key==="ArrowLeft"||e.key==="PageDown"||e.key===" "){e.preventDefault();autoFlip("fwd")}
   else if(e.key==="ArrowRight"||e.key==="PageUp"){e.preventDefault();autoFlip("back")}
@@ -5014,7 +5054,7 @@ function paintMemo(){
   {const act=memoAct();deckPages().forEach(p=>{if(p!==act&&cache.has(p))cache.get(p).querySelectorAll(".nx").forEach(w=>w.classList.remove("nx"))})}
   const ps=deckPages(),db=memo.db(),r=db[ps[0]];
   $("mTitle").textContent=memo.range?`${repRef(memo.range.from)}–${ar(aOf(memo.range.to))}`:(ps.length>1?`الصفحتان ${ar(ps[0])}–${ar(ps[1])}`:`صفحة ${ar(ps[0])}`);
-  if(memo.follow){$("memo").classList.remove("done");$("mSub").textContent=LS.on?micMsg():"اضغط الميكروفون واقرأ، أو المس كلمة لتبدأ منها";flPill();if(left===0)followNext();return}
+  if(memo.follow){$("memo").classList.remove("done");$("mSub").textContent=LS.on?micMsg():"اضغط الميكروفون واقرأ، أو المس كلمة لتبدأ منها";flPill();rcRender();if(left===0)followNext();return}
   $("memo").classList.toggle("done",left===0);
   $("mSub").textContent=left===0?"كيف كان حفظك لهذه الصفحة؟":LS.on?"أسمعك… اقرأ من حفظك":r?`المراجعة رقم ${ar(r.n+1)} · المس للكلمة التالية`:"المس للكلمة التالية، ومطوّلاً للآية";
 }
@@ -5029,8 +5069,10 @@ function setMemo(on){if(on)contHide();
   if(on){stopPlay();closeAyah();hideHint();setCalm(false)}
   if(!on)footOut($("memo"));$("app").classList.toggle("memo",on);$("app").classList.toggle("mhint",on&&memo.hint&&!memo.follow);$("app").classList.toggle("follow",on&&!!memo.follow);$("bFollow").setAttribute("aria-pressed",String(on&&!!memo.follow));$("mExit").setAttribute("aria-label",memo.follow?"إنهاء تتبّع التلاوة":"إنهاء وضع الحفظ");$("mReset").textContent=memo.follow?"من البداية":"أخفِ";$("mReset").setAttribute("aria-label",memo.follow?"ابدأ الصفحة من أولها":"أخفِ الصفحة من جديد");$("mHint").setAttribute("aria-pressed",String(memo.hint));$("memo").hidden=!on;document.querySelector(".foot").classList.toggle("memo-on",on);
   $("bMemo").setAttribute("aria-pressed",String(on&&!memo.follow));
+  if(!on||!memo.follow)rcSet(false,on?"none":"fade");
   if(!on)document.querySelectorAll(".hid,.nx").forEach(w=>w.classList.remove("hid","nx"));
   resize();paintMemo();
+  if(on&&memo.follow&&rcWant())requestAnimationFrame(()=>{if(memo.on&&memo.follow)rcSet(true,"fade")});
 }
 function rate(good){
   const db=memo.db(),t=today();let next=1;
@@ -5059,7 +5101,8 @@ function flPill(){let el=$("flPill");const act=memoAct(),pg=cache.get(act),w=mem
   if(jump){void el.offsetWidth;el.classList.remove("jump")}}
 addEventListener("resize",()=>{if(memo.follow)setTimeout(flPill,120)});
 /* a tap on a word: start (again) from that word */
-function followFrom(x,y){const el=document.elementFromPoint(x,y),w=el&&el.closest&&el.closest(".lb [data-a]");if(!w)return;
+function followFrom(x,y){const el=document.elementFromPoint(x,y),w=el&&el.closest&&el.closest(".lb [data-a]");if(w)followFromW(w)}
+function followFromW(w){
   const ps=deckPages();let seen=false;for(const p of ps){const ws=pageWords(p),i=ws.indexOf(w);if(i>=0){memo.rev.set(p,i);seen=true}else memo.rev.set(p,seen?0:ws.length)}
   if(!seen)return;LS.miss=0;LS.done=0;LS.lit=[];LS.se.clear();LS.fx.clear();LS.hold=null;if(LS.nat)nat("Speech","reset").catch(()=>{});document.querySelectorAll("#book .err").forEach(x=>x.classList.remove("err"));skipMarks();paintMemo();rasterDirtyLazy();
   if(LS.nat)nat("Speech","bias",{words:biasWords(),next:nextWords()}).catch(()=>{})}
@@ -5068,6 +5111,101 @@ function followNext(){if(followNext.t)return;const ps=deckPages(),last=ps[ps.len
   if(last>=NP){toast("صدق الله العظيم، ختمت القراءة");return}
   followNext.t=setTimeout(()=>{followNext.t=0;if(!memo.on||!memo.follow||deckPages()[0]!==ps[0])return;goTo(last+1);
     setTimeout(()=>{if(memo.on&&memo.follow){paintMemo();if(LS.nat)nat("Speech","bias",{words:biasWords(),next:nextWords()}).catch(()=>{})}},reduce?60:900)},reduce?200:650)}
+/* ---------- follow-along in large text ----------
+   As in the reference: pinch out on the page while following and the page grows into the word due, then the
+   pages in view flow as one large text. The word due rides in a soft glass lens that glides from word to word
+   (one element, moved with transform), recited words take the reading colour, and the text rolls up by itself
+   so the reading line stays a little above the middle. Pinch in (or the button) to go back to the page.
+   The page stays the source of truth: the large words only copy its classes after each step. */
+const RC={on:false,key:"",pgs:[],pairs:[],cur:null,uy:0,lineY:-1,z:+store.get("mushaf.rcz")||0};
+const rcWant=()=>store.get("mushaf.rcBig")==="1";
+function rcSize(){if(RC.z)return Math.max(28,Math.min(120,RC.z));const w=$("rcSc").clientWidth||innerWidth;return Math.round(Math.max(34,Math.min(80,w*.085)))}
+function rcBuild(carry){const tx=$("rcTx"),ps=deckPages(),f=document.createDocumentFragment(),mk=(c,t)=>{const e=document.createElement("span");e.className=c;if(t!=null)e.textContent=t;return e};
+  RC.pairs=[];RC.lineY=-1;RC.pgs=ps.map(p=>cache.get(p));
+  if(carry&&carry.length){const c=mk("rcCarry");carry.forEach(n=>c.appendChild(n));f.appendChild(c)}
+  ps.forEach((p,pi)=>{const pg=cache.get(p);if(!pg)return;
+    if(pi||(carry&&carry.length))f.appendChild(mk("rp","صفحة "+ar(p)));
+    pg.querySelectorAll(".lb [data-a]:not(.sp)").forEach(w=>{const id=+w.dataset.a;
+      if(w.hasAttribute("data-w")){
+        if(w.dataset.w==="0"&&aOf(id)===1){const si=sOf(id);f.appendChild(mk("rh","سورة "+SUR[si][0]));if(si!==0&&si!==8)f.appendChild(mk("rb",AW[1].map(qY).join(" ")))}
+        const m=mk(rcCls(w),w.textContent);RC.pairs.push([w,m]);f.appendChild(m);f.appendChild(document.createTextNode(" "))}
+      else if(w.textContent.indexOf("۝")>=0){const a=mk("am"),b=document.createElement("b");b.textContent=w.textContent.replace("۝","");a.appendChild(b);f.appendChild(a);f.appendChild(document.createTextNode(" "))}})});
+  let L=$("rcLens");if(!L){L=document.createElement("i");L.id="rcLens";L.setAttribute("aria-hidden","true");L.className="off"}
+  tx.textContent="";tx.appendChild(L);tx.appendChild(f)}
+const rcCls=s=>{const c=s.classList;return "w"+(c.contains("hid")?" hid":"")+(c.contains("nx")?" nx":"")+(c.contains("err")?" err":"")+(c.contains("fx")?" fx":"")+(c.contains("serr")?" serr":"")};
+function rcSync(){let cur=null;
+  for(const [s,m] of RC.pairs){const c=s.classList,k=rcCls(s);
+    if(m.className!==k)m.className=k;if(!cur&&c.contains("nx"))cur=m}
+  RC.cur=cur}
+function rcLens(jump){const L=$("rcLens"),w=RC.cur;if(!L)return;if(!w){L.classList.add("off");return}
+  const fs=rcSize(),h=fs*1.32,pad=fs*.2,x=w.offsetLeft-pad,y=w.offsetTop+w.offsetHeight*.5-h/2+fs*.05,wd=w.offsetWidth+pad*2;
+  jump=jump||L.classList.contains("off");if(jump){L.classList.add("jump");void L.offsetWidth}
+  L.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;L.style.width=wd.toFixed(1)+"px";L.style.height=h.toFixed(1)+"px";L.classList.remove("off");
+  if(jump){void L.offsetWidth;L.classList.remove("jump")}
+  if(w.offsetTop!==RC.lineY){RC.lineY=w.offsetTop;rcScroll(jump)}}
+/* the reading line sits at 40% of the height; a reader who scrolled by hand is left alone for a few seconds */
+function rcScroll(now){const w=RC.cur,sc=$("rcSc");if(!w)return;if(!now&&performance.now()-RC.uy<3500)return;
+  const t=Math.max(0,w.offsetTop+$("rcTx").offsetTop+w.offsetHeight/2-sc.clientHeight*.4);
+  if(now||reduce)sc.scrollTop=t;else sc.scrollTo({top:t,behavior:"smooth"})}
+function rcRender(now){if(!RC.on)return;const key=deckPages().join(","),tx=$("rcTx"),sc=$("rcSc");
+  /* the same pages drawn afresh (a resize, a look change): the large words stay, they just follow the new page words */
+  if(key===RC.key&&deckPages().some((p,i)=>cache.get(p)!==RC.pgs[i])){const src=[];deckPages().forEach(p=>{const pg=cache.get(p);if(pg)src.push(...pg.querySelectorAll(".lb [data-a][data-w]"))});
+    if(src.length===RC.pairs.length){RC.pairs.forEach((x,i)=>{x[0]=src[i]});RC.pgs=deckPages().map(p=>cache.get(p))}else RC.key=""}
+  if(key!==RC.key){let carry=null,y0=null;
+    /* the next page: the last words recited stay on top, where they were, and the text rolls on from them */
+    if(RC.key&&RC.pairs.length){const ws=[...tx.children].filter(n=>n.classList.contains("w")),st=ws[Math.max(0,ws.length-8)];
+      if(st){carry=[];y0=ws[ws.length-1].getBoundingClientRect().top;for(let n=st;n;n=n.nextSibling){if(n.id==="rcLens")continue;const c=n.cloneNode(true);if(c.classList&&c.classList.contains("w"))c.className="w";carry.push(c)}}}
+    RC.key=key;rcBuild(carry);
+    if(y0!=null){const a=[...tx.querySelectorAll(".rcCarry .w")].pop();if(a){sc.scrollTop+=a.getBoundingClientRect().top-y0;RC.uy=0}}else now=true}
+  rcSync();rcLens(now)}
+/* how: "zoom" (the page grows into the word), "fade", or "none" */
+function rcSet(on,how){on=!!on;if(on===RC.on)return;const el=$("rcBig"),bw=$("bookwrap"),In=$("rcIn"),Bg=$("rcBg"),app=$("app"),sm=!reduce&&how!=="none";
+  const pgW=()=>{for(const p of deckPages()){const pg=cache.get(p),w=pg&&pg.querySelector(".nx");if(w)return w}return null};
+  const fit=(r0,r1)=>{const k=Math.max(.1,Math.min(1,r0.height/r1.height));return {k,dx:(r0.left+r0.width/2)-(r1.left+r1.width/2),dy:(r0.top+r0.height/2)-(r1.top+r1.height/2)}};
+  /* the transform that puts the page's word where the large word is, at its size */
+  const pageTo=(r0,r1,f)=>{const C=bw.getBoundingClientRect(),cx=C.left+C.width/2,cy=C.top+C.height/2,g=1/f.k,
+      ex=(r1.left+r1.width/2)-(cx+g*((r0.left+r0.width/2)-cx)),ey=(r1.top+r1.height/2)-(cy+g*((r0.top+r0.height/2)-cy)),ty=parseFloat(getComputedStyle(bw).getPropertyValue("--ty"))||0;
+    return `translate(-50%,-50%) translate(${(zoom.x+ex).toFixed(1)}px,${(zoom.y+ey+ty).toFixed(1)}px) scale(${(zoom.s*g).toFixed(3)})`};
+  In.getAnimations().forEach(a=>a.cancel());Bg.getAnimations().forEach(a=>a.cancel());bw.getAnimations().forEach(a=>a.cancel());
+  if(on){if(!memo.on||!memo.follow)return;const src=pgW(),r0=src&&src.getBoundingClientRect();
+    RC.on=true;RC.key="";RC.uy=0;el.hidden=false;$("mBig").setAttribute("aria-pressed","true");In.style.setProperty("--rz",rcSize()+"px");rcRender(true);
+    const w=RC.cur,done=()=>{app.classList.add("rcH");cancelAnimationFrame(zRaf);if(zoom.s!==1||zoom.x||zoom.y){zoom.s=1;zoom.x=zoom.y=0;zoomApply(false)}};
+    if(!sm||!w||!r0||!r0.height){done();return}
+    const r1=w.getBoundingClientRect(),ib=In.getBoundingClientRect(),f=fit(r0,r1),dur=LITE.on?380:560,ease="cubic-bezier(.2,.75,.15,1)";
+    In.style.transformOrigin=`${(r1.left+r1.width/2-ib.left).toFixed(1)}px ${(r1.top+r1.height/2-ib.top).toFixed(1)}px`;
+    if(how==="zoom"){In.animate([{transform:`translate(${f.dx}px,${f.dy}px) scale(${f.k})`,opacity:0},{opacity:0,offset:.18},{opacity:1,offset:.55},{transform:"none",opacity:1}],{duration:dur,easing:ease});
+      Bg.animate([{opacity:0},{opacity:0,offset:.15},{opacity:1}],{duration:dur*.75,easing:"ease-out"});
+      bw.classList.remove("zsnap");bw.animate([{transform:getComputedStyle(bw).transform,opacity:1},{opacity:.85,offset:.3},{transform:pageTo(r0,r1,f),opacity:0}],{duration:dur*.8,easing:ease,fill:"forwards"}).finished.then(()=>{if(RC.on)done();bw.getAnimations().forEach(a=>a.cancel())},()=>{})}
+    else{In.animate([{opacity:0,transform:"translateY(18px)"},{opacity:1,transform:"none"}],{duration:320,easing:"ease-out"});Bg.animate([{opacity:0},{opacity:1}],{duration:260});setTimeout(()=>{if(RC.on)done()},260)}
+    return}
+  /* back to the page: the large word shrinks back into its place on the page, and the page comes up around it */
+  const w=RC.cur,r1=w&&w.getBoundingClientRect();RC.on=false;RC.key="";$("mBig").setAttribute("aria-pressed","false");app.classList.remove("rcH");
+  const gone=()=>{if(RC.on)return;el.hidden=true;In.style.transform="";In.style.transformOrigin="";Bg.style.opacity="";$("rcTx").textContent="";RC.pairs=[];RC.cur=null};
+  const src=pgW(),r0=src&&src.getBoundingClientRect();
+  if(!sm||!w||!r0||!r0.height||!r1.height||el.hidden){gone();return}
+  const f=fit(r0,r1),dur=LITE.on?340:480,ease="cubic-bezier(.3,.7,.2,1)",ib=In.getBoundingClientRect(),cur=In.style.transform||"none";
+  if(how!=="pinch")In.style.transformOrigin=`${(r1.left+r1.width/2-ib.left).toFixed(1)}px ${(r1.top+r1.height/2-ib.top).toFixed(1)}px`;
+  In.animate([{transform:cur,opacity:1},{opacity:1,offset:.25},{transform:`translate(${f.dx}px,${f.dy}px) scale(${f.k})`,opacity:0}],{duration:dur,easing:ease,fill:"forwards"}).finished.then(gone,()=>{});
+  Bg.animate([{opacity:getComputedStyle(Bg).opacity},{opacity:0}],{duration:dur*.8,easing:"ease-in",fill:"forwards"});
+  bw.animate([{transform:pageTo(r0,r1,f),opacity:0},{opacity:.9,offset:.55},{transform:getComputedStyle(bw).transform,opacity:1}],{duration:dur,easing:ease})}
+$("mBig").onclick=()=>{const on=!RC.on;store.set("mushaf.rcBig",on?"1":"0");rcSet(on,"zoom")};
+{const sc=$("rcSc"),In=$("rcIn");let P=null;const dist=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+  sc.addEventListener("click",e=>{const m=e.target.closest&&e.target.closest("#rcTx .w");if(!m)return;const pr=RC.pairs.find(x=>x[1]===m);if(pr){followFromW(pr[0]);RC.uy=0}});
+  sc.addEventListener("touchstart",e=>{RC.uy=performance.now();if(e.touches.length!==2)return;const t=e.touches,ib=In.getBoundingClientRect();
+    P={d0:Math.max(20,dist(t)),s:1};In.getAnimations().forEach(a=>a.cancel());In.style.transformOrigin=`${((t[0].clientX+t[1].clientX)/2-ib.left).toFixed(1)}px ${((t[0].clientY+t[1].clientY)/2-ib.top).toFixed(1)}px`},{passive:true});
+  sc.addEventListener("touchmove",e=>{RC.uy=performance.now();if(!P||e.touches.length<2)return;if(e.cancelable)e.preventDefault();
+    let s=dist(e.touches)/P.d0;s=s>2?2+.4*(1-Math.exp(-(s-2))):s;P.s=Math.max(.3,s);In.style.transform=`scale(${P.s.toFixed(3)})`;
+    /* pinching in: the page shows through as the large text lets go */
+    const o=P.s<1?Math.max(0,1-(1-P.s)*2.2):1;$("rcBg").style.opacity=o.toFixed(2);$("app").classList.toggle("rcH",o>=1)},{passive:false});
+  const end=e=>{if(!P||e.touches.length>=2)return;const g=P;P=null;
+    if(g.s<.8){store.set("mushaf.rcBig","0");rcSet(false,"pinch");return}
+    $("app").classList.add("rcH");$("rcBg").style.opacity="";
+    const w=RC.cur,y0=w&&w.getBoundingClientRect().top,z=Math.round(Math.max(28,Math.min(120,rcSize()*g.s)));
+    In.style.transform="";if(Math.abs(g.s-1)<.04)return;RC.z=z;store.set("mushaf.rcz",String(z));In.style.setProperty("--rz",z+"px");
+    if(w){sc.scrollTop+=w.getBoundingClientRect().top-y0}RC.lineY=-1;RC.uy=0;
+    if(!reduce)$("rcTx").animate([{opacity:.55},{opacity:1}],{duration:220,easing:"ease-out"});rcLens(true)};
+  sc.addEventListener("touchend",end);sc.addEventListener("touchcancel",end)}
+addEventListener("resize",()=>{if(RC.on)setTimeout(()=>{if(!RC.on)return;$("rcIn").style.setProperty("--rz",rcSize()+"px");RC.lineY=-1;rcLens(true)},140)});
 $("mExit").onclick=()=>setMemo(false);
 $("mErr").onclick=()=>{const nx=deckPages().map(p=>cache.has(p)&&pageWords(p)[memo.rev.get(p)||0]).find(Boolean);
   if(nx){const E=mErrs();E.add(mKey(nx));store.set("mushaf.memoErr",JSON.stringify([...E]));
@@ -6386,7 +6524,7 @@ $("bInk").onclick=()=>{showPrefs(false);setInk(!inkOn)};
 function inkTile(){$("bInk").hidden=!(store.get("mushaf.pen")==="1"||/[?&]pen\b/.test(location.search))}
 inkTile();
 addEventListener("pointerdown",e=>{if(e.pointerType!=="pen"||store.get("mushaf.pen")==="1")return;store.set("mushaf.pen","1");inkTile();setTimeout(()=>toast("وجدنا قلماً: «الكتابة بالقلم» صارت في القائمة"),300)},true);
-const backSig=()=>[azOpen,azCat,indexOpen,memo.on,inkOn,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
+const backSig=()=>[azOpen,azCat,indexOpen,memo.on,RC.on,inkOn,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
   $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","manBox","cont","azPS","azList","repBox","easyBox","quiz"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")&&(i!=="quiz"||e.classList.contains("on"))})].join();
 /* Android back, one step at a time:
    1 a panel opened from another one (sources or the guide from settings, the quiz or a reflection from the index)
