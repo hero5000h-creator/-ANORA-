@@ -1712,6 +1712,10 @@ html.phoneM .bar .ib,html.phoneM #bPrefs,html.phoneM .btn-index{width:44px;heigh
 html.phoneM .bar .ib.azb{color:var(--gold)}
 html.phoneM .bar .ib:active,html.phoneM .btn-index:active,html.phoneM #bPrefs[aria-expanded="true"]{background:var(--orn);color:var(--bar);border-color:var(--orn)}
 html.phoneM .tools{gap:3px}
+/* six buttons on a narrow phone: a little smaller so the surah name keeps its room */
+@media (max-width:389px){html.phoneM:not(.simple) .tools{gap:1px}html.phoneM:not(.simple) .bar .tools .ib,html.phoneM:not(.simple) .bar #bPrefs{width:40px;height:40px}}
+/* the simple look has a label under each button: on a phone the menu tile opens كلمة بكلمة instead, so the surah name keeps its room */
+@media (max-width:439px){html.phoneM.simple #bWbH{display:none}}
 /* the search button joined the top row: keep room for "الجزء · صفحة" under the surah name */
 html.phoneM .bar .where{min-width:0;padding-inline:2px}
 html.phoneM .bar .btn-index{flex:none}
@@ -1771,7 +1775,7 @@ html.thumb #fListen{order:-1}
 html.phoneM .where{min-width:0;flex:1 1 auto;overflow:hidden}
 html.phoneM .where b,html.phoneM .where small{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 html.phoneM.uzL .where b::before,html.phoneM.uzL .where b::after{display:none}
-html.phoneM.uzL #bAz{display:none}
+html.phoneM.uzL #bAz,html.phoneM.uzL #bWbH{display:none}
 .tcap{font-size:12.5px}
 html.phoneM #prefs .qh,html.phoneM #prefs h3{color:color-mix(in srgb,var(--gold) 45%,var(--bar-ink))}
 /* phone sizes (designers' review 2026-11-04): 14px labels, 44-48px targets, the ayah sheet leaves room for its tafsir */
@@ -2111,7 +2115,7 @@ html.lite #wb.play .wbw.on u{animation:none}
 #wb.fill .wbw u{transform:none;transition-delay:calc(var(--j) * 110ms)}
 #wb.fill .wbw q{color:#f6dca0}
 #wb.intro .wb-card,#wb.intro .wb-nav{opacity:0;pointer-events:none}
-@keyframes wbIn{from{opacity:0;transform:translateY(12px)}}
+@keyframes wbIn{from{opacity:0;filter:blur(6px)}}
 .wb-card{display:grid;gap:8px 18px;padding:10px 2px 0;transition:opacity .4s}
 .wb-m b{display:block;font-family:var(--f-display);font-size:calc(29px * var(--uz,1));font-weight:400;line-height:1.6;color:#fbf6ea}
 .wb-m.long b{font-size:calc(21px * var(--uz,1));line-height:1.55}
@@ -2126,20 +2130,19 @@ html.lite #wb.play .wbw.on u{animation:none}
 .wb-s q{quotes:none;font-family:var(--f-quran);font-size:calc(19px * var(--uz,1));color:#efe6d0}
 .wb-s i{font-style:normal;color:rgba(236,230,216,.4)}
 .wb-c{color:rgba(236,230,216,.6)}
-.wb-card.wbsw>*{animation:wbRise .55s var(--ease) both}
-.wb-card.wbsw>:nth-child(2){animation-delay:.09s}
-@keyframes wbRise{from{opacity:0;transform:translateY(12px)}}
+/* a word change fades: the card goes out, then the meaning comes in word by word, the details line by line and the root letter by letter */
+.wb-card{transition:opacity .19s ease}
+.wb-card.wbout{opacity:0}
+.wbf{animation:wbFd .62s ease both}
+@keyframes wbFd{from{opacity:0;filter:blur(5px)}}
+html.lite .wbf,html.lite #wb .wbw q{animation-name:wbRise}
+@keyframes wbRise{from{opacity:0}}
 .wb-mid{flex:1;min-height:0;display:flex;flex-direction:column}
-/* wide screens (the Fold open, tablets): the card on one side and the picture beside it, full height */
-@media (min-width:700px){.wb-mid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:22px}.wb-card{align-content:start;padding-top:26px}.wb-vis{margin:0 0 0 -18px;min-height:240px}
-  .wbw q{font-size:calc(34px * var(--uz,1))}.wb-m b{font-size:calc(34px * var(--uz,1))}.wb-w{font-size:calc(34px * var(--uz,1))}}
+@media (min-width:700px){.wb-card{grid-template-columns:1.25fr 1fr;align-items:start}.wbw q{font-size:calc(34px * var(--uz,1))}.wb-m b{font-size:calc(34px * var(--uz,1))}}
 /* big text on a small phone: the ayah box and card give the picture room */
 @media (max-width:440px){html.uzL .wb-ay{max-height:24vh}html.uzL .wb-card .wb-c{display:none}html.uzL .wb-vis{min-height:150px}}
-.wb-w{display:block;justify-self:start;width:max-content;max-width:100%;quotes:none;font-family:var(--f-quran);font-size:calc(25px * var(--uz,1));line-height:1.9;padding-bottom:2px;color:#f4cf83}
 .wb-sr{margin:6px 0 0;font-size:calc(11px * var(--uz,1));color:rgba(236,230,216,.45)}
-.wb-fly{position:fixed;z-index:5;margin:0;pointer-events:none;quotes:none;font-family:var(--f-quran);font-size:calc(29px * var(--uz,1));line-height:1.65;text-align:center;color:#f4cf83;white-space:nowrap;transform-origin:50% 50%}
-@media (min-width:700px){.wb-fly{font-size:calc(34px * var(--uz,1))}}
-#wb.nxt .wbw q{animation:wbIn .5s var(--ease) both;animation-delay:calc(var(--j) * 28ms)}
+#wb.nxt .wbw q{animation:wbIn .55s ease both;animation-delay:calc(var(--j) * 28ms)}
 .wb-opts{display:none;justify-content:center;gap:8px;padding:4px 0 0}
 #wb.lst:not(.sumOn) .wb-opts{display:flex}
 .wb-chip{display:flex;align-items:center;gap:6px;min-height:36px;padding:0 13px;border-radius:18px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(236,230,216,.8);font:inherit;font-size:calc(12.5px * var(--uz,1));transition:background-color .2s,color .2s,border-color .2s,transform .16s var(--ease)}
@@ -2298,6 +2301,7 @@ html.lite .wbw.on q{text-shadow:none}
       <button class="ib dnb" id="bDN" title="نهار / ليل" aria-label="التبديل بين النهار والليل"><svg class="dn-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><svg class="dn-m" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg><span class="tcap">ليل/نهار</span></button>
       <button class="ib" id="bSrch" title="البحث" aria-label="البحث في القرآن"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg><span class="tcap">بحث</span></button>
       <button class="ib azb" id="bAz" title="الأذكار" aria-label="الأذكار"><svg viewBox="0 0 24 24"><circle cx="12.0" cy="14.5" r="1.25"/><circle cx="8.5" cy="13.4" r="1.25"/><circle cx="6.4" cy="10.4" r="1.25"/><circle cx="6.4" cy="6.8" r="1.25"/><circle cx="8.5" cy="3.8" r="1.25"/><circle cx="12.0" cy="2.7" r="1.25"/><circle cx="15.5" cy="3.8" r="1.25"/><circle cx="17.6" cy="6.8" r="1.25"/><circle cx="17.6" cy="10.4" r="1.25"/><circle cx="15.5" cy="13.4" r="1.25"/><path d="M12 15.8v1.4M12 19.6l-1.8 2.4M12 19.6v2.6M12 19.6l1.8 2.4"/><circle cx="12" cy="18.4" r="1.1"/></svg><span class="tcap">الأذكار</span></button>
+      <button class="ib azb" id="bWbH" title="كلمة بكلمة" aria-label="كلمة بكلمة: معاني كلمات الآية"><svg viewBox="0 0 24 24"><path d="M3.5 7h8M3.5 12h6M3.5 17h8"/><path d="M17.5 3.5l1.3 3 3 1.3-3 1.3-1.3 3-1.3-3-3-1.3 3-1.3z"/></svg><span class="tcap">كلمة</span></button>
       <button class="ib" id="bPrefs" title="المزيد" aria-label="المزيد: الأدوات والإعدادات" aria-expanded="false"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg><span class="tcap">المزيد</span></button>
     </div>
   </header>
@@ -2339,6 +2343,7 @@ html.lite .wbw.on q{text-shadow:none}
     <button class="ib fthumb dnb" id="fDN" aria-label="التبديل بين النهار والليل"><svg class="dn-s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/></svg><svg class="dn-m" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></svg></button>
     <button class="ib fthumb" id="fSrch" aria-label="البحث في القرآن"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg></button>
     <button class="ib fthumb azb" id="fAz" aria-label="الأذكار"><svg viewBox="0 0 24 24"><circle cx="12.0" cy="14.5" r="1.25"/><circle cx="8.5" cy="13.4" r="1.25"/><circle cx="6.4" cy="10.4" r="1.25"/><circle cx="6.4" cy="6.8" r="1.25"/><circle cx="8.5" cy="3.8" r="1.25"/><circle cx="12.0" cy="2.7" r="1.25"/><circle cx="15.5" cy="3.8" r="1.25"/><circle cx="17.6" cy="6.8" r="1.25"/><circle cx="17.6" cy="10.4" r="1.25"/><circle cx="15.5" cy="13.4" r="1.25"/><path d="M12 15.8v1.4M12 19.6l-1.8 2.4M12 19.6v2.6M12 19.6l1.8 2.4"/><circle cx="12" cy="18.4" r="1.1"/></svg></button>
+    <button class="ib fthumb azb" id="fWbH" aria-label="كلمة بكلمة: معاني كلمات الآية"><svg viewBox="0 0 24 24"><path d="M3.5 7h8M3.5 12h6M3.5 17h8"/><path d="M17.5 3.5l1.3 3 3 1.3-3 1.3-1.3 3-1.3-3-3-1.3 3-1.3z"/></svg></button>
     <button class="ib fthumb" id="fPrefs" aria-label="المزيد: الأدوات والإعدادات"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18.5" cy="12" r="1.3"/></svg></button>
     <div id="memo" hidden>
       <button class="ib" id="mExit" aria-label="إنهاء وضع الحفظ"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -6751,7 +6756,7 @@ function wbWord(id,j){const t=qY(AW[id][j]),W0=WD&&WD.W[id-1]&&WD.W[id-1][j];
     a,b,da:sg[0][1].split(" · ")[0],db:sg[bi][1].split(" · ")[0]}}
 function wbCardHTML(o){
   const big=o.mean?o.mean.tx:o.lem||o.t,lbl=o.mean?(o.mean.ph?`معنى ﴿${escH(o.mean.ph)}﴾`:"معناها"):o.lem?"أصل الكلمة":"";
-  let h=`<div class="wb-m${big.length>46?" long":""}"><q class="wb-w">${escH(o.t)}</q>${lbl?`<small>${lbl}</small>`:""}<b>${escH(big)}</b>`+
+  let h=`<div class="wb-m${big.length>46?" long":""}">${lbl?`<small>${lbl}</small>`:""}<b>${escH(big)}</b>`+
     `<p class="wb-sr">${o.mean?"المعنى من «الميسّر في غريب القرآن» · مجمع الملك فهد":o.sg.length?"الأصل والجذر من مدوّنة القرآن الكريم اللغوية":""}</p></div><div class="wb-d">`;
   if(o.root){const su=new Set(WD.byR[o.r].map(l=>sOf(l>>8))).size;h+=`<p class="wb-r"><small>الجذر</small><b>${escH(o.root)}</b></p>`;
     h+=`<p class="wb-c">ورد الجذر في ${nPl(o.rootN)} من ${numW(su,"سورة واحدة","سورتين","سور","سورة")}</p>`}
@@ -6761,12 +6766,10 @@ function wbCardHTML(o){
 function wbSize(){const cv=$("wbCv"),r=cv.getBoundingClientRect();wbDpr=LITE.on?1:Math.min(1.75,devicePixelRatio||1);wbW=r.width;wbH=r.height;
   cv.width=Math.max(1,Math.round(r.width*wbDpr));cv.height=Math.max(1,Math.round(r.height*wbDpr));wbCx=cv.getContext("2d");wbDraw(performance.now())}
 function wbDraw(now){const X=wbCx;if(!X)return;X.setTransform(wbDpr,0,0,wbDpr,0,0);X.clearRect(0,0,wbW,wbH);if(!wbCur||wbW<2||wbH<2)return;
-  const f=reduce?1:Math.min(1,(now-wbSwap)/650);
-  try{if(wbPrev&&f<1){X.globalAlpha=1-f;WB_DRAW[wbPrev.o.k](X,wbW,wbH,(now-wbPrev.t0)/1000,wbPrev.o,false)}
-    X.globalAlpha=f;WB_DRAW[wbCur.o.k](X,wbW,wbH,reduce?6:(now-wbCur.t0)/1000,wbCur.o,true)}catch(e){}
-  X.globalAlpha=1;if(f>=1)wbPrev=null;
-  /* beside the card (wide screens) the picture fades out at its inner edge instead of being cut straight */
-  if(innerWidth>=700){X.globalCompositeOperation="destination-out";const g=X.createLinearGradient(wbW-70,0,wbW,0);g.addColorStop(0,"rgba(0,0,0,0)");g.addColorStop(1,"rgba(0,0,0,1)");X.fillStyle=g;X.fillRect(wbW-70,0,70,wbH);X.globalCompositeOperation="source-over"}}
+  const e=now-wbSwap,fo=reduce?1:Math.min(1,e/320),f=reduce?1:Math.max(0,Math.min(1,(e-200)/600));
+  try{if(wbPrev&&fo<1){X.globalAlpha=1-fo;WB_DRAW[wbPrev.o.k](X,wbW,wbH,(now-wbPrev.t0)/1000,wbPrev.o,false)}
+    if(f>0){X.globalAlpha=f;WB_DRAW[wbCur.o.k](X,wbW,wbH,reduce?6:Math.max(0,now-wbCur.t0)/1000,wbCur.o,true)}}catch(e){}
+  X.globalAlpha=1;if(fo>=1)wbPrev=null}
 function wbFrame(now){wbRaf=0;if(!wbOpen||!wbCur||wbI<0||wbI>=wbN)return;
   if(LITE.on&&now-wbLast<30){wbRaf=requestAnimationFrame(wbFrame);return}wbLast=now;wbDraw(now);wbRaf=requestAnimationFrame(wbFrame)}
 function wbKick(){if(reduce){wbDraw(performance.now());return}if(!wbRaf)wbRaf=requestAnimationFrame(wbFrame)}
@@ -6802,26 +6805,33 @@ function wbGo(i,fromAudio,still){if(!wbOpen)return;const z=$("wb");if(z.classLis
   const o=wbWord(wbA,i),ay=$("wbAy");
   ay.querySelectorAll(".wbw").forEach((e,j)=>{e.classList.toggle("on",j===i);e.classList.toggle("dn",j<i);e.querySelector("small").textContent=j===i?(o.desc.split(" · ")[0]||wbNum(j)):wbNum(j)});
   $("wbStep").textContent=`الكلمة ${ar(i+1)} من ${ar(wbN)}`;
-  const c=$("wbCard");c.innerHTML=wbCardHTML(o);c.classList.remove("wbsw");void c.offsetWidth;c.classList.add("wbsw");
-  if(!still)wbFly(ay.children[i],c.querySelector(".wb-w"));
+  wbCardSwap($("wbCard"),o,still);
   if(fromAudio&&wbPlay&&!wbAuto)try{navigator.vibrate&&(!navigator.userActivation||navigator.userActivation.hasBeenActive)&&navigator.vibrate(4)}catch(e){}
   $("wbTint").style.backgroundColor=`rgb(${o.c.map(v=>Math.round(6+v*.05)).join(",")})`;
   /* the same picture (same root, or a word of the same family and seed) carries on instead of starting again */
-  const now=performance.now();if(wbCur&&!reduce&&wbCur.o.k===o.k&&wbCur.o.seed===o.seed&&String(wbCur.o.c)===String(o.c))wbCur={o,t0:wbCur.t0};else{wbPrev=wbCur&&!reduce?wbCur:null;wbCur={o,t0:now};wbSwap=now}
+  const now=performance.now();if(wbCur&&!reduce&&wbCur.o.k===o.k&&wbCur.o.seed===o.seed&&String(wbCur.o.c)===String(o.c))wbCur={o,t0:wbCur.t0};else{wbPrev=wbCur&&!reduce?wbCur:null;wbCur={o,t0:now+(wbPrev?200:0)};wbSwap=wbPrev?now:now-200}
   if(!wbCx||!wbW)requestAnimationFrame(wbSize);wbKick();wbProg();
   ay.classList.toggle("scr",ay.scrollHeight>ay.clientHeight+2);
   const w=ay.children[i];if(w&&ay.scrollHeight>ay.clientHeight+2)ay.scrollTo({top:w.offsetTop-ay.clientHeight/2+w.offsetHeight/2,behavior:reduce?"auto":"smooth"});
   wbAutoNext()}
 function wbAutoNext(){clearTimeout(wbAutoT);if(!wbAuto||wbI<0||wbI>=wbN)return;const o=wbCur&&wbCur.o,n=o&&o.mean?o.mean.tx.length:10;
   wbAutoT=setTimeout(()=>{if(!wbOpen||!wbAuto)return;if(wbI+1<wbN)wbGo(wbI+1,true);else if(wbA<NA)wbStart(wbA+1,true);else{wbListenStop(false);wbSummary()}},Math.min(9000,3600+n*45))}
-/* the word lifts out of the ayah and settles in the card (a copy of it moves; the card's own word fades in under it) */
-function wbFly(w,dst){if(reduce||LITE.on||!w||!dst)return;const src=w.querySelector("q");if(!src)return;const a=src.getBoundingClientRect(),b=dst.getBoundingClientRect();
-  if(!a.width||!b.width||a.bottom<0||a.top>innerHeight)return;const g=document.createElement("q");g.className="wb-fly";g.textContent=src.textContent;g.setAttribute("aria-hidden","true");
-  Object.assign(g.style,{left:a.left+"px",top:a.top+"px",width:a.width+"px",height:a.height+"px"});$("wb").append(g);
-  const sx=Math.max(.6,Math.min(1.6,b.height/a.height)),dx=(b.left+b.width/2)-(a.left+a.width/2),dy=(b.top+b.height/2)-(a.top+a.height/2);
-  try{g.animate([{transform:"none",opacity:.95},{transform:`translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px) scale(${sx.toFixed(3)})`,opacity:1}],{duration:480,easing:"cubic-bezier(.2,.8,.2,1)",fill:"forwards"});
-    dst.animate([{opacity:0},{opacity:0,offset:.8},{opacity:1}],{duration:520})}catch(e){}
-  setTimeout(()=>g.remove(),520)}
+/* like the reference: what was there fades away, then the meaning comes in word by word, the details line by line and
+   the root letter by letter. Nothing moves from its place. */
+function wbCardSwap(c,o,fresh){clearTimeout(wbCardSwap.t);const g=++wbCardSwap.n;
+  const put=()=>{if(g!==wbCardSwap.n)return;c.classList.remove("wbout");c.innerHTML=wbCardHTML(o);if(reduce)return;
+    /* while the reciter reads, words come quicker: the whole card shows in about half the time */
+    const sp=wbPlay?.5:1,at=(el,ms)=>{el.classList.add("wbf");el.style.animationDelay=Math.round(ms*sp)+"ms";if(sp<1)el.style.animationDuration=".4s"};let d=60;
+    const sm=c.querySelector(".wb-m small");if(sm)at(sm,0);
+    const b=c.querySelector(".wb-m b");if(b){const ws=b.textContent.split(/\s+/).filter(Boolean),st=Math.min(85,640/Math.max(1,ws.length));
+      b.innerHTML=ws.map(w=>`<span>${escH(w)}</span>`).join(" ");b.querySelectorAll("span").forEach((e,k)=>at(e,d+k*st));d+=ws.length*st+120}
+    c.querySelectorAll(".wb-d>p").forEach(p=>{const r=p.classList.contains("wb-r")&&p.querySelector("b");
+      if(r){at(p.querySelector("small"),d);const ls=r.textContent.split(/\s+/).filter(Boolean);r.innerHTML=ls.map(l=>`<span>${escH(l)}</span>`).join(" ");
+        r.querySelectorAll("span").forEach((e,k)=>at(e,d+60+k*110));d+=60+ls.length*110+40}else{at(p,d);d+=120}});
+    const sr=c.querySelector(".wb-sr");if(sr)at(sr,d+80)};
+  if(fresh||reduce||!c.firstChild){put();return}
+  c.classList.add("wbout");wbCardSwap.t=setTimeout(put,190)}
+wbCardSwap.n=0;
 function wbSummary(){const z=$("wb");clearTimeout(wbAutoT);cancelAnimationFrame(wbRaf);wbRaf=0;wbI=wbN;z.classList.add("sumOn");$("wbTint").style.backgroundColor="";wbProg();
   $("wbAy").querySelectorAll(".wbw").forEach((e,j)=>{e.classList.remove("on","dn");e.querySelector("small").textContent=wbNum(j)});
   $("wbStep").textContent="الآية كلمةً كلمة";
@@ -6925,7 +6935,7 @@ document.addEventListener("keydown",e=>{if(!wbOpen)return;e.stopPropagation();
 try{new ResizeObserver(()=>{if(wbOpen)wbSize()}).observe($("wbVis"))}catch(e){addEventListener("resize",()=>{if(wbOpen)wbSize()})}
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wbOpen)wbKick()});
 $("aWbw").onclick=()=>{if(selA)wbOpenUI(selA)};
-$("bWbw").onclick=()=>wbOpenUI(selA||pStart(Math.max(1,Math.min(NP,cur))));
+$("bWbw").onclick=$("bWbH").onclick=$("fWbH").onclick=()=>wbOpenUI(selA||pStart(Math.max(1,Math.min(NP,cur))));
 const backSig=()=>[azOpen,azCat,indexOpen,memo.on,inkOn,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
   $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","manBox","cont","azPS","azList","repBox","easyBox","quiz","wb"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")&&(i!=="quiz"||e.classList.contains("on"))})].join();
 /* Android back, one step at a time:
