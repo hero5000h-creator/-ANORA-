@@ -88,11 +88,13 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Build the Windows installer and portable exe
         working-directory: desktop
+        # bash, not PowerShell: PowerShell splits "-c.extraMetadata.version=..." and electron-builder reads it as a file name
+        shell: bash
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
         run: |
           node copy-www.js
-          npx electron-builder --win --x64 --publish never -c.extraMetadata.version=${{ inputs.version }}
+          npx electron-builder --win --x64 --publish never "--config.extraMetadata.version=${{ inputs.version }}"
       - uses: actions/upload-artifact@v4
         with:
           name: anora-windows-release
