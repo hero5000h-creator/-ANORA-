@@ -10,7 +10,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         /* every CI run gets a higher version code, so stores and phones accept the update */
         versionCode((System.getenv("GITHUB_RUN_NUMBER") ?: "1").toInteger())
-        versionName "0.1." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")
+        /* the store build passes the public version (1.0.0 ...); test builds stay 0.1.<run> */
+        versionName(System.getenv("ANORA_VERSION_NAME") ?: ("0.1." + (System.getenv("GITHUB_RUN_NUMBER") ?: "0")))
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         /* ONNX Runtime (the on-device Quran recogniser) ships native code: phones only (ARM), so the APK
            does not carry it four times over */

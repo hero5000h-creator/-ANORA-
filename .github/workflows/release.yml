@@ -1,14 +1,31 @@
 name: Android release (Play Store)
 
-# Manual run. Builds a signed .aab for Google Play once these repository secrets exist:
+# Manual run (Actions -> "Android release (Play Store)" -> Run workflow, type the version).
+# Builds, from the same commit:
+#   - the signed .aab for Google Play and a signed .apk (artifact "anora-release")
+#   - the Windows installer and portable exe
+# and, with "publish" ticked, makes the public GitHub release v<version> with the APK and both exe files.
+# The signing needs these repository secrets:
 #   ANORA_KEYSTORE_B64  (the upload keystore, base64)   ANORA_KEYSTORE_PASSWORD
 #   ANORA_KEY_ALIAS                                      ANORA_KEY_PASSWORD
-# Without them it stops with a clear message instead of producing an unsigned bundle.
+# Without them it stops with a clear message instead of producing unsigned files.
 on:
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Version shown to people (e.g. 1.0.0)"
+        required: true
+        default: "1.0.0"
+      publish:
+        description: "Make the public GitHub release with the APK and Windows downloads"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
 
 jobs:
-  bundle:
+  android:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,22 +41,91 @@ jobs:
       - name: Check signing secrets
         env:
           K: ${{ secrets.ANORA_KEYSTORE_B64 }}
+          P: ${{ secrets.ANORA_KEYSTORE_PASSWORD }}
+          A: ${{ secrets.ANORA_KEY_ALIAS }}
         run: |
-          if [ -z "$K" ]; then echo "::error::Add the ANORA_KEYSTORE_B64, ANORA_KEYSTORE_PASSWORD, ANORA_KEY_ALIAS and ANORA_KEY_PASSWORD secrets first."; exit 1; fi
-          echo "$K" | base64 -d > "$RUNNER_TEMP/upload.jks"
+          if [ -z "$K" ] || [ -z "$P" ] || [ -z "$A" ]; then echo "::error::Add the ANORA_KEYSTORE_B64, ANORA_KEYSTORE_PASSWORD, ANORA_KEY_ALIAS and ANORA_KEY_PASSWORD secrets first."; exit 1; fi
+          # pasted secrets often pick up spaces or line breaks; drop them
+          printf %s "$K" | tr -d '[:space:]' | base64 -d > "$RUNNER_TEMP/upload.jks"
+          if ! keytool -list -keystore "$RUNNER_TEMP/upload.jks" -storepass "$P" -alias "$A" >/dev/null 2>&1; then
+            echo "::error::The keystore secrets do not match: ANORA_KEYSTORE_PASSWORD does not open ANORA_KEYSTORE_B64, or ANORA_KEY_ALIAS is not in it."; exit 1; fi
       - run: python3 tools/build.py
       - name: Smoke test
         run: npm i --no-save --no-package-lock playwright@1.63.0 && npx playwright install --with-deps chromium && node tests/smoke.js
       - run: npm ci && npx cap sync android
-      - name: Build signed bundle
+      - name: Build the signed bundle and APK
         working-directory: android
         env:
+          ANORA_VERSION_NAME: ${{ inputs.version }}
           ANORA_KEYSTORE: ${{ runner.temp }}/upload.jks
           ANORA_KEYSTORE_PASSWORD: ${{ secrets.ANORA_KEYSTORE_PASSWORD }}
           ANORA_KEY_ALIAS: ${{ secrets.ANORA_KEY_ALIAS }}
           ANORA_KEY_PASSWORD: ${{ secrets.ANORA_KEY_PASSWORD }}
-        run: chmod +x gradlew && ./gradlew bundleRelease --no-daemon
+        run: chmod +x gradlew && ./gradlew bundleRelease assembleRelease --no-daemon
+      - name: Name the files
+        run: |
+          mkdir out
+          cp android/app/build/outputs/bundle/release/app-release.aab "out/anora-${{ inputs.version }}.aab"
+          cp android/app/build/outputs/apk/release/app-release.apk "out/anora-${{ inputs.version }}.apk"
       - uses: actions/upload-artifact@v4
         with:
-          name: anora-release-aab
-          path: android/app/build/outputs/bundle/release/app-release.aab
+          name: anora-release
+          path: out/*
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python tools/build.py
+      - name: Install Electron and the packager
+        working-directory: desktop
+        run: npm ci --no-audit --no-fund
+      - name: Build the Windows installer and portable exe
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+        run: |
+          node copy-www.js
+          npx electron-builder --win --x64 --publish never -c.extraMetadata.version=${{ inputs.version }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anora-windows-release
+          path: |
+            desktop/dist/anora-windows-setup.exe
+            desktop/dist/anora-windows-portable.exe
+
+  publish:
+    needs: [android, windows]
+    if: inputs.publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dl
+          merge-multiple: true
+      - name: Make the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          V: ${{ inputs.version }}
+        run: |
+          cat > notes.md <<NOTES
+          ## أنورا ${V} · ANORA ${V}
+          القرآن الكريم • التلاوة • التفسير. مصحف المدينة، بلا إعلانات ولا حساب.
+
+          **التحميل:**
+          - **أندرويد:** \`anora-${V}.apk\` (افتحه على الهاتف واسمح بالتثبيت من هذا المصدر)
+          - **ويندوز:** \`anora-windows-setup.exe\` للتثبيت، أو \`anora-windows-portable.exe\` يعمل بلا تثبيت. يسأل Windows مرة واحدة: «More info» ثم «Run anyway».
+
+          سياسة الخصوصية: [PRIVACY.md](https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_SHA}/PRIVACY.md)
+          NOTES
+          sed -i 's/^          //' notes.md
+          gh release create "v${V}" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "أنورا ${V}" --notes-file notes.md --latest \
+            "dl/anora-${V}.apk" dl/anora-windows-setup.exe dl/anora-windows-portable.exe
