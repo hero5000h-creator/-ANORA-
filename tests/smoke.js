@@ -195,6 +195,13 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
     await p.keyboard.press("Escape");await p.evaluate(()=>{document.getElementById("easyBox").hidden=false;document.getElementById("easyY").click()});await p.waitForTimeout(700);await lay(p,`${name}: toast after "yes"`);await p.waitForTimeout(800);
     await p.evaluate(()=>{document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click()});await p.waitForTimeout(600);await lay(p,`${name}: settings over large print`,["prefs"]);
     await p.evaluate(()=>document.getElementById("prefsX")&&document.getElementById("fPrefs").click());await p.keyboard.press("Escape");await p.waitForTimeout(400);
+    /* every tab strip shows which tab is chosen: the colour editor's tabs once had no pill, so the chosen word was white on white */
+    {const r=await p.evaluate(async()=>{const W=z=>new Promise(r=>setTimeout(r,z));document.getElementById("app").classList.remove("calm");document.getElementById("fPrefs").click();await W(400);
+        document.querySelector('.ptabs [data-pg="read"]').click();await W(200);document.getElementById("bColEd").click();await W(600);
+        const t=document.getElementById("ceTabs"),pl=t.querySelector(".tpill"),sel=t.querySelector('[aria-selected="true"]');
+        const ok=!!pl&&!!sel&&Math.abs(pl.getBoundingClientRect().left-sel.getBoundingClientRect().left)<3&&pl.getBoundingClientRect().width>20;
+        document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true}));await W(400);document.dispatchEvent(new KeyboardEvent("keydown",{key:"Escape",bubbles:true}));await W(400);return ok});
+      ok(r,`${name}: the colour editor's chosen tab sits on its pill`)}
     if(name==="phone"){
       const r=await p.evaluate(()=>{const b=document.querySelector("#app>.bar").getBoundingClientRect(),f=document.querySelector(".flbar");return f&&!document.getElementById("flow").hidden?[b.bottom,f.getBoundingClientRect().top]:[1,-1]});
       ok(r[1]>=r[0]-1,`${name}: large-print toolbar starts below the top bar after "yes" (${r.map(Math.round)})`)}

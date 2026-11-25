@@ -214,3 +214,17 @@ html[data-skin="clean"] .az-list li .t:not(.q){font-family:var(--f-read);font-we
 html[data-skin="clean"] #inkBar{background:var(--k-sf);color:var(--k-ink);border-color:var(--k-hair);font-family:var(--f-ui)}
 html[data-skin="clean"] #inkBar .ik[aria-pressed="true"]:not(.ic){background:var(--k-sel);color:var(--k-seltx)}
 html[data-skin="clean"] #inkBar .ikG{border-color:var(--k-hair)}
+
+/* 2026-11-24 last old-look leftovers: the gilded cartouches and medallions still framed chrome titles and list numbers
+   (index, ayah sheet, quiz, surah card, search results) and a few headings stayed in the serif display face.
+   In this skin chrome titles are heavy sans on plain white, numbers sit in a quiet chip. Mushaf pages are untouched. */
+html[data-skin="clean"] :is(.bar,.foot,#prefs,#drawer,#sheet,#cont,.si,#recPick,#lpBar,#sDrop,#repBox,#quiz,#guide,#easyBox,#colEd,#sInfo,#keysBox,#noteBox,#dlBox,#shareBox,#manBox,#srcBox,#az,#wb,.flbar,#toast){--f-display:var(--f-ui)}
+html[data-skin="clean"] .dh h2{background:none;width:auto;height:auto;padding:4px 0;font-size:20px;font-weight:800;letter-spacing:-.01em}
+html[data-skin="clean"] .sht b{background:none;width:auto;max-width:100%;height:auto;padding:4px 0 0;font-size:18px;font-weight:800;line-height:1.35;letter-spacing:-.01em}
+html[data-skin="clean"] .si-h{background:none;height:auto;min-height:44px;margin:26px 0 0}
+html[data-skin="clean"] .si-h b{font-size:24px;font-weight:800;letter-spacing:-.01em}
+html[data-skin="clean"] :is(.star,.si-h .si-n){background:var(--k-chip);border:1px solid var(--k-hair);border-radius:50%;padding-top:0;font-family:var(--f-ui);font-weight:700;color:var(--k-ink)}
+html[data-skin="clean"] .si-h .si-n{right:0}
+html[data-skin="clean"] .row.cur .star{background:var(--k-sel);border-color:var(--k-sel);color:var(--k-seltx);transform:none}
+html[data-skin="clean"] .rn b{font-weight:700;font-size:17px}
+html[data-skin="clean"] :is(.gcard h2,#easyQ,.rp-h b,.src-h b){font-family:var(--f-ui);font-weight:800;letter-spacing:-.01em}

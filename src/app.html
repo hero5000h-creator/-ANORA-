@@ -356,7 +356,7 @@ html[data-theme="dark"][data-cover="green"]{--cover:#1d2622}html[data-theme="dar
 .tabs{margin-bottom:6px!important}
 .search input{width:100%;box-sizing:border-box;height:40px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:0 38px 0 12px;font:inherit;font-size:14px}
 .search svg{position:absolute;right:11px;top:10px;width:20px;height:20px;fill:none;stroke:var(--muted);stroke-width:1.8;stroke-linecap:round}
-.list{flex:1;overflow-y:auto;padding:10px 8px 16px;overscroll-behavior:contain;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 10px),transparent);mask-image:linear-gradient(to bottom,transparent 0,#000 16px,#000 calc(100% - 10px),transparent)}
+.list{flex:1;overflow-y:auto;padding:10px 8px 16px;overscroll-behavior:contain;-webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 8px,#000 calc(100% - 10px),transparent);mask-image:linear-gradient(to bottom,transparent 0,#000 8px,#000 calc(100% - 10px),transparent)}
 /* the index lists up to 270 rows (the hizb list quotes each opening in the Quran font): only the rows on screen are laid out */
 #list>.row{content-visibility:auto;contain-intrinsic-size:auto 56px}#list>.sub{content-visibility:auto;contain-intrinsic-size:auto 50px}
 .row{display:grid;grid-template-columns:40px 1fr auto;align-items:center;gap:12px;width:100%;text-align:right;padding:9px 8px;border-radius:10px}
@@ -371,7 +371,7 @@ html[data-theme="dark"][data-cover="green"]{--cover:#1d2622}html[data-theme="dar
 /* council: the page number reads at a glance (heavier, full ink), the word "صفحة" above it stays light */
 .pg-n{font-size:15px;font-weight:700;color:var(--bar-ink);font-variant-numeric:tabular-nums;text-align:left;min-width:44px}
 .pg-n em{display:block;font-style:normal;font-size:11.5px;font-weight:400;letter-spacing:.02em;color:var(--muted)}
-.grp{position:sticky;top:0;z-index:1;background:var(--bar);padding:12px 10px 6px;font-size:12.5px;font-weight:600;color:var(--orn);letter-spacing:.02em;display:flex;justify-content:space-between;border-bottom:1px solid var(--line)}
+.grp{position:sticky;top:-10px;z-index:1;background:var(--bar);padding:12px 10px 6px;font-size:12.5px;font-weight:600;color:var(--orn);letter-spacing:.02em;display:flex;justify-content:space-between;border-bottom:1px solid var(--line)}
 .sub{display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;width:100%;text-align:right;padding:6px 8px;border-radius:10px}
 .sub:hover{background:var(--sel)}
 .sub.cur{background:var(--sel)}
@@ -500,7 +500,7 @@ html.study #sheet .shh{padding-top:10px}
 
 .acts svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .acts button[aria-pressed="true"] svg{fill:currentColor}
-.shtabs{position:sticky;top:0;z-index:3;box-shadow:0 -10px 0 var(--bar),0 8px 12px -8px var(--bar);background:color-mix(in srgb,var(--orn) 9%,var(--bar))!important;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--sel);border-radius:11px;padding:3px;margin:0 0 10px}
+.shtabs{position:sticky;top:0;z-index:3;box-shadow:0 -10px 0 var(--bar),0 8px 12px -8px var(--bar),-14px 0 0 var(--bar),14px 0 0 var(--bar);background:color-mix(in srgb,var(--orn) 9%,var(--bar))!important;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--sel);border-radius:11px;padding:3px;margin:0 0 10px}
 .shtabs button{height:36px;border-radius:8px;font-size:14px;padding:0 2px;white-space:nowrap;font-weight:500;color:var(--muted)}
 .shtabs button[aria-selected="true"]{background:var(--bar);color:var(--orn);font-weight:600;box-shadow:0 1px 3px var(--line)}
 .gw{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--line)}
@@ -585,6 +585,9 @@ html.android #app{box-sizing:border-box;padding-top:var(--cutT,0px);padding-bott
 html.android #app.ovl>.bar{top:var(--cutT,0px)}html.android #app.ovl>.foot{bottom:var(--cutB,0px)}
 html.android body::before{height:var(--cutT,0px)}
 .foot.playing .scrub,.foot.playing .pnum{display:none}
+/* Fold with big text: the six thumb buttons beside the player squeezed the surah name and reciter down to «آل …»;
+   while it recites, night/day, adhkar and word by word step aside (they stay in the top bar and the menu) */
+html.thumb.uzL .foot.playing :is(#fDN,#fAz,#fWbH){display:none}
 #app.imm .foot.playing{display:flex}
 #player .pp{width:44px;height:44px;border-radius:50%;background:var(--orn);color:var(--bar);display:grid;place-items:center}
 #player .pp svg{width:20px;height:20px;fill:currentColor}
@@ -670,7 +673,9 @@ html.thumb #repBox.side{grid-template-rows:auto auto auto auto 1fr auto;align-co
 #shMeta{white-space:normal;text-overflow:clip;line-height:1.5}
 html.thumb #prefsX{box-shadow:0 -10px 12px -6px var(--bar)}
 html.thumb #repBox.side.sR{left:auto;right:0;border-inline-start:0;border-inline-end:1px solid var(--line);box-shadow:-14px 0 40px -18px var(--shadow)}
-html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opacity:0}}
+html.thumb #repBox.side.out{animation:fadeO .2s forwards}
+/* Fold side panel at big text is about 340px wide: two columns cut «مرة» and the surah names, so one column (it has the height) */
+html.thumb.uzL #repBox.side{grid-template-columns:minmax(0,1fr);grid-template-rows:none;align-content:start}html.thumb.uzL #repBox.side .rbb{margin-top:auto}@keyframes fadeO{to{opacity:0}}
 @keyframes palIn{from{opacity:0;transform:translateY(-6px)}}
 @keyframes palOut{to{opacity:0;transform:translateY(-6px)}}
 .hlpal:not([hidden]){animation:palIn .28s var(--ease)}
@@ -871,6 +876,10 @@ html.thumb #repBox.side.out{animation:fadeO .2s forwards}@keyframes fadeO{to{opa
 .foot.playing #wird,.foot.memo-on #wird{display:none}
 #guide{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:20px;background:color-mix(in srgb,var(--desk) 70%,transparent);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 #guide[hidden]{display:none}
+/* the first-run guide and the shortcuts card fade in and out like every other card (they used to snap) */
+#guide:not([hidden]),#keysBox:not([hidden]){animation:gFade .24s ease both}#guide:not([hidden]) .gcard,#keysBox:not([hidden]) .gcard{animation:gPop .34s var(--spring) both}
+#guide.out,#keysBox.out{animation:gFadeO .2s ease forwards;pointer-events:none}#guide.out .gcard,#keysBox.out .gcard{animation:gPopO .2s ease forwards}
+@keyframes gFade{from{opacity:0}}@keyframes gFadeO{to{opacity:0}}@keyframes gPop{from{opacity:0;transform:translateY(18px) scale(.96)}}@keyframes gPopO{to{opacity:0;transform:translateY(10px) scale(.97)}}
 /* Windows (Electron): keyboard shortcuts card, and the mouse look of a desktop app */
 #keysBox{position:fixed;inset:0;z-index:61;display:grid;place-items:center;padding:20px;background:color-mix(in srgb,var(--desk) 70%,transparent);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 #keysBox[hidden]{display:none}
@@ -4311,7 +4320,7 @@ function ceSave(){const L=ceList();if(CE.w==="hl"){let n=jget("mushaf.hlNames",{
 function ceUsed(k){if(CE.w==="hl"){const d=hl.get();return Object.keys(d).filter(id=>d[id].k===k).length}
   const g=mgrp.get(),m=marks.get();return k===MG[0].k?0:m.filter(id=>g[id]===k).length}
 function ceUI(){const L=ceList(),nm=CE.w==="hl"?hl.names():null,sk=CE.w==="hl"?"mushaf.hlStr":"mushaf.mkStr",s=+store.get(sk)||2;
-  $("ceTabs").querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.w===CE.w)));
+  $("ceTabs").querySelectorAll("button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.w===CE.w)));requestAnimationFrame(()=>pillTo($("ceTabs")));
   $("ceList").innerHTML=L.map((c,i)=>`<div class="cer${CE.pick===i?" open":""}" style="--c:${c.c}"><button class="cesw" data-ci="${i}" aria-label="غيّر لون «${escH(nm?nm[c.k]:c.n)}»" aria-expanded="${CE.pick===i}"><i></i></button>
       <input class="cen" data-ci="${i}" value="${escH(nm?nm[c.k]:c.n)}" maxlength="24" aria-label="اسم اللون">
       ${L.length>1&&!(CE.w==="mg"&&i===0)?`<button class="cex" data-cx="${i}" aria-label="احذف «${escH(nm?nm[c.k]:c.n)}»"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`:'<span class="cex"></span>'}
@@ -6123,8 +6132,8 @@ let gI=0,gFocus=null;
 function guideShow(i){gI=i;const [t,d,art]=GUIDE[i];$("gT").textContent=t;$("gP").textContent=d;$("gArt").innerHTML=art;
   ["gArt","gT","gP"].forEach(k=>{const e=$(k);e.classList.remove("in");void e.offsetWidth;e.classList.add("in")});
   $("gDots").querySelectorAll("i").forEach((e,j)=>e.classList.toggle("on",j===i));$("gNext").textContent=i<GUIDE.length-1?"التالي":"ابدأ القراءة";$("gSkip").style.visibility=i<GUIDE.length-1?"visible":"hidden"}
-function guide(on){const g=$("guide");if(on){gFocus=document.activeElement;showPrefs(false);guideShow(0);g.hidden=false;hideHint();setTimeout(()=>$("gNext").focus({preventScroll:true}),50)}
-  else{g.hidden=true;store.set("mushaf.intro","1");setCalm(false);if(gFocus&&gFocus.focus)gFocus.focus({preventScroll:true})}}
+function guide(on){const g=$("guide");if(on){gFocus=document.activeElement;showPrefs(false);guideShow(0);g.classList.remove("out");g.hidden=false;hideHint();setTimeout(()=>$("gNext").focus({preventScroll:true}),50)}
+  else{softHide(g);store.set("mushaf.intro","1");setCalm(false);if(gFocus&&gFocus.focus)gFocus.focus({preventScroll:true})}}
 $("gNext").onclick=()=>{if(gI<GUIDE.length-1)guideShow(gI+1);else guide(false)};
 $("gSkip").onclick=()=>guide(false);
 $("bGuide").onclick=()=>manOpen();
@@ -7063,7 +7072,7 @@ if(PLAT==="electron"){
   [$("wSurah"),$("pnum")].forEach(e=>e&&new MutationObserver(tiSync).observe(e,{childList:true,characterData:true,subtree:true}));tiSync();
   /* shortcuts card */
   const kb=$("keysBox");let kbFocus=null;
-  const keysShow=on=>{if(on){showPrefs(false);kbFocus=document.activeElement;kb.hidden=false;$("keysX").focus()}else if(!kb.hidden){kb.hidden=true;try{kbFocus&&kbFocus.focus()}catch(e){}}};
+  const keysShow=on=>{if(on){showPrefs(false);kbFocus=document.activeElement;kb.classList.remove("out");kb.hidden=false;$("keysX").focus()}else if(!kb.hidden&&!kb.classList.contains("out")){softHide(kb);try{kbFocus&&kbFocus.focus()}catch(e){}}};
   $("bKeys").hidden=false;$("bKeys").onclick=e=>{e.stopPropagation();keysShow(true)};$("keysX").onclick=()=>keysShow(false);
   kb.addEventListener("click",e=>{if(e.target===kb)keysShow(false)});kb.addEventListener("pointerdown",e=>e.stopPropagation());
   let full=false;natOn("Window","full",d=>{full=!!(d&&d.on);root.classList.toggle("wfs",full)});
