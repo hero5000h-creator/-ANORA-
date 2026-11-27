@@ -993,6 +993,9 @@ html.spreadM:not(.study) #cont{left:25%;width:min(400px,calc(50% - 28px))}
 /* the lines it covers fade out above it, so no line of the page is seen cut in half */
 html.spreadM:not(.study) #cont{box-shadow:0 -56px 44px -6px var(--paper),0 10px 30px rgba(0,0,0,.12)}
 #cont[hidden]{display:none}
+/* with every row showing on a small phone with big text the card could rise past the top bar: it keeps below it and scrolls inside */
+#cont{max-height:calc((100dvh - var(--fh,56px) - 84px - env(safe-area-inset-bottom,0px) - env(safe-area-inset-top,0px)) / var(--czf,1));overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none}
+html.uzL #cont{--czf:var(--uz,1)}
 #cont.off{opacity:0;transform:translate(-50%,16px)}
 #cont:not(.off){animation:contIn .45s var(--ease)}
 @keyframes contIn{from{opacity:0;transform:translate(-50%,20px)}}
@@ -1410,7 +1413,7 @@ html.dimmed #autoBar{z-index:9}
 /* v49 motion */
 /* today card: its rows arrive one after another, the ayah of the day is written in from the right like ink */
 #cont:not(.off)>*{animation:fadeUp .42s var(--ease) both}
-#cont:not(.off)>:nth-child(2){animation-delay:.07s}#cont:not(.off)>:nth-child(3){animation-delay:.14s}#cont:not(.off)>:nth-child(4){animation-delay:.21s}#cont:not(.off)>:nth-child(5){animation-delay:.28s}
+#cont:not(.off)>:nth-child(2){animation-delay:.07s}#cont:not(.off)>:nth-child(3){animation-delay:.14s}#cont:not(.off)>:nth-child(4){animation-delay:.21s}#cont:not(.off)>:nth-child(5){animation-delay:.28s}#cont:not(.off)>:nth-child(6){animation-delay:.35s}
 #cont:not(.off) .cay q{-webkit-mask-image:linear-gradient(270deg,#000 40%,transparent 60%);mask-image:linear-gradient(270deg,#000 40%,transparent 60%);-webkit-mask-size:260% 100%;mask-size:260% 100%;-webkit-mask-position:100% 0;mask-position:100% 0;animation:inkIn 1.5s var(--ease) .45s both}
 @keyframes inkIn{from{-webkit-mask-position:0 0;mask-position:0 0}to{-webkit-mask-position:100% 0;mask-position:100% 0}}
 #cont:not(.off) .cay>small{background:linear-gradient(100deg,var(--gold) 40%,color-mix(in srgb,var(--gold) 30%,#fff) 50%,var(--gold) 60%) 0 0/250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:goldSweep 2.4s ease-in-out .9s both}
@@ -2476,6 +2479,7 @@ html.lite .wbw.on q{text-shadow:none}
   <div class="ch"><i><svg viewBox="0 0 24 24"><path d="M12 6.5c-2-1.6-4.6-2-7.5-1.6v12.6c2.9-.4 5.5 0 7.5 1.6 2-1.6 4.6-2 7.5-1.6V4.9c-2.9-.4-5.5 0-7.5 1.6zM12 6.5v12.6"/></svg></i><div><b id="cHi">أهلاً بعودتك</b><small id="cWhere"></small></div><span class="cd" id="cDate"></span></div>
   <div class="cw" id="cWird" hidden><div id="cWt"></div><span><i id="cWb"></i></span></div>
   <button class="cazb" id="cAz" hidden></button>
+  <button class="cazb" id="cSr" hidden></button>
   <button class="cay" id="cAy"></button>
   <div class="cb"><button class="ctb" id="cShare">شارك آية اليوم</button><button class="ctb" id="cBm" hidden></button><button class="ctb" id="cPl" hidden></button><button class="ctb" id="cRv" hidden></button><button class="ctb solid" id="cGo">تابع القراءة</button></div>
 </div>
@@ -3142,6 +3146,7 @@ function renderSlide(f){
 }
 /* a quiet word when the pages just opened begin a new juz or hizb, the way a printed mushaf marks it in the margin */
 function partNote(){
+  try{srMark()}catch(e){}
   const ps=mode==="spread"?[cur,cur+1]:[cur];
   for(const p of ps){if(p<1||p>NP)continue;const a=pStart(p),z=p<NP?pStart(p+1)-1:NA;
     const k=qOf(z);if(k%4||QTR[k]<a)continue;
@@ -3905,7 +3910,21 @@ function contShow(){const c=$("cont"),id=pStart(cur);azNudgeHide();
     if(due.length){b.textContent=`راجع حفظك · ${numW(due.length,"صفحة واحدة","صفحتان","صفحات","صفحة")}`;b.onclick=()=>{contHide();goTo(due[0]);setTimeout(()=>{if(!memo.on){memo.range=null;setMemo(true)}},reduce?50:1100)}}}
   const bm=+store.get("mushaf.bookmark"),b=$("cBm"),vis=bm&&!(bm===cur||(mode==="spread"&&bm===cur+1));b.hidden=!vis;if(vis){b.textContent=`إلى العلامة · صفحة ${ar(bm)}`;b.onclick=()=>{contHide();goTo(bm)}}
   {const a=$("cAz"),dc=typeof azDue==="function"?azDue():null;a.hidden=!dc;if(dc){a.innerHTML=`${$("bAz").innerHTML}<span>حان وقت ${dc.name}</span><b>‹</b>`;a.onclick=()=>{contHide();azOpenUI();azStart(dc.k)}}}
+  {const b=$("cSr"),w=srDue();b.hidden=!w;if(w){b.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 6.5c-2-1.6-4.6-2-7.5-1.6v12.6c2.9-.4 5.5 0 7.5 1.6 2-1.6 4.6-2 7.5-1.6V4.9c-2.9-.4-5.5 0-7.5 1.6zM12 6.5v12.6"/></svg><span>${w.why} · سورة ${SUR[w.s-1][0]}</span><b>‹</b>`;b.setAttribute("aria-label",`${w.why}: اقرأ سورة ${SUR[w.s-1][0]}`);b.onclick=()=>{contHide();setTimeout(()=>goTo(w.start),reduce?0:300)}}}
   c.classList.remove("off");c.hidden=false;clearTimeout(contShow.t);contShow.t=setTimeout(contHide,16000)}
+/* a surah the time asks for: al-Kahf from Thursday's Maghrib to Friday's, al-Mulk from Isha to Fajr.
+   Prayer times come from the reader's own settings; without them, 6 PM, 8 PM and 4 AM stand in.
+   The row stays off while the reader is already inside that surah, and once its last page was reached in the same window. */
+function srWin(){const t=typeof ptToday==="function"?ptToday():null,n=Date.now(),d=new Date(),wd=d.getDay(),h=d.getHours(),D=today();
+  const mg=t?n>=t.maghrib:h>=18;
+  if((wd===4&&mg)||(wd===5&&!mg))return {s:18,why:"يوم الجمعة",key:"18:"+(wd===4?D+1:D)};
+  if(t?(n>=t.isha||n<t.fajr):(h>=20||h<4))return {s:67,why:"قبل النوم",key:"67:"+(h<12?D-1:D)};
+  return null}
+function srPages(s){return [pOf(SST[s-1]),pOf(SST[s]-1)]}
+function srShown(){return mode==="spread"?[cur,cur+1]:[cur]}
+function srDue(){const w=srWin();if(!w||store.get("mushaf.srDone")===w.key)return null;const [a,z]=srPages(w.s);
+  if(srShown().some(p=>p>=a&&p<=z))return null;return Object.assign(w,{start:a})}
+function srMark(){const w=srWin();if(!w||store.get("mushaf.srDone")===w.key)return;if(srShown().includes(srPages(w.s)[1]))store.set("mushaf.srDone",w.key)}
 $("cont").addEventListener("pointerdown",()=>clearTimeout(contShow.t));
 $("bToday").onclick=()=>{showPrefs(false);contShow()};
 $("cShare").onclick=()=>{contHide();shareOpen(aydId())};
