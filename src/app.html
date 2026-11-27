@@ -573,7 +573,7 @@ mark{background:color-mix(in srgb,var(--gold) 30%,transparent);color:inherit;bor
 .tf .lbl{font-family:var(--f-ui);font-size:12.5px;font-weight:600;color:color-mix(in srgb,var(--gold) 78%,var(--ink));margin-top:.8em}
 
 /* recitation bar */
-#player{flex:1;min-width:0;max-width:560px;margin-inline:auto;display:grid;grid-template-columns:auto 1fr auto auto auto auto auto;align-items:center;gap:4px;padding-block:4px}
+#player{flex:1;min-width:0;max-width:600px;margin-inline:auto;display:grid;grid-template-columns:auto 1fr auto auto auto auto auto auto;align-items:center;gap:4px;padding-block:4px}
 #pDl{position:relative}#pDl[hidden]{display:none}#pDl .rg{position:absolute;top:2px;left:calc(50% - 14px);width:28px;height:28px;transform:rotate(-90deg);fill:none;stroke:var(--orn);stroke-width:2.2;stroke-linecap:round;stroke-dasharray:88;stroke-dashoffset:88;transition:stroke-dashoffset .3s}
 #pDl.done{color:var(--orn)}
 html.android body::before{height:0}
@@ -602,9 +602,9 @@ html.thumb.uzL .foot.playing :is(#fDN,#fAz,#fWbH){display:none}
 #player .cap{font-size:11px;line-height:1;color:var(--muted);white-space:nowrap}
 #pStop{margin-inline-start:8px}
 #player .cap{font-size:11.5px;color:color-mix(in srgb,var(--bar-ink) 72%,var(--bar))}
-/* phones: two rows. Title and reciter get the full width, the five buttons share the row under them */
+/* phones: two rows. Title and reciter get the full width, the six buttons share the row under them */
 @media (max-width:620px){
-  #player{grid-template-columns:auto repeat(5,1fr);grid-template-rows:auto auto;row-gap:2px;column-gap:2px;padding-block:6px 2px}
+  #player{grid-template-columns:auto repeat(6,1fr);grid-template-rows:auto auto;row-gap:2px;column-gap:2px;padding-block:6px 2px}
   #player .pp{grid-row:1/3;width:52px;height:52px;margin-inline-end:6px}
   #player .pinfo{grid-column:2/-1;grid-row:1;grid-template-columns:1fr auto;align-items:baseline;column-gap:10px;padding-inline:4px}
   #player .pinfo b{grid-column:1;grid-row:1}#player .pinfo small{grid-column:2;grid-row:1;max-width:46vw}
@@ -613,7 +613,25 @@ html.thumb.uzL .foot.playing :is(#fDN,#fAz,#fWbH){display:none}
   #pStop{margin-inline-start:0;position:relative}
   #pStop::before{content:"";position:absolute;inset-inline-start:-1px;top:8px;bottom:8px;border-inline-start:1px solid var(--line)}
 }
-#pRep[aria-pressed="true"] .cap{color:var(--orn);font-weight:600}
+#pRep[aria-pressed="true"] .cap,#pTf[aria-pressed="true"] .cap{color:var(--orn);font-weight:600}
+#pTf svg,#pTf[aria-pressed="true"] svg{fill:none}#pTf[aria-pressed="true"] svg{stroke:var(--orn)}
+/* tafsir while listening: a strip over the footer; on an open Fold it sits over the page the recited ayah is not on */
+#ltf{position:fixed;z-index:25;left:12px;right:12px;bottom:calc(var(--fh,64px) + 10px + env(safe-area-inset-bottom,0px));max-height:min(32vh,300px);display:grid;grid-template-rows:auto minmax(0,1fr);background:var(--bar);color:var(--bar-ink);border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px -16px var(--shadow);padding:2px 14px 10px;box-sizing:border-box;transition:opacity .3s var(--ease),transform .3s var(--ease)}
+#ltf[hidden]{display:none}
+#ltf.up{bottom:auto;top:calc(var(--bh,56px) + 8px + env(safe-area-inset-top,0px))}
+#ltf.up.off{transform:translateY(-12px)}
+#ltf.off{opacity:0;transform:translateY(12px)}
+#ltf:not(.off){animation:rise .32s var(--ease) both}
+#ltf .ltf-h{display:flex;align-items:center;gap:8px;min-height:40px}
+#ltf .ltf-h b{flex:1;min-width:0;font-size:13.5px;font-weight:600;color:color-mix(in srgb,var(--gold) 70%,var(--bar-ink));overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#ltf .ltf-h .ib{width:36px;height:36px;flex:none}
+#ltf .ltf-h .ib svg{width:18px;height:18px}
+#ltfB{overflow-y:auto;overscroll-behavior:contain;max-width:none;margin:0;font-size:calc(16.5px * var(--tfz,1));line-height:1.95;scrollbar-width:thin}
+#ltfB.in{animation:fadeUp .3s var(--ease) both}
+html.spreadM:not(.study) #ltf{--lw:min(440px,calc(50% - 28px));right:auto;width:var(--lw);left:calc(75% - var(--lw) / 2);max-height:min(46vh,460px)}
+html.spreadM:not(.study) #ltf.onL{left:calc(25% - var(--lw) / 2)}
+html.uzL #ltf{zoom:var(--uz,1)}
+@media (prefers-reduced-motion:reduce){#ltf:not(.off),#ltfB.in{animation:none}}
 .bkp{display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--line);font-size:13.5px}
 .bkp small{display:block;font-size:12.5px;color:var(--muted);margin-top:2px}
 .bkb{display:flex;gap:8px}.bkb .ctb{flex:1}
@@ -2390,6 +2408,7 @@ html.lite .wbw.on q{text-shadow:none}
       <button class="ib" id="pPrev" aria-label="الآية السابقة"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg><span class="cap" id="pPrevCap">السابقة</span></button>
       <button class="ib" id="pNext" aria-label="الآية التالية"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg><span class="cap" id="pNextCap">التالية</span></button>
       <button class="ib" id="pRep" aria-label="تكرار مقطع" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3"/><path d="M4 11.5V10a3.5 3.5 0 0 1 3.5-3.5H20"/><path d="M7 20.5l-3-3 3-3"/><path d="M20 12.5V14a3.5 3.5 0 0 1-3.5 3.5H4"/></svg><span class="cap" id="pRepCap">تكرار</span></button>
+      <button class="ib" id="pTf" aria-label="التفسير أثناء الاستماع" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M12 6.5c-2-1.6-4.6-2-7.5-1.6v12.6c2.9-.4 5.5 0 7.5 1.6 2-1.6 4.6-2 7.5-1.6V4.9c-2.9-.4-5.5 0-7.5 1.6zM12 6.5v12.6"/><path d="M14.5 9.5h2.5M14.5 12.5h2.5M7 9.5h2.5M7 12.5h2.5"/></svg><span class="cap" id="pTfCap">تفسير</span></button>
       <button class="ib" id="pDl" aria-label="تحميل السورة للاستماع بدون إنترنت" hidden><svg viewBox="0 0 24 24" id="pDlIco"><path d="M12 5v10M7.5 10.5L12 15l4.5-4.5M6 19h12"/></svg><svg class="rg" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14" id="pDlRg"/></svg><span class="cap" id="pDlCap">تحميل</span></button>
       <button class="ib" id="pStop" aria-label="إنهاء التلاوة"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg><span class="cap" id="pStopCap">إنهاء</span></button>
     </div>
@@ -2475,6 +2494,7 @@ html.lite .wbw.on q{text-shadow:none}
   <small class="rbhint">المس آية في الصفحة لتكون آخر المقطع</small>
   <div class="rbb"><button class="ctb" id="rbTest">اختبر نفسي</button><button class="ctb" id="rbOff">بدون تكرار</button><button class="ctb solid" id="rbGo">ابدأ التكرار</button></div>
 </div>
+<div id="ltf" role="region" aria-label="التفسير أثناء الاستماع" hidden><div class="ltf-h"><b id="ltfT"></b><button class="ib" id="ltfX" aria-label="إخفاء التفسير"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="tf" id="ltfB" aria-live="polite"></div></div>
 <div id="cont" role="status" hidden>
   <div class="ch"><i><svg viewBox="0 0 24 24"><path d="M12 6.5c-2-1.6-4.6-2-7.5-1.6v12.6c2.9-.4 5.5 0 7.5 1.6 2-1.6 4.6-2 7.5-1.6V4.9c-2.9-.4-5.5 0-7.5 1.6zM12 6.5v12.6"/></svg></i><div><b id="cHi">أهلاً بعودتك</b><small id="cWhere"></small></div><span class="cd" id="cDate"></span></div>
   <div class="cw" id="cWird" hidden><div id="cWt"></div><span><i id="cWb"></i></span></div>
@@ -5002,7 +5022,7 @@ function startAyah(resume,flow){
   const id=player.id;playA=id;paintHL();showAyahPage(id);
   if(inTable)setTimeout(()=>tPanShow(id),reduce?0:800);
   if(inTable)setTimeout(()=>{renderDeck();const el=$("deckList").querySelector(`.dk[data-id="${id}"]`);el&&el.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"})},reduce?0:950);
-  $("pTitle").textContent=`${SUR[sOf(id)][0]} — آية ${ar(aOf(id))}`+repTitle();store.set("mushaf.playLast",String(id));try{dlUI()}catch(e){}setTimeout(repPlace,reduce?0:700);
+  $("pTitle").textContent=`${SUR[sOf(id)][0]} — آية ${ar(aOf(id))}`+repTitle();store.set("mushaf.playLast",String(id));try{dlUI()}catch(e){}setTimeout(repPlace,reduce?0:700);if(ltfOn)ltfShow(id);
   pStop();if(player.on)bgSync();
   const g=seg(id);player.seg=g;
   if(g){
@@ -5026,6 +5046,29 @@ function startAyah(resume,flow){
     pNext(tick,left)};
   player.tick=null;if(player.on)pNext(tick,0);
 }
+/* tafsir while listening: the chosen tafsir (the Muyassar by default) of the ayah being recited follows the player */
+let ltfOn=store.get("mushaf.ltf")==="1",ltfId=0;
+function ltfPlace(){const b=$("ltf");if(b.hidden)return;const f=document.querySelector(".foot");
+  b.style.setProperty("--fh",f.offsetHeight+"px");b.classList.toggle("onL",mode==="spread"&&pOf(ltfId)===cur);
+  /* one page: when the recited ayah lies under the strip, the strip moves up under the top bar */
+  if(mode!=="spread"){const r=[...document.querySelectorAll("#book .hlb.p")].map(e=>e.getBoundingClientRect()).filter(q=>q.width&&q.bottom>0&&q.top<innerHeight);
+    const bar=document.querySelector(".bar"),bh=bar?bar.getBoundingClientRect().bottom:56;b.style.setProperty("--bh",Math.max(0,bh)+"px");
+    if(r.length){const lo=Math.max(...r.map(q=>q.bottom)),hi=Math.min(...r.map(q=>q.top)),h=b.offsetHeight;
+      b.classList.toggle("up",lo>innerHeight-f.offsetHeight-h-16&&hi>bh+h+16)}}else b.classList.remove("up");
+  b.style.visibility=f.classList.contains("memo-on")||$("player").hidden?"hidden":""}
+function ltfShow(id){const b=$("ltf"),T=TFS.find(t=>t.k===tfK)||TFS[0];ltfId=id;
+  $("ltfT").textContent=`تفسير ${T.n} · سورة ${SUR[sOf(id)][0]} · آية ${ar(aOf(id))}`;
+  const put=h=>{if(ltfId!==id||b.hidden)return;const B=$("ltfB");B.innerHTML=h;B.scrollTop=0;B.classList.remove("in");void B.offsetWidth;B.classList.add("in")};
+  const fail=()=>put(muted("تعذّر تحميل التفسير. تحقق من الاتصال"));
+  if(b.hidden){$("ltfB").innerHTML="";b.classList.remove("off");b.hidden=false}
+  if(T.k==="muyassar")(TF?Promise.resolve():tafsir()).then(()=>put(tfGrp(i=>TF[i-1],id)+tfHTML(TF[id-1]||"")),fail);
+  else tfChunk(T.k,id).then(()=>put(tfOther(T.k,id)),fail);
+  ltfPlace();clearTimeout(ltfShow.t);ltfShow.t=setTimeout(ltfPlace,reduce?60:900)}
+function ltfHide(){const b=$("ltf");if(b.hidden)return;b.classList.add("off");setTimeout(()=>{if(b.classList.contains("off"))b.hidden=true},reduce?0:300)}
+function ltfSet(on){ltfOn=on;store.set("mushaf.ltf",on?"1":"0");$("pTf").setAttribute("aria-pressed",String(on));
+  if(on&&player.id&&!$("player").hidden)ltfShow(player.id);else ltfHide()}
+$("pTf").onclick=()=>ltfSet(!ltfOn);$("ltfX").onclick=()=>ltfSet(false);$("pTf").setAttribute("aria-pressed",String(ltfOn));
+addEventListener("resize",()=>setTimeout(ltfPlace,120));
 /* On the last ayah of a surah the next surah's file is queued in the native player, which then goes straight on
    to it: it never stops between surahs, so Android does not put the app to sleep at the end of a surah (the
    recitation used to stop there with the screen off) */
@@ -5055,7 +5098,7 @@ function footOut(el){if(reduce||el.hidden||!el.offsetWidth||!started)return;cons
   Object.assign(g.style,{left:(r.left-fr.left)+"px",width:r.width+"px",bottom:(fr.bottom-r.bottom)+"px",height:r.height+"px"});el.after(g);
   const rm=()=>g.remove();g.addEventListener("animationend",rm);setTimeout(rm,400);
   f.classList.add("back");clearTimeout(footOut.t);footOut.t=setTimeout(()=>f.classList.remove("back"),450)}
-function stopPlay(){{const b=$("repBox");if(!b.hidden)softHide(b)}rep.on=false;repUI();player.on=false;pStop();AU.pause();if(PLAT==="android")nat("Playback","stop").catch(()=>{});mediaSync();playA=0;footOut($("player"));$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
+function stopPlay(){ltfHide();{const b=$("repBox");if(!b.hidden)softHide(b)}rep.on=false;repUI();player.on=false;pStop();AU.pause();if(PLAT==="android")nat("Playback","stop").catch(()=>{});mediaSync();playA=0;footOut($("player"));$("player").hidden=true;document.querySelector(".foot").classList.remove("playing");resize();paintHL()}
 function setReciter(r){if(!RECS[r]||r===reciter)return;const was=player.on;
   reciter=r;store.set("mushaf.reciter",reciter);recUI();AU.pause();auSrc="";
   audData(reciter).then(d=>{aud=d;if(!d){toast("تعذّر تحميل توقيت هذا القارئ. تحقق من الاتصال");return}if(was&&player.on)startAyah(false)});toast(`القارئ: ${RECS[reciter]}`)}
