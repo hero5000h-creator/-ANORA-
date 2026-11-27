@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home-screen ayah of the day: the same short ayah the today card shows, in the adhkar look (night sky, Amiri, gold) -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/background"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/wg_bg"
+    android:layoutDirection="rtl"
+    android:paddingStart="14dp"
+    android:paddingTop="11dp"
+    android:paddingEnd="14dp"
+    android:paddingBottom="11dp">
+
+    <LinearLayout
+        android:id="@+id/ayBody"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layoutDirection="rtl"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:layoutDirection="rtl"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/wg_tile"
+                android:contentDescription="@null"
+                android:padding="6dp"
+                android:src="@drawable/wg_ic_book" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/ayTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/amiri_bold"
+                    android:gravity="start"
+                    android:includeFontPadding="false"
+                    android:maxLines="1"
+                    android:text="آية اليوم"
+                    android:textColor="#FFF3E3BF"
+                    android:textDirection="rtl"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/aySub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="3dp"
+                    android:ellipsize="end"
+                    android:gravity="start"
+                    android:maxLines="1"
+                    android:text="سورة الرعد · آية ٢٨"
+                    android:textColor="#B8EAE6DC"
+                    android:textDirection="rtl"
+                    android:textSize="11.5sp" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/ayOpen"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:contentDescription="افتح أنورا"
+                android:padding="8dp"
+                android:src="@drawable/wg_star" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/ayText"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="4dp"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="24sp"
+            android:autoSizeMinTextSize="12sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
+            android:ellipsize="end"
+            android:fontFamily="@font/amiri_bold"
+            android:gravity="center"
+            android:lineSpacingMultiplier="1.2"
+            android:maxLines="6"
+            android:shadowColor="#99000000"
+            android:shadowDy="2"
+            android:shadowRadius="10"
+            android:text="أَلَا بِذِكْرِ ٱللَّهِ تَطْمَئِنُّ ٱلْقُلُوبُ"
+            android:textColor="#FFF5F1E8"
+            android:textDirection="rtl" />
+    </LinearLayout>
+</FrameLayout>

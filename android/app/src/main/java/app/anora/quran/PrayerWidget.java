@@ -97,7 +97,10 @@ public class PrayerWidget extends AppWidgetProvider {
         String label = tomorrow && nj == 0 ? "فجر الغد" : "صلاة " + name;
         v.setTextViewText(R.id.pTitle, tall ? label : label + " · " + at);
         String city = d.optString("ptc", ""), meth = d.optString("ptm", "");
-        v.setTextViewText(R.id.pSub, city.isEmpty() && meth.isEmpty() ? "مواقيت الصلاة" : city + (city.isEmpty() || meth.isEmpty() ? "" : " · ") + meth);
+        String place = city.isEmpty() && meth.isEmpty() ? "مواقيت الصلاة" : city + (city.isEmpty() || meth.isEmpty() ? "" : " · ") + meth;
+        // the tall size leads with today's hijri date (written by the page, the same as the today card)
+        String hj = tall ? AyahWidget.hijri(d, AnoraWidget.dayNum(now)) : "";
+        v.setTextViewText(R.id.pSub, hj.isEmpty() ? place : hj + " · " + place);
         if (tall) v.setTextViewText(R.id.pBig, at);
         v.setViewVisibility(R.id.pLeftBox, View.VISIBLE);
         v.setChronometer(R.id.pLeft, SystemClock.elapsedRealtime() + (next - now), null, true);

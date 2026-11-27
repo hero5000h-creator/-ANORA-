@@ -1631,6 +1631,22 @@ html[data-paper="sky"] .spl svg{color:var(--gold);filter:drop-shadow(0 0 14px rg
 .az-pt .set{width:100%;margin-top:10px;height:46px;border-radius:23px;background:#d9b46c;color:#140a05;font-weight:700;font-size:15px}
 .az-pt p{margin:4px 0 0;font-size:13.5px;color:rgba(234,230,220,.78);line-height:1.7}
 .az-ps ol{padding:0 2px 24px}
+/* qibla: the dial turns with the phone, the Kaaba mark sits at the qibla bearing; facing it lights the dial */
+.az-qb .qb-in{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;gap:10px;padding:8px 4px 24px;text-align:center}
+.qb-dial{position:relative;width:min(76vw,320px);aspect-ratio:1;margin-top:6px}
+.qb-dial svg{width:100%;height:100%;display:block;transition:transform .12s linear}
+.qb-dial .r0{fill:rgba(255,255,255,.03);stroke:rgba(217,180,108,.45);stroke-width:1.5}
+.qb-dial .r1{fill:none;stroke:rgba(255,255,255,.08);stroke-width:1}
+.qb-dial #qbTicks line{stroke:rgba(234,230,220,.35);stroke-width:1}.qb-dial #qbTicks line.m{stroke:rgba(234,230,220,.7);stroke-width:1.6}
+.qb-dial text{fill:rgba(234,230,220,.75);font-size:13px;text-anchor:middle;font-family:var(--f-ui)}.qb-dial text.n{fill:#f0c98a;font-weight:700;font-size:15px}
+.qb-dial .kl{stroke:#d9b46c;stroke-width:3;stroke-linecap:round}.qb-dial .kb{fill:#141414;stroke:#d9b46c;stroke-width:1.5}.qb-dial .kg{stroke:#d9b46c;stroke-width:2.5}
+.qb-needle{position:absolute;left:50%;top:-4px;width:0;height:0;border-inline:9px solid transparent;border-top:16px solid #f3e3bf;transform:translateX(-50%)}
+.qb-dial.on .r0{stroke:#7fe0c0;stroke-width:3;fill:rgba(127,224,192,.08)}.qb-dial.on .kl{stroke:#7fe0c0}.qb-dial.on+.qb-deg{color:#9fead0}
+.qb-deg{font-family:var(--f-display);font-size:22px;color:#f3e3bf}
+.qb-msg{margin:0;font-size:15px;color:rgba(234,230,220,.9);min-height:1.6em}
+.qb-note{margin:6px 0 0;font-size:12.5px;line-height:1.8;color:rgba(234,230,220,.6);max-width:42ch}
+.az-pt .qb{width:44px;height:44px}
+@media (prefers-reduced-motion:reduce){.qb-dial svg{transition:none}}
 .az-ps h4{margin:16px 2px 8px;font-family:var(--f-display);font-size:16.5px;color:#f3e3bf}
 .az-ps .opt{display:flex;align-items:center;gap:10px;width:100%;min-height:50px;padding:8px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:inherit;text-align:start;font-size:14.5px;margin-bottom:6px}
 .az-ps .opt small{display:block;font-size:12.5px;color:rgba(234,230,220,.68)}
@@ -2579,7 +2595,7 @@ html.lite .wbw.on q{text-shadow:none}
       <div class="az-set" id="azSet">
         <div class="az-row" id="azRemRow"><span>تذكير أذكار الصباح<small id="azRemNote">إشعار هادئ كل يوم</small></span><input type="time" id="azRemM" value="06:30" aria-label="وقت تذكير الصباح"><button class="az-sw" id="azRemMs" role="switch" aria-checked="false" aria-label="تذكير أذكار الصباح"></button></div>
         <div class="az-row" id="azRemRow2"><span>تذكير أذكار المساء</span><input type="time" id="azRemE" value="17:30" aria-label="وقت تذكير المساء"><button class="az-sw" id="azRemEs" role="switch" aria-checked="false" aria-label="تذكير أذكار المساء"></button></div>
-        <div class="az-row" id="azWgRow" hidden><span>على الشاشة الرئيسية<small>مواقيت الصلاة، ذكر الوقت، أو مسبحة بلمسة</small></span><button class="az-btn az-wg" data-wg="prayer">المواقيت</button><button class="az-btn az-wg" data-wg="adhkar">الأذكار</button><button class="az-btn az-wg" data-wg="tasbih">المسبحة</button></div>
+        <div class="az-row" id="azWgRow" hidden><span>على الشاشة الرئيسية<small>مواقيت الصلاة، ذكر الوقت، آية اليوم، أو مسبحة بلمسة</small></span><button class="az-btn az-wg" data-wg="prayer">المواقيت</button><button class="az-btn az-wg" data-wg="adhkar">الأذكار</button><button class="az-btn az-wg" data-wg="ayah">آية اليوم</button><button class="az-btn az-wg" data-wg="tasbih">المسبحة</button></div>
         <div class="az-row"><span>إخفاء ما في إسناده كلام<small>يبقى الصحيح والحسن فقط</small></span><button class="az-sw" id="azWeak" role="switch" aria-checked="false" aria-label="إخفاء ما في إسناده كلام"></button></div>
       </div>
       <p class="az-streak" id="azStreak"></p>
@@ -2598,6 +2614,9 @@ html.lite .wbw.on q{text-shadow:none}
       <p class="az-hint" id="azHint">المس الشاشة للتسبيح · اسحب الخرز أو اسحب للجانب للذكر التالي</p>
     </div>
     <div class="az-list" id="azList" hidden><div class="lh"><b id="azListT"></b><button class="az-ib" id="azListX" aria-label="إغلاق القائمة"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><ol id="azListO"></ol></div>
+    <div class="az-list az-qb" id="azQb" role="dialog" aria-label="اتجاه القبلة" hidden><div class="lh"><b>اتجاه القبلة</b><button class="az-ib" id="azQbX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="qb-in"><div class="qb-dial" id="qbDial" aria-hidden="true"><svg viewBox="-110 -110 220 220" id="qbRose"><circle r="104" class="r0"/><circle r="86" class="r1"/><g id="qbTicks"></g><text y="-70" class="n">ش</text><text x="72" y="6" class="c">ق</text><text y="80" class="c">ج</text><text x="-72" y="6" class="c">غ</text><g id="qbK"><path d="M0-100V-62" class="kl"/><g transform="translate(0,-50)"><rect x="-11" y="-11" width="22" height="22" rx="2" class="kb"/><path d="M-11-4H11" class="kg"/></g></g></svg><i class="qb-needle"></i></div>
+      <div class="qb-deg" id="qbDeg"></div><p class="qb-msg" id="qbMsg"></p><p class="qb-note">الاتجاه محسوب من موقعك المحفوظ لمواقيت الصلاة. البوصلة تتأثر بالمعادن والمغناطيس، فأمسك الهاتف مستوياً بعيداً عنها، وحرّكه على شكل ٨ إذا بدا الاتجاه غير ثابت.</p></div></div>
     <div class="az-list az-ps" id="azPS" hidden><div class="lh"><b>إعدادات مواقيت الصلاة</b><button class="az-ib" id="azPSX" aria-label="إغلاق"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><ol id="azPSO"></ol></div>
     <div class="az-done" id="azDone" hidden><div class="az-dc"><svg viewBox="0 0 80 80" aria-hidden="true"><path class="st" d="M40 6l7 20 21-1-17 13 7 20-18-12-18 12 7-20L12 25l21 1z"/></svg><h3 id="azDoneT">تقبّل الله منك</h3><p id="azDoneS"></p><div class="az-db"><button class="az-btn solid" id="azDHome">أذكار أخرى</button><button class="az-btn" id="azDBook">إلى المصحف</button></div></div></div>
   </div>
@@ -3913,10 +3932,10 @@ function calmLater(){if(flip||down||busy){calmT=setTimeout(calmLater,600);return
 const hadLast=+store.get("mushaf.last")>1;
 /* ayah of the day: a short ayah of hope, the same for everyone on a given day */
 const AYD=[[2,152],[2,186],[3,139],[3,173],[7,23],[13,28],[14,7],[20,114],[39,53],[40,60],[14,40],[94,5],[94,6],[2,45],[2,153],[3,8],[8,46],[26,62],[12,87],[16,128],[17,80],[18,10],[20,25],[21,87],[25,74],[29,69],[33,41],[50,16],[9,51],[64,11],[93,5],[94,7],[55,60],[42,19],[67,2],[3,160],[7,56],[29,45],[3,200],[20,46]];
-const aydId=()=>{const [s,a]=AYD[today()%AYD.length];return SST[s-1]+a-1};
+const aydAt=d=>{const [s,a]=AYD[((d%AYD.length)+AYD.length)%AYD.length];return SST[s-1]+a-1},aydId=()=>aydAt(today());
 /* a date formatter costs tens of milliseconds to build (the Islamic calendar most): built once, used again */
 const IFMT={};function ifmt(k,loc,o){try{return IFMT[k]||(IFMT[k]=new Intl.DateTimeFormat(loc,o))}catch(e){return null}}
-function hijri(){try{return ifmt("hj","ar-SA-u-ca-islamic-umalqura-nu-arab",{day:"numeric",month:"long"}).format(new Date())}catch(e){return ""}}
+function hijri(at){try{return ifmt("hj","ar-SA-u-ca-islamic-umalqura-nu-arab",{day:"numeric",month:"long"}).format(at||new Date())}catch(e){return ""}}
 function contShow(){const c=$("cont"),id=pStart(cur);azNudgeHide();
   {const h=new Date().getHours();$("cHi").textContent=greetW(h);
    const wd=(ifmt("wd","ar",{weekday:"long"})||{format:()=>""}).format(new Date()),hj=hijri();$("cDate").innerHTML=`<em>${wd}</em>${hj}`}
@@ -6316,7 +6335,7 @@ function azQText(q){const [s,a,b]=q,si=s-1,from=a||1,to=b||SUR[si][1];let h=a?`<
 function azOpenUI(){if(azOpen)return;azOpen=true;showPrefs(false);const z=$("az");z.hidden=false;z.classList.remove("in");void z.offsetWidth;z.classList.add("in");$("app").setAttribute("aria-hidden","true");azHome();clearTimeout(azOpenUI.t);z.classList.remove("out");$("azSky").classList.remove("lit");
   /* the sky is painted after the screen has started to open, then fades in: painting it first held the opening */
   azOpenUI.t=setTimeout(()=>{if(!azOpen)return;azSky(true);$("azSky").classList.add("lit")},reduce?0:180);try{history.replaceState(null,"","#adhkar")}catch(e){}}
-function azClose(){azOpen=false;setTimeout(()=>{try{azMarkDue()}catch(e){}},0);clearTimeout(azOpenUI.t);{const z=$("az");if(reduce||z.hidden)z.hidden=true;else{z.classList.remove("in");z.classList.add("out");azOpenUI.t=setTimeout(()=>{if(!azOpen){z.hidden=true;z.classList.remove("out")}},240)}}$("app").removeAttribute("aria-hidden");clearTimeout(azSkyRaf);cancelAnimationFrame(azRaf);try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
+function azClose(){azOpen=false;try{qbClose()}catch(e){}setTimeout(()=>{try{azMarkDue()}catch(e){}},0);clearTimeout(azOpenUI.t);{const z=$("az");if(reduce||z.hidden)z.hidden=true;else{z.classList.remove("in");z.classList.add("out");azOpenUI.t=setTimeout(()=>{if(!azOpen){z.hidden=true;z.classList.remove("out")}},240)}}$("app").removeAttribute("aria-hidden");clearTimeout(azSkyRaf);cancelAnimationFrame(azRaf);try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}}
 function azNowCat(){const t=ptToday();if(t){const n=Date.now(),M=60000;
     if(["fajr","dhuhr","asr","maghrib","isha"].some(k=>n>=t[k]&&n<t[k]+25*M))return "sal";
     return n>=t.fajr&&n<t.dhuhr?"sab":n>=t.asr&&n<t.isha+60*M?"mas":(n>=t.isha+90*M||new Date().getHours()<3)?"nom":""}
@@ -6360,9 +6379,42 @@ function ptLeft(ms){const m=Math.max(0,Math.round((ms-Date.now())/60000));if(m<1
 function ptCard(){const box=$("azPt");if(!box)return;const p=ptGet();
   if(!ptReady(p)){box.innerHTML=`<div class="top"><div><div class="nx">مواقيت الصلاة</div><p>اختر مدينتك وطريقة الحساب التي يتّبعها مسجدك. يُحسب كل شيء على هاتفك بلا إنترنت.</p></div></div><button class="set" data-pt="set">حدّد المدينة والطريقة</button>`;return}
   const nx=ptNext(),t=nx.t,now=Date.now();
-  box.innerHTML=`<div class="top"><div><div class="nx">${nx.tomorrow?"فجر الغد":"صلاة "+PT_NAMES[nx.k]} · ${ptFmt(nx.at)}</div><div class="cd">${ptLeft(nx.at)}</div><div class="cty">${escH(p.city||"موقعي")} · ${escH((PT_M.find(x=>x.k===p.m)||{}).n||"")}</div></div><button class="az-ib gear" data-pt="set" aria-label="إعدادات مواقيت الصلاة"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
+  box.innerHTML=`<div class="top"><div><div class="nx">${nx.tomorrow?"فجر الغد":"صلاة "+PT_NAMES[nx.k]} · ${ptFmt(nx.at)}</div><div class="cd">${ptLeft(nx.at)}</div><div class="cty">${escH(p.city||"موقعي")} · ${escH((PT_M.find(x=>x.k===p.m)||{}).n||"")}</div></div><button class="az-ib qb" data-qb="1" aria-label="اتجاه القبلة"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 5.5l2.2 6.5L12 18.5 9.8 12z"/></svg></button><button class="az-ib gear" data-pt="set" aria-label="إعدادات مواقيت الصلاة"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
    <div class="tm">${PT_KEYS.map(k=>`<div class="${!nx.tomorrow&&k===nx.k?"on":t[k]<now?"past":""}">${PT_NAMES[k]}<b>${ptFmt(t[k])}</b></div>`).join("")}</div>`}
-$("azPt").addEventListener("click",e=>{if(e.target.closest("[data-pt]"))ptPanel()});
+$("azPt").addEventListener("click",e=>{if(e.target.closest("[data-qb]")){qbOpen();return}if(e.target.closest("[data-pt]"))ptPanel()});
+/* ---------- qibla: the great-circle bearing to the Kaaba from the saved prayer-times place, and the phone's compass ---------- */
+const QB_K=[21.4225,39.8262];
+function qbBearing(lat,lng){const r=Math.PI/180,f1=lat*r,f2=QB_K[0]*r,dl=(QB_K[1]-lng)*r;
+  return (Math.atan2(Math.sin(dl)*Math.cos(f2),Math.cos(f1)*Math.sin(f2)-Math.sin(f1)*Math.cos(f2)*Math.cos(dl))/r+360)%360}
+function qbKm(lat,lng){const r=Math.PI/180,a=Math.sin((QB_K[0]-lat)*r/2)**2+Math.cos(lat*r)*Math.cos(QB_K[0]*r)*Math.sin((QB_K[1]-lng)*r/2)**2;return 6371*2*Math.asin(Math.sqrt(a))}
+const qb={on:false,b:0,h:null,x:0,y:0,lit:false,seen:false};
+function qbTicks(){const g=$("qbTicks");if(g.firstChild)return;let h="";for(let d=0;d<360;d+=10){const m=d%30===0,a=d*Math.PI/180,r1=m?92:96;
+  h+=`<line class="${m?"m":""}" x1="${(Math.sin(a)*r1).toFixed(1)}" y1="${(-Math.cos(a)*r1).toFixed(1)}" x2="${(Math.sin(a)*103).toFixed(1)}" y2="${(-Math.cos(a)*103).toFixed(1)}"/>`}g.innerHTML=h}
+function qbDraw(){const d=$("qbDial"),rose=$("qbRose");$("qbK").setAttribute("transform",`rotate(${qb.b.toFixed(1)})`);
+  if(qb.h==null){rose.style.transform="";d.classList.remove("on");
+    $("qbMsg").textContent=qb.seen?"":"وجّه أعلى الهاتف نحو الشمال (ش)، فتكون القبلة عند علامة الكعبة";return}
+  rose.style.transform=`rotate(${(-qb.h).toFixed(1)}deg)`;
+  const diff=((qb.b-qb.h+540)%360)-180,on=Math.abs(diff)<4;d.classList.toggle("on",on);
+  if(on&&!qb.lit){try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}}qb.lit=on;
+  $("qbMsg").textContent=on?"أنت متّجه إلى القبلة":Math.abs(diff)<45?(diff>0?"استدر قليلاً إلى اليمين":"استدر قليلاً إلى اليسار"):(diff>0?"استدر إلى اليمين":"استدر إلى اليسار")}
+function qbHeading(e){let h=null;
+  if(typeof e.webkitCompassHeading==="number"&&e.webkitCompassHeading>=0)h=e.webkitCompassHeading;
+  else if(e.absolute&&e.alpha!=null)h=360-e.alpha;
+  if(h==null)return;const so=(screen.orientation&&screen.orientation.angle)||0;h=(h+so+360)%360;qb.seen=true;
+  /* smoothed as a direction (so 359° and 1° average to 0°, not 180°) */
+  const a=h*Math.PI/180;qb.x=qb.x*.8+Math.cos(a)*.2;qb.y=qb.y*.8+Math.sin(a)*.2;qb.h=(Math.atan2(qb.y,qb.x)*180/Math.PI+360)%360;
+  cancelAnimationFrame(qb.raf);qb.raf=requestAnimationFrame(qbDraw)}
+async function qbOpen(){const p=ptGet();if(!ptReady(p)){ptPanel();toast("حدّد مدينتك أولاً حتى نحسب اتجاه القبلة");return}
+  qbTicks();qb.b=qbBearing(p.lat,p.lng);qb.h=null;qb.x=qb.y=0;qb.lit=false;qb.seen=false;
+  $("qbDeg").textContent=`${ar(Math.round(qb.b))}° من الشمال · ${ar(Math.round(qbKm(p.lat,p.lng)))} كم إلى مكة`;
+  $("azQb").hidden=false;qbDraw();
+  /* iPhone asks the person first; newer Chromium has the same call but answers without asking, so only a refusal stops here */
+  try{if(typeof DeviceOrientationEvent!=="undefined"&&typeof DeviceOrientationEvent.requestPermission==="function"){const r=await DeviceOrientationEvent.requestPermission();if(r==="denied"){$("qbMsg").textContent="اسمح لأنورا باستعمال البوصلة من إعدادات الهاتف، أو وجّه أعلى الهاتف نحو الشمال";return}}}catch(e){}
+  if($("azQb").hidden)return;
+  if(!qb.on){qb.on=true;addEventListener("deviceorientationabsolute",qbHeading);addEventListener("deviceorientation",qbHeading)}
+  clearTimeout(qb.t);qb.t=setTimeout(()=>{if(!qb.seen&&!$("azQb").hidden)$("qbMsg").textContent="جهازك لا يعطي اتجاه البوصلة هنا. وجّه أعلى الهاتف نحو الشمال (ش)، فتكون القبلة عند علامة الكعبة"},2500)}
+function qbClose(){$("azQb").hidden=true;if(qb.on){qb.on=false;removeEventListener("deviceorientationabsolute",qbHeading);removeEventListener("deviceorientation",qbHeading)}cancelAnimationFrame(qb.raf);clearTimeout(qb.t)}
+$("azQbX").onclick=qbClose;
 setInterval(()=>{if(azOpen&&!azCat)ptCard()},30000);
 /* the settings: place, method, Asr, minute corrections, notifications */
 function ptPanel(){const p=ptGet(),sug=PT_SUGG[p.cc]||[];
@@ -6374,7 +6426,8 @@ function ptPanel(){const p=ptGet(),sug=PT_SUGG[p.cc]||[];
    <h4>تعديل الدقائق</h4><div class="az-set">${PT_KEYS.map(k=>{const v=(p.adj||{})[k]||0;return `<div class="adj"><span>${PT_NAMES[k]}</span><button data-adj="${k}" data-d="-1" aria-label="${PT_NAMES[k]} دقيقة أقل">−</button><b>${v?(v>0?"+":"−")+ar(Math.abs(v)):"٠"} د</b><button data-adj="${k}" data-d="1" aria-label="${PT_NAMES[k]} دقيقة أكثر">+</button></div>`}).join("")}</div>
    <p class="note">المرجع هو أذان مسجد بلدك. إذا اختلف وقت هنا عن مسجدك فعدّله بالدقائق.</p>
    <h4>تنبيه عند دخول الوقت</h4><div class="az-set"><div class="az-row"><span>إشعار لكل صلاة<small>${PLAT==="electron"?"إشعار من ويندوز ما دام أنورا مفتوحاً أو مصغّراً":NATIVE?"إشعار قصير بصوت الهاتف · افتح التطبيق مرة كل أسبوع ليبقى التنبيه مضبوطاً":"التنبيه يعمل في تطبيق الهاتف"}</small></span><button class="az-sw" data-ps="n" role="switch" aria-checked="${NATIVE&&!!p.n}" ${NATIVE?"":"disabled"} aria-label="إشعار لكل صلاة"></button></div></div>
-   ${p.n&&NATIVE?`<div class="chips">${PT_SAL.map(k=>`<button class="az-chip" data-np="${k}" aria-pressed="${!!p.np[k]}">${PT_NAMES[k]}</button>`).join("")}</div>`:""}`;
+   ${p.n&&NATIVE?`<div class="chips">${PT_SAL.map(k=>`<button class="az-chip" data-np="${k}" aria-pressed="${!!p.np[k]}">${PT_NAMES[k]}</button>`).join("")}</div>`:""}
+   ${p.n&&PLAT==="android"&&PT_ADHAN?`<h4>صوت التنبيه</h4><button class="opt" role="radio" aria-checked="${!p.snd}" data-snd="0"><span>إشعار قصير<small>صوت الإشعار المضبوط في هاتفك</small></span></button><button class="opt" role="radio" aria-checked="${!!p.snd}" data-snd="1"><span>الأذان كاملاً<small>يُرفع الأذان عند دخول الوقت، ويتوقف إذا سحبت الإشعار. يتبع صوت الرنين في هاتفك</small></span></button>`:""}`;
   $("azPS").hidden=false}
 function ptChanged(p){ptSave(p);ptCache.d="";ptCard();try{azMarkDue()}catch(e){}ptPanel();ptNotify()}
 $("azPSX").onclick=()=>{$("azPS").hidden=true;ptCard()};
@@ -6386,6 +6439,7 @@ $("azPSO").addEventListener("click",async e=>{const b=e.target.closest("button")
   if(b.dataset.hz){p.hz=b.dataset.hz==="1";ptChanged(p);return}
   if(b.dataset.adj){const k=b.dataset.adj;p.adj=p.adj||{};p.adj[k]=Math.max(-30,Math.min(30,(p.adj[k]||0)+ +b.dataset.d));ptChanged(p);return}
   if(b.dataset.np){p.np[b.dataset.np]=p.np[b.dataset.np]?0:1;ptChanged(p);return}
+  if(b.dataset.snd){p.snd=+b.dataset.snd;ptChanged(p);toast(p.snd?"سيُرفع الأذان عند دخول كل وقت":"إشعار قصير عند دخول كل وقت");return}
   if(b.dataset.ps==="n"){if(!p.n){let ok=false;try{let q=await nat("LocalNotifications","checkPermissions");if(q.display!=="granted")q=await nat("LocalNotifications","requestPermissions");ok=q.display==="granted"}catch(x){}
       if(!ok){toast((PLAT==="electron"?"اسمح لأنورا بالإشعارات من إعدادات ويندوز":"اسمح لأنورا بالإشعارات من إعدادات الهاتف")+" حتى يصلك التنبيه");return}}
     p.n=!p.n;ptChanged(p);if(p.n)toast("سيصلك إشعار عند دخول وقت كل صلاة");return}
@@ -6396,12 +6450,14 @@ $("azPSO").addEventListener("click",async e=>{const b=e.target.closest("button")
 function ptNear(a,b){let best=["",1e9];for(const [g,L] of PT_CITIES)for(const [,x,y] of L){const d=(x-a)**2+(y-b)**2;if(d<best[1])best=[g,d]}return best[1]<25?best[0]:""}
 /* notifications: the next twelve days are scheduled at once (iOS keeps at most 64), and again each time the app opens */
 const PT_ID0=7200;
+/* the full adhan rides on its own notification channel whose sound is android/app/src/main/res/raw/adhan.mp3 */
+const PT_ADHAN=false;
 async function ptNotify(){if(!NATIVE)return;const p=ptGet();
   try{await nat("LocalNotifications","cancel",{notifications:Array.from({length:120},(_,i)=>({id:PT_ID0+i}))})}catch(e){}
-  if(!p.n||!ptReady(p))return;const now=Date.now(),list=[];
+  if(!p.n||!ptReady(p))return;const now=Date.now(),list=[],adh=PLAT==="android"&&PT_ADHAN&&!!p.snd;
   for(let d=0;d<12;d++){const t=ptTimes(new Date(now+d*864e5),p);if(!t)continue;PT_SAL.forEach((k,i)=>{if(!p.np[k]||t[k]<=now+30000)return;
-    list.push({id:PT_ID0+d*10+i,title:`حان وقت صلاة ${PT_NAMES[k]}`,body:`${p.city||"موقعي"} · ${ptFmt(t[k])}`,channelId:"prayer",smallIcon:"ic_stat_anora",iconColor:"#D9B46C",extra:{az:"pt"},schedule:{at:new Date(t[k]),allowWhileIdle:true}})})}
-  if(PLAT==="android"){try{await nat("LocalNotifications","createChannel",{id:"prayer",name:"مواقيت الصلاة",description:"إشعار عند دخول وقت كل صلاة",importance:4,visibility:1,vibration:true})}catch(e){}}
+    list.push({id:PT_ID0+d*10+i,title:`حان وقت صلاة ${PT_NAMES[k]}`,body:`${p.city||"موقعي"} · ${ptFmt(t[k])}`,channelId:adh?"prayer_adhan":"prayer",...(adh?{sound:"adhan.mp3"}:{}),smallIcon:"ic_stat_anora",iconColor:"#D9B46C",extra:{az:"pt"},schedule:{at:new Date(t[k]),allowWhileIdle:true}})})}
+  if(PLAT==="android"){try{await nat("LocalNotifications","createChannel",adh?{id:"prayer_adhan",name:"الأذان",description:"يُرفع الأذان كاملاً عند دخول وقت كل صلاة",importance:4,visibility:1,vibration:true,sound:"adhan.mp3"}:{id:"prayer",name:"مواقيت الصلاة",description:"إشعار عند دخول وقت كل صلاة",importance:4,visibility:1,vibration:true})}catch(e){}}
   try{if(list.length)await nat("LocalNotifications","schedule",{notifications:list})}catch(e){toast("تعذّر ضبط تنبيه الصلاة")}}
 setTimeout(ptNotify,4000);
 function azHome(){
@@ -6414,7 +6470,7 @@ function azHome(){
     return `<button class="az-cat${ok?" ok":""}" data-az="${c.k}" style="--glow:${c.glow}55;--glowc:${c.glow}"><i><svg viewBox="0 0 24 24">${c.ic}</svg></i><b>${c.name}</b><small>${sub}</small>${c.k!=="free"?`<span class="pb"><s data-w="${L.length?dn/L.length*100:0}"></s></span>`:""}${c.k===now&&!ok?`<span class="now">الآن</span>`:""}<span class="chk"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></button>`}).join("");
   requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll("#azCats .pb s").forEach(s=>s.style.transform=`scaleX(${s.dataset.w/100})`)));
   $("azOcc").innerHTML=AZ_OCC.map(c=>{const L=azItems(c),ok=L.length&&L.every(x=>azDoneN(x,d.p[c.k]));return `<button data-az="${c.k}" class="${ok?"ok":""}">${c.name}<small>${ok?"تمّت اليوم":numW(L.length,"ذكر واحد","ذكران","أذكار","ذكراً")}</small></button>`}).join("");
-  ptCard();$("azPS").hidden=true;azSetUI();$("azFs").hidden=true;$("azLs").hidden=true;$("azList").hidden=true;
+  ptCard();$("azPS").hidden=true;qbClose();azSetUI();$("azFs").hidden=true;$("azLs").hidden=true;$("azList").hidden=true;
   $("azStreak").textContent=d.st.n>1?`${ar(d.st.n)} أيام متتالية وأنت تذكر الله`:d.tot?`مجموع تسبيحاتك ${ar(d.tot)}`:"";
 }
 function azStart(k){
@@ -6535,10 +6591,10 @@ async function azRemToggle(w){const r=azRemGet();r[w].on=!r[w].on;
 $("azRemMs").onclick=()=>azRemToggle("m");$("azRemEs").onclick=()=>azRemToggle("e");
 for(const [id,w] of [["azRemM","m"],["azRemE","e"]])$(id).addEventListener("change",e=>{const r=azRemGet();if(!/^\d\d:\d\d$/.test(e.target.value))return;r[w].t=e.target.value;store.set("mushaf.azRem",JSON.stringify(r));azRemApply()});
 $("azWeak").onclick=()=>{azWeakOff=!azWeakOff;store.set("mushaf.azWeak",azWeakOff?"1":"");azHome();try{azMarkDue()}catch(e){}};
-/* ---------- home-screen widgets (Android: AnoraWidget, TasbihWidget) ----------
+/* ---------- home-screen widgets (Android: AnoraWidget, PrayerWidget, AyahWidget, TasbihWidget) ----------
    The page hands the widget what it shows (today's adhkar progress and the next dhikr of each kind, prayer
    times for the coming days, the last page read); the widget picks the kind due at the hour by itself.
-   A tap on the widget opens the app with "go": az:<kind> | az:home | az:pt | az:free | page:<n>. */
+   A tap on the widget opens the app with "go": az:<kind> | az:home | az:pt | az:free | page:<n> | ayah:<id>. */
 function wgItem(x){if(x.q){const id=SST[x.q[0]-1]+(x.q[1]||1)-1;return {t:words(id,14),s:x.s||""}}return {t:x.t,s:(x.n>1?numW(x.n,"مرة","مرتين","مرات","مرة")+" · ":"")+(x.s||"")}}
 function wgData(){const d=azSt.get(),cats={};
   for(const k of ["sab","mas","nom","sal"]){const c=AZ_CATS.find(x=>x.k===k);if(!c)continue;const it=azItems(c),p=d.p[k]||{},nx=it.find(x=>!azDoneN(x,p));
@@ -6546,11 +6602,15 @@ function wgData(){const d=azSt.get(),cats={};
   const pt=[],P=ptGet();if(ptReady(P))for(let i=-1;i<14;i++){const t=ptTimes(new Date(Date.now()+i*864e5),P);if(t)pt.push(PT_KEYS.map(k=>t[k]))}
   const s=sOf(pStart(Math.max(1,Math.min(NP,cur))));
   const ptm=ptReady(P)?(PT_M.find(x=>x.k===P.m)||{}).n||"":"";
-  return {day:today(),page:cur,sur:SUR[s][0],pt,ptc:ptReady(P)?P.city||"موقعي":"",ptm,cats,free:AZ_FREE}}
+  /* the ayah of the day and the hijri date for the next fifteen days, so the widgets turn at midnight by themselves */
+  const hj={},ayd=[],t0=today();for(let i=0;i<15;i++){const d=t0+i;hj[d]=hijri(new Date(Date.now()+i*864e5));const a=aydAt(d);
+    ayd.push({d,id:a,t:qY(txt(a).replace(/[۞۩]/g,"").trim())+" ﴿"+ar(aOf(a))+"﴾",r:`سورة ${SUR[sOf(a)][0]} · آية ${ar(aOf(a))}`})}
+  return {day:t0,page:cur,sur:SUR[s][0],pt,ptc:ptReady(P)?P.city||"موقعي":"",ptm,cats,free:AZ_FREE,hj,ayd}}
 function wgSend(){try{if(PLAT!=="android")return;nat("Widget","update",wgData()).catch(()=>{})}catch(e){}}
 function wgPush(now){try{if(PLAT!=="android")return}catch(e){return}clearTimeout(wgPush.t);if(now)wgSend();else wgPush.t=setTimeout(wgSend,1200)}
 function wgGo(g){if(!g)return;const i=String(g).indexOf(":"),a=i<0?g:g.slice(0,i),b=i<0?"":g.slice(i+1);
   if(a==="page"){if(azOpen)azClose();const n=+b;if(n>=1&&n<=NP&&n!==cur)goTo(n);return}
+  if(a==="ayah"){const id=+b;if(!(id>=1&&id<=NA))return;if(azOpen)azClose();contHide();showAyahPage(id);setTimeout(()=>openAyah(id),reduce?0:700);return}
   if(a==="az"){azOpenUI();if(b&&b!=="home"&&b!=="pt"&&azCatOf(b))azStart(b);else if(azCat)azHome()}}
 function wgTake(){nat("Widget","take").then(r=>wgGo(r&&r.go)).catch(()=>{})}
 natOn("Widget","open",wgTake);
@@ -6573,7 +6633,7 @@ $("azFree").addEventListener("click",e=>{const b=e.target.closest(".az-chip");if
   run.addEventListener("pointerup",end);run.addEventListener("pointercancel",end);
 }
 document.addEventListener("keydown",e=>{if(!azOpen)return;e.stopPropagation();
-  if(e.key==="Escape"){if(!$("azPS").hidden){$("azPS").hidden=true;ptCard();return}if(!$("azList").hidden){$("azList").hidden=true;return}azCat?azHome():azClose();return}
+  if(e.key==="Escape"){if(!$("azQb").hidden){qbClose();return}if(!$("azPS").hidden){$("azPS").hidden=true;ptCard();return}if(!$("azList").hidden){$("azList").hidden=true;return}azCat?azHome():azClose();return}
   if(!azCat)return;if(e.key===" "||e.key==="Enter"){e.preventDefault();azTap()}else if(e.key==="ArrowLeft")azNext(1);else if(e.key==="ArrowRight")azNext(-1)},true);
 addEventListener("resize",()=>{if(!azOpen)return;azSky(true);if(azCat)azBeadsInit()});
 $("bAdhkar").onclick=()=>azOpenUI();
@@ -7062,7 +7122,7 @@ document.addEventListener("visibilitychange",()=>{if(!document.hidden&&wbOpen)wb
 $("aWbw").onclick=()=>{if(selA)wbOpenUI(selA)};
 $("bWbw").onclick=$("bWbH").onclick=$("fWbH").onclick=()=>wbOpenUI(selA||pStart(Math.max(1,Math.min(NP,cur))));
 const backSig=()=>[azOpen,azCat,indexOpen,memo.on,inkOn,$("sheet").classList.contains("on"),$("app").classList.contains("imm"),
-  $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","manBox","cont","azPS","azList","repBox","easyBox","quiz","wb"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")&&(i!=="quiz"||e.classList.contains("on"))})].join();
+  $("lpBar").classList.contains("on"),...["sDrop","prefs","srcBox","shareBox","noteBox","colEd","recPick","sInfo","guide","manBox","cont","azPS","azQb","azList","repBox","easyBox","quiz","wb"].map(i=>{const e=$(i);return !!e&&!e.hidden&&!e.classList.contains("off")&&!e.classList.contains("out")&&(i!=="quiz"||e.classList.contains("on"))})].join();
 /* Android back, one step at a time:
    1 a panel opened from another one (sources or the guide from settings, the quiz or a reflection from the index)
      closes and the one it came from comes back

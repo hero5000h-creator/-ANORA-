@@ -43,7 +43,7 @@
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
 
-        <!-- home-screen widgets: the adhkar card, prayer times and the tasbih -->
+        <!-- home-screen widgets: the adhkar card, prayer times, the ayah of the day and the tasbih -->
         <receiver
             android:name=".AnoraWidget"
             android:exported="false"
@@ -68,6 +68,18 @@
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/wg_prayer_info" />
+        </receiver>
+
+        <receiver
+            android:name=".AyahWidget"
+            android:exported="false"
+            android:label="@string/wg_ayah">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/wg_ayah_info" />
         </receiver>
 
         <receiver

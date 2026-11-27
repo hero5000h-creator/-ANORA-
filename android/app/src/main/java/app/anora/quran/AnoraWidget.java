@@ -26,6 +26,7 @@ import org.json.JSONObject;
  *
  * The page sends its data through WidgetPlugin.update (prefs "anora_widget", key "data"):
  *   {day, page, sur, pt:[[fajr,sunrise,dhuhr,asr,maghrib,isha] ms per day], free:[...],
+ *    hj:{day: hijri date}, ayd:[{d, t, r, id}] (the ayah of the day, read by AyahWidget),
  *    cats:{sab|mas|nom|sal:{name, sub, of, n, nx:{t,s}|null, f0:{t,s}}}}
  * The widget decides by itself which adhkar are due now (the same rule as azNowCat in app.html),
  * so it stays right while the app is closed. It wakes itself at the next change (a prayer time, the
@@ -66,20 +67,23 @@ public class AnoraWidget extends AppWidgetProvider {
         }
     }
 
-    /** How many adhkar and prayer widgets are placed (both wake on the same alarm). */
+    /** How many adhkar, prayer and ayah widgets are placed (all wake on the same alarm). */
     static int count(Context c) {
         AppWidgetManager m = AppWidgetManager.getInstance(c);
-        return m.getAppWidgetIds(new ComponentName(c, AnoraWidget.class)).length + m.getAppWidgetIds(new ComponentName(c, PrayerWidget.class)).length;
+        return m.getAppWidgetIds(new ComponentName(c, AnoraWidget.class)).length + m.getAppWidgetIds(new ComponentName(c, PrayerWidget.class)).length
+                + m.getAppWidgetIds(new ComponentName(c, AyahWidget.class)).length;
     }
 
-    /** Redraw every placed adhkar and prayer-times widget, and wake again at the next change. */
+    /** Redraw every placed adhkar, prayer-times and ayah widget, and wake again at the next change. */
     static void refresh(Context c) {
         AppWidgetManager m = AppWidgetManager.getInstance(c);
         int[] ids = m.getAppWidgetIds(new ComponentName(c, AnoraWidget.class));
         for (int id : ids) draw(c, m, id);
         int[] pw = m.getAppWidgetIds(new ComponentName(c, PrayerWidget.class));
         for (int id : pw) PrayerWidget.draw(c, m, id);
-        if (ids.length + pw.length > 0) schedule(c);
+        int[] aw = m.getAppWidgetIds(new ComponentName(c, AyahWidget.class));
+        for (int id : aw) AyahWidget.draw(c, m, id);
+        if (ids.length + pw.length + aw.length > 0) schedule(c);
     }
 
     // ---------------------------------------------------------------- what to show
