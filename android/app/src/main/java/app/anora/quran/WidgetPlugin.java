@@ -14,7 +14,7 @@ import com.getcapacitor.annotation.CapacitorPlugin;
  * The page's side of the home-screen widgets.
  *  update(data)  the page hands over what the widgets show (today's adhkar progress, prayer times, last page)
  *  take()        returns and clears the screen a widget tap asked for ("az:sab", "page:25" ...)
- *  pin({kind})   asks the launcher to place a widget ("adhkar", "prayer" or "tasbih"), where the launcher allows it
+ *  pin({kind})   asks the launcher to place a widget ("adhkar", "prayer", "ayah" or "tasbih"), where the launcher allows it
  * When a widget is tapped while the app is open, the page gets an "open" event and then calls take().
  */
 @CapacitorPlugin(name = "Widget")
@@ -66,7 +66,7 @@ public class WidgetPlugin extends Plugin {
                 Context c = getContext();
                 AppWidgetManager m = AppWidgetManager.getInstance(c);
                 String kind = call.getString("kind", "adhkar");
-                Class<?> k = "tasbih".equals(kind) ? TasbihWidget.class : "prayer".equals(kind) ? PrayerWidget.class : AnoraWidget.class;
+                Class<?> k = "tasbih".equals(kind) ? TasbihWidget.class : "prayer".equals(kind) ? PrayerWidget.class : "ayah".equals(kind) ? AyahWidget.class : AnoraWidget.class;
                 if (m.isRequestPinAppWidgetSupported()) ok = m.requestPinAppWidget(new ComponentName(c, k), null, null);
             } catch (Exception ignored) { }
         }

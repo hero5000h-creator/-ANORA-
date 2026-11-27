@@ -8,6 +8,8 @@
     <string name="wg_adhkar_desc">ذكر الوقت ومواقيت الصلاة ومتابعة القراءة</string>
     <string name="wg_prayer">مواقيت الصلاة · أنورا</string>
     <string name="wg_prayer_desc">الصلاة القادمة والوقت الباقي وأوقات اليوم</string>
+    <string name="wg_ayah">آية اليوم · أنورا</string>
+    <string name="wg_ayah_desc">آية قصيرة كل يوم، تفتحها بلمسة</string>
     <string name="wg_tasbih">مسبحة أنورا</string>
     <string name="wg_tasbih_desc">سبّح من الشاشة الرئيسية بلمسة</string>
 </resources>
