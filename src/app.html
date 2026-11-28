@@ -5075,12 +5075,15 @@ function ltfPlace(){const b=$("ltf");if(b.hidden)return;const f=document.querySe
     if(r.length){const lo=Math.max(...r.map(q=>q.bottom)),hi=Math.min(...r.map(q=>q.top)),h=b.offsetHeight;
       b.classList.toggle("up",lo>innerHeight-f.offsetHeight-h-16&&hi>bh+h+16)}}else b.classList.remove("up");
   b.style.visibility=f.classList.contains("memo-on")||$("player").hidden?"hidden":""}
+/* while listening only the ayah's own tafsir is shown: the surah introduction kept before «[التفسير]» on a
+   surah's first ayah stays in the full tafsir sheet */
+const ltfOnly=t=>{const k=t.indexOf("[التفسير]");return k<0?t:t.slice(k+9)};
 function ltfShow(id){const b=$("ltf"),T=TFS.find(t=>t.k===tfK)||TFS[0];ltfId=id;
   $("ltfT").textContent=`تفسير ${T.n} · سورة ${SUR[sOf(id)][0]} · آية ${ar(aOf(id))}`;
   const put=h=>{if(ltfId!==id||b.hidden)return;const B=$("ltfB");B.innerHTML=h;B.scrollTop=0;B.classList.remove("in");void B.offsetWidth;B.classList.add("in")};
   const fail=()=>put(muted("تعذّر تحميل التفسير. تحقق من الاتصال"));
   if(b.hidden){$("ltfB").innerHTML="";b.classList.remove("off");b.hidden=false}
-  if(T.k==="muyassar")(TF?Promise.resolve():tafsir()).then(()=>put(tfGrp(i=>TF[i-1],id)+tfHTML(TF[id-1]||"")),fail);
+  if(T.k==="muyassar")(TF?Promise.resolve():tafsir()).then(()=>put(tfGrp(i=>TF[i-1],id)+tfHTML(ltfOnly(TF[id-1]||""))),fail);
   else tfChunk(T.k,id).then(()=>put(tfOther(T.k,id)),fail);
   ltfPlace();clearTimeout(ltfShow.t);ltfShow.t=setTimeout(ltfPlace,reduce?60:900)}
 function ltfHide(){const b=$("ltf");if(b.hidden)return;b.classList.add("off");setTimeout(()=>{if(b.classList.contains("off"))b.hidden=true},reduce?0:300)}

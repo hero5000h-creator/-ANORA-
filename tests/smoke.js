@@ -4,7 +4,7 @@ const {chromium}=require("playwright");const fs=require("fs"),path=require("path
 const WWW=path.join(__dirname,"..","www"),TONE=fs.readFileSync(path.join(__dirname,"tone.mp3"));
 const src=fs.readFileSync(path.join(WWW,"index.html"),"utf8"),hook='recUI();audData(reciter).then(d=>{if(!aud)aud=d});';
 if(!src.includes(hook))throw new Error("test hook point not found in www/index.html");
-fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={hphGet:()=>hphGet(),wordSound:e=>wordSound(e),audData,playFrom,P:()=>player,aud:()=>aud,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,rcss:rasterCSS,turn:{pick:turnPick,rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
+fs.writeFileSync(path.join(WWW,"smoke.html"),src.replace(hook,hook+"window.__smk={hphGet:()=>hphGet(),wordSound:e=>wordSound(e),audData,playFrom,P:()=>player,aud:()=>aud,AU,setPlaying,SST,openAyah,nativeAudio:!(AU instanceof HTMLMediaElement),qY,AW,NA,setRate,rcss:rasterCSS,ltf:id=>ltfShow(id),turn:{pick:turnPick,rasterPage,setupFlip,render,finish,cur:()=>cur,mode:()=>mode,W:()=>W}};"));
 const types={".html":"text/html",".js":"text/javascript",".json":"application/json",".woff2":"font/woff2",".ttf":"font/ttf",".css":"text/css"};
 const srv=http.createServer((q,r)=>{const f=path.join(WWW,decodeURIComponent(q.url.split("?")[0]));
   fs.readFile(f,(e,b)=>{if(e){r.writeHead(404);r.end();return}r.writeHead(200,{"content-type":types[path.extname(f)]||"application/octet-stream"});r.end(b)})}).listen(0);
@@ -39,6 +39,9 @@ const lay=async(p,m,want)=>{const o=await p.evaluate(LAYOUT,want||[]);ok(!o.leng
       return r.fulfill({status:206,headers:{"content-type":"audio/mpeg","accept-ranges":"bytes","content-range":`bytes ${a}-${e}/${B.length}`},body:B.subarray(a,e+1)})}
       r.fulfill({status:200,headers:{"content-type":"audio/mpeg","accept-ranges":"bytes"},body:B})});
     await p.goto(`http://localhost:${port}/smoke.html`);await p.waitForTimeout(4000);
+    /* the tafsir shown while listening is the ayah's own: a surah's first ayah does not open on the surah introduction */
+    {const t=await p.evaluate(async()=>{__smk.ltf(8);await new Promise(r=>setTimeout(r,1500));const B=document.getElementById("ltfB").textContent;document.getElementById("ltf").hidden=true;return B});
+      ok(t.includes("إعجاز القرآن")&&!t.includes("تسمية السورة"),`${name}: tafsir while listening on al-Baqarah 1 is the ayah's tafsir, not the surah introduction`)}
     /* page turn: the page images for the curl must render (an invalid SVG once made every turn a flat fold),
        the curl / 3D spread must be the one used, and every turn style must move exactly one page (spread: two) */
     {const dflt=await p.evaluate(()=>__smk.turn.pick()+(document.querySelector("#book canvas")?" canvas":""));
